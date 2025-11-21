@@ -9,3 +9,6 @@ temp_ts_config_test
 *.log
 .DS_Store
 nextgen.build.temp.mjs
+native/target/
+native/Cargo.lock
+

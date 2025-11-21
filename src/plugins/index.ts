@@ -25,6 +25,16 @@ export interface Plugin {
   transform?: (code: string, id: string) => Promise<string | void> | string | void;
 }
 
+export class SandboxedPlugin implements Plugin {
+  name = 'sandboxed-plugin';
+
+  constructor(private sandbox: any) { }
+
+  async transform(code: string, id: string) {
+    return this.sandbox.runTransform(code, id);
+  }
+}
+
 export const marketplace = {
   async list() {
     return [{ name: 'vite-like-react-refresh', description: 'React HMR helper' }];

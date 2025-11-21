@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && cp src/plugins/*.mjs dist/plugins/ 2>/dev/null || true",
     "dev": "node ./dist/cli.js dev",
     "start": "node ./dist/cli.js dev",
     "prepack": "node ./scripts/pack.js",

@@ -1,8 +1,8 @@
 {
-  "publisherId": "mypub",
+  "publisherId": "marketplace",
   "plugin": "samplePlugin.mjs",
   "version": "1.0.0",
   "keyId": "marketTestKey",
   "checksum": "04845d7b509112979f66f476ad1423dbbd7fdf4e165b2eae14f94ffda65b3587",
-  "signedAt": "2025-11-03T04:20:19.954Z"
+  "signedAt": "2025-11-21T04:37:41.877Z"
 }

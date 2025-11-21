@@ -1,0 +1,15 @@
+[package]
+name = "nextgen_native"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+napi = { version = "3", features = ["async", "tokio_rt"] }
+napi-derive = "3"
+
+[build-dependencies]
+napi-build = "2"
+

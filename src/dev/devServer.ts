@@ -5,13 +5,19 @@ import WebSocket, { WebSocketServer } from 'ws';
 import chokidar from 'chokidar';
 import { BuildConfig } from '../config/index.js';
 import { log } from '../utils/logger.js';
-import { PluginManager } from '../plugins/index.js';
+import { PluginManager, SandboxedPlugin } from '../plugins/index.js';
+import { PluginSandbox } from '../plugins/sandbox.js';
 
 export async function startDevServer(cfg: BuildConfig) {
   const pluginManager = new PluginManager();
   if (cfg.plugins) {
     cfg.plugins.forEach(p => pluginManager.register(p));
   }
+
+  // Initialize Sandbox
+  const sandbox = new PluginSandbox();
+  await sandbox.start();
+  pluginManager.register(new SandboxedPlugin(sandbox));
 
   const port = cfg.port || 5173;
   const server = http.createServer(async (req, res) => {
@@ -110,7 +116,7 @@ export async function startDevServer(cfg: BuildConfig) {
       const data = await fs.readFile(filePath);
       res.writeHead(200);
       res.end(data);
-    } catch (e) {
+    } catch (e: any) {
       res.writeHead(404);
       res.end('Not found');
     }
