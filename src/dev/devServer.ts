@@ -116,7 +116,7 @@ export async function startDevServer(cfg: BuildConfig) {
       const data = await fs.readFile(filePath);
       res.writeHead(200);
       res.end(data);
-    } catch (e) {
+    } catch (e: any) {
       res.writeHead(404);
       res.end('Not found');
     }

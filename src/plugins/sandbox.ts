@@ -13,7 +13,7 @@ export class PluginSandbox {
   // max time per transform (ms)
   timeout = 5000
 
-  constructor(private size = Math.max(1, Math.min(os.cpus().length - 1, 4))) {}
+  constructor(private size = Math.max(1, Math.min(os.cpus().length - 1, 4))) { }
 
   async start() {
     // verify at least one plugin exists and is signed before spinning workers
@@ -26,6 +26,8 @@ export class PluginSandbox {
     for (let i = 0; i < this.size; i++) {
       this.spawnWorker(i)
     }
+    // Give workers time to initialize
+    await new Promise(resolve => setTimeout(resolve, 500))
   }
 
   private spawnWorker(i: number) {
@@ -34,8 +36,9 @@ export class PluginSandbox {
     const workerFile = fs.existsSync(distPath) ? distPath : srcPath
 
     // on Linux, prefer prlimit to constrain address space and cpu time if available
-    const prlimitPaths = ['/usr/bin/prlimit', '/bin/prlimit']
-    const prlimit = prlimitPaths.find((p) => fs.existsSync(p))
+    // const prlimitPaths = ['/usr/bin/prlimit', '/bin/prlimit']
+    // const prlimit = prlimitPaths.find((p) => fs.existsSync(p))
+    const prlimit = null; // Temporarily disabled for debugging
     let child
     if (prlimit) {
       // set virtual memory limit (as) to 512MB and CPU time to 10s as defaults
@@ -88,12 +91,12 @@ export class PluginSandbox {
         if (timedOut) return
         if (msg.type === 'result' && msg.id === id) {
           clearTimeout(timer)
-          try { worker.off?.('message', onMessage) } catch (e) {}
+          try { worker.off?.('message', onMessage) } catch (e) { }
           resolve(msg.code)
         }
         if (msg.type === 'error' && msg.id === id) {
           clearTimeout(timer)
-          try { worker.off?.('message', onMessage) } catch (e) {}
+          try { worker.off?.('message', onMessage) } catch (e) { }
           // restart worker on plugin errors to ensure clean state
           this.restartWorker(idx)
           reject(new Error(msg.error))
@@ -105,7 +108,7 @@ export class PluginSandbox {
         worker.send({ type: 'transform', code, id })
       } catch (e) {
         clearTimeout(timer)
-        try { worker.off?.('message', onMessage) } catch (e) {}
+        try { worker.off?.('message', onMessage) } catch (e) { }
         this.restartWorker(idx)
         reject(e)
       }
