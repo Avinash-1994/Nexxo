@@ -1,0 +1,28 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install deps
+        run: npm ci
+      - name: Typecheck
+        run: npx tsc -p tsconfig.json --noEmit
+      - name: Compile
+        run: npx tsc -p tsconfig.json --outDir dist
+      - name: Run plugin signature test
+        run: node tests/plugin_signature.test.mjs
+      - name: Run in-repo private-key test
+        run: node tests/in_repo_privkey.test.mjs
+      - name: Run revocation test
+        run: node tests/revocation.test.mjs

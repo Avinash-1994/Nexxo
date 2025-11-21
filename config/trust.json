@@ -1,0 +1,76 @@
+{
+  "keys": [
+    {
+      "keyId": "alphaKey",
+      "createdAt": "2025-10-30T04:13:47.402Z",
+      "revoked": false
+    },
+    {
+      "keyId": "acmeKey",
+      "createdAt": "2025-10-30T04:45:46.391Z",
+      "revoked": true,
+      "publisherId": "acme",
+      "revokedAt": "2025-10-30T05:19:27.535Z"
+    },
+    {
+      "keyId": "testKeyForAcme",
+      "createdAt": "2025-10-30T05:06:01.001Z",
+      "revoked": true,
+      "publisherId": "acme",
+      "revokedAt": "2025-10-30T05:19:27.535Z"
+    },
+    {
+      "keyId": "localKeyForUser",
+      "createdAt": "2025-10-30T05:21:53.122Z",
+      "revoked": false,
+      "publisherId": "mypub"
+    },
+    {
+      "keyId": "testkey",
+      "createdAt": "2025-10-30T05:55:25.087Z",
+      "revoked": false
+    },
+    {
+      "keyId": "marketTestKey",
+      "createdAt": "2025-10-30T06:43:47.901Z",
+      "revoked": false,
+      "publisherId": "marketplace"
+    },
+    {
+      "keyId": "newpub-mhimv0nk",
+      "createdAt": "2025-11-03T04:21:39.863Z",
+      "revoked": false,
+      "publisherId": "newpub"
+    },
+    {
+      "keyId": "newpub-mhimw60o",
+      "createdAt": "2025-11-03T04:22:33.524Z",
+      "revoked": false,
+      "publisherId": "newpub"
+    },
+    {
+      "keyId": "tempPub-mhimzjwt",
+      "createdAt": "2025-11-03T04:25:11.461Z",
+      "revoked": false,
+      "publisherId": "tempPub"
+    },
+    {
+      "keyId": "tempPub-mhimzpe5",
+      "createdAt": "2025-11-03T04:25:18.491Z",
+      "revoked": false,
+      "publisherId": "tempPub"
+    },
+    {
+      "keyId": "testpub-mhiqgkls-mhiqgklx",
+      "createdAt": "2025-11-03T06:02:24.393Z",
+      "revoked": false,
+      "publisherId": "testpub-mhiqgkls"
+    },
+    {
+      "keyId": "demoPub-mhiqqssl",
+      "createdAt": "2025-11-03T06:10:21.574Z",
+      "revoked": false,
+      "publisherId": "demoPub"
+    }
+  ]
+}

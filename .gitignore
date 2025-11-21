@@ -1,0 +1,11 @@
+node_modules
+dist
+build_output
+dist_ts
+dist_plugin_test
+temp_config_test
+temp_init_test
+temp_ts_config_test
+*.log
+.DS_Store
+nextgen.build.temp.mjs

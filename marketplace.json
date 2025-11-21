@@ -1,0 +1,53 @@
+{
+  "plugins": [
+    {
+      "id": "sample-plugin",
+      "name": "sample-plugin",
+      "description": "",
+      "publisher": null,
+      "versions": {
+        "1.0.0": {
+          "version": "1.0.0",
+          "uploadedAt": "2025-10-30T06:24:48.271Z"
+        }
+      },
+      "ratings": [
+        {
+          "score": 5,
+          "at": "2025-10-30T06:24:48.450Z"
+        }
+      ]
+    },
+    {
+      "id": "market-sample",
+      "name": "market-sample",
+      "description": "",
+      "publisher": null,
+      "versions": {
+        "1.0.0": {
+          "version": "1.0.0",
+          "uploadedAt": "2025-10-30T06:44:53.401Z"
+        }
+      }
+    },
+    {
+      "id": "market-sample2",
+      "name": "market-sample2",
+      "description": "",
+      "publisher": null,
+      "versions": {
+        "1.0.0": {
+          "version": "1.0.0",
+          "uploadedAt": "2025-11-03T04:20:19.999Z"
+        }
+      }
+    }
+  ],
+  "publishers": [
+    {
+      "id": "marketplace",
+      "token": "d1ku3c2nfjomhd2mebw",
+      "createdAt": "2025-10-30T06:56:14.348Z"
+    }
+  ]
+}

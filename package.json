@@ -1,0 +1,35 @@
+{
+  "name": "nextgen-build-tool-prototype",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "node ./dist/cli.js dev",
+    "start": "node ./dist/cli.js dev",
+    "prepack": "node ./scripts/pack.js",
+    "test:repro": "node ./scripts/repro_test.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.430.0",
+    "@aws-sdk/lib-storage": "^3.430.0",
+    "@babel/core": "^7.28.5",
+    "@babel/preset-react": "^7.28.5",
+    "@babel/preset-typescript": "^7.28.5",
+    "@types/react": "^19.2.6",
+    "chokidar": "^3.5.3",
+    "esbuild": "^0.18.0",
+    "kleur": "^4.1.4",
+    "react-refresh": "^0.18.0",
+    "ws": "^8.13.0",
+    "yargs": "^17.7.2",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/babel__core": "^7.20.5",
+    "@types/node": "^20.3.1",
+    "@types/ws": "^8.5.4",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.4.2"
+  }
+}

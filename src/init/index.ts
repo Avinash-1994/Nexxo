@@ -1,0 +1,60 @@
+import fs from 'fs/promises';
+import path from 'path';
+import { log } from '../utils/logger.js';
+
+export async function initProject(cwd: string) {
+    log.info('Initializing project in', cwd);
+
+    const pkgPath = path.join(cwd, 'package.json');
+    let framework = 'vanilla';
+    let isTs = false;
+
+    try {
+        const pkg = JSON.parse(await fs.readFile(pkgPath, 'utf-8'));
+        const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+
+        if (deps.react) framework = 'react';
+        else if (deps.vue) framework = 'vue';
+        else if (deps.svelte) framework = 'svelte';
+        else if (deps.preact) framework = 'preact';
+
+        if (deps.typescript) isTs = true;
+    } catch (e) {
+        log.warn('No package.json found, assuming vanilla JS');
+    }
+
+    log.info(`Detected framework: ${framework} ${isTs ? '(TypeScript)' : ''}`);
+
+    // Detect entry point
+    const candidates = [
+        'src/main.tsx', 'src/main.ts', 'src/main.jsx', 'src/main.js',
+        'src/index.tsx', 'src/index.ts', 'src/index.jsx', 'src/index.js',
+        'index.html'
+    ];
+
+    let entry = 'src/main.tsx';
+    for (const c of candidates) {
+        try {
+            await fs.access(path.join(cwd, c));
+            entry = c;
+            break;
+        } catch (e) { }
+    }
+
+    const config = {
+        root: '.',
+        entry: [entry],
+        mode: 'development',
+        outDir: 'dist',
+        port: 5173
+    };
+
+    const cfgPath = path.join(cwd, 'nextgen.build.json');
+    if (await fs.access(cfgPath).then(() => true).catch(() => false)) {
+        log.warn('Config file already exists, skipping creation');
+        return;
+    }
+
+    await fs.writeFile(cfgPath, JSON.stringify(config, null, 2));
+    log.success('Created nextgen.build.json');
+}
