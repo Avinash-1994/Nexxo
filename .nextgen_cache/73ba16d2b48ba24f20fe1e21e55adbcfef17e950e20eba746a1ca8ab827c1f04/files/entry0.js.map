@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/main.tsx"],
+  "sourcesContent": ["const root = document.getElementById('root');\nroot!.innerHTML = '<h1>NextGen Build Tool Prototype</h1><p>Edit files to trigger HMR reload.</p>';\n"],
+  "mappings": ";AAAA,IAAM,OAAO,SAAS,eAAe,MAAM;AAC3C,KAAM,YAAY;",
+  "names": []
+}

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Share2, Link2, Copy, QrCode, X, CheckCircle, Clock, Lock } from 'lucide-react'
-import { usePipelineStore } from '../../stores/pipelineStore'
+import { usePipelineStore } from '../../../stores/pipelineStore'
 import QRCodeLib from 'qrcode'
 
 export default function ShareDialog({ onClose }) {
@@ -101,8 +101,8 @@ export default function ShareDialog({ onClose }) {
                             <button
                                 onClick={() => setShareMode('readonly')}
                                 className={`flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${shareMode === 'readonly'
-                                        ? 'border-primary bg-primary/10'
-                                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                                    ? 'border-primary bg-primary/10'
+                                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
                                     }`}
                             >
                                 <Lock className="h-5 w-5" />
@@ -114,8 +114,8 @@ export default function ShareDialog({ onClose }) {
                             <button
                                 onClick={() => setShareMode('editable')}
                                 className={`flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${shareMode === 'editable'
-                                        ? 'border-primary bg-primary/10'
-                                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                                    ? 'border-primary bg-primary/10'
+                                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
                                     }`}
                             >
                                 <Share2 className="h-5 w-5" />
@@ -136,8 +136,8 @@ export default function ShareDialog({ onClose }) {
                                     key={exp}
                                     onClick={() => setExpiration(exp)}
                                     className={`px-4 py-2 rounded-lg border-2 transition-all text-sm ${expiration === exp
-                                            ? 'border-primary bg-primary/10'
-                                            : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                                        ? 'border-primary bg-primary/10'
+                                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
                                         }`}
                                 >
                                     {exp === '1h' && '1 Hour'}

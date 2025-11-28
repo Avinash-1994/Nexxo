@@ -1,43 +1,44 @@
-import { useEffect } from 'react'
+import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { useThemeStore } from './stores/themeStore'
 import AppShell from './components/layout/AppShell'
-import PipelineBuilder from './features/pipeline-builder/PipelineBuilder'
-import DocsLayout from './features/docs/DocsLayout'
-import DocsPage from './features/docs/DocsPage'
-import FirstPipeline from './features/docs/tutorials/FirstPipeline'
-import CustomPlugins from './features/docs/tutorials/CustomPlugins'
-import MicroFrontends from './features/docs/tutorials/MicroFrontends'
+import { useThemeStore } from './stores/themeStore'
+import LandingPage from './pages/LandingPage'
 
-function App() {
-  const { theme } = useThemeStore()
+// Lazy load heavy components
+const PipelineBuilder = lazy(() => import('./features/pipeline-builder/PipelineBuilder'))
+const DocsLayout = lazy(() => import('./features/docs/DocsLayout'))
+const DocsPage = lazy(() => import('./features/docs/DocsPage'))
 
-  useEffect(() => {
-    // Apply theme to document
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-  }, [theme])
-
+// Loading component
+function LoadingFallback() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <Routes>
-        <Route path="/" element={<AppShell />}>
-          <Route index element={<Navigate to="/builder" replace />} />
-          <Route path="builder" element={<PipelineBuilder />} />
-          <Route path="docs" element={<DocsLayout />}>
-            <Route index element={<Navigate to="/docs/getting-started/introduction" replace />} />
-            <Route path="tutorials/first-pipeline" element={<FirstPipeline />} />
-            <Route path="tutorials/custom-plugins" element={<CustomPlugins />} />
-            <Route path="tutorials/micro-frontends" element={<MicroFrontends />} />
-            <Route path="*" element={<DocsPage />} />
-          </Route>
-        </Route>
-      </Routes>
+    <div className="flex items-center justify-center h-screen">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        <p className="text-sm text-muted-foreground">Loading...</p>
+      </div>
     </div>
   )
 }
 
-export default App
+export default function App() {
+  const theme = useThemeStore((state) => state.theme)
+
+  return (
+    <div className={theme}>
+      <Suspense fallback={<LoadingFallback />}>
+        <Routes>
+          <Route element={<AppShell />}>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/builder" element={<PipelineBuilder />} />
+            <Route path="/docs" element={<DocsLayout />}>
+              <Route path=":category/:page" element={<DocsPage />} />
+              <Route index element={<Navigate to="/docs/getting-started/introduction" replace />} />
+            </Route>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+        </Routes>
+      </Suspense>
+    </div>
+  )
+}

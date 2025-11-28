@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { docsNavigation } from '../data/docsData'
 import { cn } from '../../../lib/utils'
 
-function NavSection({ section, isActive }) {
+function NavSection({ section, isActive, onNavigate }) {
     const [isOpen, setIsOpen] = useState(isActive)
     const location = useLocation()
 
@@ -16,14 +16,16 @@ function NavSection({ section, isActive }) {
         return (
             <Link
                 to={section.path}
+                onClick={onNavigate}
                 className={cn(
                     'flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors',
                     isCurrentPage
                         ? 'bg-primary text-primary-foreground font-medium'
                         : 'hover:bg-accent'
                 )}
+                aria-current={isCurrentPage ? 'page' : undefined}
             >
-                <span>{section.icon}</span>
+                <span aria-hidden="true">{section.icon}</span>
                 <span>{section.title}</span>
             </Link>
         )
@@ -34,30 +36,34 @@ function NavSection({ section, isActive }) {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-accent transition-colors"
+                aria-expanded={isOpen}
+                aria-label={`${section.title} section`}
             >
                 {isOpen ? (
-                    <ChevronDown className="h-4 w-4" />
+                    <ChevronDown className="h-4 w-4" aria-hidden="true" />
                 ) : (
-                    <ChevronRight className="h-4 w-4" />
+                    <ChevronRight className="h-4 w-4" aria-hidden="true" />
                 )}
-                <span>{section.icon}</span>
+                <span aria-hidden="true">{section.icon}</span>
                 <span className="font-medium">{section.title}</span>
             </button>
 
             {isOpen && (
-                <div className="ml-6 mt-1 space-y-1">
+                <div className="ml-6 mt-1 space-y-1" role="group" aria-label={`${section.title} pages`}>
                     {section.items.map((item) => {
                         const isCurrentPage = location.pathname === item.path
                         return (
                             <Link
                                 key={item.path}
                                 to={item.path}
+                                onClick={onNavigate}
                                 className={cn(
                                     'block px-3 py-1.5 rounded-lg text-sm transition-colors',
                                     isCurrentPage
                                         ? 'bg-primary text-primary-foreground font-medium'
                                         : 'hover:bg-accent'
                                 )}
+                                aria-current={isCurrentPage ? 'page' : undefined}
                             >
                                 {item.title}
                             </Link>
@@ -69,7 +75,7 @@ function NavSection({ section, isActive }) {
     )
 }
 
-export default function DocsSidebar() {
+export default function DocsSidebar({ onNavigate }) {
     const location = useLocation()
 
     // Determine which section is active
@@ -88,23 +94,15 @@ export default function DocsSidebar() {
     }
 
     return (
-        <aside className="w-64 border-r bg-card h-full overflow-y-auto">
-            <div className="p-4 space-y-1">
-                <div className="mb-4">
-                    <h2 className="text-lg font-bold mb-1">Documentation</h2>
-                    <p className="text-xs text-muted-foreground">
-                        Complete guide to the Next-Gen Build Tool
-                    </p>
-                </div>
-
-                {docsNavigation.map((section, index) => (
-                    <NavSection
-                        key={section.path}
-                        section={section}
-                        isActive={index === getActiveSectionIndex()}
-                    />
-                ))}
-            </div>
-        </aside>
+        <div className="space-y-1">
+            {docsNavigation.map((section, index) => (
+                <NavSection
+                    key={section.path || section.title}
+                    section={section}
+                    isActive={index === getActiveSectionIndex()}
+                    onNavigate={onNavigate}
+                />
+            ))}
+        </div>
     )
 }

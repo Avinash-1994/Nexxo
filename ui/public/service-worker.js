@@ -29,12 +29,31 @@ self.addEventListener('install', (event) => {
 
     event.waitUntil(
         caches.open(STATIC_CACHE)
-            .then((cache) => {
+            .then(async (cache) => {
                 console.log('[ServiceWorker] Caching static assets')
-                return cache.addAll(STATIC_ASSETS)
+                // Cache files individually to handle missing files gracefully
+                const cachePromises = STATIC_ASSETS.map(async (url) => {
+                    try {
+                        const response = await fetch(url)
+                        if (response.ok) {
+                            await cache.put(url, response)
+                            console.log('[ServiceWorker] Cached:', url)
+                        } else {
+                            console.warn('[ServiceWorker] Failed to cache (not found):', url)
+                        }
+                    } catch (error) {
+                        console.warn('[ServiceWorker] Failed to cache:', url, error)
+                    }
+                })
+                await Promise.all(cachePromises)
             })
             .then(() => {
                 console.log('[ServiceWorker] Skip waiting')
+                return self.skipWaiting()
+            })
+            .catch((error) => {
+                console.error('[ServiceWorker] Install failed:', error)
+                // Still skip waiting even if caching fails
                 return self.skipWaiting()
             })
     )

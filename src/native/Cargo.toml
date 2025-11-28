@@ -9,3 +9,5 @@ crate-type = ["cdylib"]
 [dependencies]
 napi = { version = "2.12.2", features = ["napi4", "async"] }
 napi-derive = "2.12.2"
+sha2 = "0.10"
+hex = "0.4"

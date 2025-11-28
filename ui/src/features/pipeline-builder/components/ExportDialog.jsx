@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Download, FileJson, FileCode, X } from 'lucide-react'
-import { usePipelineStore } from '../../stores/pipelineStore'
+import { X, Download, Copy, Check } from 'lucide-react'
+import { usePipelineStore } from '../../../stores/pipelineStore'
 
 export default function ExportDialog({ onClose }) {
     const { nodes, edges, name: pipelineName } = usePipelineStore()
@@ -136,8 +136,8 @@ ${data.nodes.map(node => `    {
                             <button
                                 onClick={() => setFormat('json')}
                                 className={`flex items-center gap-2 p-4 rounded-lg border-2 transition-all ${format === 'json'
-                                        ? 'border-primary bg-primary/10'
-                                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                                    ? 'border-primary bg-primary/10'
+                                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
                                     }`}
                             >
                                 <FileJson className="h-5 w-5" />
@@ -146,8 +146,8 @@ ${data.nodes.map(node => `    {
                             <button
                                 onClick={() => setFormat('yaml')}
                                 className={`flex items-center gap-2 p-4 rounded-lg border-2 transition-all ${format === 'yaml'
-                                        ? 'border-primary bg-primary/10'
-                                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                                    ? 'border-primary bg-primary/10'
+                                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
                                     }`}
                             >
                                 <FileCode className="h-5 w-5" />
@@ -156,8 +156,8 @@ ${data.nodes.map(node => `    {
                             <button
                                 onClick={() => setFormat('typescript')}
                                 className={`flex items-center gap-2 p-4 rounded-lg border-2 transition-all ${format === 'typescript'
-                                        ? 'border-primary bg-primary/10'
-                                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                                    ? 'border-primary bg-primary/10'
+                                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
                                     }`}
                             >
                                 <FileCode className="h-5 w-5" />

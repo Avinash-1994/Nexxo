@@ -6,11 +6,12 @@ import { Link } from 'react-router-dom'
 import { getAdjacentPages } from './data/docsData'
 
 export default function DocsPage() {
-    const { '*': slug } = useParams()
+    const { category, page } = useParams()
     const [content, setContent] = useState('')
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
 
+    const slug = `${category}/${page}`
     const currentPath = `/docs/${slug}`
     const { prev, next } = getAdjacentPages(currentPath)
 

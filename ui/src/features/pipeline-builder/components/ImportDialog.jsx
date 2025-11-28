@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { Upload, FileJson, AlertCircle, CheckCircle, X } from 'lucide-react'
-import { usePipelineStore } from '../../stores/pipelineStore'
+import { usePipelineStore } from '../../../stores/pipelineStore'
 
 export default function ImportDialog({ onClose }) {
     const { nodes, edges, setNodes, setEdges, setName } = usePipelineStore()

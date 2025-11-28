@@ -92,7 +92,7 @@ export default function NodeLibrary() {
     }
 
     return (
-        <div className="node-library w-64 border-r bg-card p-4 overflow-y-auto">
+        <div className="node-library h-full p-4 overflow-y-auto">
             <h2 className="text-lg font-semibold mb-4">Node Library</h2>
 
             {/* Search */}
@@ -115,8 +115,8 @@ export default function NodeLibrary() {
                             key={category}
                             onClick={() => setSelectedCategory(category)}
                             className={`px-2 py-1 text-xs rounded transition-colors ${selectedCategory === category
-                                    ? 'bg-primary text-primary-foreground'
-                                    : 'bg-secondary hover:bg-secondary/80'
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-secondary hover:bg-secondary/80'
                                 }`}
                         >
                             {category}

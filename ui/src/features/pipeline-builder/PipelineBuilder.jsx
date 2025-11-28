@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { Save, Download, Upload, Trash2, Code, BarChart3, Undo2, Redo2, FolderOpen, Bug, Share2 } from 'lucide-react'
+import { ReactFlowProvider } from '@xyflow/react'
+import { Save, Download, Upload, Trash2, Code, BarChart3, Undo2, Redo2, FolderOpen, Bug, Share2, Menu, X } from 'lucide-react'
 import { usePipelineStore } from '../../stores/pipelineStore'
 import { useOnboardingStore } from '../../stores/onboardingStore'
 import { Button } from '../../components/ui/Button'
 import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts'
 import { useAutoSave } from '../../hooks/usePersistence'
+import { useIsMobile } from '../../hooks/useMediaQuery'
 import Storage from '../../lib/storage'
 import NodeLibrary from './components/NodeLibrary'
 import PipelineCanvas from './components/PipelineCanvas'
@@ -19,12 +21,14 @@ import StateInspector from '../../components/debug/StateInspector'
 import WelcomeModal from '../../components/onboarding/WelcomeModal'
 import ProductTour from '../../components/onboarding/ProductTour'
 import ExportDialog from './components/ExportDialog'
+import BottomSheet from '../../components/mobile/BottomSheet'
 import ImportDialog from './components/ImportDialog'
 import ShareDialog from './components/ShareDialog'
 
 export default function PipelineBuilder() {
     const { nodes, edges, generateConfig, reset, undo, redo, canUndo, canRedo, selectedNode, deleteNode, initHistory, clearSelection, loadConfig } = usePipelineStore()
     const { hasSeenWelcome, showWelcome, showTour, setWelcomeSeen, startTour, completeTour, skipTour } = useOnboardingStore()
+    const isMobile = useIsMobile()
     const [showConfigEditor, setShowConfigEditor] = useState(false)
     const [showAnalytics, setShowAnalytics] = useState(false)
     const [showSaveDialog, setShowSaveDialog] = useState(false)
@@ -32,6 +36,8 @@ export default function PipelineBuilder() {
     const [showStateInspector, setShowStateInspector] = useState(false)
     const [showExportDialog, setShowExportDialog] = useState(false)
     const [showImportDialog, setShowImportDialog] = useState(false)
+    const [showNodeLibrary, setShowNodeLibrary] = useState(!isMobile)
+    const [showPropertyPanel, setShowPropertyPanel] = useState(false)
     const [showShareDialog, setShowShareDialog] = useState(false)
     const [currentPipelineId, setCurrentPipelineId] = useState(null)
     const [currentPipelineName, setCurrentPipelineName] = useState('')
@@ -216,129 +222,271 @@ export default function PipelineBuilder() {
     const saveStatus = saveError ? 'error' : isSaving ? 'saving' : lastSaved ? 'saved' : nodes.length > 0 ? 'unsaved' : null
 
     return (
-        <div className="flex flex-col h-[calc(100vh-5rem)]">
-            {/* Toolbar */}
-            <div className="border-b bg-card px-4 py-3">
+        <div className="h-full flex flex-col bg-background">
+            {/* Header with Toolbar */}
+            <div className="border-b bg-card px-3 sm:px-4 py-2 sm:py-3">
                 <div className="flex items-center justify-between">
-                    <div>
-                        <div className="flex items-center gap-3">
-                            <h1 className="text-2xl font-bold">
-                                {currentPipelineName || 'Pipeline Builder'}
-                            </h1>
-                            {saveStatus && <SaveStatus status={saveStatus} lastSaved={lastSaved} />}
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                        {/* Mobile node library toggle */}
+                        {isMobile && (
+                            <button
+                                onClick={() => setShowNodeLibrary(true)}
+                                className="p-2 hover:bg-accent rounded-lg transition-colors shrink-0"
+                                aria-label="Show node library"
+                            >
+                                <Menu className="h-4 w-4" />
+                            </button>
+                        )}
+
+                        <div className="min-w-0">
+                            <div className="flex items-center gap-2 sm:gap-3">
+                                <h1 className="text-lg sm:text-2xl font-bold truncate">
+                                    {currentPipelineName || 'Pipeline Builder'}
+                                </h1>
+                                {!isMobile && saveStatus && <SaveStatus status={saveStatus} lastSaved={lastSaved} />}
+                            </div>
+                            <p className="text-xs sm:text-sm text-muted-foreground">
+                                {nodes.length} node{nodes.length !== 1 ? 's' : ''}
+                            </p>
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                            {nodes.length} node{nodes.length !== 1 ? 's' : ''} in pipeline
-                        </p>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                        {/* Undo/Redo */}
-                        <div className="flex items-center gap-1 mr-2 pr-2 border-r">
+                    {/* Desktop toolbar */}
+                    {!isMobile && (
+                        <div className="flex items-center gap-2" role="toolbar" aria-label="Pipeline actions">
+                            {/* Undo/Redo */}
+                            <div className="flex items-center gap-1 mr-2 pr-2 border-r">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={undo}
+                                    disabled={!canUndo()}
+                                    title="Undo (Ctrl+Z)"
+                                    aria-label="Undo last action (Ctrl+Z)"
+                                    aria-disabled={!canUndo()}
+                                >
+                                    <Undo2 className="h-4 w-4" aria-hidden="true" />
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={redo}
+                                    disabled={!canRedo()}
+                                    title="Redo (Ctrl+Y)"
+                                    aria-label="Redo last action (Ctrl+Y)"
+                                    aria-disabled={!canRedo()}
+                                >
+                                    <Redo2 className="h-4 w-4" aria-hidden="true" />
+                                </Button>
+                            </div>
+
+                            <Button
+                                variant={showAnalytics ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setShowAnalytics(!showAnalytics)}
+                                aria-label={`${showAnalytics ? 'Hide' : 'Show'} analytics panel`}
+                                aria-pressed={showAnalytics}
+                            >
+                                <BarChart3 className="h-4 w-4 mr-1.5" aria-hidden="true" />
+                                {showAnalytics ? 'Hide' : 'Show'} Analytics
+                            </Button>
+                            <Button
+                                variant={showConfigEditor ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setShowConfigEditor(!showConfigEditor)}
+                                aria-label={`${showConfigEditor ? 'Hide' : 'Show'} configuration editor`}
+                                aria-pressed={showConfigEditor}
+                            >
+                                <Code className="h-4 w-4 mr-1.5" aria-hidden="true" />
+                                {showConfigEditor ? 'Hide' : 'Show'} Config
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setShowPipelineManager(true)}
+                                aria-label="Open saved pipeline"
+                            >
+                                <FolderOpen className="h-4 w-4 mr-1.5" aria-hidden="true" />
+                                Open
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setShowImportDialog(true)}
+                                aria-label="Import pipeline from file"
+                            >
+                                <Upload className="h-4 w-4 mr-1.5" aria-hidden="true" />
+                                Import
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setShowExportDialog(true)}
+                                aria-label="Export pipeline to file"
+                            >
+                                <Download className="h-4 w-4 mr-1.5" aria-hidden="true" />
+                                Export
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setShowShareDialog(true)}
+                                aria-label="Share pipeline with others"
+                            >
+                                <Share2 className="h-4 w-4 mr-1.5" aria-hidden="true" />
+                                Share
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleClear}
+                                aria-label="Clear all nodes from pipeline"
+                            >
+                                <Trash2 className="h-4 w-4 mr-1.5" aria-hidden="true" />
+                                Clear
+                            </Button>
+                            <Button
+                                size="sm"
+                                onClick={handleSave}
+                                aria-label={currentPipelineId ? 'Save pipeline' : 'Save pipeline as new'}
+                            >
+                                <Save className="h-4 w-4 mr-1.5" aria-hidden="true" />
+                                {currentPipelineId ? 'Save' : 'Save As...'}
+                            </Button>
+                        </div>
+                    )}
+
+                    {/* Mobile compact toolbar */}
+                    {isMobile && (
+                        <div className="flex items-center gap-1" role="toolbar" aria-label="Quick actions">
                             <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={undo}
                                 disabled={!canUndo()}
-                                title="Undo (Ctrl+Z)"
+                                aria-label="Undo"
+                                aria-disabled={!canUndo()}
                             >
-                                <Undo2 className="h-4 w-4" />
+                                <Undo2 className="h-4 w-4" aria-hidden="true" />
                             </Button>
                             <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={redo}
                                 disabled={!canRedo()}
-                                title="Redo (Ctrl+Y)"
+                                aria-label="Redo"
+                                aria-disabled={!canRedo()}
                             >
-                                <Redo2 className="h-4 w-4" />
+                                <Redo2 className="h-4 w-4" aria-hidden="true" />
+                            </Button>
+                            <Button
+                                size="sm"
+                                onClick={handleSave}
+                                aria-label="Save pipeline"
+                            >
+                                <Save className="h-4 w-4" aria-hidden="true" />
                             </Button>
                         </div>
-
-                        <Button
-                            variant={showAnalytics ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setShowAnalytics(!showAnalytics)}
-                        >
-                            <BarChart3 className="h-4 w-4 mr-1.5" />
-                            {showAnalytics ? 'Hide' : 'Show'} Analytics
-                        </Button>
-                        <Button
-                            variant={showConfigEditor ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setShowConfigEditor(!showConfigEditor)}
-                        >
-                            <Code className="h-4 w-4 mr-1.5" />
-                            {showConfigEditor ? 'Hide' : 'Show'} Config
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setShowPipelineManager(true)}
-                        >
-                            <FolderOpen className="h-4 w-4 mr-1.5" />
-                            Open
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={() => setShowImportDialog(true)}>
-                            <Upload className="h-4 w-4 mr-1.5" />
-                            Import
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={() => setShowExportDialog(true)}>
-                            <Download className="h-4 w-4 mr-1.5" />
-                            Export
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={() => setShowShareDialog(true)}>
-                            <Share2 className="h-4 w-4 mr-1.5" />
-                            Share
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={handleClear}>
-                            <Trash2 className="h-4 w-4 mr-1.5" />
-                            Clear
-                        </Button>
-                        <Button size="sm" onClick={handleSave}>
-                            <Save className="h-4 w-4 mr-1.5" />
-                            {currentPipelineId ? 'Save' : 'Save As...'}
-                        </Button>
-                    </div>
+                    )}
                 </div>
             </div>
 
-            {/* Main Content */}
-            <div className="flex flex-col flex-1 overflow-hidden">
-                {/* Analytics Row */}
-                {showAnalytics && (
-                    <div className="p-4 border-b">
-                        <Analytics />
+            {/* Main Content - Full Screen Relative Container */}
+            <div className="relative flex-1 h-[calc(100vh-4rem)] overflow-hidden">
+
+                {/* Canvas Layer - Absolute Full Screen */}
+                <div className="absolute inset-0 z-0">
+                    <ReactFlowProvider>
+                        <PipelineCanvas />
+                    </ReactFlowProvider>
+                </div>
+
+                {/* Floating Node Library - Left Side */}
+                {!isMobile && (
+                    <div className="absolute left-4 top-4 bottom-4 z-10 w-64 pointer-events-none">
+                        <div className="h-full bg-background/80 backdrop-blur-md border shadow-lg rounded-xl overflow-hidden pointer-events-auto flex flex-col">
+                            <NodeLibrary />
+                        </div>
                     </div>
                 )}
 
-                {/* Canvas Row */}
-                <div className="flex flex-1 overflow-hidden">
-                    <NodeLibrary />
-
-                    <div className="flex flex-1">
-                        {showConfigEditor ? (
-                            <>
-                                <div className="flex-1">
-                                    <PipelineCanvas />
-                                </div>
-                                <div className="w-[500px]">
-                                    <ConfigEditor />
-                                </div>
-                            </>
-                        ) : (
-                            <PipelineCanvas />
-                        )}
+                {/* Floating Property Panel - Right Side */}
+                {!isMobile && selectedNode && (
+                    <div className="absolute right-4 top-4 bottom-20 z-10 w-80 pointer-events-none">
+                        <div className="h-full bg-background/80 backdrop-blur-md border shadow-lg rounded-xl overflow-hidden pointer-events-auto">
+                            <PropertyPanel />
+                        </div>
                     </div>
+                )}
 
-                    <PropertyPanel />
-                </div>
+                {/* Mobile Controls */}
+                {isMobile && (
+                    <>
+                        {/* Mobile Node Library Drawer would go here or use existing drawer logic */}
+                        {selectedNode && !showPropertyPanel && (
+                            <button
+                                onClick={() => setShowPropertyPanel(true)}
+                                className="absolute bottom-20 right-4 z-20 p-3 bg-primary text-primary-foreground rounded-full shadow-lg"
+                                aria-label="Show properties"
+                            >
+                                <Code className="h-5 w-5" />
+                            </button>
+                        )}
+                    </>
+                )}
 
-                {/* Build Console Row */}
-                <div className="h-48 border-t p-4">
-                    <BuildControls />
-                </div>
+                {/* Floating Build Controls - Bottom */}
+                {(showConfigEditor || nodes.length > 0) && (
+                    <div className={`absolute bottom-0 left-0 right-0 z-20 transition-all duration-300 ${showConfigEditor ? 'h-80' : 'h-auto'}`}>
+                        <div className="mx-4 mb-4 bg-background/90 backdrop-blur-md border shadow-lg rounded-xl overflow-hidden">
+                            {showConfigEditor ? (
+                                <ConfigEditor />
+                            ) : (
+                                <div className="p-2">
+                                    <BuildControls />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* Analytics Overlay - Top Right (if needed) */}
+                {showAnalytics && (
+                    <div className="absolute top-4 right-4 z-10 w-80 pointer-events-none">
+                        <div className="bg-background/80 backdrop-blur-md border shadow-lg rounded-xl p-4 pointer-events-auto">
+                            <Analytics />
+                        </div>
+                    </div>
+                )}
             </div>
+
+            {/* Mobile Node Library Drawer */}
+            {
+                isMobile && (
+                    <BottomSheet
+                        isOpen={showNodeLibrary}
+                        onClose={() => setShowNodeLibrary(false)}
+                        title="Node Library"
+                        height="h-[70vh]"
+                    >
+                        <NodeLibrary />
+                    </BottomSheet>
+                )
+            }
+
+            {/* Mobile Property Panel */}
+            {
+                isMobile && selectedNode && (
+                    <BottomSheet
+                        isOpen={showPropertyPanel}
+                        onClose={() => setShowPropertyPanel(false)}
+                        title="Node Properties"
+                        height="auto"
+                    >
+                        <PropertyPanel />
+                    </BottomSheet>
+                )
+            }
 
             {/* Dialogs */}
             <SaveDialog
@@ -373,6 +521,6 @@ export default function PipelineBuilder() {
             {showExportDialog && <ExportDialog onClose={() => setShowExportDialog(false)} />}
             {showImportDialog && <ImportDialog onClose={() => setShowImportDialog(false)} />}
             {showShareDialog && <ShareDialog onClose={() => setShowShareDialog(false)} />}
-        </div>
+        </div >
     )
 }

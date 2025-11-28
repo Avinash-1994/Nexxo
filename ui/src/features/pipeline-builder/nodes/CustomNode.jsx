@@ -43,6 +43,7 @@ export default function CustomNode({ id, data, selected }) {
         <div
             className={cn(
                 'px-4 py-3 shadow-md rounded-lg border-2 min-w-[180px]',
+                'bg-white dark:bg-gray-950', // Fallback background
                 colorClass,
                 selected && 'ring-2 ring-primary ring-offset-2'
             )}
@@ -57,10 +58,10 @@ export default function CustomNode({ id, data, selected }) {
                 <div className="flex items-center gap-2 flex-1">
                     <span className="text-2xl">{icon}</span>
                     <div>
-                        <div className="text-sm font-semibold text-foreground">
+                        <div className="text-sm font-semibold text-black dark:text-white">
                             {data.label}
                         </div>
-                        <div className="text-xs text-muted-foreground capitalize">
+                        <div className="text-xs text-gray-500 dark:text-gray-400 capitalize">
                             {nodeType}
                         </div>
                     </div>

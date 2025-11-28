@@ -1,5 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
+import yaml from 'js-yaml';
 
 import { z } from 'zod';
 import { log } from '../utils/logger.js';
@@ -28,6 +29,8 @@ export type BuildConfig = {
 
 export async function loadConfig(cwd: string): Promise<BuildConfig> {
   const jsonPath = path.join(cwd, 'nextgen.build.json');
+  const yamlPath = path.join(cwd, 'nextgen.build.yaml');
+  const ymlPath = path.join(cwd, 'nextgen.build.yml');
   const tsPath = path.join(cwd, 'nextgen.build.ts');
 
   let rawConfig: any;
@@ -36,6 +39,12 @@ export async function loadConfig(cwd: string): Promise<BuildConfig> {
     if (await fs.access(jsonPath).then(() => true).catch(() => false)) {
       const raw = await fs.readFile(jsonPath, 'utf-8');
       rawConfig = JSON.parse(raw);
+    } else if (await fs.access(yamlPath).then(() => true).catch(() => false)) {
+      const raw = await fs.readFile(yamlPath, 'utf-8');
+      rawConfig = yaml.load(raw);
+    } else if (await fs.access(ymlPath).then(() => true).catch(() => false)) {
+      const raw = await fs.readFile(ymlPath, 'utf-8');
+      rawConfig = yaml.load(raw);
     } else if (await fs.access(tsPath).then(() => true).catch(() => false)) {
       log.info('Loading TypeScript config...');
       const { build } = await import('esbuild');
@@ -50,7 +59,7 @@ export async function loadConfig(cwd: string): Promise<BuildConfig> {
         target: 'es2020',
         external: [
           'esbuild', 'zod', 'kleur',
-          'svelte-preprocess', 'svelte', 'esbuild-svelte',
+          'svelte-preprocess', 'svelte', 'esbuild-svelte', 'js-yaml',
           // svelte-preprocess optional deps
           'coffeescript', 'pug', 'stylus', 'less', 'postcss', 'sass', 'postcss-load-config', 'sugarss'
         ] // exclude deps

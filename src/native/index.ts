@@ -13,6 +13,7 @@ type NativeWorkerInstance = {
     poolSize: number;
     transformSync(code: string, id: string): string;
     transform(code: string, id: string): Promise<string>;
+    processAsset(content: Buffer): string;
 };
 
 import { createRequire } from 'module';
@@ -79,7 +80,17 @@ export class RustNativeWorker {
     get poolSize(): number {
         return this.worker.poolSize;
     }
+
+    /**
+     * Process asset and return content hash
+     */
+    processAsset(content: Buffer): string {
+        return this.worker.processAsset(content);
+    }
 }
+
+// Export alias for backward compatibility
+export const NativeWorker = RustNativeWorker;
 
 /**
  * Utility function: Hello from Rust

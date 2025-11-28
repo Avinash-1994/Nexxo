@@ -145,7 +145,7 @@ export default function PropertyPanel() {
     )
 
     return (
-        <Card className="w-80 border-l rounded-none flex flex-col overflow-hidden h-full">
+        <Card className="w-full h-full border-0 rounded-none flex flex-col overflow-hidden bg-transparent shadow-none">
             <CardHeader className="pb-3 border-b">
                 <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">Properties</CardTitle>
