@@ -10,26 +10,7 @@
 
 [Quick Start](#quick-start) • [Documentation](#documentation) • [Features](#features) • [API Reference](#api-reference)
 
-<<<<<<< HEAD
----
-
-## 🚧 Project Status
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| **Core Pipeline** | ✅ Ready | Modular build engine with 5-step pipeline |
-| **Config System** | ✅ Ready | JSON, YAML, TypeScript support with Zod validation |
-| **Native Bundler** | ✅ Ready | Rust-based asset hashing & optimization |
-| **Asset Pipeline** | ✅ Ready | Image/Font optimization, CSS-in-JS support |
-| **Dev Server** | ✅ Ready | HMR, File Watching, Error Overlays |
-| **Microfrontends** | 🚧 In Progress | Module Federation support |
-| **Visual Builder** | 🚧 In Progress | Web-based config editor |
-| **Plugin System** | ⚠️ Partial | Basic support, sandboxing pending |
-
----</div>
-=======
 </div>
->>>>>>> 3052d2b15cdc5341dd074210747983c1668e1d58
 
 ---
 
