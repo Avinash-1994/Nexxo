@@ -106,10 +106,14 @@ export async function analyzeProject(root: string): Promise<ProjectAnalysis> {
 /**
  * Generate optimization suggestions based on project analysis
  */
+<<<<<<< HEAD
 /**
  * Generate optimization suggestions based on project analysis and build stats
  */
 export async function generateSuggestions(analysis: ProjectAnalysis, metafile?: any): Promise<Suggestion[]> {
+=======
+export async function generateSuggestions(analysis: ProjectAnalysis): Promise<Suggestion[]> {
+>>>>>>> 3052d2b15cdc5341dd074210747983c1668e1d58
     const suggestions: Suggestion[] = [];
 
     // Performance suggestions
@@ -135,6 +139,7 @@ export async function generateSuggestions(analysis: ProjectAnalysis, metafile?: 
         });
     }
 
+<<<<<<< HEAD
     // Build Stats Analysis (Adaptive Output)
     if (metafile) {
         const outputs = metafile.outputs || {};
@@ -172,6 +177,8 @@ export async function generateSuggestions(analysis: ProjectAnalysis, metafile?: 
         }
     }
 
+=======
+>>>>>>> 3052d2b15cdc5341dd074210747983c1668e1d58
     // Framework-specific suggestions
     if (analysis.framework === 'react') {
         suggestions.push({
@@ -240,6 +247,7 @@ export async function generateSuggestions(analysis: ProjectAnalysis, metafile?: 
     return suggestions.sort((a, b) => b.priority - a.priority);
 }
 
+<<<<<<< HEAD
 // ===== ML & Automation Features =====
 
 /**
@@ -321,6 +329,8 @@ export async function repairDependencies(root: string, analysis: ProjectAnalysis
     return fixes;
 }
 
+=======
+>>>>>>> 3052d2b15cdc5341dd074210747983c1668e1d58
 // ===== Helper Functions =====
 async function getFiles(dir: string): Promise<string[]> {
     const files: string[] = [];

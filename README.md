@@ -10,6 +10,7 @@
 
 [Quick Start](#quick-start) • [Documentation](#documentation) • [Features](#features) • [API Reference](#api-reference)
 
+<<<<<<< HEAD
 ---
 
 ## 🚧 Project Status
@@ -26,6 +27,9 @@
 | **Plugin System** | ⚠️ Partial | Basic support, sandboxing pending |
 
 ---</div>
+=======
+</div>
+>>>>>>> 3052d2b15cdc5341dd074210747983c1668e1d58
 
 ---
 

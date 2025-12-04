@@ -91,6 +91,7 @@ async function main() {
         }
       }
     )
+<<<<<<< HEAD
     .command(
       'plugin',
       'Manage plugins',
@@ -198,6 +199,8 @@ async function main() {
         }
       }
     )
+=======
+>>>>>>> 3052d2b15cdc5341dd074210747983c1668e1d58
     .demandCommand(1, 'You must specify a command')
     .help()
     .argv;
