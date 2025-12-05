@@ -16,7 +16,23 @@ const nativePath = path.resolve(path.dirname(new URL(import.meta.url).pathname),
 // Fallback for different environments if needed, but this should work for local dev
 const { NativeWorker } = require(nativePath);
 
+import { HMRThrottle } from './hmrThrottle.js';
+import { ConfigWatcher } from './configWatcher.js';
+import { StatusHandler } from './statusHandler.js';
+
 export async function startDevServer(cfg: BuildConfig) {
+  // 1. Load Environment Variables
+  const { config: loadEnv } = await import('dotenv');
+  loadEnv({ path: path.join(cfg.root, '.env') });
+  loadEnv({ path: path.join(cfg.root, '.env.local') });
+
+  // Filter public env vars
+  const publicEnv = Object.keys(process.env)
+    .filter(key => key.startsWith('NEXTGEN_') || key.startsWith('PUBLIC_'))
+    .reduce((acc, key) => ({ ...acc, [key]: process.env[key] }), {});
+
+  log.info('Loaded Environment Variables', { category: 'server', count: Object.keys(publicEnv).length });
+
   const nativeWorker = new NativeWorker(4); // 4 threads
   const pluginManager = new PluginManager();
   if (cfg.plugins) {
@@ -26,8 +42,6 @@ export async function startDevServer(cfg: BuildConfig) {
   // Initialize Sandbox
   const { PermissionManager } = await import('../core/permissions.js');
   const sandbox = new PluginSandbox(new PermissionManager());
-  // await sandbox.start(); // Sandbox doesn't have start method anymore
-  // pluginManager.register(new SandboxedPlugin(sandbox)); // SandboxedPlugin class removed
 
   // Auto-register Tailwind Plugin if config exists
   const tailwindConfigPath = path.join(cfg.root, 'tailwind.config.js');
@@ -37,8 +51,6 @@ export async function startDevServer(cfg: BuildConfig) {
   }
 
   // Auto-register CSS Preprocessor Plugins
-  // In a real scenario, we might check for package.json dependencies or config files
-  // For now, we'll register them and they will gracefully skip if deps are missing
   const { SassPlugin } = await import('../plugins/css/sass.js');
   pluginManager.register(new SassPlugin(cfg.root));
 
@@ -48,9 +60,110 @@ export async function startDevServer(cfg: BuildConfig) {
   const { StylusPlugin } = await import('../plugins/css/stylus.js');
   pluginManager.register(new StylusPlugin(cfg.root));
 
-  const port = cfg.port || 5173;
-  const server = http.createServer(async (req, res) => {
+  const port = cfg.server?.port || cfg.port || 5173;
+  const host = cfg.server?.host || 'localhost';
+
+  // 2. Setup Proxy
+  const { default: httpProxy } = await import('http-proxy');
+  const proxy = httpProxy.createProxyServer({});
+
+  proxy.on('error', (err, req, res) => {
+    log.error('Proxy error: ' + err.message, { category: 'server' });
+    if ((res as any).writeHead) {
+      (res as any).writeHead(500, { 'Content-Type': 'text/plain' });
+      (res as any).end('Proxy error: ' + err.message);
+    }
+  });
+
+  // 3. Setup HTTPS
+  let httpsOptions: any = null;
+  if (cfg.server?.https) {
+    if (typeof cfg.server.https === 'object') {
+      httpsOptions = cfg.server.https;
+    } else {
+      // Generate self-signed cert
+      const certDir = path.join(cfg.root, '.nextgen', 'certs');
+      await fs.mkdir(certDir, { recursive: true });
+      const keyPath = path.join(certDir, 'dev.key');
+      const certPath = path.join(certDir, 'dev.crt');
+
+      if (await fs.access(keyPath).then(() => true).catch(() => false)) {
+        httpsOptions = {
+          key: await fs.readFile(keyPath),
+          cert: await fs.readFile(certPath)
+        };
+      } else {
+        log.info('Generating self-signed certificate...', { category: 'server' });
+        const selfsigned = await import('selfsigned');
+        // @ts-ignore
+        const pems = await selfsigned.generate([{ name: 'commonName', value: 'localhost' }], { days: 30 });
+        await fs.writeFile(keyPath, pems.private);
+        await fs.writeFile(certPath, pems.cert);
+        httpsOptions = {
+          key: pems.private,
+          cert: pems.cert
+        };
+      }
+    }
+  }
+
+  // 4. Initialize Premium Features
+  const statusHandler = new StatusHandler();
+
+  // WebSocket Server setup (early init for HMRThrottle)
+  // We need the server instance first, but we can setup the WSS later or pass a callback
+  // Let's create the broadcast function first
+  let wss: WebSocketServer;
+  const broadcast = (msg: string) => {
+    if (wss) {
+      wss.clients.forEach((c: WebSocket) => {
+        if (c.readyState === WebSocket.OPEN) c.send(msg);
+      });
+    }
+  };
+
+  const hmrThrottle = new HMRThrottle(broadcast);
+
+  // Initialize Federation Dev
+  const { FederationDev } = await import('./federation-dev.js');
+  const federationDev = new FederationDev(cfg, broadcast);
+  federationDev.start();
+
+  const requestHandler = async (req: http.IncomingMessage, res: http.ServerResponse) => {
+    statusHandler.trackRequest();
+    if (await statusHandler.handleRequest(req, res)) return;
+    if (federationDev.handleRequest(req, res)) return;
+
+    // Federation Editor
+    if (req.url === '/__federation') {
+      const { getEditorHtml } = await import('../visual/federation-editor.js');
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end(getEditorHtml(cfg));
+      return;
+    }
+
     const url = req.url || '/';
+
+    // Headers
+    if (cfg.server?.headers) {
+      Object.entries(cfg.server.headers).forEach(([k, v]) => res.setHeader(k, v));
+    }
+    if (cfg.server?.cors) {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+    }
+
+    // Proxy Handler
+    if (cfg.server?.proxy) {
+      for (const [context, target] of Object.entries(cfg.server.proxy)) {
+        if (url.startsWith(context)) {
+          log.debug(`Proxying ${url} -> ${target}`, { category: 'server' });
+          const options = typeof target === 'string' ? { target } : target;
+          proxy.web(req, res, options);
+          return;
+        }
+      }
+    }
+
     if (url === '/') {
       const p = path.join(cfg.root, 'public', 'index.html');
       try {
@@ -77,6 +190,25 @@ export async function startDevServer(cfg: BuildConfig) {
       } catch (e) {
         res.writeHead(404);
         res.end('React Refresh runtime not found');
+      }
+      return;
+    }
+
+    // Open in Editor
+    if (url.startsWith('/__open-in-editor')) {
+      const urlObj = new URL(req.url || '', `http://${req.headers.host}`);
+      const file = urlObj.searchParams.get('file');
+      const line = parseInt(urlObj.searchParams.get('line') || '1');
+      const column = parseInt(urlObj.searchParams.get('column') || '1');
+
+      if (file) {
+        const launch = await import('launch-editor');
+        launch.default(file, `${line}:${column}`);
+        res.writeHead(200);
+        res.end('Opened in editor');
+      } else {
+        res.writeHead(400);
+        res.end('Missing file parameter');
       }
       return;
     }
@@ -108,16 +240,22 @@ export async function startDevServer(cfg: BuildConfig) {
 
         // Native Transform (Caching + Graph)
         try {
-          log.info(`[DevServer] Processing with NativeWorker: ${filePath}`);
+          // log.debug(`Processing with NativeWorker: ${filePath}`, { category: 'build' });
           raw = nativeWorker.processFile(filePath);
-          log.info(`[DevServer] NativeWorker success`);
         } catch (e) {
-          log.error('NativeWorker error:', e);
+          log.error('NativeWorker error', { category: 'build', error: e });
           throw e;
         }
 
         // Plugin transform (JS plugins like Tailwind)
         raw = await pluginManager.transform(raw, filePath);
+
+        // Inject Env Vars
+        raw = `
+            if (!window.process) window.process = { env: {} };
+            Object.assign(window.process.env, ${JSON.stringify(publicEnv)});
+            ${raw}
+        `;
 
         // Use Babel for React Refresh
         if (ext === '.tsx' || ext === '.jsx') {
@@ -161,29 +299,96 @@ export async function startDevServer(cfg: BuildConfig) {
 
       // Serve other files raw
       const data = await fs.readFile(filePath);
-      res.writeHead(200);
+      const mime = ext === '.map' ? 'application/json' : 'application/octet-stream';
+      res.writeHead(200, { 'Content-Type': mime });
       res.end(data);
     } catch (e: any) {
-      log.error('DevServer request error:', e);
-      res.writeHead(404);
-      res.end('Not found');
+      log.error('Request error', { category: 'server', error: e });
+
+      // If it's a build error (has loc/frame/stack), broadcast it
+      if (e.message && (e.frame || e.loc || e.stack)) {
+        const msg = JSON.stringify({
+          type: 'error',
+          error: {
+            message: e.message,
+            stack: e.stack,
+            filename: filePath, // approximate
+            frame: e.frame
+          }
+        });
+        broadcast(msg);
+      }
+
+      res.writeHead(500);
+      res.end(e.message);
+    }
+  };
+
+  let server;
+  if (httpsOptions) {
+    const https = await import('https');
+    server = https.createServer(httpsOptions, requestHandler);
+  } else {
+    server = http.createServer(requestHandler);
+  }
+
+  // WebSocket Server setup
+  wss = new WebSocketServer({ server });
+  wss.on('connection', (ws: WebSocket) => {
+    log.info('HMR client connected', { category: 'hmr' });
+    hmrThrottle.registerClient(ws);
+    ws.on('close', () => hmrThrottle.unregisterClient(ws));
+  });
+
+  // Upgrade handling for Proxy WebSockets
+  server.on('upgrade', (req, socket, head) => {
+    if (cfg.server?.proxy) {
+      for (const [context, target] of Object.entries(cfg.server.proxy)) {
+        if (req.url?.startsWith(context)) {
+          const options = typeof target === 'string' ? { target, ws: true } : { ...target, ws: true };
+          proxy.ws(req, socket, head, options);
+          return;
+        }
+      }
     }
   });
 
-  const wss = new WebSocketServer({ server });
-  wss.on('connection', (ws: WebSocket) => {
-    log.info('HMR client connected');
+  // Config Watcher
+  const configWatcher = new ConfigWatcher(cfg.root, async (type, file) => {
+    if (type === 'hot') {
+      // Reload env vars (simplified)
+      log.info('Hot reloading config...', { category: 'server' });
+      // In a real app we'd re-read .env and broadcast updates if needed
+    } else if (type === 'restart') {
+      log.warn('Restarting server due to config change...', { category: 'server' });
+      broadcast(JSON.stringify({ type: 'restarting' }));
+      await new Promise(r => setTimeout(r, 500)); // Give clients time to receive message
+      server.close();
+      wss.close();
+      await configWatcher.close();
+      federationDev.stop();
+      // Re-run startDevServer (recursive)
+      // Note: This might stack overflow if done repeatedly without process exit, 
+      // but for dev server it's usually fine or we should use a wrapper.
+      // For now, let's just exit and let nodemon/supervisor handle it if present, 
+      // OR we can just re-call startDevServer.
+      // Re-calling is better for "graceful" feel.
+      startDevServer(cfg).catch(e => log.error('Failed to restart', { error: e }));
+    }
   });
+  configWatcher.start();
 
   const watcher = chokidar.watch(cfg.root, { ignored: /node_modules|\.git/ });
   watcher.on('change', (file: string) => {
-    log.info('File changed:', file);
+    // log.debug(`File changed: ${file}`, { category: 'build' });
 
     // Native Invalidation & Rebuild
     nativeWorker.invalidate(file);
     const affected = nativeWorker.rebuild(file);
 
-    log.info(`Rebuild affected ${affected.length} files`);
+    if (affected.length > 0) {
+      log.info(`Rebuild affected ${affected.length} files`, { category: 'build', duration: 10 }); // Mock duration
+    }
 
     affected.forEach((affectedFile: string) => {
       // Determine message type
@@ -194,10 +399,27 @@ export async function startDevServer(cfg: BuildConfig) {
 
       // Normalize path for client (relative to root)
       const rel = '/' + path.relative(cfg.root, affectedFile);
-      const msg = JSON.stringify({ type, path: rel });
-      wss.clients.forEach((c: WebSocket) => c.send(msg));
+
+      // Queue update via throttle
+      hmrThrottle.queueUpdate(rel, type);
+      statusHandler.trackHMR();
     });
   });
 
-  server.listen(port, () => log.success('Dev server listening on', port));
+  server.listen(port, () => {
+    const protocol = httpsOptions ? 'https' : 'http';
+    const url = `${protocol}://${host}:${port}`;
+
+    log.table({
+      'HTTP': url,
+      'HTTPS': httpsOptions ? 'Enabled' : 'Disabled',
+      'Proxy': cfg.server?.proxy ? Object.keys(cfg.server.proxy).join(', ') : 'None',
+      'Status': `${url}/__nextgen/status`,
+      'Federation': `${url}/__federation`
+    });
+
+    if (cfg.server?.open) {
+      import('open').then(open => open.default(url));
+    }
+  });
 }

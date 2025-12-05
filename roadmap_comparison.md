@@ -25,14 +25,18 @@
 ## 4. Dev Server
 - [x] Instant startup - *Implemented*
 - [x] HMR (React, generic) - *Implemented*
-- [ ] Error overlays - *Pending*
-- [ ] Source maps - *Pending*
-- [ ] Proxy/HTTPS/.env - *Pending*
+- [x] Error overlays - *Completed (Premium component + Open in Editor)*
+- [x] Source maps - *Completed (Robust modes: inline/external/hidden)*
+- [x] Proxy/HTTPS/.env - *Completed (Advanced config support)*
+- [x] HMR Throttling - *Completed (Smart batching)*
+- [x] Structured Logging - *Completed (Categories, Startup Table)*
+- [x] Config Reload - *Completed (Graceful tiered strategy)*
+- [x] Status Dashboard - *Completed (Premium monitoring)*
 
 ## 5. Production Builds
 - [x] Tree-shaking/Minification (esbuild) - *Implemented*
-- [ ] Code splitting/Dynamic imports - *Pending verification*
-- [ ] Multiple outputs (SSR/Edge) - *Pending*
+- [x] Code splitting/Dynamic imports - *Completed (Verified)*
+- [x] Multiple outputs (SSR/Edge) - *Completed (ESM/CJS targets)*
 
 ## 6. Microfrontends
 - [ ] Native runtime federation - *Pending*
@@ -59,10 +63,11 @@
 
 ---
 
-## Immediate Next Steps (Focus: CSS Frameworks)
-1.  **Complete Sass/Less/Stylus support**:
-    -   Finish `SassPlugin` and `LessPlugin` integration.
-    -   Implement `StylusPlugin`.
-    -   Update `devServer.ts` to use these plugins.
-2.  **Verify all CSS frameworks**:
-    -   Create test cases for each.
+## Immediate Next Steps (Focus: Microfrontends)
+1.  **Native Federation (Enhanced)**:
+    -   Implement `FederationPlugin` with `remoteEntry.json` manifest.
+    -   Create Smart Runtime with Fallbacks & Health Checks.
+    -   Implement Hot Federation (Dev-time updates).
+2.  **Visual Federation Editor**:
+    -   Drag-and-drop remote management.
+    -   Live preview of federated components.

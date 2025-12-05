@@ -9,6 +9,7 @@ const PipelineEditor = lazy(() => import('./features/pipeline/PipelineEditor'))
 const AnalyticsDashboard = lazy(() => import('./features/dashboard/AnalyticsDashboard'))
 const DocsLayout = lazy(() => import('./features/docs/DocsLayout'))
 const DocsPage = lazy(() => import('./features/docs/DocsPage'))
+const CSSManager = lazy(() => import('./features/css/CSSManager'))
 
 // Loading component
 function LoadingFallback() {
@@ -32,6 +33,7 @@ export default function App() {
           <Route element={<AppShell />}>
             <Route path="/" element={<LandingPage />} />
             <Route path="/builder" element={<PipelineEditor />} />
+            <Route path="/css" element={<CSSManager />} />
             <Route path="/dashboard" element={<AnalyticsDashboard />} />
             <Route path="/docs" element={<DocsLayout />}>
               <Route path=":category/:page" element={<DocsPage />} />

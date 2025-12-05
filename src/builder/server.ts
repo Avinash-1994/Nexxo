@@ -130,6 +130,25 @@ async function handleAPI(req: http.IncomingMessage, res: http.ServerResponse, ur
             return;
         }
 
+        // GET /__open-in-editor
+        if (path.startsWith('/__open-in-editor') && req.method === 'GET') {
+            const urlObj = new URL(req.url || '', `http://${req.headers.host}`);
+            const file = urlObj.searchParams.get('file');
+            const line = parseInt(urlObj.searchParams.get('line') || '1');
+            const column = parseInt(urlObj.searchParams.get('column') || '1');
+
+            if (file) {
+                const launch = await import('launch-editor');
+                launch.default(file, `${line}:${column}`);
+                res.writeHead(200);
+                res.end('Opened in editor');
+            } else {
+                res.writeHead(400);
+                res.end('Missing file parameter');
+            }
+            return;
+        }
+
         // 404
         res.writeHead(404);
         res.end('Not found');
@@ -138,6 +157,21 @@ async function handleAPI(req: http.IncomingMessage, res: http.ServerResponse, ur
         res.writeHead(500);
         res.end(JSON.stringify({ error: error.message }));
     }
+}
+
+export function broadcastError(clients: Set<any>, error: any) {
+    const message = {
+        type: 'error',
+        error: {
+            message: error.message || String(error),
+            stack: error.stack,
+            filename: error.filename,
+            lineno: error.lineno,
+            colno: error.colno,
+            frame: error.frame
+        }
+    };
+    broadcast(clients, message);
 }
 
 // ===== Builder UI Server =====

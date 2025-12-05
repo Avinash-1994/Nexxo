@@ -1,5 +1,5 @@
 import { Link, useLocation, Outlet } from 'react-router-dom'
-import { Moon, Sun, FileText, Workflow, Menu, Home, BarChart2 } from 'lucide-react'
+import { Moon, Sun, FileText, Workflow, Menu, Home, BarChart2, Palette } from 'lucide-react'
 import { useThemeStore } from '../../stores/themeStore'
 import { cn } from '../../lib/utils'
 import OfflineIndicator from '../offline/OfflineIndicator'
@@ -16,6 +16,7 @@ export default function AppShell() {
     const navigation = [
         { name: 'Home', path: '/', icon: Home },
         { name: 'Pipeline Builder', path: '/builder', icon: Workflow },
+        { name: 'CSS Manager', path: '/css', icon: Palette },
         { name: 'Dashboard', path: '/dashboard', icon: BarChart2 },
         { name: 'Documentation', path: '/docs', icon: FileText },
     ]

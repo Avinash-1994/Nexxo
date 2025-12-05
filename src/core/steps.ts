@@ -91,10 +91,11 @@ export class BundlerStep implements PipelineStep {
         });
 
         if (config.federation) {
+            const { FederationPlugin } = await import('../plugins/federation.js');
             internalPlugins.push({
                 name: 'federation-plugin-adapter',
                 setup(build: any) {
-                    new FederationPlugin(config.federation).setup(build);
+                    new FederationPlugin(config.federation!, config.root).setup(build);
                 }
             });
         }
@@ -113,23 +114,44 @@ export class BundlerStep implements PipelineStep {
             }
         });
 
-        const result = await esbuild.build({
-            entryPoints,
-            bundle: true,
-            splitting: true, // ESM requires splitting
-            format: 'esm',
-            outdir: path.resolve(config.root, config.outDir),
-            minify: config.mode === 'production',
-            sourcemap: config.mode !== 'production',
-            target: ['es2022'],
-            loader: { '.css': 'css' }, // Remove default file loaders for images as our plugin handles them
-            metafile: true,
-            logLevel: 'info',
-            plugins: [
-                ...internalPlugins,
-                ...(config.esbuildPlugins || [])
-            ],
-        });
+        const targets = config.build?.targets || ['esm'];
+        const isMultiTarget = targets.length > 1;
+
+        for (const target of targets) {
+            const format = target === 'cjs' ? 'cjs' : 'esm'; // 'ssr' might be cjs or esm depending on node version, assume esm for now or map 'ssr'->'cjs'
+            const useSplitting = format === 'esm' && (config.build?.splitting ?? true);
+
+            // If multi-target, use subdirectories. If single, use outDir directly.
+            const targetOutDir = isMultiTarget
+                ? path.resolve(config.root, config.outDir, target)
+                : path.resolve(config.root, config.outDir);
+
+            log.info(`Building target: ${target} (${format}) to ${targetOutDir}`, { category: 'build' } as any);
+
+            await esbuild.build({
+                entryPoints,
+                bundle: true,
+                splitting: useSplitting,
+                format: format,
+                outdir: targetOutDir,
+                minify: config.build?.minify ?? config.mode === 'production',
+                sourcemap: (() => {
+                    const map = config.build?.sourcemap ?? (config.mode === 'production' ? 'hidden' : 'external');
+                    if (map === 'hidden') return 'external';
+                    if (map === 'external') return true;
+                    if (map === 'none') return false;
+                    return map;
+                })() as any,
+                target: ['es2022'],
+                loader: { '.css': 'css' },
+                metafile: true,
+                logLevel: 'info',
+                plugins: [
+                    ...internalPlugins,
+                    ...(config.esbuildPlugins || [])
+                ],
+            });
+        }
 
         // In a real pipeline, we might capture the output files in memory here
         // instead of writing directly to disk, but esbuild writes to disk by default unless write: false
@@ -172,7 +194,7 @@ export class OutputterStep implements PipelineStep {
                 await cache.putFiles(key, files);
                 log.info('Cached build artifacts');
             } catch (e) {
-                log.warn('Failed to cache build artifacts', e);
+                log.warn('Failed to cache build artifacts', { error: e } as any);
             }
         }
     }

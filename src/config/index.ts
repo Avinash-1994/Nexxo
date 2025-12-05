@@ -22,10 +22,39 @@ const BuildConfigSchema = z.object({
   preset: z.enum(['spa', 'ssr', 'ssg']).default('spa'),
   federation: z.object({
     name: z.string(),
-    filename: z.string().default('remoteEntry.js'),
+    filename: z.string().optional(),
     exposes: z.record(z.string(), z.string()).optional(),
     remotes: z.record(z.string(), z.string()).optional(),
-    shared: z.record(z.string(), z.string()).optional(),
+    shared: z.record(z.string(), z.object({
+      singleton: z.boolean().optional(),
+      requiredVersion: z.string().optional(),
+    })).optional(),
+    prefetch: z.array(z.string()).optional(),
+    fallback: z.string().optional(),
+    mock: z.boolean().optional(),
+    healthCheck: z.string().optional(),
+  }).optional(),
+  css: z.object({
+    framework: z.enum(['tailwind', 'bootstrap', 'bulma', 'material', 'none']).optional(),
+    purge: z.boolean().optional(),
+    critical: z.boolean().optional(),
+  }).optional(),
+  build: z.object({
+    minify: z.boolean().optional(),
+    sourcemap: z.enum(['inline', 'external', 'hidden', 'none']).optional(),
+    splitting: z.boolean().optional(),
+    targets: z.array(z.string()).optional(),
+    manualChunks: z.record(z.string(), z.array(z.string())).optional(),
+  }).optional(),
+  server: z.object({
+    host: z.string().optional(),
+    port: z.number().optional(),
+    strictPort: z.boolean().optional(),
+    cors: z.boolean().optional(),
+    open: z.union([z.boolean(), z.string()]).optional(),
+    proxy: z.record(z.string(), z.union([z.string(), z.any()])).optional(),
+    https: z.union([z.boolean(), z.object({ key: z.string(), cert: z.string() })]).optional(),
+    headers: z.record(z.string(), z.string()).optional(),
   }).optional(),
 });
 
@@ -41,10 +70,36 @@ export type BuildConfig = {
   preset: 'spa' | 'ssr' | 'ssg';
   federation?: {
     name: string;
-    filename: string;
+    filename?: string;
     exposes?: Record<string, string>;
     remotes?: Record<string, string>;
-    shared?: Record<string, string>;
+    shared?: Record<string, { singleton?: boolean; requiredVersion?: string }>;
+    prefetch?: string[];
+    fallback?: string;
+    mock?: boolean;
+    healthCheck?: string;
+  };
+  css?: {
+    framework?: 'tailwind' | 'bootstrap' | 'bulma' | 'material' | 'none';
+    purge?: boolean;
+    critical?: boolean;
+  };
+  build?: {
+    minify?: boolean;
+    sourcemap?: 'inline' | 'external' | 'hidden' | 'none';
+    splitting?: boolean;
+    targets?: string[];
+    manualChunks?: Record<string, string[]>;
+  };
+  server?: {
+    host?: string;
+    port?: number;
+    strictPort?: boolean;
+    cors?: boolean | any;
+    open?: boolean | string;
+    proxy?: Record<string, string | any>;
+    https?: boolean | { key: string; cert: string };
+    headers?: Record<string, string>;
   };
 };
 

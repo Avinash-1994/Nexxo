@@ -91,6 +91,32 @@ async function main() {
         }
       }
     )
+    .command(
+      'css',
+      'CSS utilities',
+      (yargs: any) => {
+        return yargs
+          .command(
+            'purge',
+            'Analyze and remove unused CSS',
+            () => { },
+            async () => {
+              const { purgeCSSCommand } = await import('./cli/css-cli.js');
+              await purgeCSSCommand(process.cwd());
+            }
+          )
+          .command(
+            'migrate',
+            'Migrate from one CSS framework to another',
+            () => { },
+            async () => {
+              const { migrateCSSCommand } = await import('./cli/css-cli.js');
+              await migrateCSSCommand(process.cwd());
+            }
+          )
+          .demandCommand(1, 'You must specify a subcommand: detect, list, add, purge, migrate');
+      }
+    )
     .demandCommand(1, 'You must specify a command')
     .help()
     .argv;

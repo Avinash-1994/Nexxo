@@ -1,104 +1,102 @@
+import { Plugin } from './index.js';
 import path from 'path';
 import fs from 'fs/promises';
-import { fileURLToPath } from 'url';
-import { Plugin } from './index.js';
+import crypto from 'crypto';
+import { log } from '../utils/logger.js';
+
+export interface FederationConfig {
+    name: string;
+    filename?: string;
+    exposes?: Record<string, string>;
+    remotes?: Record<string, string>;
+    shared?: Record<string, { singleton?: boolean; requiredVersion?: string }>;
+    prefetch?: string[];
+    fallback?: string;
+    mock?: boolean;
+    healthCheck?: string;
+}
 
 export class FederationPlugin implements Plugin {
     name = 'federation-plugin';
-    private config: any;
+    private config: FederationConfig;
+    private root: string;
 
-    constructor(config: any) {
+    constructor(config: FederationConfig, root: string) {
         this.config = config;
+        this.root = root;
     }
 
     setup(build: any) {
-        const { name, filename, exposes, remotes, shared } = this.config;
+        const outDir = build.initialOptions.outdir || 'dist';
+        const filename = this.config.filename || 'remoteEntry.json';
 
-        // 1. Handle Remotes: Resolve remote imports to runtime loader
-        if (remotes) {
-            const remoteKeys = Object.keys(remotes);
-            const filter = new RegExp(`^(${remoteKeys.join('|')})(/.*)?$`);
-
-            build.onResolve({ filter }, (args: any) => {
-                return {
-                    path: args.path,
-                    namespace: 'federation-remote'
-                };
-            });
-
-            build.onLoad({ filter: /.*/, namespace: 'federation-remote' }, (args: any) => {
-                const [remoteName, ...rest] = args.path.split('/');
-                const modulePath = rest.join('/');
-                const url = remotes[remoteName];
-
-                // Return code that loads the remote module at runtime
-                return {
-                    contents: `
-            import { loadRemote } from '__federation_runtime';
-            export default await loadRemote('${url}', '${remoteName}', './${modulePath || ''}');
-          `,
-                    loader: 'js'
-                };
-            });
-        }
-
-        // 2. Handle Exposes: Mark exposed modules as entry points (virtual)
-        // In a real implementation, we would need to generate a separate bundle for each exposed module
-        // or use code splitting to ensure they are available.
-        // For this prototype, we'll generate the remoteEntry.js at the end.
-
-        // 3. Inject Runtime
-        build.onResolve({ filter: /^__federation_runtime$/ }, (args: any) => {
-            const __dirname = path.dirname(fileURLToPath(import.meta.url));
-            return {
-                path: path.resolve(__dirname, '../runtime/federation_runtime.js'),
-                namespace: 'federation-runtime'
-            };
-        });
-
-        build.onLoad({ filter: /.*/, namespace: 'federation-runtime' }, async (args: any) => {
-            const runtimePath = path.resolve(process.cwd(), 'src/runtime/federation_runtime.js');
-            // If runtime file doesn't exist yet (we haven't created it), provide inline content
-            // But we plan to create it. For now, let's inline a simple runtime.
-
-            return {
-                contents: `
-          const moduleMap = {};
-          
-          export async function loadRemote(url, scope, module) {
-            if (!window[scope]) {
-              await import(url); // Load remoteEntry.js
-            }
-            const container = window[scope];
-            await container.init(__webpack_share_scopes__.default);
-            const factory = await container.get(module);
-            return factory();
-          }
-        `,
-                loader: 'js'
-            };
-        });
-
-        // 4. Generate remoteEntry.js on build end
         build.onEnd(async (result: any) => {
-            if (exposes) {
-                const manifest = {
-                    name,
-                    exposes,
-                    remotes,
-                    shared
-                };
+            if (result.errors.length > 0) return;
 
-                const outDir = build.initialOptions.outdir;
+            log.info('Generating Federation Manifest...', { category: 'build' });
 
-                if (outDir) {
-                    const filePath = path.join(outDir, filename || 'remoteEntry.js');
-                    await fs.writeFile(
-                        filePath,
-                        `window['${name}'] = ${JSON.stringify(manifest, null, 2)};`
-                    );
+            const manifest: any = {
+                name: this.config.name,
+                exposes: {},
+                remotes: this.config.remotes || {},
+                shared: {},
+                health: this.config.healthCheck,
+                prefetch: this.config.prefetch,
+                fallback: this.config.fallback,
+                timestamp: Date.now()
+            };
+
+            // Process Exposes
+            if (this.config.exposes) {
+                for (const [key, importPath] of Object.entries(this.config.exposes)) {
+                    // In a real implementation, we would map this to the actual output chunk
+                    // For now, we'll assume the bundler has created a chunk or we point to source
+                    // Ideally, we need to know the output filename for this module.
+                    // Since esbuild metafile is available, we can look it up.
+
+                    // Simplified: Point to the output file assuming standard naming or just pass the import path
+                    // The runtime loader will need to handle this.
+                    // For Native Federation, we usually want to point to a JS file.
+
+                    // Let's assume the user configured manualChunks or we rely on the runtime to resolve.
+                    // For this prototype, we'll just store the path.
+                    manifest.exposes[key] = {
+                        import: importPath, // This needs to be the output URL in production
+                        name: key
+                    };
                 }
             }
+
+            // Process Shared
+            if (this.config.shared) {
+                for (const [pkgName, options] of Object.entries(this.config.shared)) {
+                    // Read package.json to get version
+                    let version = '0.0.0';
+                    try {
+                        const pkgPath = path.resolve(this.root, 'node_modules', pkgName, 'package.json');
+                        const pkg = JSON.parse(await fs.readFile(pkgPath, 'utf-8'));
+                        version = pkg.version;
+                    } catch (e) {
+                        log.warn(`Could not detect version for shared package: ${pkgName}`, { category: 'build' });
+                    }
+
+                    manifest.shared[pkgName] = {
+                        version,
+                        singleton: options.singleton,
+                        requiredVersion: options.requiredVersion
+                    };
+                }
+            }
+
+            // Generate Hash
+            const content = JSON.stringify(manifest);
+            manifest.manifestHash = crypto.createHash('sha256').update(content).digest('hex');
+
+            // Write Manifest
+            const outputPath = path.join(outDir, filename);
+            await fs.writeFile(outputPath, JSON.stringify(manifest, null, 2));
+
+            log.success(`Federation manifest generated: ${filename}`, { category: 'build' });
         });
     }
 }
