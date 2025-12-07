@@ -28,7 +28,9 @@ let nativeModule: NativeWorkerModule | null = null;
 function loadNative(): NativeWorkerModule {
     if (!nativeModule) {
         try {
-            nativeModule = nodeRequire('../../nextgen_native.node');
+            // When installed via npm: node_modules/urja/dist/native/index.js
+            // Native binary is at: node_modules/urja/dist/nextgen_native.node
+            nativeModule = nodeRequire('../nextgen_native.node');
         } catch (e) {
             throw new Error(`Failed to load Rust native worker: ${e}`);
         }

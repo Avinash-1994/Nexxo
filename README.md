@@ -1,14 +1,15 @@
-# NextGen Build Tool
+# Urja ⚡
 
-> ⚡ A modern, high-performance build tool with parallel plugin execution, Rust native workers, and AI-powered optimization.
+> **Urja** (Sanskrit: ऊर्जा - Energy/Power) - A high-performance build tool with AI optimization, Rust native workers, and parallel execution.
 
 <div align="center">
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![npm version](https://img.shields.io/npm/v/urja.svg)](https://www.npmjs.com/package/urja)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
-[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)]()
+[![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)]()
 
-[Quick Start](#quick-start) • [Documentation](#documentation) • [Features](#features) • [API Reference](#api-reference)
+[Quick Start](#quick-start) • [Features](#features) • [CLI Commands](#cli-commands) • [Configuration](#configuration) • [API Reference](#api-reference)
 
 </div>
 
@@ -19,15 +20,11 @@
 ### Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/Avinash-1994/next-gen-build-tool.git
-cd next-gen-build-tool
+# Install globally
+npm install -g urja
 
-# Install dependencies
-npm install
-
-# Build the tool
-npm run build
+# Or use with npx (no installation needed)
+npx urja init
 ```
 
 ### Your First Build (30 seconds)
@@ -37,52 +34,72 @@ npm run build
 mkdir my-app && cd my-app
 
 # 2. Initialize configuration
-node ../dist/cli.js init
+urja init
 
 # 3. Start development server
-node ../dist/cli.js dev
+urja dev
 
 # 4. Open http://localhost:3000
 ```
 
-**That's it!** 🎉 Your dev server is running with HMR!
+**That's it!** 🎉 Your dev server is running with Hot Module Replacement!
 
 ---
 
-## 📖 Documentation
+## ✨ What's Included
 
-### Table of Contents
+Urja comes with everything you need for modern web development:
 
-- [CLI Commands](#cli-commands)
-- [Visual Builder](#visual-builder)
-- [Features Guide](#features-guide)
-- [Configuration](#configuration)
-- [Plugins](#plugins)
-- [Performance](#performance)
-- [API Reference](#api-reference)
-- [Recipes](#recipes)
-- [Troubleshooting](#troubleshooting)
+### Core Features
+- ⚡ **Lightning-fast builds** with Rust native workers (~0.24µs per transform)
+- 🔄 **Hot Module Replacement (HMR)** for instant updates
+- 🎯 **Zero-config** for React, Vue, Svelte, and vanilla JS
+- 🚀 **Parallel plugin execution** using worker threads
+- 🤖 **AI-powered optimization** and error fixing
+- 📦 **Smart bundling** with code splitting and tree shaking
+- 🔒 **Secure plugin system** with signature verification
+- 🎨 **React Fast Refresh** built-in
+- 📝 **TypeScript** support out of the box
+
+### Performance
+- **Dev server start**: <2s
+- **HMR updates**: <100ms
+- **Plugin transforms (Rust)**: ~0.24µs (20x faster than JavaScript)
+- **Full build (1000 modules)**: ~3s
+
+### Package Contents
+- **216 files** total
+- **527.8 kB** compressed
+- **1.4 MB** unpacked
+- Includes:
+  - CLI tool (`urja` command)
+  - Dev server with HMR
+  - Production build system
+  - AI optimization engine
+  - Rust native worker
+  - Plugin system
+  - Runtime helpers
 
 ---
 
 ## 🖥️ CLI Commands
 
-### `nextgen dev`
+### `urja dev`
 
 Start development server with Hot Module Replacement.
 
 ```bash
-nextgen dev [options]
+urja dev [options]
 
 Options:
   --port <number>    Port number (default: 3000)
   --host <string>    Host address (default: localhost)
-  --open            Open browser automatically
+  --open             Open browser automatically
 
 Examples:
-  nextgen dev
-  nextgen dev --port 8080
-  nextgen dev --host 0.0.0.0 --open
+  urja dev
+  urja dev --port 8080
+  urja dev --host 0.0.0.0 --open
 ```
 
 **Features:**
@@ -94,22 +111,22 @@ Examples:
 
 ---
 
-### `nextgen build`
+### `urja build`
 
 Build for production.
 
 ```bash
-nextgen build [options]
+urja build [options]
 
 Options:
   --mode <string>      Build mode: development | production (default: production)
   --outDir <string>    Output directory (default: dist)
-  --sourcemap         Generate source maps
+  --sourcemap          Generate source maps
 
 Examples:
-  nextgen build
-  nextgen build --mode development
-  nextgen build --outDir build --sourcemap
+  urja build
+  urja build --mode development
+  urja build --outDir build --sourcemap
 ```
 
 **Optimizations:**
@@ -121,304 +138,29 @@ Examples:
 
 ---
 
-### `nextgen init`
+### `urja init`
 
 Initialize a new project configuration.
 
 ```bash
-nextgen init [options]
+urja init [options]
 
 Options:
   --framework <name>   Framework: react | vue | svelte | vanilla
-  --typescript        Enable TypeScript
-  --yes               Use defaults
+  --typescript         Enable TypeScript
+  --yes                Use defaults
 
 Examples:
-  nextgen init                    # Interactive mode
-  nextgen init --framework react --typescript
-  nextgen init --yes              # Quick init with defaults
+  urja init                    # Interactive mode
+  urja init --framework react --typescript
+  urja init --yes              # Quick init with defaults
 ```
 
 **What it does:**
 1. Detects your project structure
 2. Suggests optimal configuration
-3. Creates `nextgen.build.json` or `nextgen.build.ts`
+3. Creates `urja.config.json` or `urja.config.ts`
 4. Sets up recommended plugins
-
----
-
-### `nextgen builder`
-
-Launch the Visual Builder UI.
-
-```bash
-nextgen builder [options]
-
-Options:
-  --port <number>    UI port (default: 3030)
-  --no-open         Don't open browser
-
-Examples:
-  nextgen builder
-  nextgen builder --port 4000
-```
-
-**Opens:** `http://localhost:3030`
-
-The Visual Builder provides:
-- 🎨 Visual configuration editor
-- 🔌 Plugin marketplace browser
-- 📊 Performance dashboard
-- 🤖 AI optimization suggestions
-- 🔄 Real-time config sync
-
----
-
-## 🎨 Visual Builder
-
-### Overview
-
-The Visual Builder is a modern web interface for managing your build configuration without editing JSON files.
-
-![Visual Builder Screenshot](docs/images/builder-screenshot.png)
-
-### Getting Started
-
-```bash
-# Launch the builder
-nextgen builder
-
-# Your browser opens to http://localhost:3030
-```
-
-### Interface Tour
-
-#### **1. Config Editor** 📝
-- Visual form for all config options
-- Real-time validation
-- Instant preview
-- Auto-save to file
-
-#### **2. Plugin Browser** 🔌
-- Browse available plugins
-- One-click install
-- Plugin documentation
-- Signature verification
-
-#### **3. Performance Dashboard** 📊
-- Build time metrics
-- Bundle size analysis
-- Dependency graph
-- Optimization opportunities
-
-#### **4. AI Suggestions** 🤖
-- Framework-specific tips
-- Performance optimizations
-- Security recommendations
-- Best practices
-
-#### **5. Build Output** 🖥️
-- Live build logs
-- Error highlighting
-- Stack traces
-- Quick fixes
-
-### Dark Mode 🌙
-
-Toggle between light and dark themes with the moon/sun icon. Your preference is saved automatically.
-
-### Keyboard Shortcuts
-
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl/Cmd + S` | Save configuration |
-| `Ctrl/Cmd + B` | Trigger build |
-| `Ctrl/Cmd + K` | Open command palette |
-| `Esc` | Close dialogs |
-
----
-
-## ✨ Features Guide
-
-### Basic Features
-
-#### Entry Points
-
-Define your application entry points:
-
-```json
-{
-  "entry": ["src/main.tsx", "src/admin.tsx"]
-}
-```
-
-Multiple entries create multiple bundles.
-
-#### Output Directory
-
-Specify where to output built files:
-
-```json
-{
-  "outDir": "dist"
-}
-```
-
-#### Development Mode
-
-```json
-{
-  "mode": "development"
-}
-```
-
-Enables source maps, faster builds, detailed errors.
-
----
-
-### Intermediate Features
-
-#### Plugins
-
-Extend functionality with plugins:
-
-```json
-{
-  "plugins": [
-    {
-      "name": "sample-plugin-esm",
-      "enabled": true,
-      "config": {}
-    }
-  ]
-}
-```
-
-**Plugin Transforms:**
-- Code transformations
-- Asset processing
-- Bundle optimization
-
-**Security:** All plugins must be signed and verified.
-
----
-
-#### Hot Module Replacement (HMR)
-
-Automatic code reloading without page refresh:
-
-```json
-{
-  "hmr": {
-    "enabled": true,
-    "host": "localhost",
-    "port": 24678
-  }
-}
-```
-
-**Supported:**
-- ✅ JavaScript/TypeScript modules
-- ✅ CSS stylesheets
-- ✅ React components (Fast Refresh)
-
----
-
-#### TypeScript Configuration
-
-Use TypeScript for your build config:
-
-```typescript
-// nextgen.build.ts
-export default {
-  entry: ['src/main.ts'],
-  outDir: 'dist',
-  mode: 'production'
-};
-```
-
-**Benefits:**
-- Type checking
-- IntelliSense
-- Refactoring support
-
----
-
-### Advanced Features
-
-#### Parallel Plugin Execution
-
-Execute plugins in isolated worker processes:
-
-```json
-{
-  "parallelPlugins": {
-    "enabled": true,
-    "workers": 4
-  }
-}
-```
-
-**Performance:**
-- Multiple plugins run simultaneously
-- CPU-bound transforms don't block
-- Automatic worker recovery on errors
-
-**Architecture:**
-- Worker pool based on CPU cores
-- IPC communication
-- Isolated plugin execution
-- Timeout protection
-
----
-
-#### Rust Native Workers
-
-Ultra-fast plugin execution using Rust:
-
-```typescript
-import { RustNativeWorker } from './src/native';
-
-const worker = new RustNativeWorker(4);
-const result = await worker.transform(code, filename);
-```
-
-**Performance:**
-- **~0.24µs** per transform
-- **20x faster** than JavaScript
-- Sub-millisecond response times
-
-**Use Cases:**
-- High-volume transformations
-- Performance-critical builds
-- Large codebases
-
----
-
-#### Custom Plugin Development
-
-Create your own plugins:
-
-```javascript
-// my-plugin.mjs
-export const name = 'my-custom-plugin';
-
-export async function transform(code, id) {
-  // Transform code here
-  return modifiedCode;
-}
-```
-
-**Sign your plugin:**
-
-```bash
-node scripts/sign_plugin.mjs my-plugin.mjs \
-  --publisher mycompany \
-  --version 1.0.0 \
-  --key ./my-private-key.pem
-```
-
-**API Documentation:** [Plugin API Reference](#plugin-api)
 
 ---
 
@@ -426,7 +168,7 @@ node scripts/sign_plugin.mjs my-plugin.mjs \
 
 ### Configuration File
 
-Create `nextgen.build.json` or `nextgen.build.ts`:
+Create `urja.config.json` or `urja.config.ts` in your project root:
 
 #### JSON Configuration
 
@@ -453,9 +195,7 @@ Create `nextgen.build.json` or `nextgen.build.ts`:
 #### TypeScript Configuration
 
 ```typescript
-// nextgen.build.ts
-import type { BuildConfig } from './src/config';
-
+// urja.config.ts
 export default {
   entry: ['src/main.tsx'],
   outDir: 'dist',
@@ -469,165 +209,169 @@ export default {
       }
     }
   ]
-} satisfies BuildConfig;
+};
 ```
 
-### Configuration Schema
+### Configuration Options
 
-Full schema: [API Reference - Config Schema](#config-schema)
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `root` | string | `"."` | Project root directory |
+| `entry` | string[] | `["src/main.tsx"]` | Entry point files |
+| `outDir` | string | `"dist"` | Output directory |
+| `mode` | string | `"production"` | Build mode: development or production |
+| `port` | number | `3000` | Dev server port |
+| `plugins` | array | `[]` | Plugin configurations |
+| `hmr.enabled` | boolean | `true` | Enable Hot Module Replacement |
+| `hmr.port` | number | `24678` | HMR WebSocket port |
+| `parallelPlugins.enabled` | boolean | `true` | Enable parallel plugin execution |
+| `parallelPlugins.workers` | number | `4` | Number of worker threads |
 
 ---
 
 ## 🔌 Plugins
 
-### Official Plugins
+### Using Plugins
 
-| Plugin | Description | Performance |
-|--------|-------------|-------------|
-| `sample-plugin-esm` | Example plugin (console.log → console.debug) | ⚡ Fast |
-| `react-refresh` | React Fast Refresh (built-in) | ⚡ Fast |
-| `vue-sfc` | Vue Single File Components | ⚡ Fast |
-| `svelte-preprocess` | Svelte preprocessing | ⚡ Fast |
+Add plugins to your configuration:
 
-### Plugin Marketplace
+```json
+{
+  "plugins": [
+    {
+      "name": "sample-plugin-esm",
+      "enabled": true,
+      "config": {}
+    }
+  ]
+}
+```
 
-Browse and install plugins via the Visual Builder or CLI.
+### Creating Custom Plugins
+
+```javascript
+// my-plugin.mjs
+export const name = 'my-custom-plugin';
+
+export async function transform(code, id) {
+  // Transform code here
+  return modifiedCode;
+}
+```
+
+**Sign your plugin:**
+
+```bash
+node scripts/sign_plugin.mjs my-plugin.mjs \
+  --publisher mycompany \
+  --version 1.0.0 \
+  --key ./my-private-key.pem
+```
 
 ### Plugin Security
 
-All plugins must be signed:
+All plugins must be signed and verified:
 - ✅ Verified signature
 - ✅ Trusted publisher
 - ✅ Version integrity
 - ❌ Unsigned plugins are rejected
 
-**Trust Configuration:** `config/trust.json`
-
 ---
 
-## 🚀 Performance
+## 🚀 Advanced Features
 
-### Benchmarks
+### Parallel Plugin Execution
 
-| Feature | Performance | Comparison |
-|---------|-------------|------------|
-| Dev Server Start | <2s | Vite: ~2s |
-| HMR Update | <100ms | Webpack: ~500ms |
-| Plugin Transform (Node.js) | ~5µs | Baseline |
-| Plugin Transform (Rust) | ~0.24µs | **20x faster** |
-| Full Build (1000 modules) | ~3s | Webpack: ~15s |
+Execute plugins in isolated worker processes for maximum performance:
 
-### Optimization Tips
-
-1. **Use Native Workers**
-   ```json
-   {
-     "parallelPlugins": { "enabled": true }
-   }
-   ```
-
-2. **Enable Code Splitting**
-   ```json
-   {
-     "entry": ["src/main.tsx", "src/vendor.tsx"]
-   }
-   ```
-
-3. **Production Mode**
-   ```json
-   {
-     "mode": "production"
-   }
-   ```
-   Enables minification and tree shaking.
-
-4. **Source Maps**
-   ```bash
-   nextgen build --sourcemap
-   ```
-   Only in development for faster builds.
-
-### Monitoring Performance
-
-Visual Builder Dashboard shows:
-- Build time trends
-- Bundle size over time
-- Plugin execution times
-- Dependency analysis
-
----
-
-## 📚 API Reference
-
-### Config Schema
-
-```typescript
-interface BuildConfig {
-  root?: string;           // Project root (default: ".")
-  entry: string[];         // Entry points
-  outDir?: string;         // Output directory (default: "dist")
-  mode?: 'development' | 'production';
-  port?: number;           // Dev server port (default: 3000)
-  plugins?: PluginConfig[];
-  hmr?: HMRConfig;
-  parallelPlugins?: ParallelConfig;
+```json
+{
+  "parallelPlugins": {
+    "enabled": true,
+    "workers": 4
+  }
 }
 ```
 
-Full schema: [docs/api/config-schema.md](docs/api/config-schema.md)
+**Benefits:**
+- Multiple plugins run simultaneously
+- CPU-bound transforms don't block
+- Automatic worker recovery on errors
+- Scales with CPU cores
 
----
+### Rust Native Workers
 
-### Plugin API
-
-```typescript
-interface Plugin {
-  name: string;
-  transform(code: string, id: string): Promise<string> | string;
-  load?(id: string): Promise<string | null> | string | null;
-  resolveId?(id: string): Promise<string | null> | string | null;
-}
-```
-
-Full API: [docs/api/plugin-api.md](docs/api/plugin-api.md)
-
----
-
-### Native Worker API
+Ultra-fast plugin execution using Rust:
 
 ```typescript
-class RustNativeWorker {
-  constructor(poolSize?: number);
-  transformSync(code: string, id: string): string;
-  transform(code: string, id: string): Promise<string>;
-  get poolSize(): number;
-}
+import { RustNativeWorker } from 'urja/native';
 
-function benchmarkNativeTransform(
-  code: string,
-  iterations?: number
-): number;
+const worker = new RustNativeWorker(4);
+const result = await worker.transform(code, filename);
 ```
 
-Full API: [docs/api/native-api.md](docs/api/native-api.md)
+**Performance:**
+- **~0.24µs** per transform
+- **20x faster** than JavaScript
+- Sub-millisecond response times
+
+### AI-Powered Features
+
+Urja includes AI capabilities for:
+- 🤖 **Automatic error fixing** - Learns from build errors
+- 📊 **Performance optimization** - Suggests improvements
+- 🔍 **Code analysis** - Identifies bottlenecks
+- 💡 **Smart suggestions** - Framework-specific tips
 
 ---
 
-### Builder Server API
+## 📚 Framework Support
 
-REST endpoints:
+Urja works out of the box with:
 
-- `GET /api/config` - Get configuration
-- `POST /api/config` - Update configuration
-- `PATCH /api/config` - Partial update
-- `GET /api/suggestions` - AI suggestions
-- `GET /api/plugins` - Available plugins
-- `POST /api/build` - Trigger build
-- `GET /api/metrics` - Performance metrics
+### React
+```bash
+urja init --framework react
+urja dev
+```
 
-WebSocket: `/ws` - Real-time config sync
+Features:
+- ✅ React Fast Refresh
+- ✅ JSX/TSX support
+- ✅ Automatic Babel configuration
 
-Full API: [docs/api/builder-api.md](docs/api/builder-api.md)
+### Vue
+```bash
+urja init --framework vue
+urja dev
+```
+
+Features:
+- ✅ Single File Components (.vue)
+- ✅ Vue 3 support
+- ✅ Hot reload
+
+### Svelte
+```bash
+urja init --framework svelte
+urja dev
+```
+
+Features:
+- ✅ Svelte preprocessing
+- ✅ Hot Module Replacement
+- ✅ TypeScript support
+
+### Vanilla JavaScript
+```bash
+urja init --framework vanilla
+urja dev
+```
+
+Features:
+- ✅ ES modules
+- ✅ TypeScript
+- ✅ Modern JavaScript
 
 ---
 
@@ -637,62 +381,25 @@ Full API: [docs/api/builder-api.md](docs/api/builder-api.md)
 
 ```bash
 # Initialize
-nextgen init --framework react --typescript
+urja init --framework react --typescript
 
 # Start development
-nextgen dev
+urja dev
+
+# Build for production
+urja build
 ```
-
-**Configuration:**
-```typescript
-// nextgen.build.ts
-export default {
-  entry: ['src/main.tsx'],
-  outDir: 'dist',
-  mode: 'development',
-  plugins: [
-    { name: 'react-refresh', enabled: true }
-  ]
-};
-```
-
----
-
-### Vue Application
-
-```bash
-nextgen init --framework vue
-nextgen dev
-```
-
-**Configuration:**
-```json
-{
-  "entry": ["src/main.ts"],
-  "plugins": [
-    { "name": "vue-sfc", "enabled": true }
-  ]
-}
-```
-
----
 
 ### TypeScript Library
 
-```bash
-nextgen init --typescript
-```
-
-**Configuration:**
 ```typescript
+// urja.config.ts
 export default {
   entry: ['src/index.ts'],
   outDir: 'dist',
   mode: 'production'
 };
 ```
-
----
 
 ### Microfrontend Architecture
 
@@ -708,17 +415,11 @@ export default {
 };
 ```
 
-More recipes: [docs/guides/](docs/guides/)
-
 ---
 
 ## 🐛 Troubleshooting
 
-### Common Issues
-
-#### Build Fails with "Plugin signature verification failed"
-
-**Cause:** Unsigned or invalidly signed plugin.
+### Build Fails with "Plugin signature verification failed"
 
 **Solution:**
 ```bash
@@ -729,11 +430,7 @@ node scripts/sign_plugin.mjs my-plugin.mjs \
   --key ./my-key.pem
 ```
 
----
-
-#### Dev Server Not Hot Reloading
-
-**Cause:** HMR WebSocket not connecting.
+### Dev Server Not Hot Reloading
 
 **Solution:**
 1. Check port 24678 is not blocked
@@ -748,86 +445,72 @@ node scripts/sign_plugin.mjs my-plugin.mjs \
    }
    ```
 
----
-
-#### Slow Builds
+### Slow Builds
 
 **Solutions:**
 1. Enable parallel plugins
 2. Use Rust native workers
 3. Check for large dependencies
-4. Review plugin execution times in dashboard
+4. Review plugin execution times
 
 ---
 
-#### TypeScript Config Not Loading
+## 📊 Performance Benchmarks
 
-**Cause:** esbuild not installed or syntax error in config.
-
-**Solution:**
-```bash
-# Install esbuild
-npm install esbuild
-
-# Check config syntax
-node -c nextgen.build.ts
-```
-
----
-
-### Debug Mode
-
-Enable verbose logging:
-
-```bash
-DEBUG=nextgen:* nextgen dev
-```
-
----
-
-### FAQ
-
-**Q: Can I use this in production?**
-A: Yes! It's optimized for production builds.
-
-**Q: Does it replace Webpack/Vite?**
-A: It's an alternative with focus on performance and extensibility.
-
-**Q: Can I create custom plugins?**
-A: Yes! See [Plugin API](#plugin-api).
-
-**Q: Is the Rust worker required?**
-A: No, it's optional for performance optimization.
-
-More FAQ: [docs/troubleshooting/faq.md](docs/troubleshooting/faq.md)
+| Feature | Urja | Vite | Webpack |
+|---------|------|------|---------|
+| Dev Server Start | <2s | ~2s | ~5s |
+| HMR Update | <100ms | ~100ms | ~500ms |
+| Plugin Transform (Rust) | ~0.24µs | N/A | N/A |
+| Full Build (1000 modules) | ~3s | ~4s | ~15s |
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details.
 
 ---
 
 ## 📄 License
 
-MIT © 2025 NextGen Build Tool
+MIT © [Avinash-1994](https://github.com/Avinash-1994)
 
 ---
 
 ## 🔗 Links
 
-- [GitHub Repository](https://github.com/Avinash-1994/next-gen-build-tool)
-- [Documentation](docs/)
-- [Issue Tracker](https://github.com/Avinash-1994/next-gen-build-tool/issues)
+- [npm Package](https://www.npmjs.com/package/urja)
+- [GitHub Repository](https://github.com/Avinash-1994/urja)
+- [Issue Tracker](https://github.com/Avinash-1994/urja/issues)
 - [Changelog](CHANGELOG.md)
+
+---
+
+## ❓ FAQ
+
+**Q: What does "Urja" mean?**
+A: Urja (ऊर्जा) is Sanskrit for "Energy" or "Power" - representing the high-energy, powerful nature of this build tool.
+
+**Q: Can I use this in production?**
+A: Yes! Urja is optimized for production builds with minification, tree shaking, and code splitting.
+
+**Q: Does it replace Vite/Webpack?**
+A: Urja is an alternative build tool with focus on performance, AI optimization, and extensibility.
+
+**Q: Is the Rust worker required?**
+A: No, it's optional. Urja works without it, but the Rust worker provides significant performance improvements.
+
+**Q: How do I create custom plugins?**
+A: See the [Plugin Development Guide](#creating-custom-plugins) above.
+
+**Q: Does it support TypeScript?**
+A: Yes! TypeScript is fully supported out of the box, including for configuration files.
 
 ---
 
 <div align="center">
 
-**Made with ❤️ for the developer community**
-
-[⬆ Back to Top](#nextgen-build-tool)
+**Made with ⚡ Energy by [Avinash-1994](https://github.com/Avinash-1994)**
 
 </div>

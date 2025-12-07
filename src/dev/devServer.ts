@@ -12,13 +12,37 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
 // Load Native Worker
-const nativePath = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../../nextgen_native.node');
-// Fallback for different environments if needed, but this should work for local dev
+// When installed via npm, the structure is: node_modules/urja/dist/dev/devServer.js
+// and nextgen_native.node is at: node_modules/urja/dist/nextgen_native.node
+const nativePath = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../nextgen_native.node');
 const { NativeWorker } = require(nativePath);
 
 import { HMRThrottle } from './hmrThrottle.js';
 import { ConfigWatcher } from './configWatcher.js';
 import { StatusHandler } from './statusHandler.js';
+
+/**
+ * Rewrite bare module imports to node_modules paths
+ * Converts: import React from 'react'
+ * To: import React from '/node_modules/react/index.js'
+ */
+function rewriteImports(code: string, root: string): string {
+  // Match import statements with bare specifiers (no ./ or ../ or /)
+  return code.replace(
+    /from\s+['"]([^.\/][^'"]*)['"]/g,
+    (match, specifier) => {
+      // Don't rewrite if it's already a full path or starts with http
+      if (specifier.startsWith('http') || specifier.startsWith('/')) {
+        return match;
+      }
+
+      // Rewrite to node_modules path
+      // The browser will request /node_modules/package/...
+      // and we'll serve it from the actual node_modules directory
+      return `from '/node_modules/${specifier}'`;
+    }
+  );
+}
 
 export async function startDevServer(cfg: BuildConfig) {
   // 1. Load Environment Variables
@@ -213,6 +237,32 @@ export async function startDevServer(cfg: BuildConfig) {
       return;
     }
 
+    // Serve from node_modules
+    if (url.startsWith('/node_modules/')) {
+      const modulePath = path.join(cfg.root, url);
+      try {
+        await fs.access(modulePath);
+        let data = await fs.readFile(modulePath, 'utf-8');
+        const ext = path.extname(modulePath);
+
+        // Transform JS files from node_modules too
+        if (ext === '.js' || ext === '.mjs') {
+          // Rewrite imports in node_modules files as well
+          data = rewriteImports(data, cfg.root);
+        }
+
+        const mime = ext === '.js' || ext === '.mjs' ? 'application/javascript' :
+          ext === '.css' ? 'text/css' : 'application/octet-stream';
+        res.writeHead(200, { 'Content-Type': mime });
+        res.end(data);
+        return;
+      } catch (e) {
+        res.writeHead(404);
+        res.end('Module not found');
+        return;
+      }
+    }
+
     // Try to serve from public first
     const publicPath = path.join(cfg.root, 'public', url);
     try {
@@ -270,8 +320,10 @@ export async function startDevServer(cfg: BuildConfig) {
           });
 
           if (result && result.code) {
+            // Rewrite imports after Babel transform
+            let code = rewriteImports(result.code, cfg.root);
             res.writeHead(200, { 'Content-Type': 'application/javascript' });
-            res.end(result.code);
+            res.end(code);
             return;
           }
         }
@@ -284,8 +336,12 @@ export async function startDevServer(cfg: BuildConfig) {
           target: 'es2020',
         });
 
+        // Rewrite bare imports to node_modules paths
+        let code = result.code;
+        code = rewriteImports(code, cfg.root);
+
         res.writeHead(200, { 'Content-Type': 'application/javascript' });
-        res.end(result.code);
+        res.end(code);
         return;
       }
 

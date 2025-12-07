@@ -3,7 +3,7 @@ import path from 'path';
 import { log } from '../utils/logger.js';
 
 export async function initProject(cwd: string) {
-    log.info('Initializing project in', cwd);
+    log.info('Initializing project', { cwd });
 
     const pkgPath = path.join(cwd, 'package.json');
     let framework = 'vanilla';

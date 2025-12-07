@@ -1,53 +1,69 @@
-import { generateSuggestions, ProjectAnalysis } from '../src/ai/analyzer.js';
-import assert from 'assert';
+import { AIClient } from '../src/ai/client.js';
+import { Telemetry } from '../src/ai/telemetry.js';
+import fs from 'fs/promises';
+import path from 'path';
+import { rimraf } from 'rimraf';
 
-async function testAI() {
-    console.log('Testing AI Analyzer...');
+async function runTest() {
+    console.log('🧪 Running AI Features Integration Test\n');
 
-    const mockAnalysis: ProjectAnalysis = {
-        framework: 'react',
-        typescript: true,
-        packageManager: 'npm',
-        dependencies: ['react', 'typescript'],
-        fileCount: 20,
-        totalSize: 1000,
-        entryPoints: ['src/main.tsx']
-    };
+    const testDir = path.resolve(process.cwd(), 'test_output_ai');
+    await rimraf(testDir);
+    await fs.mkdir(testDir, { recursive: true });
 
-    // Test 1: Basic Suggestions
-    console.log('Test 1: Basic Suggestions');
-    const basicSuggestions = await generateSuggestions(mockAnalysis);
-    assert(basicSuggestions.some(s => s.title === 'React Fast Refresh'), 'Should suggest React Fast Refresh');
-    assert(basicSuggestions.some(s => s.title === 'TypeScript Config'), 'Should suggest TypeScript Config');
-    console.log('✓ Basic suggestions passed');
+    try {
+        // Test 1: AI Client (Local)
+        console.log('Test 1: AI Client (Local)');
+        const client = new AIClient({ provider: 'local' }, testDir);
+        await client.init();
 
-    // Test 2: Large Chunk Detection
-    console.log('Test 2: Large Chunk Detection');
-    const mockMetafile = {
-        outputs: {
-            'dist/large.js': { bytes: 600 * 1024 }, // 600KB
-            'dist/small.js': { bytes: 10 * 1024 }
-        }
-    };
-    const chunkSuggestions = await generateSuggestions(mockAnalysis, mockMetafile);
-    assert(chunkSuggestions.some(s => s.title === 'Large Chunks Detected'), 'Should detect large chunks');
-    console.log('✓ Large chunk detection passed');
+        const prompt = 'Optimize my build';
+        const start = Date.now();
+        const res1 = await client.complete(prompt);
+        const duration1 = Date.now() - start;
+        console.log(`First call took ${duration1}ms`);
 
-    // Test 3: High Bundle Size
-    console.log('Test 3: High Bundle Size');
-    const mockHugeMetafile = {
-        outputs: {
-            'dist/huge.js': { bytes: 3 * 1024 * 1024 } // 3MB
-        }
-    };
-    const sizeSuggestions = await generateSuggestions(mockAnalysis, mockHugeMetafile);
-    assert(sizeSuggestions.some(s => s.title === 'High Bundle Size'), 'Should detect high bundle size');
-    console.log('✓ High bundle size detection passed');
+        if (!res1.includes('Local AI')) throw new Error('Invalid response');
 
-    console.log('All AI tests passed!');
+        const start2 = Date.now();
+        const res2 = await client.complete(prompt);
+        const duration2 = Date.now() - start2;
+        console.log(`Second call (cached) took ${duration2}ms`);
+
+        if (res1 !== res2) throw new Error('Cache mismatch');
+        if (duration2 > 50) throw new Error('Cache too slow'); // Should be instant
+        console.log('✅ AI Client & Caching verified');
+
+        // Test 2: Telemetry
+        console.log('\nTest 2: Telemetry');
+        const telemetry = new Telemetry(testDir);
+        await telemetry.init();
+
+        telemetry.start();
+        await new Promise(r => setTimeout(r, 100));
+        await telemetry.stop(true, { modules: 10, bundleSize: 1024 }, ['Error 1']);
+
+        const telemetryDir = path.join(testDir, '.nextgen', 'telemetry');
+        const files = await fs.readdir(telemetryDir);
+
+        if (files.length !== 1) throw new Error('Telemetry file not created');
+
+        const content = await fs.readFile(path.join(telemetryDir, files[0]), 'utf-8');
+        const session = JSON.parse(content);
+
+        if (!session.success) throw new Error('Session success mismatch');
+        if (session.metrics.modules !== 10) throw new Error('Metrics mismatch');
+        if (session.errors[0] !== 'Error 1') throw new Error('Errors mismatch');
+        if (session.duration < 100) throw new Error('Duration too short');
+
+        console.log('✅ Telemetry verification passed');
+        console.log('\n✨ All tests passed!');
+        process.exit(0);
+
+    } catch (e) {
+        console.error('❌ Test failed:', e);
+        process.exit(1);
+    }
 }
 
-testAI().catch(err => {
-    console.error('Test failed:', err);
-    process.exit(1);
-});
+runTest().catch(console.error);

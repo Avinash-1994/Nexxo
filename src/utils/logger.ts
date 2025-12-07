@@ -1,7 +1,7 @@
 import kleur from 'kleur';
 
 export type LogLevel = 'info' | 'success' | 'warn' | 'error' | 'debug';
-export type LogCategory = 'build' | 'hmr' | 'server' | 'cache' | 'audit' | 'general';
+export type LogCategory = 'build' | 'hmr' | 'server' | 'cache' | 'audit' | 'general' | 'ai';
 
 export interface LogContext {
   timestamp?: boolean;

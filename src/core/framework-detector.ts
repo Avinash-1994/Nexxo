@@ -63,7 +63,7 @@ export async function detectFramework(root: string): Promise<DetectedFramework |
         return { name: 'vanilla' };
 
     } catch (error) {
-        log.warn('Failed to detect framework:', error);
+        log.warn('Failed to detect framework', { error });
         return null;
     }
 }

@@ -1,0 +1,23 @@
+{
+  "name": "urja-test-project",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "urja dev",
+    "build": "urja build",
+    "preview": "urja dev --port 4173"
+  },
+  "keywords": [
+    "urja",
+    "test",
+    "build-tool"
+  ],
+  "author": "Avinash-1994",
+  "license": "MIT",
+  "description": "Test project for Urja build tool - testing all modules and facilities",
+  "dependencies": {
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "urja": "file:.."
+  }
+}

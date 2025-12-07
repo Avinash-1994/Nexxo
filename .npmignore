@@ -1,0 +1,61 @@
+# Source files (we only publish dist/)
+src/
+tests/
+native/target/
+native/Cargo.lock
+
+# Build artifacts
+build_output/
+test_output*/
+test_phase*/
+test-tailwind-init/
+demo_project/
+.nextgen_cache/
+.remote_cache/
+.remote_cache_pid
+
+# Development files
+*.log
+worker-debug.log
+.DS_Store
+tsconfig.json
+tsconfig.build.json
+nextgen.build.temp.mjs
+
+# Documentation and internal files
+docs/
+visualBuilder/
+cloud-backend/
+marketplace/
+marketplace_data/
+scripts/
+config/
+
+# Git
+.git/
+.github/
+.gitignore
+
+# Temporary files
+tempPriv.pem
+*.pem
+marketplace.json
+marketplace_auth.json
+docker-compose.minio.yml
+
+# Planning docs
+CHANGELOG.md
+CLOUD_API_SPEC.md
+CONTRIBUTING.md
+FINAL_STATUS.md
+PRODUCTION_READY.md
+SELF_LEARNING_AI.md
+plan_comparison.md
+roadmap_comparison.md
+demo_ai.sh
+
+# Keep these
+!README.md
+!LICENSE
+!package.json
+!dist/
