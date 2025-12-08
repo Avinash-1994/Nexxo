@@ -1,69 +1,188 @@
+/**
+ * Framework Detector
+ * Automatically detects which framework(s) are being used in the project
+ */
+
 import fs from 'fs/promises';
 import path from 'path';
-import { log } from '../utils/logger.js';
 
-export type FrameworkName = 'react' | 'vue' | 'svelte' | 'preact' | 'solid' | 'angular' | 'vanilla';
+export type Framework =
+    | 'react'
+    | 'vue'
+    | 'svelte'
+    | 'angular'
+    | 'solid'
+    | 'preact'
+    | 'qwik'
+    | 'lit'
+    | 'astro'
+    | 'next'
+    | 'nuxt'
+    | 'remix'
+    | 'vanilla';
 
-export interface DetectedFramework {
-    name: FrameworkName | string;
+export interface FrameworkInfo {
+    name: Framework;
     version?: string;
-    isSSR?: boolean;
+    detected: boolean;
+    confidence: number; // 0-1
 }
 
-export type FrameworkDetector = (root: string) => Promise<DetectedFramework | null>;
+export class FrameworkDetector {
+    private root: string;
+    private packageJson: any;
 
-const customDetectors: FrameworkDetector[] = [];
+    constructor(root: string) {
+        this.root = root;
+    }
 
-export function registerFrameworkDetector(detector: FrameworkDetector) {
-    customDetectors.push(detector);
-}
-
-export async function detectFramework(root: string): Promise<DetectedFramework | null> {
-    try {
-        // Try custom detectors first
-        for (const detector of customDetectors) {
-            const result = await detector(root);
-            if (result) return result;
+    async detect(): Promise<FrameworkInfo[]> {
+        // Read package.json
+        try {
+            const pkgPath = path.join(this.root, 'package.json');
+            const content = await fs.readFile(pkgPath, 'utf-8');
+            this.packageJson = JSON.parse(content);
+        } catch (error) {
+            return [{ name: 'vanilla', detected: true, confidence: 1.0 }];
         }
 
-        const pkgPath = path.join(root, 'package.json');
-        const pkgExists = await fs.access(pkgPath).then(() => true).catch(() => false);
+        const frameworks: FrameworkInfo[] = [];
+        const deps = {
+            ...this.packageJson.dependencies,
+            ...this.packageJson.devDependencies
+        };
 
-        if (pkgExists) {
-            const pkgContent = await fs.readFile(pkgPath, 'utf-8');
-            const pkg = JSON.parse(pkgContent);
-            const deps = { ...pkg.dependencies, ...pkg.devDependencies };
-
-            if (deps['@angular/core']) return { name: 'angular', version: deps['@angular/core'] };
-            if (deps['svelte']) return { name: 'svelte', version: deps['svelte'] };
-            if (deps['vue']) return { name: 'vue', version: deps['vue'] };
-            if (deps['react']) return { name: 'react', version: deps['react'] };
-            if (deps['preact']) return { name: 'preact', version: deps['preact'] };
-            if (deps['solid-js']) return { name: 'solid', version: deps['solid-js'] };
+        // Detect frameworks based on dependencies
+        // Meta-frameworks first (they include their base framework)
+        if (deps['next']) {
+            frameworks.push({
+                name: 'next',
+                version: deps['next'],
+                detected: true,
+                confidence: 1.0
+            });
         }
 
-        // Fallback: Scan src files if package.json is ambiguous or missing
-        // This is a basic heuristic scan
-        const srcPath = path.join(root, 'src');
-        const srcExists = await fs.access(srcPath).then(() => true).catch(() => false);
-
-        if (srcExists) {
-            const files = await fs.readdir(srcPath);
-            for (const file of files) {
-                if (file.endsWith('.svelte')) return { name: 'svelte' };
-                if (file.endsWith('.vue')) return { name: 'vue' };
-                if (file.endsWith('.tsx')) {
-                    // Could be React, Solid, or Preact. Defaulting to React for now if no package.json hints
-                    // In a real scenario, we'd read the file imports.
-                    return { name: 'react' };
-                }
-            }
+        if (deps['nuxt']) {
+            frameworks.push({
+                name: 'nuxt',
+                version: deps['nuxt'],
+                detected: true,
+                confidence: 1.0
+            });
         }
 
-        return { name: 'vanilla' };
+        if (deps['@remix-run/react']) {
+            frameworks.push({
+                name: 'remix',
+                version: deps['@remix-run/react'],
+                detected: true,
+                confidence: 1.0
+            });
+        }
 
-    } catch (error) {
-        log.warn('Failed to detect framework', { error });
-        return null;
+        if (deps['astro']) {
+            frameworks.push({
+                name: 'astro',
+                version: deps['astro'],
+                detected: true,
+                confidence: 1.0
+            });
+        }
+
+        // Base frameworks
+        if (deps['react'] && !frameworks.some(f => f.name === 'next' || f.name === 'remix')) {
+            frameworks.push({
+                name: 'react',
+                version: deps['react'],
+                detected: true,
+                confidence: 1.0
+            });
+        }
+
+        if (deps['vue'] && !frameworks.some(f => f.name === 'nuxt')) {
+            frameworks.push({
+                name: 'vue',
+                version: deps['vue'],
+                detected: true,
+                confidence: 1.0
+            });
+        }
+
+        if (deps['svelte']) {
+            frameworks.push({
+                name: 'svelte',
+                version: deps['svelte'],
+                detected: true,
+                confidence: 1.0
+            });
+        }
+
+        if (deps['@angular/core']) {
+            frameworks.push({
+                name: 'angular',
+                version: deps['@angular/core'],
+                detected: true,
+                confidence: 1.0
+            });
+        }
+
+        if (deps['solid-js']) {
+            frameworks.push({
+                name: 'solid',
+                version: deps['solid-js'],
+                detected: true,
+                confidence: 1.0
+            });
+        }
+
+        if (deps['preact']) {
+            frameworks.push({
+                name: 'preact',
+                version: deps['preact'],
+                detected: true,
+                confidence: 1.0
+            });
+        }
+
+        if (deps['qwik'] || deps['@builder.io/qwik']) {
+            frameworks.push({
+                name: 'qwik',
+                version: deps['qwik'] || deps['@builder.io/qwik'],
+                detected: true,
+                confidence: 1.0
+            });
+        }
+
+        if (deps['lit']) {
+            frameworks.push({
+                name: 'lit',
+                version: deps['lit'],
+                detected: true,
+                confidence: 1.0
+            });
+        }
+
+        // If no framework detected, it's vanilla JS/TS
+        if (frameworks.length === 0) {
+            frameworks.push({
+                name: 'vanilla',
+                detected: true,
+                confidence: 1.0
+            });
+        }
+
+        return frameworks;
+    }
+
+    async detectPrimary(): Promise<Framework> {
+        const frameworks = await this.detect();
+        // Return the first detected framework (highest priority)
+        return frameworks[0]?.name || 'vanilla';
+    }
+
+    async getFrameworkVersion(framework: Framework): Promise<string | undefined> {
+        const frameworks = await this.detect();
+        return frameworks.find(f => f.name === framework)?.version;
     }
 }
