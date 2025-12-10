@@ -1,0 +1,10 @@
+{
+  "id": "f0504674-aaf0-498b-b8fe-1faad48029b8",
+  "timestamp": 1765256458875,
+  "duration": 38,
+  "success": false,
+  "metrics": {},
+  "errors": [
+    "Build failed with 1 error:\nerror: Could not resolve \"/home/avinash/Desktop/framework_practis/build/examples/svelte-test/src/main.tsx\""
+  ]
+}

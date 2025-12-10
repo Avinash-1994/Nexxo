@@ -135,23 +135,89 @@ export async function startDevServer(cfg: BuildConfig) {
   let preBundledDeps = new Map<string, string>();
 
   try {
-    // Framework-specific dependencies to pre-bundle
+    // 1. Load package.json dependencies
+    let pkgDeps: string[] = [];
+    try {
+      const pkgPath = path.join(cfg.root, 'package.json');
+      const pkgContent = await fs.readFile(pkgPath, 'utf-8');
+      const pkg = JSON.parse(pkgContent);
+      pkgDeps = [
+        ...Object.keys(pkg.dependencies || {}),
+        ...Object.keys(pkg.devDependencies || {})
+      ];
+    } catch (e) {
+      log.warn('Could not read package.json dependencies', { category: 'server' });
+    }
+
+    // 2. Framework Defaults
     const frameworkDeps: Record<string, string[]> = {
-      react: ['react', 'react-dom', 'react-dom/client', 'react/jsx-dev-runtime', 'react/jsx-runtime'],
-      next: ['react', 'react-dom', 'react-dom/client', 'react/jsx-dev-runtime', 'react/jsx-runtime'],
-      remix: ['react', 'react-dom', 'react-dom/client', 'react/jsx-dev-runtime', 'react/jsx-runtime'],
+      react: ['react', 'react-dom', 'react-dom/client', 'react/jsx-dev-runtime', 'react/jsx-runtime', 'react-router-dom', '@remix-run/router'],
+      next: ['react', 'react-dom', 'react-dom/client', 'react/jsx-dev-runtime', 'react/jsx-runtime', 'react-router-dom'],
+      remix: ['react', 'react-dom', 'react-dom/client', 'react/jsx-dev-runtime', 'react/jsx-runtime', 'react-router-dom'],
       preact: ['preact', 'preact/hooks'],
       vue: ['vue'],
       nuxt: ['vue'],
       svelte: ['svelte'],
       solid: ['solid-js'],
-      // Other frameworks don't typically need pre-bundling
     };
 
-    const depsToBundle = frameworkDeps[primaryFramework] || [];
-    if (depsToBundle.length > 0) {
-      preBundledDeps = await preBundler.preBundleDependencies(depsToBundle);
-      log.info('Dependencies pre-bundled successfully', { count: preBundledDeps.size });
+    const defaultDeps = frameworkDeps[primaryFramework] || [];
+
+    // 3. User Config (prebundle)
+    const prebundleConfig = cfg.prebundle || { enabled: true, include: [], exclude: [] };
+
+    if (prebundleConfig.enabled !== false) {
+      // Merge sources
+      let depsToBundle = new Set([
+        ...defaultDeps,
+        ...(prebundleConfig.include || [])
+      ]);
+
+      // Filter 1: Must verify existence in node_modules (Avoid resolve errors)
+      const validDeps = new Set<string>();
+      // Use require.resolve to check existence, but be careful with exports
+      for (const dep of depsToBundle) {
+        // Exclude specific overrides
+        if (prebundleConfig.exclude?.includes(dep)) continue;
+
+        // Verify existence
+        try {
+          // Check if package.json or dependency exists in node_modules
+          // We can't always use require.resolve for sub-paths (like react/jsx-runtime) comfortably without conditions
+          // So we check if the ROOT package is installed
+          const rootPkg = dep.startsWith('@') ? dep.split('/').slice(0, 2).join('/') : dep.split('/')[0];
+
+          // Only strict check if it's NOT in package.json? 
+          // Ideally we pre-bundle only what IS available.
+          // Check if root package is in pkgDeps (direct dependency) OR we can resolve it
+          const isDirectDep = pkgDeps.includes(rootPkg);
+
+          if (isDirectDep) {
+            validDeps.add(dep);
+          } else {
+            // Try to resolve it to ensure it exists (transitive deps like @remix-run/router)
+            try {
+              require.resolve(dep, { paths: [cfg.root] });
+              validDeps.add(dep);
+            } catch (e) {
+              // Try resolving package.json of the dep
+              try {
+                const pkgJsonPath = path.join(cfg.root, 'node_modules', rootPkg, 'package.json');
+                await fs.access(pkgJsonPath);
+                validDeps.add(dep);
+              } catch { }
+            }
+          }
+        } catch (e) {
+          // Skip missing dep
+        }
+      }
+
+      if (validDeps.size > 0) {
+        // 4. Pass to PreBundler
+        preBundledDeps = await preBundler.preBundleDependencies(Array.from(validDeps));
+        log.info('Dependencies pre-bundled successfully', { count: preBundledDeps.size });
+      }
     }
   } catch (error: any) {
     log.warn('Failed to pre-bundle some dependencies:', error.message);

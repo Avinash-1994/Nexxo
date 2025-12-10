@@ -1,0 +1,6 @@
+{
+  "name": "preact-app",
+  "version": "0.0.1",
+  "type": "module",
+  "dependencies": {"preact": "^10.19.0"}
+}

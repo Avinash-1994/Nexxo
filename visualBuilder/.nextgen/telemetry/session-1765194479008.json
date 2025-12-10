@@ -1,0 +1,10 @@
+{
+  "id": "faf6bd90-2f63-4622-acc1-e3d6b60f0460",
+  "timestamp": 1765194479008,
+  "duration": 38,
+  "success": false,
+  "metrics": {},
+  "errors": [
+    "Build failed with 1 error:\nerror: Could not resolve \"/home/avinash/Desktop/framework_practis/build/visualBuilder/src/main.tsx\""
+  ]
+}

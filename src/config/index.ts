@@ -56,6 +56,11 @@ const BuildConfigSchema = z.object({
     https: z.union([z.boolean(), z.object({ key: z.string(), cert: z.string() })]).optional(),
     headers: z.record(z.string(), z.string()).optional(),
   }).optional(),
+  prebundle: z.object({
+    enabled: z.boolean().default(true),
+    include: z.array(z.string()).optional(),
+    exclude: z.array(z.string()).optional(),
+  }).optional(),
 });
 
 export type BuildConfig = {
@@ -100,6 +105,11 @@ export type BuildConfig = {
     proxy?: Record<string, string | any>;
     https?: boolean | { key: string; cert: string };
     headers?: Record<string, string>;
+  };
+  prebundle?: {
+    enabled?: boolean;
+    include?: string[];
+    exclude?: string[];
   };
 };
 
@@ -174,9 +184,9 @@ export async function loadConfig(cwd: string): Promise<BuildConfig> {
     const root = config.root || cwd;
 
     let finalConfig = { ...config };
-    if (config.preset === 'spa') finalConfig = { ...finalConfig, ...spaPreset.apply(finalConfig) };
-    if (config.preset === 'ssr') finalConfig = { ...finalConfig, ...ssrPreset.apply(finalConfig) };
-    if (config.preset === 'ssg') finalConfig = { ...finalConfig, ...ssgPreset.apply(finalConfig) };
+    if (config.preset === 'spa') finalConfig = { ...finalConfig, ...(spaPreset.apply(finalConfig) as any) };
+    if (config.preset === 'ssr') finalConfig = { ...finalConfig, ...(ssrPreset.apply(finalConfig) as any) };
+    if (config.preset === 'ssg') finalConfig = { ...finalConfig, ...(ssgPreset.apply(finalConfig) as any) };
 
     return {
       ...finalConfig,
