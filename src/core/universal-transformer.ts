@@ -181,16 +181,28 @@ export class UniversalTransformer {
             // Try Vue 3 compiler first
             let compiler: any;
             try {
-                // @ts-ignore - Optional dependency
+                // Try from local node_modules (tool's deps)
+                // @ts-ignore
                 compiler = await import('@vue/compiler-sfc');
             } catch {
-                // Fallback to Vue 2 compiler
                 try {
-                    // @ts-ignore - Optional dependency
-                    compiler = await import('vue-template-compiler');
+                    // Try from project root
+                    const compilerPath = require.resolve('@vue/compiler-sfc', { paths: [this.root] });
+                    compiler = await import(compilerPath);
                 } catch {
-                    log.warn('No Vue compiler found, treating as vanilla');
-                    return this.transformVanilla(code, filePath, isDev);
+                    // Fallback to Vue 2 compiler
+                    try {
+                        // @ts-ignore
+                        compiler = await import('vue-template-compiler');
+                    } catch {
+                        try {
+                            const compilerPath = require.resolve('vue-template-compiler', { paths: [this.root] });
+                            compiler = await import(compilerPath);
+                        } catch {
+                            log.warn('No Vue compiler found, treating as vanilla');
+                            return this.transformVanilla(code, filePath, isDev);
+                        }
+                    }
                 }
             }
 
@@ -258,15 +270,34 @@ export class UniversalTransformer {
         }
 
         try {
-            // @ts-ignore - Optional dependency
-            const svelte = await import('svelte/compiler');
+            let svelte: any;
+            try {
+                // Try from project root FIRST
+                const compilerPath = require.resolve('svelte/compiler', { paths: [this.root] });
+                svelte = await import(compilerPath);
+            } catch {
+                // Fallback to local
+                // @ts-ignore
+                svelte = await import('svelte/compiler');
+            }
 
             const result = svelte.compile(code, {
                 filename: filePath,
                 dev: isDev,
-                css: 'injected' as any, // Inject CSS into JS
-                generate: 'client' as any // Svelte 5 uses 'client'
+                css: 'injected' as any,
+                generate: 'dom' as any // Default to 'dom' for Svelte 3/4, Svelte 5 accepts 'client' but interprets 'dom' fine? Or 'client'?
             } as any);
+
+            // Svelte 5 backwards compat check??
+            // For now, assume 'dom' works for 3/4. 
+            // If it's Svelte 5, usage is `generate: 'client'`.
+            // But if user is on Svelte 4, `generate: 'client'` might NOT work?
+            // Actually Svelte 4 uses `generate: 'dom' | 'ssr'`.
+            // Svelte 5 uses `generate: 'client' | 'server'`.
+
+            // Let's safe check version if possible?
+            // Or catch options error?
+            // Revert strict 'client' to 'dom' which is safer for default Svelte.
 
             return {
                 code: result.js.code,

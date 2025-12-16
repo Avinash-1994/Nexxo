@@ -194,7 +194,16 @@ export async function startDevServer(cfg: BuildConfig) {
       preact: ['preact', 'preact/hooks'],
       vue: ['vue'],
       nuxt: ['vue'],
-      svelte: ['svelte'],
+      svelte: [
+        'svelte',
+        'svelte/animate',
+        'svelte/easing',
+        'svelte/internal',
+        'svelte/internal/disclose-version',
+        'svelte/motion',
+        'svelte/store',
+        'svelte/transition'
+      ],
       solid: ['solid-js'],
     };
 
@@ -670,6 +679,24 @@ export async function startDevServer(cfg: BuildConfig) {
           raw = `
             if (!window.process) window.process = { env: {} };
             Object.assign(window.process.env, ${JSON.stringify(publicEnv)});
+            
+            // Polyfill import.meta.env for Vite compatibility
+            try {
+              if (!import.meta.env) {
+                Object.defineProperty(import.meta, 'env', {
+                  value: { 
+                    MODE: '${process.env.NODE_ENV || 'development'}', 
+                    DEV: true, 
+                    PROD: false, 
+                    SSR: false,
+                    ...${JSON.stringify(publicEnv)} 
+                  },
+                  writable: true,
+                  configurable: true
+                });
+              }
+            } catch (e) { console.warn('Could not polyfill import.meta.env', e); }
+
             ${raw}
           `;
         }
@@ -691,7 +718,7 @@ export async function startDevServer(cfg: BuildConfig) {
           res.end(code);
           return;
         } catch (error: any) {
-          log.error(`Universal transformer failed for ${filePath}:`, error.message);
+          log.error(`Universal transformer failed for ${filePath}: `, error.message);
           // Fallback to esbuild
           const { transform } = await import('esbuild');
           const result = await transform(raw, {
@@ -715,11 +742,11 @@ export async function startDevServer(cfg: BuildConfig) {
         // Check if imported as module
         if (url.includes('?import')) {
           const jsModule = `
-            const style = document.createElement('style');
-            style.textContent = ${JSON.stringify(raw)};
-            document.head.appendChild(style);
-            export default ${JSON.stringify(raw)};
-          `;
+      const style = document.createElement('style');
+      style.textContent = ${JSON.stringify(raw)};
+      document.head.appendChild(style);
+      export default ${JSON.stringify(raw)};
+      `;
           res.writeHead(200, { 'Content-Type': 'application/javascript' });
           res.end(jsModule);
           return;
@@ -734,7 +761,7 @@ export async function startDevServer(cfg: BuildConfig) {
         const raw = await fs.readFile(filePath, 'utf-8');
         if (url.includes('?import')) {
           res.writeHead(200, { 'Content-Type': 'application/javascript' });
-          res.end(`export default ${raw};`);
+          res.end(`export default ${raw}; `);
           return;
         }
         res.writeHead(200, { 'Content-Type': 'application/json' });

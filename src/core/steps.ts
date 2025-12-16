@@ -56,7 +56,7 @@ export class BundlerStep implements PipelineStep {
         // Register internal plugins
         const outdir = path.resolve(config.root, config.outDir);
         const internalPlugins = [
-            createEsbuildPlugin(pluginManager),
+            createEsbuildPlugin(pluginManager, config.root),
             {
                 name: 'asset-plugin-adapter',
                 setup(build: any) {
