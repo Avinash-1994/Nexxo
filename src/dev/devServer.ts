@@ -188,7 +188,7 @@ export async function startDevServer(cfg: BuildConfig) {
 
     // 2. Framework Defaults
     const frameworkDeps: Record<string, string[]> = {
-      react: ['react', 'react-dom', 'react-dom/client', 'react/jsx-dev-runtime', 'react/jsx-runtime', 'react-router-dom', '@remix-run/router'],
+      react: ['react', 'react-dom', 'react-dom/client', 'react/jsx-dev-runtime', 'react/jsx-runtime', 'react-router-dom', '@remix-run/router', 'react-router'],
       next: ['react', 'react-dom', 'react-dom/client', 'react/jsx-dev-runtime', 'react/jsx-runtime', 'react-router-dom'],
       remix: ['react', 'react-dom', 'react-dom/client', 'react/jsx-dev-runtime', 'react/jsx-runtime', 'react-router-dom'],
       preact: ['preact', 'preact/hooks'],
