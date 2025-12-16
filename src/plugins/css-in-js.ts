@@ -17,21 +17,8 @@ export class CssInJsPlugin implements Plugin {
         // in development mode for better debugging (displayName)
         // This is a placeholder for future enhancements
 
-        // Handle @emotion/react and similar packages
-        build.onResolve({ filter: /^@emotion\/(react|styled|css)$/ }, (args: any) => {
-            return {
-                path: args.path,
-                external: false // Ensure it's bundled
-            };
-        });
-
-        // Handle styled-components
-        build.onResolve({ filter: /^styled-components$/ }, (args: any) => {
-            return {
-                path: args.path,
-                external: false
-            };
-        });
+        // onResolve hooks removed as esbuild handles resolution and bundling by default.
+        // If we need specific behavior later (e.g. optimizing imports), we can add it back.
 
         // In the future, we could add:
         // - Server-side rendering support (extracting critical CSS)

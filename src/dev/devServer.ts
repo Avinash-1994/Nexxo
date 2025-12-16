@@ -18,7 +18,21 @@ const require = createRequire(import.meta.url);
 // and nextgen_native.node is at: node_modules/urja/dist/nextgen_native.node
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const nativePath = path.resolve(__dirname, '../nextgen_native.node');
-const { NativeWorker } = require(nativePath);
+let NativeWorker: any;
+try {
+  const nativeModule = require(nativePath);
+  NativeWorker = nativeModule.NativeWorker;
+} catch (e) {
+  // Native worker not found or failed to load, will fallback to JS implementation
+  log.warn('Native worker not found, falling back to JS implementation');
+  // Mock Native Worker that does nothing (or pass-through)
+  NativeWorker = class {
+    constructor(workers: number) { }
+    processFile(filePath: string) { return null; } // Return null to trigger JS fallback
+    invalidate(filePath: string) { }
+    rebuild(filePath: string) { return []; }
+  };
+}
 
 import { HMRThrottle } from './hmrThrottle.js';
 import { ConfigWatcher } from './configWatcher.js';
@@ -49,6 +63,17 @@ function rewriteImports(code: string, rootDir: string, preBundledDeps?: Map<stri
       }
 
       return `from '/node_modules/${specifier}'`;
+    }
+  );
+
+  // Rewrite side-effect imports (e.g. import 'bootstrap/dist/css/bootstrap.css')
+  code = code.replace(
+    /import\s+['"]((?![.\/])(?!https?:\/\/)[^'"]+)['"]/g,
+    (match, specifier) => {
+      if (specifier.endsWith('.css') || specifier.endsWith('.scss') || specifier.endsWith('.sass') || specifier.endsWith('.less')) {
+        return `import '/node_modules/${specifier}'`;
+      }
+      return match;
     }
   );
 
@@ -124,6 +149,18 @@ export async function startDevServer(cfg: BuildConfig) {
 
   const { StylusPlugin } = await import('../plugins/css/stylus.js');
   pluginManager.register(new StylusPlugin(cfg.root));
+
+  // Vue Support
+  if (primaryFramework === 'vue' || primaryFramework === 'nuxt') {
+    const { VuePlugin } = await import('../plugins/vue.js');
+    pluginManager.register(new VuePlugin(cfg.root));
+  }
+
+  // Svelte Support
+  if (primaryFramework === 'svelte' || (primaryFramework as string) === 'svelte-kit') {
+    const { SveltePlugin } = await import('../plugins/svelte.js');
+    pluginManager.register(new SveltePlugin(cfg.root));
+  }
 
   // Initialize Dependency Pre-Bundler
   const { DependencyPreBundler } = await import('./preBundler.js');
@@ -459,7 +496,8 @@ export async function startDevServer(cfg: BuildConfig) {
 
     // Serve from node_modules
     if (url.startsWith('/node_modules/')) {
-      let modulePath = path.join(cfg.root, url);
+      const cleanUrl = url.split('?')[0];
+      let modulePath = path.join(cfg.root, cleanUrl);
 
       try {
         // Handle potential directory or missing extension
@@ -551,10 +589,12 @@ export async function startDevServer(cfg: BuildConfig) {
         res.writeHead(200, { 'Content-Type': mime });
         res.end(data);
         return;
-      } catch (e) {
-        log.error(`Failed to serve module: ${url}`, { category: 'server', error: e });
-        res.writeHead(404);
-        res.end('Module not found');
+      } catch (e: any) {
+        log.error(`[SERVER] Failed to serve module: ${url}`, e);
+        if (!res.headersSent) {
+          res.writeHead(404);
+          res.end('Module not found');
+        }
         return;
       }
     }
@@ -576,6 +616,15 @@ export async function startDevServer(cfg: BuildConfig) {
     // Remove query params
     const cleanUrl = url.split('?')[0];
     let filePath = path.join(cfg.root, cleanUrl);
+
+    // console.log('Serving:', { url, cleanUrl, filePath });
+
+    // SECURITY: Path Traversal Protection
+    if (!filePath.startsWith(cfg.root)) {
+      res.writeHead(403);
+      res.end('Access denied');
+      return;
+    }
 
     // Try to resolve extension if file doesn't exist
     try {
