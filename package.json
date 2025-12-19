@@ -18,6 +18,7 @@
     "dev": "node ./dist/cli.js dev",
     "start": "node ./dist/cli.js dev",
     "prepack": "npm run build && node ./scripts/pack.js",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "test:repro": "node ./scripts/repro_test.mjs",
     "prepublishOnly": "npm run build"
   },
@@ -98,6 +99,7 @@
     "jsdom": "^27.2.0",
     "svelte": "^5.43.14",
     "svelte-preprocess": "^6.0.3",
+    "ts-jest": "^29.4.6",
     "ts-node": "^10.9.1",
     "typescript": "^5.4.2"
   }

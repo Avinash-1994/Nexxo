@@ -62,6 +62,21 @@ function rewriteImports(code: string, rootDir: string, preBundledDeps?: Map<stri
         return `from '${preBundledDeps.get(specifier)}?v=${Date.now()}'`;
       }
 
+      // Check if it's a subpath of a pre-bundled dependency (e.g., svelte/internal/disclose-version)
+      // and we have pre-bundled 'svelte'.
+      if (preBundledDeps) {
+        const pkgName = specifier.startsWith('@') ? specifier.split('/').slice(0, 2).join('/') : specifier.split('/')[0];
+        if (preBundledDeps.has(pkgName)) {
+          // We assume that if the main package is pre-bundled, we likely pre-bundled its subpaths too (if we configured them correctly)
+          // But the map key might be the full specifier. 
+          // If it wasn't found in the Map directly above, it might be missing from the Map but present in the disk?
+          // OR we need to construct the path manually if we know the naming convention.
+          // Our naming convention in preBundler is: svelte/internal/disclose-version -> svelte_internal_disclose-version.js
+          const safeName = specifier.replace(/\//g, '_');
+          return `from '/@urja-deps/${safeName}.js?v=${Date.now()}'`;
+        }
+      }
+
       return `from '/node_modules/${specifier}'`;
     }
   );
@@ -70,10 +85,18 @@ function rewriteImports(code: string, rootDir: string, preBundledDeps?: Map<stri
   code = code.replace(
     /import\s+['"]((?![.\/])(?!https?:\/\/)[^'"]+)['"]/g,
     (match, specifier) => {
+      // Handle CSS/Style imports
       if (specifier.endsWith('.css') || specifier.endsWith('.scss') || specifier.endsWith('.sass') || specifier.endsWith('.less')) {
         return `import '/node_modules/${specifier}'`;
       }
-      return match;
+
+      // Handle polyfills or side-effect JS imports (e.g. import 'zone.js')
+      if (preBundledDeps && preBundledDeps.has(specifier)) {
+        return `import '${preBundledDeps.get(specifier)}?v=${Date.now()}'`;
+      }
+
+      // Fallback for other bare imports (likely node_modules)
+      return `import '/node_modules/${specifier}'`;
     }
   );
 
@@ -191,7 +214,7 @@ export async function startDevServer(cfg: BuildConfig) {
       react: ['react', 'react-dom', 'react-dom/client', 'react/jsx-dev-runtime', 'react/jsx-runtime', 'react-router-dom', '@remix-run/router', 'react-router'],
       next: ['react', 'react-dom', 'react-dom/client', 'react/jsx-dev-runtime', 'react/jsx-runtime', 'react-router-dom'],
       remix: ['react', 'react-dom', 'react-dom/client', 'react/jsx-dev-runtime', 'react/jsx-runtime', 'react-router-dom'],
-      preact: ['preact', 'preact/hooks'],
+      preact: ['preact', 'preact/hooks', 'preact/jsx-runtime', 'preact/jsx-dev-runtime'],
       vue: ['vue'],
       nuxt: ['vue'],
       svelte: [
@@ -204,7 +227,19 @@ export async function startDevServer(cfg: BuildConfig) {
         'svelte/store',
         'svelte/transition'
       ],
-      solid: ['solid-js'],
+      solid: ['solid-js', 'solid-js/web', 'solid-js/store'],
+      angular: [
+        '@angular/core',
+        '@angular/common',
+        '@angular/compiler',
+        '@angular/platform-browser',
+        '@angular/platform-browser-dynamic',
+        '@angular/router',
+        '@angular/forms',
+        'rxjs',
+        'rxjs/operators',
+        'zone.js'
+      ]
     };
 
     const defaultDeps = frameworkDeps[primaryFramework] || [];
@@ -343,6 +378,13 @@ export async function startDevServer(cfg: BuildConfig) {
     if (await statusHandler.handleRequest(req, res)) return;
     if (federationDev.handleRequest(req, res)) return;
 
+    // Ignore Chrome DevTools extension probes
+    if (req.url?.includes('.well-known/appspecific/com.chrome.devtools.json')) {
+      res.writeHead(404);
+      res.end();
+      return;
+    }
+
     // Federation Editor
     if (req.url === '/__federation') {
       const { getEditorHtml } = await import('../visual/federation-editor.js');
@@ -374,11 +416,43 @@ export async function startDevServer(cfg: BuildConfig) {
     }
 
     if (url === '/') {
-      const p = path.join(cfg.root, 'public', 'index.html');
-      try {
-        let data = await fs.readFile(p, 'utf-8');
+      let p = path.join(cfg.root, 'public', 'index.html');
+      let data = '';
 
-        // Inject only client runtime (no React Refresh for now - simplify)
+      try {
+        data = await fs.readFile(p, 'utf-8');
+      } catch (e) {
+        // Fallback to src/index.html (common in Angular/Vue CLI)
+        try {
+          p = path.join(cfg.root, 'src', 'index.html');
+          data = await fs.readFile(p, 'utf-8');
+        } catch (e2) {
+          // Fallback to root index.html (Vite standard)
+          try {
+            p = path.join(cfg.root, 'index.html');
+            data = await fs.readFile(p, 'utf-8');
+          } catch (e3) {
+            res.writeHead(404);
+            res.end('index.html not found');
+            return;
+          }
+        }
+      }
+
+      try {
+        // Inject entry point if not present (simple heuristic)
+        // Angular CLI projects often don't have the script tag in source index.html
+        if (!data.includes('src="main.ts"') && !data.includes('src="/src/main.ts"')) {
+          // Try to inject main entry point script at the end of body
+          // We need to guess the entry point or use config. 
+          // Config has cfg.entry which is an array.
+          if (cfg.entry && cfg.entry.length > 0) {
+            const entryScript = `<script type="module" src="/${cfg.entry[0]}"></script>`;
+            data = data.replace('</body>', `${entryScript}</body>`);
+          }
+        }
+
+        // Inject only client runtime
         const clientScript = `
     <script type="module" src="/@urja/client"></script>
         `;
@@ -388,8 +462,9 @@ export async function startDevServer(cfg: BuildConfig) {
         res.writeHead(200, { 'Content-Type': 'text/html' });
         res.end(data);
       } catch (e) {
-        res.writeHead(404);
-        res.end('index.html not found');
+        log.error('Error serving index.html', e);
+        res.writeHead(500);
+        res.end('Internal Server Error');
       }
       return;
     }
