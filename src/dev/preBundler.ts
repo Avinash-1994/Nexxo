@@ -91,23 +91,44 @@ export class DependencyPreBundler {
 
                             // log.debug(`[PreBundler] Checked ${pkgName} package.json. Module: ${pkgJson.module}`);
 
-                            // Only use 'module' if we are importing the ROOT of the package
-                            // If 'dep' is 'react-dom/client', we shouldn't use react-dom's 'module' entry
-                            if (dep === pkgName && pkgJson.module) {
-                                resolvedPath = path.join(pkgDir, pkgJson.module);
-                                log.debug(`[PreBundler] Using ESM module for ${dep}: ${resolvedPath}`);
-                            } else if (dep === pkgName && pkgJson.exports) {
-                                // Basic export map handling for "."
+                            // 1. Check 'exports' (Modern Node Resolution - Precedence over 'module')
+                            // 1. Check 'exports' (Modern Node Resolution - Precedence over 'module')
+                            if (pkgJson.exports) {
+                                let exportKey = '.';
+                                if (dep !== pkgName) {
+                                    // Calculate subpath: solid-js/web -> ./web
+                                    const subpath = '.' + dep.substring(pkgName.length);
+                                    exportKey = subpath;
+                                }
+
                                 if (typeof pkgJson.exports === 'object') {
-                                    const dot = pkgJson.exports['.'];
-                                    if (dot) {
-                                        const importPath = typeof dot === 'string' ? dot :
-                                            (dot.import || dot.default || dot.require);
+                                    const exportEntry = pkgJson.exports[exportKey];
+                                    if (exportEntry) {
+                                        // Handle nested conditions (browser > import > default)
+                                        const resolveCondition = (entry: any): string | undefined => {
+                                            if (typeof entry === 'string') return entry;
+                                            if (typeof entry === 'object') {
+                                                return resolveCondition(entry.browser) ||
+                                                    resolveCondition(entry.import) ||
+                                                    resolveCondition(entry.default) ||
+                                                    resolveCondition(entry.require);
+                                            }
+                                            return undefined;
+                                        };
+
+                                        const importPath = resolveCondition(exportEntry);
                                         if (importPath) {
                                             resolvedPath = path.join(pkgDir, importPath);
+                                            log.debug(`[PreBundler] Resolved via exports for ${dep}: ${resolvedPath}`);
                                         }
                                     }
                                 }
+                            }
+
+                            // 2. Fallback to 'module' (only for main entry)
+                            if (!resolvedPath && dep === pkgName && pkgJson.module) {
+                                resolvedPath = path.join(pkgDir, pkgJson.module);
+                                log.debug(`[PreBundler] Using ESM module for ${dep}: ${resolvedPath}`);
                             }
                         } catch (e: any) {
                             log.warn(`[PreBundler] Failed to read/parse package.json for ${pkgName}: ${e.message}`);

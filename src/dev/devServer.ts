@@ -9,7 +9,34 @@ import { log } from '../utils/logger.js';
 import { PluginManager } from '../plugins/index.js';
 import { PluginSandbox } from '../core/sandbox.js';
 
+<<<<<<< HEAD
 import { NativeWorker } from '../native/index.js';
+=======
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+
+// Load Native Worker
+// When installed via npm, the structure is: node_modules/urja/dist/dev/devServer.js
+// and nextgen_native.node is at: node_modules/urja/dist/nextgen_native.node
+// and nextgen_native.node is at: node_modules/urja/dist/nextgen_native.node
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const nativePath = path.resolve(__dirname, '../nextgen_native.node');
+let NativeWorker: any;
+try {
+  const nativeModule = require(nativePath);
+  NativeWorker = nativeModule.NativeWorker;
+} catch (e) {
+  // Native worker not found or failed to load, will fallback to JS implementation
+  log.warn('Native worker not found, falling back to JS implementation');
+  // Mock Native Worker that does nothing (or pass-through)
+  NativeWorker = class {
+    constructor(workers: number) { }
+    processFile(filePath: string) { return null; } // Return null to trigger JS fallback
+    invalidate(filePath: string) { }
+    rebuild(filePath: string) { return []; }
+  };
+}
+>>>>>>> 875885ae01ca502e945d8490bf637bf29db4a0d5
 
 import { HMRThrottle } from './hmrThrottle.js';
 import { ConfigWatcher } from './configWatcher.js';
@@ -39,7 +66,41 @@ function rewriteImports(code: string, rootDir: string, preBundledDeps?: Map<stri
         return `from '${preBundledDeps.get(specifier)}?v=${Date.now()}'`;
       }
 
+      // Check if it's a subpath of a pre-bundled dependency (e.g., svelte/internal/disclose-version)
+      // and we have pre-bundled 'svelte'.
+      if (preBundledDeps) {
+        const pkgName = specifier.startsWith('@') ? specifier.split('/').slice(0, 2).join('/') : specifier.split('/')[0];
+        if (preBundledDeps.has(pkgName)) {
+          // We assume that if the main package is pre-bundled, we likely pre-bundled its subpaths too (if we configured them correctly)
+          // But the map key might be the full specifier. 
+          // If it wasn't found in the Map directly above, it might be missing from the Map but present in the disk?
+          // OR we need to construct the path manually if we know the naming convention.
+          // Our naming convention in preBundler is: svelte/internal/disclose-version -> svelte_internal_disclose-version.js
+          const safeName = specifier.replace(/\//g, '_');
+          return `from '/@urja-deps/${safeName}.js?v=${Date.now()}'`;
+        }
+      }
+
       return `from '/node_modules/${specifier}'`;
+    }
+  );
+
+  // Rewrite side-effect imports (e.g. import 'bootstrap/dist/css/bootstrap.css')
+  code = code.replace(
+    /import\s+['"]((?![.\/])(?!https?:\/\/)[^'"]+)['"]/g,
+    (match, specifier) => {
+      // Handle CSS/Style imports
+      if (specifier.endsWith('.css') || specifier.endsWith('.scss') || specifier.endsWith('.sass') || specifier.endsWith('.less')) {
+        return `import '/node_modules/${specifier}'`;
+      }
+
+      // Handle polyfills or side-effect JS imports (e.g. import 'zone.js')
+      if (preBundledDeps && preBundledDeps.has(specifier)) {
+        return `import '${preBundledDeps.get(specifier)}?v=${Date.now()}'`;
+      }
+
+      // Fallback for other bare imports (likely node_modules)
+      return `import '/node_modules/${specifier}'`;
     }
   );
 
@@ -116,6 +177,18 @@ export async function startDevServer(cfg: BuildConfig) {
   const { StylusPlugin } = await import('../plugins/css/stylus.js');
   pluginManager.register(new StylusPlugin(cfg.root));
 
+  // Vue Support
+  if (primaryFramework === 'vue' || primaryFramework === 'nuxt') {
+    const { VuePlugin } = await import('../plugins/vue.js');
+    pluginManager.register(new VuePlugin(cfg.root));
+  }
+
+  // Svelte Support
+  if (primaryFramework === 'svelte' || (primaryFramework as string) === 'svelte-kit') {
+    const { SveltePlugin } = await import('../plugins/svelte.js');
+    pluginManager.register(new SveltePlugin(cfg.root));
+  }
+
   // Initialize Dependency Pre-Bundler
   const { DependencyPreBundler } = await import('./preBundler.js');
   const preBundler = new DependencyPreBundler(cfg.root);
@@ -142,14 +215,35 @@ export async function startDevServer(cfg: BuildConfig) {
 
     // 2. Framework Defaults
     const frameworkDeps: Record<string, string[]> = {
-      react: ['react', 'react-dom', 'react-dom/client', 'react/jsx-dev-runtime', 'react/jsx-runtime', 'react-router-dom', '@remix-run/router'],
+      react: ['react', 'react-dom', 'react-dom/client', 'react/jsx-dev-runtime', 'react/jsx-runtime', 'react-router-dom', '@remix-run/router', 'react-router'],
       next: ['react', 'react-dom', 'react-dom/client', 'react/jsx-dev-runtime', 'react/jsx-runtime', 'react-router-dom'],
       remix: ['react', 'react-dom', 'react-dom/client', 'react/jsx-dev-runtime', 'react/jsx-runtime', 'react-router-dom'],
-      preact: ['preact', 'preact/hooks'],
+      preact: ['preact', 'preact/hooks', 'preact/jsx-runtime', 'preact/jsx-dev-runtime'],
       vue: ['vue'],
       nuxt: ['vue'],
-      svelte: ['svelte'],
-      solid: ['solid-js'],
+      svelte: [
+        'svelte',
+        'svelte/animate',
+        'svelte/easing',
+        'svelte/internal',
+        'svelte/internal/disclose-version',
+        'svelte/motion',
+        'svelte/store',
+        'svelte/transition'
+      ],
+      solid: ['solid-js', 'solid-js/web', 'solid-js/store'],
+      angular: [
+        '@angular/core',
+        '@angular/common',
+        '@angular/compiler',
+        '@angular/platform-browser',
+        '@angular/platform-browser-dynamic',
+        '@angular/router',
+        '@angular/forms',
+        'rxjs',
+        'rxjs/operators',
+        'zone.js'
+      ]
     };
 
     const defaultDeps = frameworkDeps[primaryFramework] || [];
@@ -288,6 +382,13 @@ export async function startDevServer(cfg: BuildConfig) {
     if (await statusHandler.handleRequest(req, res)) return;
     if (federationDev.handleRequest(req, res)) return;
 
+    // Ignore Chrome DevTools extension probes
+    if (req.url?.includes('.well-known/appspecific/com.chrome.devtools.json')) {
+      res.writeHead(404);
+      res.end();
+      return;
+    }
+
     // Federation Editor
     if (req.url === '/__federation') {
       const { getEditorHtml } = await import('../visual/federation-editor.js');
@@ -319,11 +420,43 @@ export async function startDevServer(cfg: BuildConfig) {
     }
 
     if (url === '/') {
-      const p = path.join(cfg.root, 'public', 'index.html');
-      try {
-        let data = await fs.readFile(p, 'utf-8');
+      let p = path.join(cfg.root, 'public', 'index.html');
+      let data = '';
 
-        // Inject only client runtime (no React Refresh for now - simplify)
+      try {
+        data = await fs.readFile(p, 'utf-8');
+      } catch (e) {
+        // Fallback to src/index.html (common in Angular/Vue CLI)
+        try {
+          p = path.join(cfg.root, 'src', 'index.html');
+          data = await fs.readFile(p, 'utf-8');
+        } catch (e2) {
+          // Fallback to root index.html (Vite standard)
+          try {
+            p = path.join(cfg.root, 'index.html');
+            data = await fs.readFile(p, 'utf-8');
+          } catch (e3) {
+            res.writeHead(404);
+            res.end('index.html not found');
+            return;
+          }
+        }
+      }
+
+      try {
+        // Inject entry point if not present (simple heuristic)
+        // Angular CLI projects often don't have the script tag in source index.html
+        if (!data.includes('src="main.ts"') && !data.includes('src="/src/main.ts"')) {
+          // Try to inject main entry point script at the end of body
+          // We need to guess the entry point or use config. 
+          // Config has cfg.entry which is an array.
+          if (cfg.entry && cfg.entry.length > 0) {
+            const entryScript = `<script type="module" src="/${cfg.entry[0]}"></script>`;
+            data = data.replace('</body>', `${entryScript}</body>`);
+          }
+        }
+
+        // Inject only client runtime
         const clientScript = `
     <script type="module" src="/@urja/client"></script>
         `;
@@ -333,8 +466,9 @@ export async function startDevServer(cfg: BuildConfig) {
         res.writeHead(200, { 'Content-Type': 'text/html' });
         res.end(data);
       } catch (e) {
-        res.writeHead(404);
-        res.end('index.html not found');
+        log.error('Error serving index.html', e);
+        res.writeHead(500);
+        res.end('Internal Server Error');
       }
       return;
     }
@@ -450,7 +584,8 @@ export async function startDevServer(cfg: BuildConfig) {
 
     // Serve from node_modules
     if (url.startsWith('/node_modules/')) {
-      let modulePath = path.join(cfg.root, url);
+      const cleanUrl = url.split('?')[0];
+      let modulePath = path.join(cfg.root, cleanUrl);
 
       try {
         // Handle potential directory or missing extension
@@ -542,10 +677,12 @@ export async function startDevServer(cfg: BuildConfig) {
         res.writeHead(200, { 'Content-Type': mime });
         res.end(data);
         return;
-      } catch (e) {
-        log.error(`Failed to serve module: ${url}`, { category: 'server', error: e });
-        res.writeHead(404);
-        res.end('Module not found');
+      } catch (e: any) {
+        log.error(`[SERVER] Failed to serve module: ${url}`, e);
+        if (!res.headersSent) {
+          res.writeHead(404);
+          res.end('Module not found');
+        }
         return;
       }
     }
@@ -567,6 +704,15 @@ export async function startDevServer(cfg: BuildConfig) {
     // Remove query params
     const cleanUrl = url.split('?')[0];
     let filePath = path.join(cfg.root, cleanUrl);
+
+    // console.log('Serving:', { url, cleanUrl, filePath });
+
+    // SECURITY: Path Traversal Protection
+    if (!filePath.startsWith(cfg.root)) {
+      res.writeHead(403);
+      res.end('Access denied');
+      return;
+    }
 
     // Try to resolve extension if file doesn't exist
     try {
@@ -612,6 +758,24 @@ export async function startDevServer(cfg: BuildConfig) {
           raw = `
             if (!window.process) window.process = { env: {} };
             Object.assign(window.process.env, ${JSON.stringify(publicEnv)});
+            
+            // Polyfill import.meta.env for Vite compatibility
+            try {
+              if (!import.meta.env) {
+                Object.defineProperty(import.meta, 'env', {
+                  value: { 
+                    MODE: '${process.env.NODE_ENV || 'development'}', 
+                    DEV: true, 
+                    PROD: false, 
+                    SSR: false,
+                    ...${JSON.stringify(publicEnv)} 
+                  },
+                  writable: true,
+                  configurable: true
+                });
+              }
+            } catch (e) { console.warn('Could not polyfill import.meta.env', e); }
+
             ${raw}
           `;
         }
@@ -633,7 +797,7 @@ export async function startDevServer(cfg: BuildConfig) {
           res.end(code);
           return;
         } catch (error: any) {
-          log.error(`Universal transformer failed for ${filePath}:`, error.message);
+          log.error(`Universal transformer failed for ${filePath}: `, error.message);
           // Fallback to esbuild
           const { transform } = await import('esbuild');
           const result = await transform(raw, {
@@ -657,11 +821,11 @@ export async function startDevServer(cfg: BuildConfig) {
         // Check if imported as module
         if (url.includes('?import')) {
           const jsModule = `
-            const style = document.createElement('style');
-            style.textContent = ${JSON.stringify(raw)};
-            document.head.appendChild(style);
-            export default ${JSON.stringify(raw)};
-          `;
+      const style = document.createElement('style');
+      style.textContent = ${JSON.stringify(raw)};
+      document.head.appendChild(style);
+      export default ${JSON.stringify(raw)};
+      `;
           res.writeHead(200, { 'Content-Type': 'application/javascript' });
           res.end(jsModule);
           return;
@@ -676,7 +840,7 @@ export async function startDevServer(cfg: BuildConfig) {
         const raw = await fs.readFile(filePath, 'utf-8');
         if (url.includes('?import')) {
           res.writeHead(200, { 'Content-Type': 'application/javascript' });
-          res.end(`export default ${raw};`);
+          res.end(`export default ${raw}; `);
           return;
         }
         res.writeHead(200, { 'Content-Type': 'application/json' });

@@ -161,9 +161,29 @@ export async function loadConfig(cwd: string): Promise<BuildConfig> {
       // Return default config if file not found, with auto-detection
       log.info('No config file found, using defaults...');
 
+      // Auto-detect entry point
+      const entryCandidates = [
+        'src/main.tsx',
+        'src/main.ts',
+        'src/main.jsx',
+        'src/main.js',
+        'src/index.tsx',
+        'src/index.ts',
+        'src/index.jsx',
+        'src/index.js'
+      ];
+
+      let detectedEntry = ['src/main.tsx']; // Default fallback
+      for (const candidate of entryCandidates) {
+        if (await fs.access(path.join(cwd, candidate)).then(() => true).catch(() => false)) {
+          detectedEntry = [candidate];
+          break;
+        }
+      }
+
       return {
         root: cwd,
-        entry: ['src/main.tsx'],
+        entry: detectedEntry,
         mode: 'development',
         outDir: 'build_output',
         port: 5173,

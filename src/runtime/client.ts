@@ -25,35 +25,59 @@ function clearErrors() {
 
 // 1. Build Errors (WebSocket)
 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-const ws = new WebSocket(`${protocol}//${window.location.host}`);
+let ws: WebSocket;
+let reconnectAttempts = 0;
+const MAX_ATTEMPTS = 50;
 
-ws.onmessage = (event) => {
-    try {
-        const message = JSON.parse(event.data);
+function connect() {
+    ws = new WebSocket(`${protocol}//${window.location.host}`);
 
-        if (message.type === 'error') {
-            console.error('[nextgen] Build Error:', message.error);
-            showError({
-                type: 'build',
-                ...message.error
-            });
+    ws.onopen = () => {
+        console.log('[nextgen] Connected to dev server');
+        reconnectAttempts = 0;
+    };
+
+    ws.onmessage = (event) => {
+        try {
+            const message = JSON.parse(event.data);
+
+            if (message.type === 'error') {
+                console.error('[nextgen] Build Error:', message.error);
+                showError({
+                    type: 'build',
+                    ...message.error
+                });
+            }
+
+            if (message.type === 'reload') {
+                clearErrors();
+                window.location.reload();
+            }
+
+            if (message.type === 'update') {
+                clearErrors();
+                // console.log('[nextgen] HMR Update');
+                // HMR logic would go here
+            }
+
+        } catch (e) {
+            console.error('[nextgen] Failed to parse WebSocket message', e);
         }
+    };
 
-        if (message.type === 'reload') {
-            clearErrors();
-            window.location.reload();
+    ws.onclose = () => {
+        if (reconnectAttempts < MAX_ATTEMPTS) {
+            const timeout = Math.min(1000 * Math.pow(2, reconnectAttempts), 5000);
+            console.log(`[nextgen] Disconnected. Reconnecting in ${timeout}ms...`);
+            setTimeout(connect, timeout);
+            reconnectAttempts++;
+        } else {
+            console.error('[nextgen] Failed to reconnect to dev server after multiple attempts.');
         }
+    };
+}
 
-        if (message.type === 'update') {
-            clearErrors();
-            console.log('[nextgen] HMR Update');
-            // HMR logic would go here
-        }
-
-    } catch (e) {
-        console.error('[nextgen] Failed to parse WebSocket message', e);
-    }
-};
+connect();
 
 // 2. Runtime Errors
 window.addEventListener('error', (event) => {
@@ -75,4 +99,4 @@ window.addEventListener('unhandledrejection', (event) => {
     });
 });
 
-console.log('[nextgen] Dev client connected');
+// console.log('[nextgen] Dev client connected');

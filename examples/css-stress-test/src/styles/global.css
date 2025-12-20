@@ -1,0 +1,52 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --primary: #646cff;
+  --secondary: #42b883;
+  --danger: #ff3e00;
+  --dark: #1a1a1a;
+  --light: #f9f9f9;
+  --border: #e0e0e0;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  line-height: 1.6;
+  color: var(--dark);
+  background: var(--light);
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 4rem;
+  font-size: 1.5rem;
+  color: var(--primary);
+}
+
+.page {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

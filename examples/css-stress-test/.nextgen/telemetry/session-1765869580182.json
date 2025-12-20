@@ -1,0 +1,10 @@
+{
+  "id": "975e8db9-3202-4bd6-b287-8c588bbe61aa",
+  "timestamp": 1765869580182,
+  "duration": 136,
+  "success": false,
+  "metrics": {},
+  "errors": [
+    "Build failed with 19 errors:\nnode_modules/@chakra-ui/react/dist/esm/checkbox/checkbox.mjs:5:26: ERROR: Plugin \"css-in-js-plugin-adapter\" returned a non-absolute path: @emotion/react (set a namespace if this is not a file path)\nnode_modules/@chakra-ui/react/dist/esm/color-mode/color-mode-provider.mjs:4:41: ERROR: Plugin \"css-in-js-plugin-adapter\" returned a non-absolute path: @emotion/react (set a namespace if this is not a file path)\nnode_modules/@chakra-ui/react/dist/esm/css-reset/css-reset.mjs:3:23: ERROR: Plugin \"css-in-js-plugin-adapter\" returned a non-absolute path: @emotion/react (set a namespace if this is not a file path)\nnode_modules/@chakra-ui/react/dist/esm/progress/progress.utils.mjs:2:26: ERROR: Plugin \"css-in-js-plugin-adapter\" returned a non-absolute path: @emotion/react (set a namespace if this is not a file path)\nnode_modules/@chakra-ui/react/dist/esm/skeleton/skeleton.mjs:6:26: ERROR: Plugin \"css-in-js-plugin-adapter\" returned a non-absolute path: @emotion/react (set a namespace if this is not a file path)\n..."
+  ]
+}

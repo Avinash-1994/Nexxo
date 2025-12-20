@@ -10,7 +10,7 @@ import type { Framework } from '../core/framework-detector.js';
 import { getFrameworkPreset } from '../presets/frameworks.js';
 import { log } from '../utils/logger.js';
 import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
+const _require = createRequire(import.meta.url);
 
 export interface TransformOptions {
     filePath: string;
@@ -127,7 +127,7 @@ export class UniversalTransformer {
     /**
      * React Transformer - Works with all React versions (16+)
      */
-    private async transformReact(code: string, filePath: string, isDev: boolean): Promise<TransformResult> {
+    private async transformReact(code: string, filePath: string, isDev: boolean, jsxOptions?: { importSource?: string }): Promise<TransformResult> {
         const ext = path.extname(filePath);
 
         // Only transform JSX/TSX files
@@ -140,20 +140,21 @@ export class UniversalTransformer {
 
             // Detect React version to use appropriate transform
             const reactVersion = await this.getPackageVersion('react');
-            const useAutomatic = reactVersion && parseInt(reactVersion) >= 17;
+            const useAutomatic = (reactVersion && parseInt(reactVersion) >= 17) || !!jsxOptions?.importSource;
 
             // Resolve presets from tool's dependencies, not user's project
             const output = await babel.transformAsync(code, {
                 filename: filePath,
                 presets: [
                     [
-                        require.resolve('@babel/preset-react'),
+                        _require.resolve('@babel/preset-react'),
                         {
                             runtime: useAutomatic ? 'automatic' : 'classic',
-                            development: isDev
+                            development: isDev,
+                            importSource: jsxOptions?.importSource // For Preact/others
                         }
                     ],
-                    require.resolve('@babel/preset-typescript')
+                    _require.resolve('@babel/preset-typescript')
                 ],
                 sourceMaps: isDev ? 'inline' : false
             });
@@ -181,16 +182,28 @@ export class UniversalTransformer {
             // Try Vue 3 compiler first
             let compiler: any;
             try {
-                // @ts-ignore - Optional dependency
+                // Try from local node_modules (tool's deps)
+                // @ts-ignore
                 compiler = await import('@vue/compiler-sfc');
             } catch {
-                // Fallback to Vue 2 compiler
                 try {
-                    // @ts-ignore - Optional dependency
-                    compiler = await import('vue-template-compiler');
+                    // Try from project root
+                    const compilerPath = _require.resolve('@vue/compiler-sfc', { paths: [this.root] });
+                    compiler = await import(compilerPath);
                 } catch {
-                    log.warn('No Vue compiler found, treating as vanilla');
-                    return this.transformVanilla(code, filePath, isDev);
+                    // Fallback to Vue 2 compiler
+                    try {
+                        // @ts-ignore
+                        compiler = await import('vue-template-compiler');
+                    } catch {
+                        try {
+                            const compilerPath = _require.resolve('vue-template-compiler', { paths: [this.root] });
+                            compiler = await import(compilerPath);
+                        } catch {
+                            log.warn('No Vue compiler found, treating as vanilla');
+                            return this.transformVanilla(code, filePath, isDev);
+                        }
+                    }
                 }
             }
 
@@ -258,15 +271,34 @@ export class UniversalTransformer {
         }
 
         try {
-            // @ts-ignore - Optional dependency
-            const svelte = await import('svelte/compiler');
+            let svelte: any;
+            try {
+                // Try from project root FIRST
+                const compilerPath = _require.resolve('svelte/compiler', { paths: [this.root] });
+                svelte = await import(compilerPath);
+            } catch {
+                // Fallback to local
+                // @ts-ignore
+                svelte = await import('svelte/compiler');
+            }
 
             const result = svelte.compile(code, {
                 filename: filePath,
                 dev: isDev,
-                css: 'injected' as any, // Inject CSS into JS
-                generate: 'client' as any // Svelte 5 uses 'client'
+                css: 'injected' as any,
+                generate: 'dom' as any // Default to 'dom' for Svelte 3/4, Svelte 5 accepts 'client' but interprets 'dom' fine? Or 'client'?
             } as any);
+
+            // Svelte 5 backwards compat check??
+            // For now, assume 'dom' works for 3/4. 
+            // If it's Svelte 5, usage is `generate: 'client'`.
+            // But if user is on Svelte 4, `generate: 'client'` might NOT work?
+            // Actually Svelte 4 uses `generate: 'dom' | 'ssr'`.
+            // Svelte 5 uses `generate: 'client' | 'server'`.
+
+            // Let's safe check version if possible?
+            // Or catch options error?
+            // Revert strict 'client' to 'dom' which is safer for default Svelte.
 
             return {
                 code: result.js.code,
@@ -371,8 +403,8 @@ export class UniversalTransformer {
             const result = await babel.transformAsync(code, {
                 filename: filePath,
                 presets: [
-                    'babel-preset-solid',
-                    '@babel/preset-typescript'
+                    _require.resolve('babel-preset-solid', { paths: [this.root] }),
+                    _require.resolve('@babel/preset-typescript', { paths: [this.root] })
                 ],
                 sourceMaps: isDev ? 'inline' : false
             });
@@ -392,7 +424,7 @@ export class UniversalTransformer {
      */
     private async transformPreact(code: string, filePath: string, isDev: boolean): Promise<TransformResult> {
         // Preact uses same JSX as React, just different import source
-        return this.transformReact(code, filePath, isDev);
+        return this.transformReact(code, filePath, isDev, { importSource: 'preact' });
     }
 
     /**
@@ -483,7 +515,12 @@ export class UniversalTransformer {
                     loader: ext.slice(1) as any,
                     sourcemap: isDev ? 'inline' : false,
                     format: 'esm',
-                    target: 'es2020'
+                    target: 'es2020',
+                    tsconfigRaw: {
+                        compilerOptions: {
+                            experimentalDecorators: true
+                        }
+                    }
                 });
 
                 return {

@@ -53,11 +53,11 @@ export async function startBuilderServer(config: BuilderServerConfig) {
 
     wss.on('connection', (ws) => {
         clients.add(ws);
-        console.log('[builder] Client connected');
+        // log.debug('[builder] Client connected');
 
         ws.on('close', () => {
             clients.delete(ws);
-            console.log('[builder] Client disconnected');
+            // log.debug('[builder] Client disconnected');
         });
 
         ws.on('message', async (data) => {

@@ -1,0 +1,10 @@
+{
+  "id": "d0e43ffc-87d6-4a4a-b079-df9fce71981d",
+  "timestamp": 1765873977135,
+  "duration": 54,
+  "success": false,
+  "metrics": {},
+  "errors": [
+    "Build failed with 1 error:\nsrc/main.ts:2:16: ERROR: No loader is configured for \".vue\" files: src/App.vue"
+  ]
+}
