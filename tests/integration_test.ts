@@ -1,8 +1,8 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { detectFramework, registerFrameworkDetector } from '../src/core/framework-detector.js';
-import { loadConfig } from '../src/config/index.js';
-import { log } from '../src/utils/logger.js';
+import { FrameworkDetector } from '../dist/core/framework-detector.js';
+import { loadConfig } from '../dist/config/index.js';
+import { log } from '../dist/utils/logger.js';
 
 // Mock logger
 log.info = () => { };
@@ -15,28 +15,16 @@ async function runTests() {
 
     const tests = [
         {
-            name: 'Custom Framework Detector Registration',
+            name: 'React Framework Detection',
             setup: async (dir: string) => {
-                // Register a custom detector for a fictional framework
-                registerFrameworkDetector(async (root: string) => {
-                    const pkgPath = path.join(root, 'package.json');
-                    try {
-                        const content = await fs.readFile(pkgPath, 'utf-8');
-                        const pkg = JSON.parse(content);
-                        if (pkg.dependencies?.['my-custom-framework']) {
-                            return { name: 'my-custom-framework', version: pkg.dependencies['my-custom-framework'] };
-                        }
-                    } catch { }
-                    return null;
-                });
-
                 await fs.writeFile(path.join(dir, 'package.json'), JSON.stringify({
-                    dependencies: { 'my-custom-framework': '^1.0.0' }
+                    dependencies: { react: '^18.2.0' }
                 }));
             },
             verify: async (dir: string) => {
-                const detected = await detectFramework(dir);
-                return detected?.name === 'my-custom-framework';
+                const detector = new FrameworkDetector(dir);
+                const frameworks = await detector.detect();
+                return frameworks[0]?.name === 'react';
             }
         },
         {

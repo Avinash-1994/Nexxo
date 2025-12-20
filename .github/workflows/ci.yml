@@ -32,8 +32,17 @@ jobs:
       - name: Build TypeScript
         run: npm run build
       
-      - name: Run CSS detection tests
-        run: node --loader ts-node/esm tests/css_detection_test.ts || true
-      
-      - name: Run final CSS tests
-        run: node --loader ts-node/esm tests/final_css_test.ts || true
+      - name: Run config loader test
+        run: node --loader ts-node/esm tests/config_test.ts
+
+      - name: Run bootstrap helper test
+        run: node --loader ts-node/esm tests/bootstrap_test.ts
+
+      - name: Run integration test
+        run: node --loader ts-node/esm tests/integration_test.ts
+
+      - name: Run asset pipeline test
+        run: node --loader ts-node/esm tests/asset_test.ts
+
+      - name: Run federation core test
+        run: node --loader ts-node/esm tests/federation_core_test.ts

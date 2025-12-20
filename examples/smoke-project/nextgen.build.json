@@ -1,0 +1,10 @@
+{
+  "root": ".",
+  "entry": ["src/main.js"],
+  "mode": "production",
+  "outDir": "dist",
+  "port": 5183,
+  "platform": "browser",
+  "preset": "spa"
+}
+

@@ -9,16 +9,7 @@ import { log } from '../utils/logger.js';
 import { PluginManager } from '../plugins/index.js';
 import { PluginSandbox } from '../core/sandbox.js';
 
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-
-// Load Native Worker
-// When installed via npm, the structure is: node_modules/urja/dist/dev/devServer.js
-// and nextgen_native.node is at: node_modules/urja/dist/nextgen_native.node
-// and nextgen_native.node is at: node_modules/urja/dist/nextgen_native.node
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const nativePath = path.resolve(__dirname, '../nextgen_native.node');
-const { NativeWorker } = require(nativePath);
+import { NativeWorker } from '../native/index.js';
 
 import { HMRThrottle } from './hmrThrottle.js';
 import { ConfigWatcher } from './configWatcher.js';
@@ -606,7 +597,7 @@ export async function startDevServer(cfg: BuildConfig) {
         // Native Transform (Caching + Graph) - only for JS/TS files
         if (ext === '.ts' || ext === '.tsx' || ext === '.jsx' || ext === '.js' || ext === '.mjs') {
           try {
-            raw = nativeWorker.processFile(filePath);
+            raw = nativeWorker.transformSync(raw, filePath);
           } catch (e) {
             log.error('NativeWorker error', { category: 'build', error: e });
             // Continue with raw content
@@ -819,7 +810,16 @@ export async function startDevServer(cfg: BuildConfig) {
     });
 
     if (cfg.server?.open) {
-      import('open').then(open => open.default(url));
+      (async () => {
+        const { spawn } = await import('child_process');
+        const isWin = process.platform === 'win32';
+        const cmd = isWin ? 'cmd' : (process.platform === 'darwin' ? 'open' : 'xdg-open');
+        const args = isWin ? ['/c', 'start', '', url] : [url];
+        try {
+          const child = spawn(cmd, args, { stdio: 'ignore', detached: true });
+          child.unref();
+        } catch { }
+      })();
     }
   });
 }

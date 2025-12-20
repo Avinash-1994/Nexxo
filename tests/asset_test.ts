@@ -1,4 +1,4 @@
-import { build } from '../src/build/bundler.js';
+import { build } from '../dist/build/bundler.js';
 import path from 'path';
 import fs from 'fs/promises';
 import assert from 'assert';
