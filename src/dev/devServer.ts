@@ -9,9 +9,6 @@ import { log } from '../utils/logger.js';
 import { PluginManager } from '../plugins/index.js';
 import { PluginSandbox } from '../core/sandbox.js';
 
-<<<<<<< HEAD
-import { NativeWorker } from '../native/index.js';
-=======
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
@@ -36,7 +33,6 @@ try {
     rebuild(filePath: string) { return []; }
   };
 }
->>>>>>> 875885ae01ca502e945d8490bf637bf29db4a0d5
 
 import { HMRThrottle } from './hmrThrottle.js';
 import { ConfigWatcher } from './configWatcher.js';
