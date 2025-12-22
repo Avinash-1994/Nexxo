@@ -739,7 +739,7 @@ export async function startDevServer(cfg: BuildConfig) {
         // Native Transform (Caching + Graph) - only for JS/TS files
         if (ext === '.ts' || ext === '.tsx' || ext === '.jsx' || ext === '.js' || ext === '.mjs') {
           try {
-            raw = nativeWorker.processFile(filePath);
+            raw = nativeWorker.transformSync(raw, filePath);
           } catch (e) {
             log.error('NativeWorker error', { category: 'build', error: e });
             // Continue with raw content
@@ -970,7 +970,16 @@ export async function startDevServer(cfg: BuildConfig) {
     });
 
     if (cfg.server?.open) {
-      import('open').then(open => open.default(url));
+      (async () => {
+        const { spawn } = await import('child_process');
+        const isWin = process.platform === 'win32';
+        const cmd = isWin ? 'cmd' : (process.platform === 'darwin' ? 'open' : 'xdg-open');
+        const args = isWin ? ['/c', 'start', '', url] : [url];
+        try {
+          const child = spawn(cmd, args, { stdio: 'ignore', detached: true });
+          child.unref();
+        } catch { }
+      })();
     }
   });
 }

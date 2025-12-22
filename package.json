@@ -13,14 +13,16 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "npm run build:native && tsc -p tsconfig.build.json && cp nextgen_native.node dist/ && cp src/plugins/*.mjs dist/plugins/ 2>/dev/null || true && mkdir -p dist/runtime && cp src/runtime/*.js dist/runtime/",
-    "build:native": "cd src/native && napi build --platform --release --dts index.d.ts && cp *.node ../../nextgen_native.node 2>/dev/null || true",
+    "build": "npm run build:native && tsc -p tsconfig.build.json && node ./scripts/postbuild.js",
+    "build:native": "node ./scripts/build_native.js",
     "dev": "node ./dist/cli.js dev",
     "start": "node ./dist/cli.js dev",
     "prepack": "npm run build && node ./scripts/pack.js",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "test:repro": "node ./scripts/repro_test.mjs",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test:all": "tsc -p tsconfig.build.json && ts-node --esm tests/config_test.ts && ts-node --esm tests/bootstrap_test.ts && ts-node --esm tests/integration_test.ts && ts-node --esm tests/asset_test.ts && ts-node --esm tests/federation_core_test.ts"
   },
   "keywords": [
     "build-tool",

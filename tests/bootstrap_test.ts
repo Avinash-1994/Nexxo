@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { detectBootstrapUsage, getBootstrapConfig, injectBootstrapCDN } from '../src/plugins/css/bootstrap.js';
+import { detectBootstrapUsage, getBootstrapConfig, injectBootstrapCDN } from '../dist/plugins/css/bootstrap.js';
 
 async function runTests() {
     const testDir = path.join(process.cwd(), 'temp_bootstrap_tests');

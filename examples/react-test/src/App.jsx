@@ -6,8 +6,8 @@ function App() {
 
     return (
         <div className="App">
-            <h1>🚀 Urja Build Tool - React Test</h1>
-            <p>Framework: React 18</p>
+            <h1>🚀 Urja Build Tool - React Test (HMR Live)</h1>
+            <p>Framework: React 18 (verified)</p>
             <p>Universal Transformer: ✅ Active</p>
             <p>Version-Agnostic: ✅ Enabled</p>
 
@@ -15,7 +15,7 @@ function App() {
                 <button onClick={() => setCount(count + 1)}>
                     Count: {count}
                 </button>
-                <p>Click the button to test reactivity!</p>
+                <p>Click the button to test reactivity! (Hot)</p>
             </div>
 
             <div className="features">

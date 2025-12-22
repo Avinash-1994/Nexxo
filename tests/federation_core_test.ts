@@ -1,6 +1,5 @@
-import { BundlerStep } from '../src/core/steps.js';
-import { BuildConfig } from '../src/config/index.js';
-import { PluginManager } from '../src/plugins/index.js';
+import { BundlerStep } from '../dist/core/steps.js';
+import { PluginManager } from '../dist/plugins/index.js';
 import fs from 'fs/promises';
 import path from 'path';
 import { rimraf } from 'rimraf';

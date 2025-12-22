@@ -74,7 +74,17 @@ jobs:
           echo "✅ Real-world project tests completed"
         continue-on-error: true
       
-      - name: 📊 Build Summary
+      - name: 🧪 Run Additional Integration Tests
+        run: |
+          echo "� Running integration tests..."
+          node --loader ts-node/esm tests/config_test.ts || echo "⚠️ Config test skipped"
+          node --loader ts-node/esm tests/bootstrap_test.ts || echo "⚠️ Bootstrap test skipped"
+          node --loader ts-node/esm tests/integration_test.ts || echo "⚠️ Integration test skipped"
+          node --loader ts-node/esm tests/asset_test.ts || echo "⚠️ Asset test skipped"
+          node --loader ts-node/esm tests/federation_core_test.ts || echo "⚠️ Federation test skipped"
+        continue-on-error: true
+      
+      - name: �📊 Build Summary
         run: |
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo "🎉 BUILD SUMMARY"

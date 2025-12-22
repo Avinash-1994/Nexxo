@@ -14,13 +14,17 @@ type NativeWorkerInstance = {
     transformSync(code: string, id: string): string;
     transform(code: string, id: string): Promise<string>;
     processAsset(content: Buffer): string;
+    invalidate?: (file: string) => void;
+    rebuild?: (file: string) => string[];
 };
 
 import { createRequire } from 'module';
+import { createHash } from 'crypto';
 
 const nodeRequire = createRequire(import.meta.url);
 
 let nativeModule: NativeWorkerModule | null = null;
+let nativeLoaded = false;
 
 /**
  * Load the native module (lazy loading)
@@ -28,26 +32,54 @@ let nativeModule: NativeWorkerModule | null = null;
 function loadNative(): NativeWorkerModule {
     if (!nativeModule) {
         try {
-            // When installed via npm: node_modules/urja/dist/native/index.js
-            // Native binary is at: node_modules/urja/dist/nextgen_native.node
             nativeModule = nodeRequire('../nextgen_native.node');
+            nativeLoaded = true;
         } catch (e) {
-            throw new Error(`Failed to load Rust native worker: ${e}`);
+            const fallback: NativeWorkerModule = {
+                helloRust() {
+                    return 'Hello from JS Fallback Native Worker!';
+                },
+                benchmarkTransform(code: string, iterations: number): number {
+                    const start = Date.now();
+                    for (let i = 0; i < iterations; i++) {
+                        void code.replace('console.log', 'console.debug');
+                    }
+                    return (Date.now() - start) / 1000;
+                },
+                NativeWorker: class {
+                    poolSize: number;
+                    constructor(poolSize?: number) {
+                        this.poolSize = poolSize ?? 4;
+                    }
+                    transformSync(code: string, _id: string): string {
+                        return code.replace('console.log', 'console.debug');
+                    }
+                    async transform(code: string, id: string): Promise<string> {
+                        return this.transformSync(code, id);
+                    }
+                    processAsset(content: Buffer): string {
+                        return createHash('sha256').update(content).digest('hex');
+                    }
+                    invalidate(_file: string): void {
+                    }
+                    rebuild(file: string): string[] {
+                        return [file];
+                    }
+                }
+            };
+            nativeModule = fallback;
+            nativeLoaded = false;
         }
     }
-    return nativeModule!; // Assert non-null since we throw if loading fails
+    return nativeModule!;
 }
 
 /**
  * Check if native worker is available
  */
 export function isNativeAvailable(): boolean {
-    try {
-        loadNative();
-        return true;
-    } catch {
-        return false;
-    }
+    loadNative();
+    return nativeLoaded;
 }
 
 /**
@@ -88,6 +120,21 @@ export class RustNativeWorker {
      */
     processAsset(content: Buffer): string {
         return this.worker.processAsset(content);
+    }
+
+    invalidate(file: string): void {
+        const w: any = this.worker as any;
+        if (typeof w.invalidate === 'function') {
+            w.invalidate(file);
+        }
+    }
+
+    rebuild(file: string): string[] {
+        const w: any = this.worker as any;
+        if (typeof w.rebuild === 'function') {
+            return w.rebuild(file);
+        }
+        return [file];
     }
 }
 

@@ -33,11 +33,11 @@ async function main() {
         return yargs.option('port', {
           type: 'number',
           description: 'Server port',
-          default: 3000
+          default: 5173
         });
       },
       async (args: any) => {
-        const cfg = await loadConfig(process.cwd());
+        const cfg = await loadConfig((globalThis as any).process.cwd());
         cfg.port = args.port;
         await startDevServer(cfg);
       }

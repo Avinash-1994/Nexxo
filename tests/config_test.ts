@@ -1,4 +1,4 @@
-import { loadConfig } from '../src/config/index.js';
+import { loadConfig } from '../dist/config/index.js';
 import fs from 'fs/promises';
 import path from 'path';
 import assert from 'assert';
