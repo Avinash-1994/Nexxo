@@ -1,0 +1,10 @@
+{
+  "id": "40cd6320-0d45-4260-b8df-09bbc1c60639",
+  "timestamp": 1766385962724,
+  "duration": 39,
+  "success": false,
+  "metrics": {},
+  "errors": [
+    "Build failed with 1 error:\nsrc/App.astro:2:0: ERROR: Unexpected \"const\""
+  ]
+}

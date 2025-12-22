@@ -1,0 +1,10 @@
+{
+  "id": "11966a5e-4240-4222-8c94-19c22f45b268",
+  "timestamp": 1766380233908,
+  "duration": 111,
+  "success": false,
+  "metrics": {},
+  "errors": [
+    "Build failed with 2 errors:\nsrc/App.svelte:1:0: ERROR: The JSX syntax extension is not currently enabled\nsrc/App.svelte:5:8: ERROR: Expected \";\" but found \"onclick\""
+  ]
+}

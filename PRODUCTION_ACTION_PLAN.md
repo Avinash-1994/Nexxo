@@ -30,9 +30,10 @@ We are executing these tasks sequentially, verifying each one before moving to t
   - [x] Ensure HMR works for utility classes (Verified)
 
 ### 3. Core Reliability
-- [x] **Unit Tests**
+- [x] **Unit Tests & CI**
   - [x] Add basic test suite for `universal-transformer` (Verified)
-  - [ ] Add test suite for `pre-bundler`
+  - [x] Add basic test suite for `pre-bundler` (Verified)
+  - [x] Ensure CI runs tests (Verified)
 - [ ] **Error Handling**
   - [ ] Improve error overlays for compile errors
 
@@ -42,19 +43,39 @@ We are executing these tasks sequentially, verifying each one before moving to t
   - [x] Test `examples/solid-test` in browser (Verified)
   - [x] Fix pre-bundling resolution for subpaths (Verified)
   - [x] Verify Production Build (Verified)
-- [ ] **Preact Support** (Verify & Fix)
+- [x] **Preact Support** (Verified & Fixed)
+  - [x] Test `examples/preact-test` in browser (Verified)
+  - [x] Fix JSX Runtime `importSource` (Verified)
+  - [x] Verify Production Build (Verified)
 - [ ] **Astro Support** (Verify & Fix)
 - [ ] **Documentation Polish** (Migration guides, usage docs)
 - [ ] **Performance Tuning** (Target <500ms startup)
 
 ## 🟢 FEATURE EXPANSION (P2 - AFTER CORE IS STABLE)
 
-- [ ] **AI Features** (Connect to real LLM)
-- [ ] **Plugin Marketplace**
-- [ ] **Federation Support**
+### 1. Advanced Framework Verification
+- [ ] **Astro Support** (Implemented but Unverified)
+- [ ] **Qwik Support** (Implemented but Unverified)
+- [ ] **Lit Support** (Implemented but Unverified)
+- [ ] **Meta-Frameworks** (Next.js, Nuxt - Not Started)
+
+### 2. Microfrontend Federation (Pending)
+- [ ] Implement Native Module Federation
+- [ ] Create `remoteEntry.json` manifest generation
+- [ ] Build Fallback/Gateway system
+
+### 3. AI & Intelligent Features (Pending)
+- [ ] **AI Config Optimizer**: Implement data collection & analysis
+- [ ] **Self-Healing Builds**: Create error pattern database
+- [ ] **Global Learning Network**: Set up privacy-safe telemetry
+
+### 4. Marketplace & Security
+- [ ] Plugin Sandboxing
+- [ ] Public Template Registry
 
 ---
 
 **Current Status:**
 - React 18: ✅ VERIFIED
-- Core Pipeline: ✅ VERIFIED for React
+- Core Pipeline: ✅ VERIFIED for React/Vue/Solid/Preact
+- AI / Federation: 🔴 0% (FUTURE ROADMAP)

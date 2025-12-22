@@ -1,0 +1,10 @@
+{
+  "id": "94d80b03-e01b-4834-a741-8e71d83507cb",
+  "timestamp": 1766387138661,
+  "duration": 212,
+  "success": false,
+  "metrics": {},
+  "errors": [
+    "Build failed with 1 error:\nsrc/main.tsx:5:17: ERROR: Could not resolve \"./pages/index\""
+  ]
+}

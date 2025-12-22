@@ -1,0 +1,16 @@
+{
+  "name": "astro-test",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@astrojs/compiler": "^2.13.0",
+    "astro": "^5.16.6"
+  }
+}
