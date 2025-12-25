@@ -1,0 +1,137 @@
+
+import { DependencyGraph } from '../../resolve/graph.js';
+
+// 6.1 EngineInfo
+export type EngineInfo = {
+    name: "Urja";
+    version: string;
+    commit?: string;
+    buildTime?: string; // Observational only
+};
+
+// 6.2 BuildContext
+export type BuildMode = 'dev' | 'build' | 'ci' | 'debug';
+export type BuildTarget = 'browser' | 'node' | 'edge';
+
+export interface BuildContext {
+    engine: EngineInfo;
+    mode: BuildMode;
+    target: BuildTarget;
+    rootDir: string;
+    env: Record<string, string>;
+    graph: DependencyGraph;
+    graphHash: string;
+    cache: BuildCache;
+    config: ResolvedConfig;
+}
+
+// 6.3 InputFingerprint
+export type InputFingerprint = {
+    sourceFiles: {
+        path: string;
+        contentHash: string;
+    }[];
+    configHash: string;
+    engineFingerprint: string;
+    inputHash: string; // Master hash
+};
+
+// 6.4 BuildPlan
+export interface ChunkPlan {
+    id: string; // Unique ID
+    entry: string; // Entry module ID
+    modules: string[]; // List of module IDs
+    outputName: string;
+}
+
+export interface AssetPlan {
+    source: string;
+    outputName: string;
+}
+
+export interface BuildPlan {
+    planId: string; // canonicalHash(plan content)
+    target: BuildTarget;
+    chunks: ChunkPlan[];
+    assets: AssetPlan[];
+    executionOrder: string[];
+}
+
+// 6.5 ExecutionPlan
+export type ExecutionPlan = {
+    sequential: string[];
+    parallelGroups: string[][];
+};
+
+// 6.6 BuildArtifact
+export interface BuildArtifact {
+    id: string; // contentHash
+    type: 'js' | 'css' | 'asset' | 'map';
+    fileName: string;
+    dependencies: string[];
+    source?: string | Uint8Array;
+}
+
+// 6.7 BuildFingerprint
+export type BuildFingerprint = {
+    engineVersion: string;
+    graphHash: string;
+    planHash: string;
+    inputHash: string;
+    outputHash: string;
+    target: string;
+    buildTime?: string;
+};
+
+// Cache
+export interface CachedResult {
+    hash: string;
+    artifact: BuildArtifact;
+}
+
+export interface BuildCache {
+    get(key: string): CachedResult | null;
+    set(key: string, value: CachedResult): void;
+    clear(): void;
+}
+
+// Configuration
+export interface ResolvedConfig {
+    entryPoints: string[];
+    outputDir: string;
+    publicPath: string;
+    splittingStrategy: 'route' | 'module';
+    hashing: 'content';
+    sourceMaps: boolean;
+}
+
+// Error Handling
+export interface BuildError {
+    code: string;
+    message: string;
+    module?: string;
+    stage: 'init' | 'fingerprint' | 'graph' | 'plan' | 'parallel_plan' | 'determinism' | 'execute' | 'emit' | 'audit' | 'unknown';
+}
+
+// Explain Mode
+export interface ExplainEvent {
+    stage: string;
+    subjectId?: string;
+    decision: string;
+    reason: string;
+    data?: any;
+}
+
+// Hot Reload
+export type DeltaGraph = {
+    added: string[];
+    modified: string[];
+    removed: string[];
+}
+
+export type HotReloadContext = {
+    baseGraphHash: string;
+    deltaGraph: DeltaGraph;
+    affectedNodes: string[];
+    affectedChunks: string[];
+}

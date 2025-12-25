@@ -22,7 +22,7 @@
     "test:repro": "node ./scripts/repro_test.mjs",
     "prepublishOnly": "npm run build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test:all": "tsc -p tsconfig.build.json && npx tsx tests/config_test.ts && npx tsx tests/bootstrap_test.ts && npx tsx tests/integration_test.ts && npx tsx tests/asset_test.ts && npx tsx tests/federation_core_test.ts"
+    "test:all": "tsc -p tsconfig.build.json && npx tsx tests/config_test.ts && npx tsx tests/bootstrap_test.ts && npx tsx tests/integration_test.ts && npx tsx tests/asset_test.ts && npx tsx tests/federation_core_test.ts && npx tsx tests/core_engine_test.ts"
   },
   "keywords": [
     "build-tool",
@@ -63,6 +63,7 @@
     "@babel/preset-typescript": "^7.28.5",
     "@types/express": "^5.0.6",
     "@vue/server-renderer": "^3.5.26",
+    "acorn": "^8.15.0",
     "better-sqlite3": "^12.5.0",
     "chokidar": "^3.5.3",
     "dotenv": "^17.2.3",

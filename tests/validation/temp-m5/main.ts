@@ -1,0 +1,1 @@
+import { msg } from "./utils.ts"; console.log(msg);

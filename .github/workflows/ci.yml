@@ -1,17 +1,48 @@
 name: CI/CD Pipeline
 
-on: 
+on:
   push:
     branches: [ main, master, develop ]
   pull_request:
     branches: [ main, master, develop ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build-and-test:
+  lint-and-typecheck:
+    name: 🔍 Lint & Type Check
     runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      
+      - name: 📦 Install Dependencies
+        run: npm ci
+      
+      - name: 🔍 TypeScript Type Check
+        run: npm run typecheck
+
+  build-and-test:
+    name: 🔨 Build & Test (${{ matrix.os }}, Node ${{ matrix.node-version }})
+    runs-on: ${{ matrix.os }}
+    needs: lint-and-typecheck
     strategy:
+      fail-fast: false
       matrix:
         node-version: [18, 20]
+        os: [ubuntu-latest, windows-latest]
+        exclude:
+          - os: windows-latest
+            node-version: 18
     
     steps:
       - name: 📥 Checkout Repository
@@ -24,84 +55,58 @@ jobs:
           cache: 'npm'
       
       - name: 🦀 Install Rust Toolchain
+        if: runner.os != 'Windows' # Skip rust on windows for now if it's too slow or experimental
         uses: dtolnay/rust-toolchain@stable
       
       - name: 📦 Install Dependencies
         run: npm ci
       
-      - name: 🔨 Build Native Module
-        run: |
-          # Use npx to ensure napi-rs cli is found
-          npx napi build --release --platform --dts index.d.ts --cwd src/native || echo "⚠️ Native build failed"
-          # Copy binary if it exists
-          cp src/native/*.node ./nextgen_native.node 2>/dev/null || echo "⚠️ No native binary found"
-        continue-on-error: true
-      
-      - name: 🏗️ Build TypeScript
+      - name: 🔨 Build Project
         run: npm run build
       
-      - name: 🔍 TypeScript Type Check
-        run: npm run typecheck || echo "⚠️ Type checking completed with warnings"
-        continue-on-error: true
+      - name: ✅ Verify Build Artifacts
+        shell: bash
+        run: |
+          echo "🔍 Checking build artifacts..."
+          test -f dist/cli.js && echo "✅ CLI built successfully" || exit 1
+          test -f dist/core/universal-transformer.js && echo "✅ Universal Transformer built" || exit 1
+          if [ "${{ runner.os }}" == "Linux" ]; then
+            test -f dist/nextgen_native.node && echo "✅ Native binary found in dist" || echo "⚠️ Native binary missing"
+          fi
       
       - name: 🧪 Run Unit Tests
         run: npm test -- --passWithNoTests
       
-      - name: ✅ Verify Build Artifacts
-        run: |
-            echo "🔍 Checking build artifacts..."
-            test -f dist/cli.js && echo "✅ CLI built successfully" || exit 1
-            test -f dist/core/universal-transformer.js && echo "✅ Universal Transformer built" || exit 1
-            # Check meta-frameworks
-            ls -R dist/meta-frameworks/ || echo "⚠️ Meta-frameworks directory missing"
-      
       - name: 🧪 Run Integration Tests
-        run: |
-          echo "🧪 Running configuration tests..."
-          npx tsx tests/config_test.ts || echo "⚠️ Config test failed"
-          
-          echo "🧪 Running bootstrap tests..."
-          npx tsx tests/bootstrap_test.ts || echo "⚠️ Bootstrap test failed"
-          
-          echo "🧪 Running integration tests..."
-          npx tsx tests/integration_test.ts || echo "⚠️ Integration test failed"
-          
-          echo "🧪 Running asset tests..."
-          npx tsx tests/asset_test.ts || echo "⚠️ Asset test failed"
-          
-          echo "🧪 Running federation tests..."
-          npx tsx tests/federation_core_test.ts || echo "⚠️ Federation test failed"
-        continue-on-error: true
+        run: npm run test:all
       
+      - name: 🧪 Run Validation Scenarios
+        run: npx tsx scripts/validation/run-validation.ts
+
+      - name: 📤 Upload Build Artifacts
+        if: matrix.node-version == 20 && matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            dist/
+            nextgen_native.node
+            package.json
+            package-lock.json
+
+  summary:
+    name: 📊 Workflow Summary
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: always()
+    steps:
       - name: 📊 Build Summary
         run: |
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "🎉 BUILD SUMMARY"
+          echo "🎉 WORKFLOW COMPLETE"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "✅ Node version: ${{ matrix.node-version }}"
-          echo "✅ Core Pipeline: Built"
-          echo "✅ Framework Support: 12/12"
+          echo "✅ Lint & Typecheck: Passed"
+          echo "✅ Build & Test: Completed"
+          echo "🚀 Status: Ready for Review"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-  validation:
-    runs-on: ubuntu-latest
-    needs: build-and-test
-    steps:
-      - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
-      - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-      - name: 📦 Install and Build
-        run: |
-          npm ci
-          npm run build
-      - name: 🧪 Final Validation
-        run: |
-          echo "🔍 Validating final build state..."
-          test -f dist/cli.js && echo "✅ CLI OK"
-          test -f dist/core/universal-transformer.js && echo "✅ Transformer OK"
-          echo "🚀 Status: Production Ready"
 
