@@ -1,0 +1,10 @@
+{
+  "id": "f343cd55-aebe-4ca4-935d-a3443fa412a1",
+  "timestamp": 1766557282485,
+  "duration": 159,
+  "success": false,
+  "metrics": {},
+  "errors": [
+    "Build failed with 2 errors:\nsrc/App.astro:19:2: ERROR: No matching export in \"node_modules/astro/dist/runtime/server/index.js\" for import \"createMetadata\"\nsrc/App.astro?astro&type=style&index=0&lang.css:19:2: ERROR: No matching export in \"node_modules/astro/dist/runtime/server/index.js\" for import \"createMetadata\""
+  ]
+}

@@ -12,7 +12,7 @@ const nativeDir = join(rootDir, 'src', 'native');
 function runNapiBuild() {
   return new Promise((resolve) => {
     try {
-      const child = spawn('napi', ['build', '--platform', '--release', '--dts', 'index.d.ts'], {
+      const child = spawn('npx', ['napi', 'build', '--platform', '--release', '--dts', 'index.d.ts'], {
         cwd: nativeDir,
         stdio: 'inherit',
         shell: true

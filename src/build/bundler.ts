@@ -8,8 +8,6 @@ import {
   OutputterStep
 } from '../core/steps.js';
 
-import { CSSOptimizationStep } from '../core/steps/css-optimization.js';
-
 export async function build(cfg: BuildConfig) {
   console.log('🏗️  Starting Build Pipeline...');
   console.log('📁 Root:', cfg.root);
@@ -23,7 +21,6 @@ export async function build(cfg: BuildConfig) {
     .addStep(new TransformerStep())
     .addStep(new BundlerStep())
     .addStep(new OptimizerStep())
-    .addStep(new CSSOptimizationStep())
     .addStep(new OutputterStep());
 
   // Add timeout to prevent hanging

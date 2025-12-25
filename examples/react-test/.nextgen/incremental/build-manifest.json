@@ -1,0 +1,21 @@
+{
+  "version": "1.0.0",
+  "timestamp": 1766403219612,
+  "files": {
+    "/home/avinash/Desktop/framework_practis/build/examples/react-test/src/main.tsx": {
+      "path": "/home/avinash/Desktop/framework_practis/build/examples/react-test/src/main.tsx",
+      "hash": "90fbc677d27221193ca387f28bd82522514711ca475ddd8a0cc78375287c6522",
+      "size": 33,
+      "mtime": 1765256341715.5422
+    }
+  },
+  "dependencies": {},
+  "outputs": {
+    "/home/avinash/Desktop/framework_practis/build/examples/react-test/src/main.tsx": [
+      "build_output/entry0.js.map",
+      "build_output/entry0.js",
+      "build_output/entry0.css.map",
+      "build_output/entry0.css"
+    ]
+  }
+}

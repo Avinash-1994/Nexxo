@@ -1,0 +1,34 @@
+{
+  "timestamp": "2025-12-22T11:32:36.983Z",
+  "total": 19,
+  "passed": 14,
+  "failed": 5,
+  "skipped": 0,
+  "passRate": 73.7,
+  "details": {
+    "passed": [
+      "Universal Transformer",
+      "Dev Server",
+      "Build Pipeline",
+      "Build Steps",
+      "Security Headers Module",
+      "Security Headers",
+      "CSS Optimizer File",
+      "CSS Optimization",
+      "Incremental Build Manager",
+      "Incremental Builds (Module Only)",
+      "Module Federation (Basic)",
+      "SSR Server",
+      "React SSR Renderer",
+      "Vue SSR Renderer"
+    ],
+    "failed": [
+      "Compression (Brotli/Gzip)",
+      "Build: React",
+      "Build: Vue",
+      "Build: Svelte",
+      "Dev Server Start"
+    ],
+    "skipped": []
+  }
+}

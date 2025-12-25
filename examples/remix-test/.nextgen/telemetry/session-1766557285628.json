@@ -1,0 +1,10 @@
+{
+  "id": "aff9a486-b0ea-4717-ae2a-adf234e35f60",
+  "timestamp": 1766557285628,
+  "duration": 29,
+  "success": false,
+  "metrics": {},
+  "errors": [
+    "Build failed with 1 error:\nerror: Could not resolve \"/home/avinash/Desktop/framework_practis/build/examples/remix-test/src/main.tsx\""
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "version": "1.0.0",
+  "timestamp": 1766403340710,
+  "files": {
+    "/home/avinash/Desktop/framework_practis/build/examples/vue-test/src/main.ts": {
+      "path": "/home/avinash/Desktop/framework_practis/build/examples/vue-test/src/main.ts",
+      "hash": "50cb9f18b1c7115799ae456f0d0038840278b49ea520b5549d468ec76c248fb9",
+      "size": 90,
+      "mtime": 1765870021374.621
+    }
+  },
+  "dependencies": {},
+  "outputs": {
+    "/home/avinash/Desktop/framework_practis/build/examples/vue-test/src/main.ts": [
+      "build_output/entry0.js.map",
+      "build_output/entry0.js"
+    ]
+  }
+}

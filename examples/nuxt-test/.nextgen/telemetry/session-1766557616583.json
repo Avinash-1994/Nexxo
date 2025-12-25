@@ -1,0 +1,10 @@
+{
+  "id": "6e385280-4f80-48c4-9290-ffb36f201e4b",
+  "timestamp": 1766557616583,
+  "duration": 31,
+  "success": false,
+  "metrics": {},
+  "errors": [
+    "Build failed with 1 error:\nerror: Could not resolve \"/home/avinash/Desktop/framework_practis/build/examples/nuxt-test/src/main.tsx\""
+  ]
+}

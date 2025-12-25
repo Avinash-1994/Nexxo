@@ -46,23 +46,60 @@ export class FederationPlugin implements Plugin {
                 timestamp: Date.now()
             };
 
-            // Process Exposes
-            if (this.config.exposes) {
+            // Process Exposes - Map to actual output files
+            if (this.config.exposes && result.metafile) {
+                const outputs = result.metafile.outputs as Record<string, {
+                    entryPoint?: string;
+                    inputs?: Record<string, any>;
+                    bytes: number;
+                }>;
+
                 for (const [key, importPath] of Object.entries(this.config.exposes)) {
-                    // In a real implementation, we would map this to the actual output chunk
-                    // For now, we'll assume the bundler has created a chunk or we point to source
-                    // Ideally, we need to know the output filename for this module.
-                    // Since esbuild metafile is available, we can look it up.
+                    // Resolve the import path relative to root
+                    const absolutePath = path.resolve(this.root, importPath);
 
-                    // Simplified: Point to the output file assuming standard naming or just pass the import path
-                    // The runtime loader will need to handle this.
-                    // For Native Federation, we usually want to point to a JS file.
+                    // Find the output file that corresponds to this input
+                    let outputFile = null;
+                    let outputPath = null;
 
-                    // Let's assume the user configured manualChunks or we rely on the runtime to resolve.
-                    // For this prototype, we'll just store the path.
+                    for (const [outPath, outInfo] of Object.entries(outputs)) {
+                        // Check if this output was generated from our input
+                        if (outInfo.entryPoint) {
+                            const entryAbsolute = path.resolve(this.root, outInfo.entryPoint);
+                            if (entryAbsolute === absolutePath) {
+                                outputFile = path.basename(outPath);
+                                outputPath = outPath.replace(outDir + '/', '');
+                                break;
+                            }
+                        }
+
+                        // Also check inputs (for bundled modules)
+                        if (outInfo.inputs && outInfo.inputs[importPath]) {
+                            outputFile = path.basename(outPath);
+                            outputPath = outPath.replace(outDir + '/', '');
+                            break;
+                        }
+                    }
+
+                    if (!outputFile) {
+                        log.warn(`Could not find output for exposed module: ${key} (${importPath})`, { category: 'build' });
+                        // Fallback to source path
+                        outputPath = importPath;
+                    }
+
                     manifest.exposes[key] = {
-                        import: importPath, // This needs to be the output URL in production
-                        name: key
+                        import: `./${outputPath}`,
+                        name: key,
+                        assets: [] // Could include CSS/other assets
+                    };
+                }
+            } else if (this.config.exposes) {
+                // Fallback if no metafile
+                for (const [key, importPath] of Object.entries(this.config.exposes)) {
+                    manifest.exposes[key] = {
+                        import: importPath,
+                        name: key,
+                        assets: []
                     };
                 }
             }

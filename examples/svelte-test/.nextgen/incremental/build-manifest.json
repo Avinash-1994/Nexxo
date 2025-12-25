@@ -1,0 +1,19 @@
+{
+  "version": "1.0.0",
+  "timestamp": 1766403401226,
+  "files": {
+    "/home/avinash/Desktop/framework_practis/build/examples/svelte-test/src/main.ts": {
+      "path": "/home/avinash/Desktop/framework_practis/build/examples/svelte-test/src/main.ts",
+      "hash": "1e5c3e376d54f266c9d2efe584c93212d8e606f8eda698c9141d828a7c906f4b",
+      "size": 124,
+      "mtime": 1765870766755.5784
+    }
+  },
+  "dependencies": {},
+  "outputs": {
+    "/home/avinash/Desktop/framework_practis/build/examples/svelte-test/src/main.ts": [
+      "build_output/entry0.js.map",
+      "build_output/entry0.js"
+    ]
+  }
+}

@@ -115,6 +115,7 @@ export type BuildConfig = {
 
 export async function loadConfig(cwd: string): Promise<BuildConfig> {
   const jsonPath = path.join(cwd, 'nextgen.build.json');
+  const urjaJsonPath = path.join(cwd, 'urja.config.json');
   const yamlPath = path.join(cwd, 'nextgen.build.yaml');
   const ymlPath = path.join(cwd, 'nextgen.build.yml');
   const tsPath = path.join(cwd, 'nextgen.build.ts');
@@ -124,6 +125,9 @@ export async function loadConfig(cwd: string): Promise<BuildConfig> {
   try {
     if (await fs.access(jsonPath).then(() => true).catch(() => false)) {
       const raw = await fs.readFile(jsonPath, 'utf-8');
+      rawConfig = JSON.parse(raw);
+    } else if (await fs.access(urjaJsonPath).then(() => true).catch(() => false)) {
+      const raw = await fs.readFile(urjaJsonPath, 'utf-8');
       rawConfig = JSON.parse(raw);
     } else if (await fs.access(yamlPath).then(() => true).catch(() => false)) {
       const raw = await fs.readFile(yamlPath, 'utf-8');
@@ -228,3 +232,9 @@ export async function saveConfig(cwd: string, config: any): Promise<void> {
   log.info(`Configuration saved to ${jsonPath}`);
 }
 
+/**
+ * Helper for TypeScript config files
+ */
+export function defineConfig(config: Partial<BuildConfig>): Partial<BuildConfig> {
+  return config;
+}

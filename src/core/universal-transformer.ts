@@ -510,8 +510,8 @@ export class UniversalTransformer {
 
             const result = await astro.transform(code, {
                 filename: filePath,
-                sourcemap: isDev,
-                internalURL: 'astro/runtime/server/index.js'
+                sourcemap: isDev ? 'inline' : false,
+                // Remove internalURL as it may not be compatible with all versions
             });
 
             return {

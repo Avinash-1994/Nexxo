@@ -27,7 +27,10 @@ describe('UniversalTransformer', () => {
         // We assume babel/esbuild is working
         const result = await transformer.transform({ code: input, filePath, framework: 'react', root });
 
-        expect(result.code).toContain('React.createElement("div"');
-        // or jsx output depending on config, but likely vanilla transform fallback if no babel config
+        // We accept either Classic (React.createElement) or Automatic (_jsx) runtime
+        const isClassic = result.code.includes('React.createElement("div"');
+        const isAutomatic = result.code.includes('react/jsx-runtime') || result.code.includes('_jsx');
+
+        expect(isClassic || isAutomatic).toBe(true);
     });
 });

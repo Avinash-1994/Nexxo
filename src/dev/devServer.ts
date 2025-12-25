@@ -373,10 +373,23 @@ export async function startDevServer(cfg: BuildConfig) {
   const federationDev = new FederationDev(cfg, broadcast);
   federationDev.start();
 
+  // Initialize security headers once
+  const { createSecurityHeaders } = await import('../server/security-headers.js');
+  const securityHeaders = createSecurityHeaders({
+    csp: true,
+    hsts: cfg.server?.https ? true : false,
+    frameOptions: 'SAMEORIGIN',
+    xssProtection: true,
+    contentTypeNosniff: true
+  });
+
   const requestHandler = async (req: http.IncomingMessage, res: http.ServerResponse) => {
     statusHandler.trackRequest();
     if (await statusHandler.handleRequest(req, res)) return;
     if (federationDev.handleRequest(req, res)) return;
+
+    // Apply security headers
+    securityHeaders.apply(req, res);
 
     // Ignore Chrome DevTools extension probes
     if (req.url?.includes('.well-known/appspecific/com.chrome.devtools.json')) {

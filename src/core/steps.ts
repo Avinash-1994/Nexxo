@@ -48,11 +48,6 @@ export class BundlerStep implements PipelineStep {
     async run(ctx: PipelineContext): Promise<void> {
         const { config, entryPoints, pluginManager } = ctx;
 
-        // Skip caching for now - focus on builds completing successfully
-        // TODO: Re-enable after build stability confirmed
-        // const cache = new DiskCache(config.root);
-        // await cache.ensure();
-
         // Register internal plugins
         const outdir = path.resolve(config.root, config.outDir);
         const internalPlugins = [
@@ -107,17 +102,16 @@ export class BundlerStep implements PipelineStep {
         const isMultiTarget = targets.length > 1;
 
         for (const target of targets) {
-            const format = target === 'cjs' ? 'cjs' : 'esm'; // 'ssr' might be cjs or esm depending on node version, assume esm for now or map 'ssr'->'cjs'
+            const format = target === 'cjs' ? 'cjs' : 'esm';
             const useSplitting = format === 'esm' && (config.build?.splitting ?? true);
 
-            // If multi-target, use subdirectories. If single, use outDir directly.
             const targetOutDir = isMultiTarget
                 ? path.resolve(config.root, config.outDir, target)
                 : path.resolve(config.root, config.outDir);
 
             log.info(`Building target: ${target} (${format}) to ${targetOutDir}`, { category: 'build' } as any);
 
-            await esbuild.build({
+            const result = await esbuild.build({
                 entryPoints,
                 bundle: true,
                 splitting: useSplitting,
@@ -141,10 +135,6 @@ export class BundlerStep implements PipelineStep {
                 ],
             });
         }
-
-        // In a real pipeline, we might capture the output files in memory here
-        // instead of writing directly to disk, but esbuild writes to disk by default unless write: false
-        // For this prototype, we let esbuild write, and OutputterStep will handle caching.
     }
 }
 
@@ -152,11 +142,151 @@ export class OptimizerStep implements PipelineStep {
     name = 'Optimizer';
 
     async run(ctx: PipelineContext): Promise<void> {
-        // Post-processing optimization
-        // e.g. Image compression, further CSS minification not handled by esbuild
-        if (ctx.config.mode === 'production') {
-            // Placeholder for advanced optimizations
+        const { config } = ctx;
+
+        if (config.mode !== 'production') {
+            log.debug('Skipping optimization in development mode', { category: 'build' });
+            return;
         }
+
+        const outdir = path.resolve(config.root, config.outDir);
+
+        log.info('Running production optimizations...', { category: 'build' });
+
+        // 1. Compress assets (Brotli + Gzip)
+        await this.compressAssets(outdir);
+
+        // 2. Optimize CSS
+        await this.optimizeCSS(outdir, config);
+
+        // 3. Generate integrity hashes
+        await this.generateIntegrityHashes(outdir);
+
+        log.success('Production optimizations complete', { category: 'build' });
+    }
+
+    /**
+     * Optimize CSS files
+     */
+    private async optimizeCSS(outdir: string, config: any): Promise<void> {
+        const { CSSOptimizer } = await import('./steps/css-optimization.js');
+        const optimizer = new CSSOptimizer(config.root, {
+            purge: true,
+            critical: true,
+            minify: true
+        });
+
+        await optimizer.optimize(outdir);
+    }
+
+    /**
+     * Compress all JS/CSS/HTML files with Brotli and Gzip
+     */
+    private async compressAssets(outdir: string): Promise<void> {
+        const zlib = await import('zlib');
+        const { promisify } = await import('util');
+
+        const brotliCompress = promisify(zlib.brotliCompress);
+        const gzipCompress = promisify(zlib.gzip);
+
+        try {
+            const files = await this.getCompressibleFiles(outdir);
+
+            log.info(`Compressing ${files.length} files...`, { category: 'build' });
+
+            // Compress in parallel
+            const compressionPromises = files.map(async (file) => {
+                const content = await fs.readFile(file);
+                const stats = await fs.stat(file);
+
+                // Only compress if file is > 1KB
+                if (stats.size < 1024) return;
+
+                // Brotli compression (best compression)
+                try {
+                    const brotliData = await brotliCompress(content, {
+                        params: {
+                            [zlib.constants.BROTLI_PARAM_QUALITY]: 11, // Max quality
+                            [zlib.constants.BROTLI_PARAM_SIZE_HINT]: stats.size
+                        }
+                    });
+                    await fs.writeFile(`${file}.br`, brotliData);
+
+                    const brotliRatio = ((1 - brotliData.length / stats.size) * 100).toFixed(1);
+                    log.debug(`Brotli: ${path.basename(file)} (${brotliRatio}% reduction)`, { category: 'build' });
+                } catch (e) {
+                    log.warn(`Failed to brotli compress ${file}`, { category: 'build' });
+                }
+
+                // Gzip compression (wider compatibility)
+                try {
+                    const gzipData = await gzipCompress(content, {
+                        level: 9 // Max compression
+                    });
+                    await fs.writeFile(`${file}.gz`, gzipData);
+
+                    const gzipRatio = ((1 - gzipData.length / stats.size) * 100).toFixed(1);
+                    log.debug(`Gzip: ${path.basename(file)} (${gzipRatio}% reduction)`, { category: 'build' });
+                } catch (e) {
+                    log.warn(`Failed to gzip compress ${file}`, { category: 'build' });
+                }
+            });
+
+            await Promise.all(compressionPromises);
+
+            log.success(`Compressed ${files.length} files (Brotli + Gzip)`, { category: 'build' });
+        } catch (error) {
+            log.error('Compression failed', { category: 'build', error });
+        }
+    }
+
+    /**
+     * Get list of files that should be compressed
+     */
+    private async getCompressibleFiles(dir: string): Promise<string[]> {
+        const compressibleExtensions = ['.js', '.mjs', '.css', '.html', '.svg', '.json'];
+        const files: string[] = [];
+
+        async function scan(currentDir: string) {
+            const entries = await fs.readdir(currentDir, { withFileTypes: true });
+
+            for (const entry of entries) {
+                const fullPath = path.join(currentDir, entry.name);
+
+                if (entry.isDirectory()) {
+                    await scan(fullPath);
+                } else if (entry.isFile()) {
+                    const ext = path.extname(entry.name);
+                    if (compressibleExtensions.includes(ext)) {
+                        files.push(fullPath);
+                    }
+                }
+            }
+        }
+
+        await scan(dir);
+        return files;
+    }
+
+    /**
+     * Generate SHA-256 integrity hashes for all assets
+     */
+    private async generateIntegrityHashes(outdir: string): Promise<void> {
+        const crypto = await import('crypto');
+        const files = await this.getCompressibleFiles(outdir);
+        const manifest: Record<string, string> = {};
+
+        for (const file of files) {
+            const content = await fs.readFile(file);
+            const hash = crypto.createHash('sha256').update(content).digest('base64');
+            const relativePath = path.relative(outdir, file);
+            manifest[relativePath] = `sha256-${hash}`;
+        }
+
+        const manifestPath = path.join(outdir, 'integrity-manifest.json');
+        await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2));
+
+        log.info(`Generated integrity hashes for ${files.length} files`, { category: 'build' });
     }
 }
 

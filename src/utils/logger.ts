@@ -1,7 +1,7 @@
 import kleur from 'kleur';
 
 export type LogLevel = 'info' | 'success' | 'warn' | 'error' | 'debug';
-export type LogCategory = 'build' | 'hmr' | 'server' | 'cache' | 'audit' | 'general' | 'ai';
+export type LogCategory = 'build' | 'hmr' | 'server' | 'cache' | 'audit' | 'general' | 'ai' | 'css';
 
 export interface LogContext {
   timestamp?: boolean;
@@ -24,6 +24,7 @@ const categoryColor = (cat: LogCategory) => {
     case 'server': return kleur.blue('SERVER');
     case 'cache': return kleur.green('CACHE');
     case 'audit': return kleur.yellow('AUDIT');
+    case 'css': return kleur.magenta('CSS');
     default: return kleur.gray('GEN');
   }
 };

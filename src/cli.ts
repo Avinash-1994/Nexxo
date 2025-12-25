@@ -69,6 +69,48 @@ async function main() {
       }
     )
     .command(
+      'ssr',
+      'Start SSR server for meta-frameworks',
+      (yargs: any) => {
+        return yargs
+          .option('port', {
+            type: 'number',
+            description: 'Server port',
+            default: 3000
+          })
+          .option('framework', {
+            type: 'string',
+            description: 'Framework type (nextjs|nuxt|remix)',
+            default: 'nextjs'
+          })
+          .option('prod', {
+            type: 'boolean',
+            description: 'Production mode',
+            default: false
+          });
+      },
+      async (args: any) => {
+        const { SSRServer } = await import('./meta-frameworks/ssr/server.js');
+
+        try {
+          const config = await loadConfig(process.cwd());
+
+          const server = new SSRServer({
+            root: config.root || process.cwd(),
+            framework: args.framework,
+            outDir: config.outDir || 'dist',
+            port: args.port,
+            production: args.prod,
+          });
+
+          await server.start();
+        } catch (error: any) {
+          log.error(`❌ SSR Server failed: ${error.message}`);
+          process.exit(1);
+        }
+      }
+    )
+    .command(
       'init',
       'Initialize project configuration',
       (yargs: any) => {
