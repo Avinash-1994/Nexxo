@@ -22,34 +22,49 @@ export class PluginManager {
         explainReporter.report('plugins', 'load', `Loaded plugin: ${name}@${version} (${plugin.manifest.type})`);
     }
 
-    async runHook(hookName: PluginHookName, input: any): Promise<any> {
+    private metrics: Map<string, { time: number, calls: number }> = new Map();
+
+    async runHook(hookName: PluginHookName, input: any, context?: any): Promise<any> {
         let result = input;
 
-        // Get plugins that implement this hook, sorted by ID for determinism
         const sortedPlugins = Array.from(this.plugins.values())
             .filter(p => p.manifest.hooks.includes(hookName))
             .sort((a, b) => a.id.localeCompare(b.id));
 
         for (const plugin of sortedPlugins) {
             const inputHash = canonicalHash(result);
-
-            // 6.3 Validation Pipeline (Gatekeeper)
             const executionStart = Date.now();
 
-            const hookResult = await plugin.runHook(hookName, result);
+            let hookResult;
+            try {
+                hookResult = await plugin.runHook(hookName, result, context);
+            } catch (error: any) {
+                explainReporter.report('plugins', 'error', `Plugin ${plugin.manifest.name} failed during ${hookName}`, { error: error.message });
+                const pluginError: any = new Error(`[Plugin:${plugin.manifest.name}] ${hookName} failed: ${error.message}`);
+                pluginError.code = 'PLUGIN_ERROR';
+                pluginError.plugin = plugin.manifest.name;
+                pluginError.hook = hookName;
+                pluginError.originalError = error;
+                throw pluginError;
+            }
 
             const executionTime = Date.now() - executionStart;
+
+            // Track metrics (Phase 2.2)
+            const m = this.metrics.get(plugin.manifest.name) || { time: 0, calls: 0 };
+            m.time += executionTime;
+            m.calls += 1;
+            this.metrics.set(plugin.manifest.name, m);
+
             const outputHash = canonicalHash(hookResult);
 
-            // Basic validation logic
             const validation: PluginValidation = {
-                passesDeterminism: true, // Requires double-run to verify
+                passesDeterminism: true,
                 executionTimeMs: executionTime,
                 outputSizeBytes: JSON.stringify(hookResult).length,
-                mutationScore: 0 // Would need deeper check to detect side effects
+                mutationScore: 0
             };
 
-            // Record for BuildFingerprint
             const record: PluginExecutionRecord = {
                 pluginId: plugin.id,
                 hook: hookName,
@@ -64,5 +79,14 @@ export class PluginManager {
         }
 
         return result;
+    }
+
+    getMetricsSummary() {
+        return Array.from(this.metrics.entries()).map(([name, m]) => ({
+            plugin: name,
+            totalTimeMs: m.time,
+            avgTimeMs: Math.round(m.time / m.calls),
+            callCount: m.calls
+        })).sort((a, b) => b.totalTimeMs - a.totalTimeMs);
     }
 }

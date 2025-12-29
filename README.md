@@ -20,24 +20,33 @@
 ### Installation
 
 ```bash
-# Install globally
+# Install globally (once published)
 npm install -g urja
 
-# Or use with npx (no installation needed)
-npx urja init
+# Or use with npx (recommended for new projects)
+npx urja bootstrap --name my-app --template react
 ```
 
 ### Your First Project (30 seconds)
 
 ```bash
-# 1. Initialize a new project
-mkdir my-app && cd my-app
-npx urja init
+# 1. Bootstrap a new project
+npx urja bootstrap --name my-app
 
-# 2. Start development server
+# 2. Enter project and install
+cd my-app && npm install
+
+# 3. Start development server
 npm run dev
 
-# 3. Open http://localhost:3000
+# 4. Open http://localhost:5173
+```
+
+### Initializing in an Existing Project
+
+```bash
+cd existing-project
+npx urja init
 ```
 
 ---
@@ -86,24 +95,18 @@ Urja v0.1.5 is **Production Ready** for **ALL 12 Major Frameworks**:
 
 ---
 
-## ⚙️ Configuration
-
-Urja is **Zero-Config** by default. However, you can customize it with `urja.config.js` or `urja.config.ts`:
+Urja is **Zero-Config** by default. However, you can customize it with `urja.config.json` or `urja.config.ts`:
 
 ```typescript
 // urja.config.ts
-export default {
-  root: '.',
-  entry: ['src/main.tsx'], // Auto-detected usually
+import { defineConfig } from 'urja';
+
+export default defineConfig({
+  entry: ['src/main.tsx'],
   outDir: 'dist',
   mode: 'production',
-  port: 3000,
-  
-  // Optional: Advanced HMR config
-  hmr: {
-    port: 24678
-  }
-};
+  port: 5173
+});
 ```
 
 ---
@@ -136,9 +139,19 @@ Interactively create a new project.
 
 ---
 
-## 🤝 Contributing
+## 🤝 Contributing to Urja ⚡
 
-We welcome contributions! Please check `CONTRIBUTING.md` for details on how to set up the monolithic repo.
+We welcome contributions! Please check `CONTRIBUTING.md` for details on how to set up the development environment and run the stability audits.
+
+### Development Commands
+```bash
+# Fork on GitHub, then clone your fork
+git clone https://github.com/YOUR_USERNAME/urja.git
+cd urja
+
+# Add upstream remote
+git remote add upstream https://github.com/Avinash-1994/urja.git
+```
 
 ---
 

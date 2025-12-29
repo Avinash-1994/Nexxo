@@ -114,53 +114,28 @@ export type BuildConfig = {
 };
 
 export async function loadConfig(cwd: string): Promise<BuildConfig> {
-  const jsonPath = path.join(cwd, 'nextgen.build.json');
+  const urjaTsPath = path.join(cwd, 'urja.config.ts');
+  const urjaJsPath = path.join(cwd, 'urja.config.js');
   const urjaJsonPath = path.join(cwd, 'urja.config.json');
-  const yamlPath = path.join(cwd, 'nextgen.build.yaml');
-  const ymlPath = path.join(cwd, 'nextgen.build.yml');
-  const tsPath = path.join(cwd, 'nextgen.build.ts');
+  const legacyJsonPath = path.join(cwd, 'urja.build.json');
+  const legacyTsPath = path.join(cwd, 'urja.build.ts');
 
   let rawConfig: any;
 
   try {
-    if (await fs.access(jsonPath).then(() => true).catch(() => false)) {
-      const raw = await fs.readFile(jsonPath, 'utf-8');
-      rawConfig = JSON.parse(raw);
+    if (await fs.access(urjaTsPath).then(() => true).catch(() => false)) {
+      rawConfig = await loadModuleConfig(urjaTsPath, cwd);
+    } else if (await fs.access(urjaJsPath).then(() => true).catch(() => false)) {
+      const mod = await import('file://' + urjaJsPath);
+      rawConfig = mod.default || mod;
     } else if (await fs.access(urjaJsonPath).then(() => true).catch(() => false)) {
       const raw = await fs.readFile(urjaJsonPath, 'utf-8');
       rawConfig = JSON.parse(raw);
-    } else if (await fs.access(yamlPath).then(() => true).catch(() => false)) {
-      const raw = await fs.readFile(yamlPath, 'utf-8');
-      rawConfig = yaml.load(raw);
-    } else if (await fs.access(ymlPath).then(() => true).catch(() => false)) {
-      const raw = await fs.readFile(ymlPath, 'utf-8');
-      rawConfig = yaml.load(raw);
-    } else if (await fs.access(tsPath).then(() => true).catch(() => false)) {
-      log.info('Loading TypeScript config...');
-      const { build } = await import('esbuild');
-      const outfile = path.join(cwd, 'nextgen.build.temp.mjs');
-
-      await build({
-        entryPoints: [tsPath],
-        outfile,
-        bundle: true,
-        platform: 'node',
-        format: 'esm',
-        target: 'es2020',
-        external: [
-          'esbuild', 'zod', 'kleur',
-          'svelte-preprocess', 'svelte', 'esbuild-svelte', 'js-yaml',
-          // svelte-preprocess optional deps
-          'coffeescript', 'pug', 'stylus', 'less', 'postcss', 'sass', 'postcss-load-config', 'sugarss'
-        ] // exclude deps
-      });
-
-      try {
-        const mod = await import(outfile);
-        rawConfig = mod.default || mod;
-      } finally {
-        await fs.unlink(outfile).catch(() => { });
-      }
+    } else if (await fs.access(legacyTsPath).then(() => true).catch(() => false)) {
+      rawConfig = await loadModuleConfig(legacyTsPath, cwd);
+    } else if (await fs.access(legacyJsonPath).then(() => true).catch(() => false)) {
+      const raw = await fs.readFile(legacyJsonPath, 'utf-8');
+      rawConfig = JSON.parse(raw);
     } else {
       // Return default config if file not found, with auto-detection
       log.info('No config file found, using defaults...');
@@ -199,8 +174,8 @@ export async function loadConfig(cwd: string): Promise<BuildConfig> {
     const result = BuildConfigSchema.safeParse(rawConfig);
 
     if (!result.success) {
-      log.error('Invalid config file:', result.error.format());
-      process.exit(1);
+      const errorMsg = `Invalid config file: ${JSON.stringify(result.error.format())}`;
+      throw new Error(errorMsg);
     }
 
     const config = result.data;
@@ -216,10 +191,36 @@ export async function loadConfig(cwd: string): Promise<BuildConfig> {
       ...finalConfig,
       root,
     } as BuildConfig;
+  } finally {
+    // Optional: cleanup
+  }
+}
 
-  } catch (e: any) {
-    log.error('Failed to load config:', e.message);
-    process.exit(1);
+async function loadModuleConfig(tsPath: string, cwd: string): Promise<any> {
+  log.info(`Loading config from ${path.basename(tsPath)}...`);
+  const { build } = await import('esbuild');
+  const outfile = path.join(cwd, `urja.config.temp.${Date.now()}.mjs`);
+
+  try {
+    await build({
+      entryPoints: [tsPath],
+      outfile,
+      bundle: true,
+      platform: 'node',
+      format: 'esm',
+      target: 'es2020',
+      external: [
+        'esbuild', 'zod', 'kleur',
+        'svelte-preprocess', 'svelte', 'esbuild-svelte', 'js-yaml',
+        'coffeescript', 'pug', 'stylus', 'less', 'postcss', 'sass', 'postcss-load-config', 'sugarss',
+        'react', 'react-dom'
+      ]
+    });
+
+    const mod = await import('file://' + outfile);
+    return mod.default || mod;
+  } finally {
+    await fs.unlink(outfile).catch(() => { });
   }
 }
 
@@ -227,7 +228,7 @@ export async function loadConfig(cwd: string): Promise<BuildConfig> {
  * Save configuration to file
  */
 export async function saveConfig(cwd: string, config: any): Promise<void> {
-  const jsonPath = path.join(cwd, 'nextgen.build.json');
+  const jsonPath = path.join(cwd, 'urja.build.json');
   await fs.writeFile(jsonPath, JSON.stringify(config, null, 2), 'utf-8');
   log.info(`Configuration saved to ${jsonPath}`);
 }

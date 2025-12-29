@@ -48,7 +48,7 @@ Optimized for pre-rendering static HTML at build time.
 Add custom framework detectors via the plugin API:
 
 ```typescript
-import { registerFrameworkDetector } from 'nextgen-build-tool';
+import { registerFrameworkDetector } from 'urja-build-tool';
 
 registerFrameworkDetector(async (root) => {
   // Custom detection logic
@@ -77,7 +77,7 @@ While zero-config works for most cases, you can still customize:
 ### React SPA (Zero Config)
 No configuration needed! Just run:
 ```bash
-npx nextgen-build dev
+npx urja-build dev
 ```
 
 ### Vue SSR

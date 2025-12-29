@@ -1,0 +1,17 @@
+[
+  {
+    "type": "file",
+    "path": "src/App.tsx",
+    "edges": []
+  },
+  {
+    "type": "file",
+    "path": "src/main.tsx",
+    "edges": [
+      {
+        "kind": "import",
+        "toPath": "src/App.tsx"
+      }
+    ]
+  }
+]

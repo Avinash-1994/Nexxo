@@ -161,7 +161,7 @@ export async function generateSuggestions(analysis: ProjectAnalysis): Promise<Su
             type: 'best-practice',
             icon: '📘',
             title: 'TypeScript Config',
-            description: 'Use nextgen.build.ts instead of JSON for type-safe configuration with IntelliSense.',
+            description: 'Use urja.config.ts instead of JSON for type-safe configuration with IntelliSense.',
             action: 'Convert',
             priority: 6
         });

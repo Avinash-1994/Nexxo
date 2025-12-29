@@ -1,0 +1,10 @@
+{
+  "id": "91b38c24-e046-4229-9a69-29a2712896eb",
+  "timestamp": 1766988476102,
+  "duration": 58,
+  "success": false,
+  "metrics": {},
+  "errors": [
+    "this.resolve is not a function"
+  ]
+}

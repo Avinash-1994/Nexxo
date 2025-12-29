@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 import path from 'path';
 
 const port = process.env.CONFIG_SERVER_PORT || 5175;
-const cfgPath = path.resolve(process.cwd(), 'nextgen.build.json');
+const cfgPath = path.resolve(process.cwd(), 'urja.build.json');
 
 const server = http.createServer(async (req, res) => {
   if (req.method === 'GET' && req.url === '/api/config') {

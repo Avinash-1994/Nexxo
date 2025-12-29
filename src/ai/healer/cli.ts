@@ -17,8 +17,8 @@ export class HealerCLI {
 
         console.log('\n🤖 AI Self-Healer Suggestions:');
         fixes.forEach((fix, i) => {
-            console.log(`${i + 1}. [${Math.round(fix.confidence * 100)}%] ${fix.description}`);
-            if (fix.command) console.log(`   Command: ${fix.command}`);
+            log.info(`[${Math.round(fix.confidence * 100)}%] ${fix.description}`, { category: 'ai' });
+            if (fix.command) log.info(`   Command: ${fix.command}`, { category: 'ai' });
         });
 
         const rl = createInterface({

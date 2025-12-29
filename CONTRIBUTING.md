@@ -1,4 +1,4 @@
-# Contributing to NextGen Build Tool
+# Contributing to Urja Build Tool
 
 Thank you for your interest in contributing! This document provides guidelines and instructions for contributing.
 
@@ -69,7 +69,7 @@ node dist/cli.js dev
 ```bash
 cd native
 cargo build --release
-cp target/release/libnextgen_native.so ../nextgen_native.node
+cp target/release/liburja_native.so ../urja_native.node
 ```
 
 ---

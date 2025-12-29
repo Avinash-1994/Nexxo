@@ -7,6 +7,9 @@ export type PluginHookName =
     | 'beforePlan'
     | 'afterPlan'
     | 'transformModule'
+    | 'resolveId'
+    | 'load'
+    | 'renderChunk'
     | 'cssPrecedence'
     | 'cssTreeShake'
     | 'analyzeBuild';
@@ -45,5 +48,5 @@ export interface UrjaPlugin {
     id: string; // sha256(name + version)
 
     // Hook implementations
-    runHook(hook: PluginHookName, input: any): Promise<any>;
+    runHook(hook: PluginHookName, input: any, context?: any): Promise<any>;
 }

@@ -34,7 +34,7 @@ echo "✅ Debug files removed"
 # 3. Remove cache directories (will be regenerated)
 echo ""
 echo "💾 Removing cache directories..."
-rm -rf .nextgen_cache
+rm -rf .urja_cache
 rm -rf .remote_cache
 echo "✅ Cache directories removed"
 

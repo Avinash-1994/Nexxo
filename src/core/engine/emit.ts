@@ -27,6 +27,18 @@ export async function emit(artifacts: BuildArtifact[], ctx: BuildContext): Promi
         emitted.push(artifact);
     }
 
+    // Write build-manifest.json (Phase 4.3)
+    const manifest = {
+        timestamp: new Date().toISOString(),
+        target: ctx.target,
+        artifacts: emitted.map(a => ({
+            fileName: a.fileName,
+            hash: a.id,
+            type: a.type
+        }))
+    };
+    await fs.writeFile(path.join(ctx.config.outputDir, 'build-manifest.json'), JSON.stringify(manifest, null, 2));
+
     // Write Explain Log
     const explainLogPath = path.join(ctx.config.outputDir, 'build-explain.json');
     await fs.writeFile(explainLogPath, JSON.stringify(explainReporter.getEvents(), null, 2));

@@ -1,4 +1,4 @@
--- NextGen Cloud API - Production Database Schema
+-- Urja Cloud API - Production Database Schema
 -- PostgreSQL 15+
 
 -- Enable UUID extension

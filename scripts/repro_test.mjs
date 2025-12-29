@@ -35,7 +35,7 @@ async function main() {
   console.log('Running reproducibility test: two clean builds');
 
   // First build
-  execSync('rm -rf .nextgen_cache build_output', { stdio: 'inherit' });
+  execSync('rm -rf .urja_cache build_output', { stdio: 'inherit' });
   run('npx tsc -p tsconfig.json --outDir dist');
   run('node dist/cli.js build');
   if (!fs.existsSync(out)) {
@@ -46,7 +46,7 @@ async function main() {
   console.log('First build digest:', a.digest);
 
   // Second build from clean state
-  execSync('rm -rf .nextgen_cache build_output', { stdio: 'inherit' });
+  execSync('rm -rf .urja_cache build_output', { stdio: 'inherit' });
   run('npx tsc -p tsconfig.json --outDir dist');
   run('node dist/cli.js build');
   if (!fs.existsSync(out)) {

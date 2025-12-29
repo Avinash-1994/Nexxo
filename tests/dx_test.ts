@@ -38,7 +38,7 @@ async function runTest() {
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         // 1. Verify Startup Table
-        const tableLog = logs.find(l => l.includes('NextGen Dev Server Ready'));
+        const tableLog = logs.find(l => l.includes('Urja Dev Server Ready'));
         if (tableLog) {
             console.log('✅ Startup table displayed');
         } else {
@@ -47,7 +47,7 @@ async function runTest() {
 
         // 2. Verify Status Endpoint
         const fetch = (await import('node-fetch')).default;
-        const res = await fetch('http://localhost:4001/__nextgen/status');
+        const res = await fetch('http://localhost:4001/__urja/status');
         const stats = await res.json() as any;
 
         if (stats.uptime >= 0 && stats.memory) {

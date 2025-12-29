@@ -78,7 +78,7 @@ async function generateSuggestions(analysis, metafile) {
       type: "best-practice",
       icon: "\u{1F4D8}",
       title: "TypeScript Config",
-      description: "Use nextgen.build.ts instead of JSON for type-safe configuration with IntelliSense.",
+      description: "Use urja.build.ts instead of JSON for type-safe configuration with IntelliSense.",
       action: "Convert",
       priority: 6
     });

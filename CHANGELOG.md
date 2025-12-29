@@ -66,7 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Test: `init_test.mjs` ✅
 
 - **TypeScript Config Support**
-  - Load `nextgen.build.ts` configuration
+  - Load `urja.build.ts` configuration
   - On-the-fly compilation with esbuild
   - Type checking and IntelliSense
   - Fallback to JSON config
@@ -154,7 +154,7 @@ node scripts/sign_plugin.mjs your-plugin.mjs \
 ```
 
 **TypeScript Config:**
-You can now use `nextgen.build.ts` instead of JSON:
+You can now use `urja.build.ts` instead of JSON:
 ```typescript
 export default {
   entry: ['src/main.tsx'],

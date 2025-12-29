@@ -26,7 +26,8 @@ export class WASMPluginSandbox implements UrjaPlugin {
             }
         };
 
-        const { instance } = await WebAssembly.instantiate(wasmBuffer, importObject);
+        const wasmResult = await WebAssembly.instantiate(wasmBuffer, importObject) as any;
+        const instance = wasmResult.instance || wasmResult;
 
         // 6.5 ABI Initialization
         const exports = instance.exports as any;

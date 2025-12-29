@@ -20,7 +20,11 @@ type NativeWorkerInstance = {
 
 import { createRequire } from 'module';
 import { createHash } from 'crypto';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const nodeRequire = createRequire(import.meta.url);
 
 let nativeModule: NativeWorkerModule | null = null;
@@ -32,7 +36,26 @@ let nativeLoaded = false;
 function loadNative(): NativeWorkerModule {
     if (!nativeModule) {
         try {
-            nativeModule = nodeRequire('../nextgen_native.node');
+            // Try multiple locations to find the native binary
+            const candidates = [
+                path.resolve(__dirname, '../../urja_native.node'), // From src/native/index.ts
+                path.resolve(__dirname, '../urja_native.node'),    // From dist/native/index.js
+                path.resolve(process.cwd(), 'urja_native.node'),   // Root fallback
+                path.resolve(process.cwd(), 'dist/urja_native.node')
+            ];
+
+            let pathFound = '';
+            for (const c of candidates) {
+                const fs = require('fs');
+                if (fs.existsSync(c)) {
+                    pathFound = c;
+                    break;
+                }
+            }
+
+            if (!pathFound) throw new Error('Native binary not found in candidates');
+
+            nativeModule = nodeRequire(pathFound);
             nativeLoaded = true;
         } catch (e) {
             const fallback: NativeWorkerModule = {

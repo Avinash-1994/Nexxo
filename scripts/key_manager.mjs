@@ -6,7 +6,7 @@ import crypto from 'crypto'
 
 const trustFile = path.resolve(process.cwd(), 'config', 'trust.json')
 const keysDir = path.resolve(process.cwd(), 'config', 'plugin_keys')
-const userKeysDir = path.resolve(os.homedir(), '.nextgen', 'keys')
+const userKeysDir = path.resolve(os.homedir(), '.urja', 'keys')
 
 async function readTrust() {
   try { return JSON.parse(await fs.readFile(trustFile, 'utf8')) } catch (e) { return { keys: [] } }
@@ -29,7 +29,7 @@ async function generate(keyId, publisherId, inRepo = false) {
   const priv = privateKey.export({ type: 'pkcs1', format: 'pem' })
   // write public key into repo plugin_keys (so verifiers can access)
   await fs.writeFile(path.join(keysDir, keyId + '.pem'), pub)
-  // write private key either into repo (for CI/test) or into user's secure dir (~/.nextgen/keys)
+  // write private key either into repo (for CI/test) or into user's secure dir (~/.urja/keys)
   const privPath = inRepo ? path.join(keysDir, keyId + '.priv.pem') : path.join(userKeysDir, keyId + '.priv.pem')
   await fs.writeFile(privPath, priv, { mode: 0o600 })
   const t = await readTrust()

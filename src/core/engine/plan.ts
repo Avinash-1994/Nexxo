@@ -12,32 +12,28 @@ export function planBuild(ctx: BuildContext): BuildPlan {
 
     const chunks: ChunkPlan[] = [];
     const assets: AssetPlan[] = [];
-
     const entryDeps = new Map<string, Set<string>>();
 
-    // Deterministic Traversal
-    // Sort entry points
     const sortedEntries = [...ctx.config.entryPoints].sort();
-
-    // Helper for ID generation
     const getId = (p: string) => {
         const normalized = normalizePath(p);
         return generateModuleId('file', normalized, ctx.rootDir);
     };
 
-    for (const entry of sortedEntries) {
-        const absEntry = path.resolve(ctx.rootDir, entry);
-        const entryId = getId(absEntry);
-
-        if (!ctx.graph.nodes.has(entryId)) {
-            explainReporter.report('plan', 'warning', `Entry point not found in graph: ${absEntry} (ID: ${entryId})`);
-            continue;
+    // 1. Identify Async Entry Points (targets of dynamic imports)
+    const asyncEntries = new Set<string>();
+    for (const node of ctx.graph.nodes.values()) {
+        for (const edge of node.edges) {
+            if (edge.kind === 'dynamic-import') {
+                asyncEntries.add(edge.to);
+            }
         }
+    }
 
+    // 2. Traversal Helper (stops at async boundaries)
+    const traverse = (startId: string) => {
         const visited = new Set<string>();
-        const queue = [entryId];
-
-        // BFS for stability
+        const queue = [startId];
         while (queue.length > 0) {
             const currId = queue.shift()!;
             if (visited.has(currId)) continue;
@@ -45,30 +41,79 @@ export function planBuild(ctx: BuildContext): BuildPlan {
 
             const node = ctx.graph.nodes.get(currId);
             if (node) {
-                const sortedDeps = node.edges.map(e => e.to).sort();
+                const sortedDeps = node.edges
+                    .filter(e => e.kind !== 'dynamic-import') // Stop at dynamic boundaries
+                    .map(e => e.to)
+                    .sort();
                 for (const dep of sortedDeps) {
-                    queue.push(dep);
+                    if (!asyncEntries.has(dep)) { // Don't follow into other async entries
+                        queue.push(dep);
+                    }
                 }
             }
         }
-        entryDeps.set(absEntry, visited);
+        return visited;
+    };
+
+    // 3. Process Main Entries
+    const mainEntries = sortedEntries.map(e => getId(path.resolve(ctx.rootDir, e)));
+    for (const entryId of mainEntries) {
+        if (!ctx.graph.nodes.has(entryId)) continue;
+        const deps = traverse(entryId);
+        entryDeps.set(ctx.graph.nodes.get(entryId)!.path, deps);
     }
 
-    // Create Entry Chunks
-    // Sort map keys for determinism
-    const sortedEntryKeys = Array.from(entryDeps.keys()).sort();
+    // 4. Process Async Entries
+    for (const entryId of Array.from(asyncEntries).sort()) {
+        const deps = traverse(entryId);
+        entryDeps.set(ctx.graph.nodes.get(entryId)!.path, deps);
+    }
 
+    // 5. Create Chunks
+    const sortedEntryKeys = Array.from(entryDeps.keys()).sort();
     for (const entry of sortedEntryKeys) {
         const deps = entryDeps.get(entry)!;
-        const modules = Array.from(deps).sort();
-        const name = path.basename(entry, path.extname(entry));
+        const allModules = Array.from(deps).sort();
 
-        chunks.push({
-            id: `chunk_${name}`,
-            entry: entry,
-            modules: modules,
-            outputName: `${name}.bundle.js`
+        const jsModules = allModules.filter(id => ctx.graph.nodes.get(id)?.type === 'file');
+        const cssModules = allModules.filter(id => {
+            const type = ctx.graph.nodes.get(id)?.type;
+            return type === 'css' || type === 'css-module';
         });
+        const assetModules = allModules.filter(id => ctx.graph.nodes.get(id)?.type === 'style-asset');
+
+        const isAsync = asyncEntries.has(getId(entry));
+        const name = path.basename(entry, path.extname(entry));
+        const outputPrefix = isAsync ? `chunk.${name}` : name;
+
+        if (jsModules.length > 0) {
+            chunks.push({
+                id: `chunk_${name}_js`,
+                entry: entry,
+                modules: jsModules,
+                outputName: `${outputPrefix}.bundle.js`
+            });
+        }
+
+        if (cssModules.length > 0) {
+            chunks.push({
+                id: `chunk_${name}_css`,
+                entry: entry,
+                modules: cssModules,
+                outputName: `${outputPrefix}.bundle.css`
+            });
+        }
+
+        for (const assetId of assetModules) {
+            const node = ctx.graph.nodes.get(assetId);
+            if (node) {
+                assets.push({
+                    id: assetId,
+                    sourcePath: node.path,
+                    outputName: `assets/${path.basename(node.path)}`
+                });
+            }
+        }
     }
 
     // Sort chunks strictly by ID

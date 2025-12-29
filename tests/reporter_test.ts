@@ -46,7 +46,7 @@ async function runTest() {
 
         // Test 2: Telemetry Retrieval
         console.log('\nTest 2: Telemetry Retrieval');
-        const telemetryDir = path.join(testDir, '.nextgen', 'telemetry');
+        const telemetryDir = path.join(testDir, '.urja', 'telemetry');
         await fs.mkdir(telemetryDir, { recursive: true });
 
         const filename = `session-${session.timestamp}.json`;

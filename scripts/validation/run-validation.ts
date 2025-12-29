@@ -67,12 +67,12 @@ async function scenarioKitchenSink() {
     const config: BuildConfig = {
         root: root,
         entry: ['apps/web/main.js'],
-        mode: 'build',
+        mode: 'production',
         outDir: 'dist',
         platform: 'browser',
         port: 3000,
         preset: 'spa',
-        build: { splitting: true }
+        build: { splitting: true, minify: false }
     };
 
     // 2. Build
@@ -80,9 +80,12 @@ async function scenarioKitchenSink() {
 
     // 3. Verify Content
     const artifact = result.artifacts?.find((a: any) => a.fileName.includes('main.bundle.js'));
+    console.log('[DEBUG_VALIDATION] Bundle Size:', artifact?.source.length);
+    console.log('[DEBUG_VALIDATION] Bundle End Snippet:', artifact?.source.substring(artifact.source.length - 1000));
     assert.ok(artifact, 'Main bundle must exist');
     assert.ok(artifact.source.includes('exports.formatDate'), 'Should include CJS source');
-    assert.ok(artifact.source.includes('export const Button'), 'Should include ESM source');
+    // ESM 'export const Button' is transformed by esbuild's CJS pass
+    assert.ok(artifact.source.includes('Button:') || artifact.source.includes('exports.Button'), 'Should include transformed ESM source');
 
     return { result, config };
 }
@@ -109,11 +112,12 @@ async function scenarioLegacy() {
     const config: BuildConfig = {
         root: root,
         entry: ['main.mjs'],
-        mode: 'build',
+        mode: 'production',
         outDir: 'dist',
         platform: 'node',
         port: 3000,
-        preset: 'spa'
+        preset: 'spa',
+        build: { minify: false }
     };
 
     const result = await runBuild('Legacy-Interop', config);

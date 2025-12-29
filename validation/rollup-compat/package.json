@@ -1,0 +1,17 @@
+{
+  "name": "rollup-compat",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@rollup/plugin-alias": "^6.0.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
+  }
+}

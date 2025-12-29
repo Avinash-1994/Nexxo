@@ -10,7 +10,7 @@ export function createEsbuildPlugin(pm: PluginManager, root: string): EsbuildPlu
     const universalTransformer = new UniversalTransformer(root);
 
     return {
-        name: 'nextgen-adapter',
+        name: 'urja-adapter',
         setup(build) {
             build.onLoad({ filter: /.*/ }, async (args) => {
                 // Skip node_modules (unless we strictly need to transform them, but usually not for libs)

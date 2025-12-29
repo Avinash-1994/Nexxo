@@ -4,7 +4,7 @@ let overlay: any;
 
 function getOverlay() {
     if (!overlay) {
-        overlay = document.createElement('nextgen-error-overlay');
+        overlay = document.createElement('urja-error-overlay');
         document.body.appendChild(overlay);
     }
     return overlay;
@@ -33,7 +33,7 @@ function connect() {
     ws = new WebSocket(`${protocol}//${window.location.host}`);
 
     ws.onopen = () => {
-        console.log('[nextgen] Connected to dev server');
+        console.log('[urja] Connected to dev server');
         reconnectAttempts = 0;
     };
 
@@ -42,7 +42,7 @@ function connect() {
             const message = JSON.parse(event.data);
 
             if (message.type === 'error') {
-                console.error('[nextgen] Build Error:', message.error);
+                console.error('[urja] Build Error:', message.error);
                 showError({
                     type: 'build',
                     ...message.error
@@ -56,23 +56,23 @@ function connect() {
 
             if (message.type === 'update') {
                 clearErrors();
-                // console.log('[nextgen] HMR Update');
+                // console.log('[urja] HMR Update');
                 // HMR logic would go here
             }
 
         } catch (e) {
-            console.error('[nextgen] Failed to parse WebSocket message', e);
+            console.error('[urja] Failed to parse WebSocket message', e);
         }
     };
 
     ws.onclose = () => {
         if (reconnectAttempts < MAX_ATTEMPTS) {
             const timeout = Math.min(1000 * Math.pow(2, reconnectAttempts), 5000);
-            console.log(`[nextgen] Disconnected. Reconnecting in ${timeout}ms...`);
+            console.log(`[urja] Disconnected. Reconnecting in ${timeout}ms...`);
             setTimeout(connect, timeout);
             reconnectAttempts++;
         } else {
-            console.error('[nextgen] Failed to reconnect to dev server after multiple attempts.');
+            console.error('[urja] Failed to reconnect to dev server after multiple attempts.');
         }
     };
 }
@@ -99,4 +99,4 @@ window.addEventListener('unhandledrejection', (event) => {
     });
 });
 
-// console.log('[nextgen] Dev client connected');
+// console.log('[urja] Dev client connected');

@@ -13,7 +13,7 @@
 **Files**:
 - [`src/native/src/lib.rs`](file:///home/avinash/Desktop/framework_practis/build/src/native/src/lib.rs) - Main native worker
 - [`src/native/index.ts`](file:///home/avinash/Desktop/framework_practis/build/src/native/index.ts) - TypeScript wrapper
-- [`nextgen_native.node`](file:///home/avinash/Desktop/framework_practis/build/nextgen_native.node) - Compiled binary
+- [`urja_native.node`](file:///home/avinash/Desktop/framework_practis/build/urja_native.node) - Compiled binary
 
 ---
 

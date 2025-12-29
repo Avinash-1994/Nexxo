@@ -45,7 +45,7 @@ async function verifyAI() {
         await telemetry.stop(true, { bundleSize: 1024, modules: 5 });
 
         // Verify file exists
-        const files = await fs.readdir(path.join(testDir, '.nextgen', 'telemetry'));
+        const files = await fs.readdir(path.join(testDir, '.urja', 'telemetry'));
         if (files.length > 0 && files[0].startsWith('session-')) {
             console.log('   ✅ Telemetry saved session file correctly.');
         } else {

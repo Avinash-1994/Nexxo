@@ -14,7 +14,7 @@ export class DiskCache {
   dir: string;
 
   constructor(base: string) {
-    this.dir = path.resolve(base, '.nextgen_cache');
+    this.dir = path.resolve(base, '.urja_cache');
   }
 
   async ensure() {
@@ -34,7 +34,7 @@ export class DiskCache {
     }
     // include config file if present
     try {
-      const cfg = await fs.readFile('nextgen.build.json');
+      const cfg = await fs.readFile('urja.config.json');
       hash.update(cfg);
     } catch (e) {
       // ignore
@@ -43,7 +43,7 @@ export class DiskCache {
     try {
       const pkg = await fs.readFile('package.json');
       hash.update(pkg);
-    } catch (e) {}
+    } catch (e) { }
     // include plugin files
     try {
       const pluginDir = './src/plugins';
@@ -53,9 +53,9 @@ export class DiskCache {
           const p = path.join(pluginDir, it);
           const d = await fs.readFile(p);
           hash.update(d);
-        } catch (e) {}
+        } catch (e) { }
       }
-    } catch (e) {}
+    } catch (e) { }
     // include normalized env keys that affect builds
     const relevant = [process.env.NODE_ENV || '', process.env.TOOL_VERSION || ''];
     hash.update(relevant.join('|'));
@@ -134,7 +134,7 @@ export class DiskCache {
             const headers: any = {};
             if (process.env.REMOTE_CACHE_TOKEN) headers['authorization'] = `Bearer ${process.env.REMOTE_CACHE_TOKEN}`;
             await globalFetch(`${remote}/file/${key}/${rel}`, { method: 'PUT', body: data, headers });
-          } catch (e) {}
+          } catch (e) { }
         }
       } catch (e) {
         // ignore missing files

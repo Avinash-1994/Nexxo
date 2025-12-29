@@ -125,6 +125,28 @@ async function main() {
       }
     )
     .command(
+      'bootstrap',
+      'Create a new project from a template',
+      (yargs: any) => {
+        return yargs
+          .option('template', {
+            type: 'string',
+            description: 'Template to use (react, vanilla)',
+            default: 'react'
+          })
+          .option('name', {
+            type: 'string',
+            description: 'Project name',
+            demandOption: true
+          });
+      },
+      async (args: any) => {
+        const { bootstrapProject } = await import('./init/bootstrap.js');
+        const targetDir = path.join(process.cwd(), args.name);
+        await bootstrapProject(targetDir, args.template);
+      }
+    )
+    .command(
       'css',
       'CSS utilities',
       (yargs: any) => {

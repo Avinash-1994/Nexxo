@@ -186,3 +186,8 @@ export class FrameworkDetector {
         return frameworks.find(f => f.name === framework)?.version;
     }
 }
+
+export async function detectFramework(root: string): Promise<Framework> {
+    const detector = new FrameworkDetector(root);
+    return detector.detectPrimary();
+}

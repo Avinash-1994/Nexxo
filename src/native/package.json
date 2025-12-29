@@ -1,8 +1,8 @@
 {
-    "name": "nextgen-native",
+    "name": "urja-native",
     "version": "0.1.0",
     "type": "module",
     "napi": {
-        "name": "nextgen_native"
+        "name": "urja_native"
     }
 }

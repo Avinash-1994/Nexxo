@@ -30,7 +30,7 @@ async function runTests() {
         {
             name: 'SPA Preset Application',
             setup: async (dir: string) => {
-                await fs.writeFile(path.join(dir, 'nextgen.build.json'), JSON.stringify({
+                await fs.writeFile(path.join(dir, 'urja.build.json'), JSON.stringify({
                     preset: 'spa',
                     entry: ['src/index.tsx']
                 }));
@@ -43,7 +43,7 @@ async function runTests() {
         {
             name: 'SSR Preset Application',
             setup: async (dir: string) => {
-                await fs.writeFile(path.join(dir, 'nextgen.build.json'), JSON.stringify({
+                await fs.writeFile(path.join(dir, 'urja.build.json'), JSON.stringify({
                     preset: 'ssr',
                     entry: ['src/entry-server.tsx']
                 }));

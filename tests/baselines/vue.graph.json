@@ -1,0 +1,17 @@
+[
+  {
+    "type": "file",
+    "path": "src/App.vue",
+    "edges": []
+  },
+  {
+    "type": "file",
+    "path": "src/main.js",
+    "edges": [
+      {
+        "kind": "import",
+        "toPath": "src/App.vue"
+      }
+    ]
+  }
+]

@@ -43,7 +43,7 @@ async function runTest() {
         await new Promise(r => setTimeout(r, 100));
         await telemetry.stop(true, { modules: 10, bundleSize: 1024 }, ['Error 1']);
 
-        const telemetryDir = path.join(testDir, '.nextgen', 'telemetry');
+        const telemetryDir = path.join(testDir, '.urja', 'telemetry');
         const files = await fs.readdir(telemetryDir);
 
         if (files.length !== 1) throw new Error('Telemetry file not created');

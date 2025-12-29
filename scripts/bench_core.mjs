@@ -7,7 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
 
 // Load the native module
-const nativePath = path.join(__dirname, '../nextgen_native.node');
+const nativePath = path.join(__dirname, '../urja_native.node');
 console.log(`Loading native module from: ${nativePath}`);
 const { NativeWorker } = require(nativePath);
 

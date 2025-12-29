@@ -6,7 +6,7 @@ import assert from 'assert';
 async function testYamlConfig() {
     console.log('Running YAML Config Test...');
     const cwd = process.cwd();
-    const yamlPath = path.join(cwd, 'nextgen.build.yaml');
+    const yamlPath = path.join(cwd, 'urja.build.yaml');
 
     const yamlContent = `
 root: .

@@ -46,7 +46,7 @@
 ### Week 1: CSS Framework Support
 1. **Advanced Detection Engine**
    - Multi-method detection (package.json, file patterns, class scanning)
-   - CLI commands: `nextgen css detect/list/add/purge`
+   - CLI commands: `urja css detect/list/add/purge`
    - Supports: Tailwind, Bootstrap, Bulma, Material UI
 
 2. **Bootstrap Integration**
@@ -117,19 +117,19 @@
 
 ```bash
 # Detect CSS frameworks
-nextgen css detect
+urja css detect
 
 # List active CSS stack
-nextgen css list
+urja css list
 
 # Add framework
-nextgen css add tailwind
-nextgen css add bootstrap
-nextgen css add bulma
-nextgen css add material
+urja css add tailwind
+urja css add bootstrap
+urja css add bulma
+urja css add material
 
 # Purge unused CSS (placeholder)
-nextgen css purge
+urja css purge
 ```
 
 ---

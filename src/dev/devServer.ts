@@ -8,27 +8,42 @@ import { BuildConfig } from '../config/index.js';
 import { log } from '../utils/logger.js';
 import { PluginManager } from '../plugins/index.js';
 import { PluginSandbox } from '../core/sandbox.js';
+import * as acorn from 'acorn';
 
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
 // Load Native Worker
-// When installed via npm, the structure is: node_modules/urja/dist/dev/devServer.js
-// and nextgen_native.node is at: node_modules/urja/dist/nextgen_native.node
-// and nextgen_native.node is at: node_modules/urja/dist/nextgen_native.node
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const nativePath = path.resolve(__dirname, '../nextgen_native.node');
 let NativeWorker: any;
+
 try {
-  const nativeModule = require(nativePath);
+  const candidates = [
+    path.resolve(__dirname, '../../urja_native.node'), // From src/dev/devServer.ts
+    path.resolve(__dirname, '../urja_native.node'),    // From dist/dev/devServer.js
+    path.resolve(process.cwd(), 'urja_native.node'),   // Root fallback
+    path.resolve(process.cwd(), 'dist/urja_native.node')
+  ];
+
+  let pathFound = '';
+  for (const c of candidates) {
+    if (require('fs').existsSync(c)) {
+      pathFound = c;
+      break;
+    }
+  }
+
+  if (!pathFound) throw new Error('Native binary not found');
+
+  const nativeModule = require(pathFound);
   NativeWorker = nativeModule.NativeWorker;
 } catch (e) {
   // Native worker not found or failed to load, will fallback to JS implementation
   log.warn('Native worker not found, falling back to JS implementation');
-  // Mock Native Worker that does nothing (or pass-through)
+  // Mock Native Worker
   NativeWorker = class {
     constructor(workers: number) { }
-    processFile(filePath: string) { return null; } // Return null to trigger JS fallback
+    processFile(filePath: string) { return null; }
     invalidate(filePath: string) { }
     rebuild(filePath: string) { return []; }
   };
@@ -43,76 +58,78 @@ import { StatusHandler } from './statusHandler.js';
  * Converts: import React from 'react'
  * To: import React from '/node_modules/react/index.js'
  */
+/**
+ * Rewrite bare module imports to node_modules paths
+ * Production-grade AST-based rewriting (Phase C1 Honest)
+ */
 function rewriteImports(code: string, rootDir: string, preBundledDeps?: Map<string, string>): string {
-  // Rewrite bare module imports to use pre-bundled versions or node_modules
-  code = code.replace(
-    /from\s+['"]((?![.\/])(?!https?:\/\/)[^'"]+)['"]/g,
-    (match, specifier) => {
-      // Skip if already a URL
-      if (specifier.startsWith('http://') || specifier.startsWith('https://')) {
-        return match;
-      }
+  try {
+    const ast = acorn.parse(code, {
+      sourceType: 'module',
+      ecmaVersion: 'latest'
+    }) as any;
 
-      // Rewrite to node_modules path (for non-React packages)
-      // The browser will request /node_modules/package/...
-      // and we'll serve it from the actual node_modules directory
+    const replacements: { start: number, end: number, replacement: string }[] = [];
 
-      // Use pre-bundled version if available
-      if (preBundledDeps && preBundledDeps.has(specifier)) {
-        return `from '${preBundledDeps.get(specifier)}?v=${Date.now()}'`;
-      }
-
-      // Check if it's a subpath of a pre-bundled dependency (e.g., svelte/internal/disclose-version)
-      // and we have pre-bundled 'svelte'.
-      if (preBundledDeps) {
-        const pkgName = specifier.startsWith('@') ? specifier.split('/').slice(0, 2).join('/') : specifier.split('/')[0];
-        if (preBundledDeps.has(pkgName)) {
-          // We assume that if the main package is pre-bundled, we likely pre-bundled its subpaths too (if we configured them correctly)
-          // But the map key might be the full specifier. 
-          // If it wasn't found in the Map directly above, it might be missing from the Map but present in the disk?
-          // OR we need to construct the path manually if we know the naming convention.
-          // Our naming convention in preBundler is: svelte/internal/disclose-version -> svelte_internal_disclose-version.js
-          const safeName = specifier.replace(/\//g, '_');
-          return `from '/@urja-deps/${safeName}.js?v=${Date.now()}'`;
+    const addReplacement = (node: any) => {
+      if (node && node.type === 'Literal' && typeof node.value === 'string') {
+        const specifier = node.value;
+        if (specifier.startsWith('.') || specifier.startsWith('/') || specifier.startsWith('http')) {
+          // Handle relative CSS/JSON 
+          if (specifier.endsWith('.css') || specifier.endsWith('.json')) {
+            replacements.push({
+              start: node.start,
+              end: node.end,
+              replacement: `'${specifier}?import'`
+            });
+          }
+          return;
         }
-      }
 
-      return `from '/node_modules/${specifier}'`;
+        let replacement = `/node_modules/${specifier}`;
+        if (preBundledDeps && preBundledDeps.has(specifier)) {
+          replacement = `${preBundledDeps.get(specifier)}?v=${Date.now()}`;
+        } else if (preBundledDeps) {
+          // Subpath check
+          const parts = specifier.split('/');
+          const pkgName = specifier.startsWith('@') ? parts.slice(0, 2).join('/') : parts[0];
+          if (preBundledDeps.has(pkgName)) {
+            const safeName = specifier.replace(/\//g, '_');
+            replacement = `/@urja-deps/${safeName}.js?v=${Date.now()}`;
+          }
+        }
+
+        replacements.push({
+          start: node.start,
+          end: node.end,
+          replacement: `'${replacement}'`
+        });
+      }
+    };
+
+    // Walk AST
+    for (const node of ast.body) {
+      if (node.type === 'ImportDeclaration') {
+        addReplacement(node.source);
+      } else if (node.type === 'ExportNamedDeclaration' && node.source) {
+        addReplacement(node.source);
+      } else if (node.type === 'ExportAllDeclaration' && node.source) {
+        addReplacement(node.source);
+      }
     }
-  );
 
-  // Rewrite side-effect imports (e.g. import 'bootstrap/dist/css/bootstrap.css')
-  code = code.replace(
-    /import\s+['"]((?![.\/])(?!https?:\/\/)[^'"]+)['"]/g,
-    (match, specifier) => {
-      // Handle CSS/Style imports
-      if (specifier.endsWith('.css') || specifier.endsWith('.scss') || specifier.endsWith('.sass') || specifier.endsWith('.less')) {
-        return `import '/node_modules/${specifier}'`;
-      }
+    // Sort replacements backwards to avoid offset issues
+    replacements.sort((a, b) => b.start - a.start);
 
-      // Handle polyfills or side-effect JS imports (e.g. import 'zone.js')
-      if (preBundledDeps && preBundledDeps.has(specifier)) {
-        return `import '${preBundledDeps.get(specifier)}?v=${Date.now()}'`;
-      }
-
-      // Fallback for other bare imports (likely node_modules)
-      return `import '/node_modules/${specifier}'`;
+    let output = code;
+    for (const { start, end, replacement } of replacements) {
+      output = output.slice(0, start) + replacement + output.slice(end);
     }
-  );
-
-  // Matches: import './style.css' or import styles from './style.module.css'
-  code = code.replace(
-    /import\s+['"]([^'"]+\.css)['"]/g,
-    (match, path) => `import '${path}?import'`
-  );
-
-  // Matches: import data from './data.json'
-  code = code.replace(
-    /from\s+['"]([^'"]+\.json)['"]/g,
-    (match, path) => `from '${path}?import'`
-  );
-
-  return code;
+    return output;
+  } catch (e) {
+    // If AST fails (e.g. non-JS content), return as is
+    return code;
+  }
 }
 
 export async function startDevServer(cfg: BuildConfig) {
@@ -123,7 +140,7 @@ export async function startDevServer(cfg: BuildConfig) {
 
   // Filter public env vars
   const publicEnv = Object.keys(process.env)
-    .filter(key => key.startsWith('NEXTGEN_') || key.startsWith('PUBLIC_') || key === 'NODE_ENV')
+    .filter(key => key.startsWith('URJA_') || key.startsWith('PUBLIC_') || key === 'NODE_ENV')
     .reduce((acc, key) => ({ ...acc, [key]: process.env[key] }), {
       NODE_ENV: process.env.NODE_ENV || 'development'
     });
@@ -132,15 +149,15 @@ export async function startDevServer(cfg: BuildConfig) {
 
   // 2. Detect Framework (Universal Support)
   const { FrameworkDetector } = await import('../core/framework-detector.js');
-  const frameworkDetector = new FrameworkDetector(cfg.root);
-  const detectedFrameworks = await frameworkDetector.detect();
-  const primaryFramework = detectedFrameworks[0]?.name || 'vanilla';
+  // 1. Initialize Framework Pipeline (Phase B3)
+  const { FrameworkPipeline } = await import('../core/pipeline/framework-pipeline.js');
+  const pipeline = await FrameworkPipeline.auto(cfg);
+  const primaryFramework = pipeline.getFramework();
 
-  log.info(`Detected framework: ${primaryFramework}`, {
-    category: 'server',
-    version: detectedFrameworks[0]?.version,
-    allFrameworks: detectedFrameworks.map(f => f.name).join(', ')
-  });
+  // @ts-ignore - Pipeline owns opinionated defaults
+  pipeline.applyDefaults();
+
+  log.info(`Pipeline: Active ${primaryFramework} dev-workflow`);
 
   // 3. Initialize Universal Transformer
   const { UniversalTransformer } = await import('../core/universal-transformer.js');
@@ -300,8 +317,16 @@ export async function startDevServer(cfg: BuildConfig) {
         log.info('Dependencies pre-bundled successfully', { count: preBundledDeps.size });
       }
     }
+
+    // Warmup Build (Phase C1/C2)
+    log.info('--> Dev Server: Warming up graph...');
+    const buildResult = await pipeline.build();
+    if (!buildResult.success) {
+      const errorMsg = (buildResult as any).error?.message || 'Unknown error during warmup';
+      log.error('--> Dev Server: Warmup build failed: ' + errorMsg);
+    }
   } catch (error: any) {
-    log.warn('Failed to pre-bundle some dependencies:', error.message);
+    log.warn('Failed to pre-bundle or warmup:', error.message);
   }
 
   const port = cfg.server?.port || cfg.port || 5173;
@@ -326,7 +351,7 @@ export async function startDevServer(cfg: BuildConfig) {
       httpsOptions = cfg.server.https;
     } else {
       // Generate self-signed cert
-      const certDir = path.join(cfg.root, '.nextgen', 'certs');
+      const certDir = path.join(cfg.root, '.urja', 'certs');
       await fs.mkdir(certDir, { recursive: true });
       const keyPath = path.join(certDir, 'dev.key');
       const certPath = path.join(certDir, 'dev.crt');
@@ -403,6 +428,20 @@ export async function startDevServer(cfg: BuildConfig) {
       const { getEditorHtml } = await import('../visual/federation-editor.js');
       res.writeHead(200, { 'Content-Type': 'text/html' });
       res.end(getEditorHtml(cfg));
+      return;
+    }
+
+    // Graph Visualizer
+    if (req.url === '/__graph') {
+      const { getGraphUIHtml } = await import('../visual/graph-ui.js');
+      const liveGraph = pipeline.getEngine().getGraph();
+      if (!liveGraph) {
+        res.writeHead(503);
+        res.end('Graph not yet warmed up');
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end(getGraphUIHtml(liveGraph));
       return;
     }
 
@@ -978,7 +1017,7 @@ export async function startDevServer(cfg: BuildConfig) {
       'HTTP': url,
       'HTTPS': httpsOptions ? 'Enabled' : 'Disabled',
       'Proxy': cfg.server?.proxy ? Object.keys(cfg.server.proxy).join(', ') : 'None',
-      'Status': `${url}/__nextgen/status`,
+      'Status': `${url}/__urja/status`,
       'Federation': `${url}/__federation`
     });
 

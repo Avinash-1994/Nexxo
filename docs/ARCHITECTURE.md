@@ -1,4 +1,4 @@
-# NextGen Build Tool - Architecture
+# Urja Build Tool - Architecture
 
 ## Goals
 - Lightweight, modular, extremely fast build tool for React, Vue, TypeScript
@@ -65,9 +65,9 @@
 
 ## Deterministic build & cache (prototype)
 
-- Disk cache stored under `.nextgen_cache/` keyed by a sha256 fingerprint of input files.
+- Disk cache stored under `.urja_cache/` keyed by a sha256 fingerprint of input files.
 - On build, the tool computes a fingerprint from entry files content and uses it to check the cache.
-- Cache stores a small manifest and a copy of output files under `.nextgen_cache/<key>/files`.
+- Cache stores a small manifest and a copy of output files under `.urja_cache/<key>/files`.
 - On cache hit the tool restores cached files into the configured `outDir` and skips bundling.
 
 Notes and guarantees (prototype):

@@ -25,6 +25,7 @@ const categoryColor = (cat: LogCategory) => {
     case 'cache': return kleur.green('CACHE');
     case 'audit': return kleur.yellow('AUDIT');
     case 'css': return kleur.magenta('CSS');
+    case 'ai': return kleur.yellow('AI');
     default: return kleur.gray('GEN');
   }
 };
@@ -63,7 +64,7 @@ export const log = {
   },
   table: (rows: Record<string, string>) => {
     console.log('');
-    console.log(kleur.bold('🚀 NextGen Dev Server Ready'));
+    console.log(kleur.bold('🚀 Urja Dev Server Ready'));
     const keys = Object.keys(rows);
     const maxKeyLen = Math.max(...keys.map(k => k.length));
 

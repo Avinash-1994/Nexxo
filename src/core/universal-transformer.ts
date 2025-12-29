@@ -10,6 +10,8 @@ import type { Framework } from '../core/framework-detector.js';
 import { getFrameworkPreset } from '../presets/frameworks.js';
 import { log } from '../utils/logger.js';
 import { createRequire } from 'module';
+import * as esbuild from 'esbuild';
+import { canonicalHash } from '../core/engine/hash.js';
 const _require = createRequire(import.meta.url);
 
 export interface TransformOptions {
@@ -18,6 +20,8 @@ export interface TransformOptions {
     framework: Framework;
     root: string;
     isDev?: boolean;
+    define?: Record<string, string>;
+    target?: 'browser' | 'node' | 'edge';
 }
 
 export interface TransformResult {
@@ -58,7 +62,8 @@ export class UniversalTransformer {
 
         // Check cache first (only in dev mode for faster HMR)
         if (this.cacheEnabled && isDev) {
-            const cacheKey = `${filePath}:${code.length}:${framework}`;
+            const h = canonicalHash(code).substring(0, 16);
+            const cacheKey = `${filePath}:${h}:${framework}`;
             const cached = this.transformCache.get(cacheKey);
             if (cached) {
                 return cached;
@@ -108,16 +113,36 @@ export class UniversalTransformer {
             case 'astro':
                 result = await this.transformAstro(code, filePath, isDev);
                 break;
-
             case 'vanilla':
             default:
                 result = await this.transformVanilla(code, filePath, isDev);
                 break;
         }
 
+        // Final Normalization Pass (Phase F1 Honest)
+        // Ensure ALL code is converted to CJS to match Urja's runtime requirements
+        // Skip for CSS or other non-JS files if possible, though 'loader: jsx' might try to parse it.
+        // We only want to normalize JS/TS output.
+        if (!options.filePath.endsWith('.css')) {
+            try {
+                const finalResult = await esbuild.transform(result.code, {
+                    define: options.define || {},
+                    loader: 'jsx',
+                    format: 'cjs',
+                    platform: 'node',
+                    target: 'es2020'
+                });
+                result.code = finalResult.code;
+            } catch (err: any) {
+                // Log warning but don't fail, as some files might not be valid JS (CSS, assets)
+                // This is expected for CSS modules handled by other plugins
+            }
+        }
+
         // Cache the result
         if (this.cacheEnabled && isDev) {
-            const cacheKey = `${filePath}:${code.length}:${framework}`;
+            const h = canonicalHash(code).substring(0, 16);
+            const cacheKey = `${filePath}:${h}:${framework}`;
             this.transformCache.set(cacheKey, result);
         }
 
@@ -155,6 +180,10 @@ export class UniversalTransformer {
                         }
                     ],
                     _require.resolve('@babel/preset-typescript')
+                ],
+                plugins: [
+                    // Convert ESM to CommonJS for Urja runtime (Phase F1 Production-Grade)
+                    _require.resolve('@babel/plugin-transform-modules-commonjs')
                 ],
                 sourceMaps: isDev ? 'inline' : false
             });
@@ -531,14 +560,12 @@ export class UniversalTransformer {
         const ext = path.extname(filePath);
 
         // For TypeScript, transpile to JavaScript
-        if (ext === '.ts' || ext === '.tsx') {
+        if (ext === '.ts' || ext === '.tsx' || ext === '.js' || ext === '.jsx' || ext === '.mjs') {
             try {
-                const { transform } = await import('esbuild');
-
-                const result = await transform(code, {
-                    loader: ext.slice(1) as any,
+                const result = await esbuild.transform(code, {
+                    loader: (ext === '.mjs' ? 'js' : ext.slice(1)) as any,
                     sourcemap: isDev ? 'inline' : false,
-                    format: 'esm',
+                    format: 'cjs',
                     target: 'es2020',
                     tsconfigRaw: {
                         compilerOptions: {
@@ -557,7 +584,6 @@ export class UniversalTransformer {
             }
         }
 
-        // For plain JS, return as-is
         return { code };
     }
 

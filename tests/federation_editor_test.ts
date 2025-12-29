@@ -40,7 +40,7 @@ async function runTest() {
         if (res.status !== 200) throw new Error(`Expected 200 OK, got ${res.status}`);
         const html = await res.text();
 
-        if (!html.includes('NextGen Federation Editor')) throw new Error('Title missing');
+        if (!html.includes('Urja Federation Editor')) throw new Error('Title missing');
         if (!html.includes('remote1')) throw new Error('Remote not listed');
         if (!html.includes('react')) throw new Error('Shared dep not listed');
 

@@ -179,7 +179,7 @@ import crypto from "crypto";
 var globalFetch = globalThis.fetch;
 var DiskCache = class {
   constructor(base) {
-    this.dir = path.resolve(base, ".nextgen_cache");
+    this.dir = path.resolve(base, ".urja_cache");
   }
   async ensure() {
     await fs.mkdir(this.dir, { recursive: true });
@@ -195,7 +195,7 @@ var DiskCache = class {
       }
     }
     try {
-      const cfg = await fs.readFile("nextgen.build.json");
+      const cfg = await fs.readFile("urja.build.json");
       hash.update(cfg);
     } catch (e) {
     }
@@ -344,7 +344,7 @@ import path2 from "path";
 import fs2 from "fs/promises";
 function createEsbuildPlugin(pm) {
   return {
-    name: "nextgen-adapter",
+    name: "urja-adapter",
     setup(build2) {
       build2.onLoad({ filter: /.*/ }, async (args) => {
         if (args.path.includes("node_modules"))
@@ -374,7 +374,7 @@ var nativeModule = null;
 function loadNative() {
   if (!nativeModule) {
     try {
-      nativeModule = nodeRequire("../../nextgen_native.node");
+      nativeModule = nodeRequire("../../urja_native.node");
     } catch (e) {
       throw new Error(`Failed to load Rust native worker: ${e}`);
     }

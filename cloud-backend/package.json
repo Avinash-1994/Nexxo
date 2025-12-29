@@ -1,7 +1,7 @@
 {
-    "name": "nextgen-cloud-api",
+    "name": "urja-cloud-api",
     "version": "1.0.0",
-    "description": "Production backend for NextGen Self-Learning AI",
+    "description": "Production backend for Urja Self-Learning AI",
     "main": "server.ts",
     "scripts": {
         "dev": "bun run server.ts",

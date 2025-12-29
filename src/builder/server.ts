@@ -243,8 +243,8 @@ function broadcast(clients: Set<any>, message: any) {
 // ===== File Watcher =====
 function watchConfigFile(root: string, onChange: (config: any) => void) {
     const configPaths = [
-        path.join(root, 'nextgen.build.json'),
-        path.join(root, 'nextgen.build.ts')
+        path.join(root, 'urja.build.json'),
+        path.join(root, 'urja.build.ts')
     ];
 
     configPaths.forEach(configPath => {

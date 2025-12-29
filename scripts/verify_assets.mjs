@@ -53,7 +53,7 @@ export default logo;
             outDir: "dist",
             port: 5173
         };
-        await fs.writeFile(path.join(testDir, 'nextgen.build.json'),
+        await fs.writeFile(path.join(testDir, 'urja.build.json'),
             JSON.stringify(config, null, 2));
 
         console.log('✓ Created test project');

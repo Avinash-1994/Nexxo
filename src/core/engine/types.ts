@@ -10,7 +10,7 @@ export type EngineInfo = {
 };
 
 // 6.2 BuildContext
-export type BuildMode = 'dev' | 'build' | 'ci' | 'debug';
+export type BuildMode = 'dev' | 'build' | 'ci' | 'debug' | 'production';
 export type BuildTarget = 'browser' | 'node' | 'edge';
 
 export interface BuildContext {
@@ -23,6 +23,7 @@ export interface BuildContext {
     graphHash: string;
     cache: BuildCache;
     config: ResolvedConfig;
+    pluginManager: any; // PluginManager (avoid circular dep)
 }
 
 // 6.3 InputFingerprint
@@ -45,7 +46,8 @@ export interface ChunkPlan {
 }
 
 export interface AssetPlan {
-    source: string;
+    id: string;
+    sourcePath: string;
     outputName: string;
 }
 
@@ -103,6 +105,7 @@ export interface ResolvedConfig {
     splittingStrategy: 'route' | 'module';
     hashing: 'content';
     sourceMaps: boolean;
+    minify?: boolean;
 }
 
 // Error Handling
@@ -110,7 +113,7 @@ export interface BuildError {
     code: string;
     message: string;
     module?: string;
-    stage: 'init' | 'fingerprint' | 'graph' | 'plan' | 'parallel_plan' | 'determinism' | 'execute' | 'emit' | 'audit' | 'unknown';
+    stage: 'init' | 'fingerprint' | 'graph' | 'plan' | 'parallel_plan' | 'determinism' | 'execute' | 'optimize' | 'emit' | 'fingerprint_output' | 'audit' | 'unknown';
 }
 
 // Explain Mode

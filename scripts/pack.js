@@ -16,7 +16,7 @@ console.log('🔍 Running pre-pack checks...\n');
 
 const requiredFiles = [
     'dist/cli.js',
-    'dist/nextgen_native.node',
+    'dist/urja_native.node',
     'README.md',
     'LICENSE',
     'package.json'

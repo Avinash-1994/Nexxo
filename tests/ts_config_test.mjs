@@ -4,7 +4,7 @@ import path from 'path';
 import assert from 'assert';
 
 const testDir = 'temp_ts_config_test';
-const configFile = path.join(testDir, 'nextgen.build.ts');
+const configFile = path.join(testDir, 'urja.build.ts');
 
 function run(cmd) {
     try {

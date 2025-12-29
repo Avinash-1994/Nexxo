@@ -10,7 +10,7 @@
 | **Detection** | Basic package.json | package.json + file patterns + class scanning | User's ✅ |
 | **Bootstrap** | Basic integration | CDN + local + autoprefixer + purge | User's ✅ |
 | **CSS-in-JS** | Basic support | Runtime optimization (<1KB), tree-shaking | User's ✅ |
-| **CLI Commands** | Not included | `nextgen css add/list/purge` | User's ✅ |
+| **CLI Commands** | Not included | `urja css add/list/purge` | User's ✅ |
 | **Visual Builder** | Not included | CSS panels + live preview + migration | User's ✅ |
 | **Audits** | Not included | Terminal warnings + unused CSS detection | User's ✅ |
 | **Performance** | Basic | Benchmarks vs Vite/Webpack + metrics | User's ✅ |
@@ -63,7 +63,7 @@ Combine the best of both approaches:
 - Package.json scanning
 - File pattern matching
 - Class name detection (DOM scanning)
-- CLI: `nextgen detect-css`
+- CLI: `urja detect-css`
 
 **Day 3-4**: Bootstrap Integration
 - CDN injection (unpkg.com)
@@ -98,11 +98,11 @@ Combine the best of both approaches:
 ### Week 3: CLI & Visual Builder
 **Day 1-2**: CSS CLI Commands
 ```bash
-nextgen css add tailwind
-nextgen css add bootstrap
-nextgen css add emotion
-nextgen css list
-nextgen css purge
+urja css add tailwind
+urja css add bootstrap
+urja css add emotion
+urja css list
+urja css purge
 ```
 
 **Day 3-4**: Visual Builder Integration

@@ -11,7 +11,7 @@ const TEMPLATES: Record<TemplateType, Record<string, string>> = {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NextGen React App</title>
+    <title>Urja React App</title>
   </head>
   <body>
     <div id="root"></div>
@@ -35,7 +35,7 @@ function App() {
 
   return (
     <div className="App">
-      <h1>NextGen + React</h1>
+      <h1>Urja + React</h1>
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
@@ -66,7 +66,7 @@ body {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NextGen Vue App</title>
+    <title>Urja Vue App</title>
   </head>
   <body>
     <div id="app"></div>
@@ -86,7 +86,7 @@ const count = ref(0)
 
 <template>
   <div>
-    <h1>NextGen + Vue</h1>
+    <h1>Urja + Vue</h1>
     <div class="card">
       <button type="button" @click="count++">count is {{ count }}</button>
     </div>
@@ -121,7 +121,7 @@ body {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NextGen Svelte App</title>
+    <title>Urja Svelte App</title>
   </head>
   <body>
     <div id="app"></div>
@@ -142,7 +142,7 @@ export default app`,
 </script>
 
 <main>
-  <h1>NextGen + Svelte</h1>
+  <h1>Urja + Svelte</h1>
   <div class="card">
     <button on:click={increment}>
       count is {count}
@@ -175,7 +175,7 @@ body {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NextGen App</title>
+    <title>Urja App</title>
   </head>
   <body>
     <div id="app"></div>
@@ -186,7 +186,7 @@ body {
 
 document.querySelector('#app').innerHTML = \`
   <div>
-    <h1>NextGen Build Tool</h1>
+    <h1>Urja Build Tool</h1>
     <div class="card">
       <button id="counter" type="button"></button>
     </div>

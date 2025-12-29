@@ -1,19 +1,22 @@
 
 import { BuildConfig } from '../../config/index.js';
 import { BuildContext, ResolvedConfig, BuildMode, EngineInfo, InputFingerprint } from './types.js';
-import { InMemoryBuildCache } from './cache.js';
+import { InMemoryBuildCache, PersistentBuildCache } from './cache.js';
 import { DependencyGraph } from '../../resolve/graph.js';
 import { explainReporter } from './events.js';
 import { canonicalHash } from './hash.js';
 import fs from 'fs/promises';
 import path from 'path';
 
+import { PluginManager } from '../plugins/manager.js';
+import { getInfrastructurePreset } from '../../presets/infrastructure.js';
+
 // Stage 1: Initialization
-export function initBuild(
+export async function initBuild(
     userConfig: BuildConfig,
     mode: BuildMode,
     rootDir: string
-): BuildContext {
+): Promise<BuildContext> {
     explainReporter.report('init', 'initialize', 'Starting build initialization');
 
     const engine: EngineInfo = {
@@ -22,8 +25,22 @@ export function initBuild(
         buildTime: new Date().toISOString()
     };
 
-    const config: ResolvedConfig = resolveConfig(userConfig, rootDir);
-    const cache = new InMemoryBuildCache();
+    const config: ResolvedConfig = resolveConfig(userConfig, rootDir, mode);
+    const cache = new PersistentBuildCache(rootDir);
+    const pluginManager = new PluginManager();
+
+    // 1. Register Infrastructure (Phase B2)
+    const infraPlugins = getInfrastructurePreset(rootDir);
+    for (const p of infraPlugins) {
+        await pluginManager.register(p);
+    }
+
+    // 2. Register User Plugins (Phase F2)
+    if (userConfig.plugins) {
+        for (const p of userConfig.plugins) {
+            await pluginManager.register(p);
+        }
+    }
 
     explainReporter.report('init', 'config_resolved', 'Config frozen', { config });
 
@@ -36,11 +53,12 @@ export function initBuild(
         graph: new DependencyGraph(), // Empty initially
         graphHash: '', // Placeholder
         cache,
-        config
+        config,
+        pluginManager
     };
 }
 
-function resolveConfig(userConfig: BuildConfig, rootDir: string): ResolvedConfig {
+function resolveConfig(userConfig: BuildConfig, rootDir: string, mode: BuildMode): ResolvedConfig {
     return {
         entryPoints: userConfig.entry,
         outputDir: path.isAbsolute(userConfig.outDir || 'dist')
@@ -50,6 +68,7 @@ function resolveConfig(userConfig: BuildConfig, rootDir: string): ResolvedConfig
         splittingStrategy: userConfig.build?.splitting ? 'module' : 'route',
         hashing: 'content',
         sourceMaps: userConfig.build?.sourcemap !== 'none',
+        minify: userConfig.build?.minify ?? (mode === 'production' || mode === 'build'),
     };
 }
 
@@ -106,9 +125,9 @@ export async function computeInputFingerprint(ctx: BuildContext): Promise<InputF
                     await scan(fullPath);
                 } else if (dirent.isFile()) {
                     // Match source files
-                    if (/\.(ts|tsx|js|jsx|json|css|html|astro|vue|svelte)$/.test(dirent.name)) {
+                    if (/\.(ts|tsx|js|jsx|json|css|html|astro|vue|svelte|png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf)$/i.test(dirent.name)) {
                         try {
-                            const content = await fs.readFile(fullPath, 'utf-8');
+                            const content = await fs.readFile(fullPath);
                             const relPath = path.relative(ctx.rootDir, fullPath);
                             sourceFiles.push({
                                 path: relPath, // relative path for stability
@@ -152,8 +171,7 @@ export function attachGraph(ctx: BuildContext, graph: DependencyGraph): BuildCon
     // Compute Graph Hash
     const nodesObj: Record<string, any> = {};
     for (const [key, val] of graph.nodes.entries()) {
-        //@ts-ignore - Temporary fix for interface mismatch during transition
-        const deps = val.edges ? val.edges.map(e => e.to).sort() : [];
+        const deps = val.edges.map(e => e.to).sort();
         nodesObj[key] = {
             id: val.id,
             deps: deps
