@@ -3,8 +3,8 @@
   "compilerOptions": {
     "declaration": true,
     "sourceMap": false,
-    "module": "esnext",
-    "moduleResolution": "node"
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext"
   },
   "exclude": [
     "node_modules",

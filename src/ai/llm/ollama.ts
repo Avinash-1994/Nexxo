@@ -1,4 +1,3 @@
-import fetch from 'node-fetch';
 import { AIConfig } from '../config.js';
 import { FixAction } from '../healer/fixer.js';
 import { ParsedError } from '../healer/parser.js';
