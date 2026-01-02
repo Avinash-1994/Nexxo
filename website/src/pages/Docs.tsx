@@ -95,16 +95,22 @@ export const Docs: React.FC = () => {
                     <Terminal className="text-blue-500" size={24} />
                     <h2 className="text-3xl font-black font-display tracking-tight">CLI Commands</h2>
                 </div>
-                <div className="space-y-6">
+                <div className="space-y-4">
                     {[
                         { cmd: 'urja dev', desc: 'Starts the high-performance development server with HMR.' },
                         { cmd: 'urja build', desc: 'Triggers the production build pipeline with full optimizations.' },
+                        { cmd: 'urja init', desc: 'Interactive wizard to initialize urja.config.js in your project.' },
+                        { cmd: 'urja bootstrap', desc: 'Scaffold a new project from premium templates (React, Vue, Svelte, etc.).' },
+                        { cmd: 'urja ssr', desc: 'Starts the universal SSR runtime for meta-frameworks.' },
                         { cmd: 'urja inspect', desc: 'Launches the dependency graph visualization tool.' },
                         { cmd: 'urja report', desc: 'Generates a detailed build analytics report.' },
+                        { cmd: 'urja css purge', desc: 'Deep-cleans CSS by removing unused styles from your bundle.' },
+                        { cmd: 'urja ai fix', desc: 'Analyzes build errors and applies AI-powered code fixes.' },
+                        { cmd: 'urja ai status', desc: 'View AI learning metrics and known fix patterns for this project.' },
                     ].map(item => (
-                        <div key={item.cmd} className="flex gap-4 p-4 rounded-2xl bg-[var(--surface-color)] border border-[var(--border-color)]">
-                            <div className="font-mono text-sm font-bold text-blue-500 min-w-[120px]">{item.cmd}</div>
-                            <div className="text-sm text-[var(--text-secondary)]">{item.desc}</div>
+                        <div key={item.cmd} className="group flex flex-col md:flex-row md:items-center gap-2 md:gap-4 p-5 rounded-2xl bg-[var(--surface-color)] border border-[var(--border-color)] hover:border-blue-500/50 transition-all">
+                            <div className="font-mono text-[13px] font-bold text-blue-500 bg-blue-500/5 px-3 py-1 rounded-lg w-fit transition-colors group-hover:bg-blue-500 group-hover:text-white">{item.cmd}</div>
+                            <div className="text-sm text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors">{item.desc}</div>
                         </div>
                     ))}
                 </div>

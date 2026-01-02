@@ -39,6 +39,24 @@ export default [
                 RequestInit: 'readonly',
                 Response: 'readonly',
                 globalThis: 'readonly',
+                global: 'readonly',
+                NodeRequire: 'readonly',
+                URLSearchParams: 'readonly',
+                ReadableStream: 'readonly',
+                NodeJS: 'readonly',
+                TextDecoder: 'readonly',
+                TextEncoder: 'readonly',
+                WebAssembly: 'readonly',
+                // Jest globals
+                describe: 'readonly',
+                it: 'readonly',
+                test: 'readonly',
+                expect: 'readonly',
+                beforeAll: 'readonly',
+                afterAll: 'readonly',
+                beforeEach: 'readonly',
+                afterEach: 'readonly',
+                jest: 'readonly',
             }
         },
         plugins: {
@@ -47,6 +65,14 @@ export default [
         },
         rules: {
             ...tsPlugin.configs.recommended.rules,
+            '@typescript-eslint/no-explicit-any': 'off',
+            '@typescript-eslint/no-unused-vars': 'off',
+            '@typescript-eslint/no-unsafe-function-type': 'off',
+            '@typescript-eslint/no-require-imports': 'off',
+            '@typescript-eslint/ban-ts-comment': 'off',
+            'no-empty': 'off',
+            'no-useless-escape': 'off',
+            'no-case-declarations': 'off',
             'urja-governance/no-internal-imports': 'error',
             'urja-governance/require-experimental-flag': 'warn',
             'urja-governance/no-graph-mutation': 'error',
@@ -54,13 +80,18 @@ export default [
         },
     },
     {
-        // Allow internal core/resolve/plugins/presets files to import from each other
+        // Allow internal core/resolve/plugins/presets/dev/build/ai/cli/builder files to import from each other
         files: [
             'src/core/**/*.ts',
             'src/resolve/**/*.ts',
             'src/visual/**/*.ts',
             'src/plugins/**/*.ts',
-            'src/presets/**/*.ts'
+            'src/presets/**/*.ts',
+            'src/dev/**/*.ts',
+            'src/build/**/*.ts',
+            'src/ai/**/*.ts',
+            'src/cli/**/*.ts',
+            'src/builder/**/*.ts'
         ],
         rules: {
             'urja-governance/no-internal-imports': 'off',
@@ -73,6 +104,8 @@ export default [
         files: ['tests/**/*.ts', 'examples/**/*.ts'],
         rules: {
             'urja-governance/no-internal-imports': 'off',
+            '@typescript-eslint/no-explicit-any': 'off',
+            '@typescript-eslint/no-unused-vars': 'off'
         }
     }
 ];

@@ -3,6 +3,6 @@
     "version": "0.1.0",
     "type": "module",
     "napi": {
-        "name": "urja_native"
+        "binaryName": "urja_native"
     }
 }

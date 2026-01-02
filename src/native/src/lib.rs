@@ -1,5 +1,5 @@
 use napi_derive::napi;
-use napi::bindgen_prelude::*;
+// use napi::bindgen_prelude::*;
 use sha2::{Sha256, Digest};
 use rayon::prelude::*;
 use std::sync::Arc;
@@ -125,9 +125,4 @@ impl NativeWorker {
   }
 }
 
-impl NativeWorker {
-    fn cache_remove(&self, key: &str) {
-        // Helper since DashMap remove returns the pair
-        self.cache.remove(key);
-    }
-}
+

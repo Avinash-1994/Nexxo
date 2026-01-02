@@ -1,5 +1,7 @@
 import { ErrorParser } from './parser.js';
 import { FixGenerator } from './fixer.js';
+import { LLMFixer } from './llm.js';
+import { DEFAULT_AI_CONFIG } from '../config.js';
 import { log } from '../../utils/logger.js';
 import { createInterface } from 'readline';
 import { exec } from 'child_process';
@@ -12,12 +14,22 @@ export class HealerCLI {
         const parsed = ErrorParser.parse(error.message);
         log.error(`Build Failed: ${parsed.message}`, { category: 'ai' });
 
-        const fixes = FixGenerator.generate(parsed);
+        // 1. Static Pattern Fixes
+        let fixes = FixGenerator.generate(parsed);
+
+        // 2. LLM Fallback
+        if (fixes.length === 0 || fixes[0].confidence < 0.7) {
+            log.info('No high-confidence local fix. Consulting AI...', { category: 'ai' });
+            const llm = new LLMFixer(DEFAULT_AI_CONFIG);
+            const aiFixes = await llm.fix(parsed);
+            fixes = [...fixes, ...aiFixes];
+        }
+
         if (fixes.length === 0) return;
 
         console.log('\n🤖 AI Self-Healer Suggestions:');
         fixes.forEach((fix, i) => {
-            log.info(`[${Math.round(fix.confidence * 100)}%] ${fix.description}`, { category: 'ai' });
+            log.info(`${i + 1}. [${Math.round(fix.confidence * 100)}%] ${fix.description}`, { category: 'ai' });
             if (fix.command) log.info(`   Command: ${fix.command}`, { category: 'ai' });
         });
 

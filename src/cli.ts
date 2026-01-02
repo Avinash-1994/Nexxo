@@ -121,24 +121,8 @@ async function main() {
           });
       },
       async (args: any) => {
-        const { SSRServer } = await import('./meta-frameworks/ssr/server.js');
-
-        try {
-          const config = await loadConfig(process.cwd());
-
-          const server = new SSRServer({
-            root: config.root || process.cwd(),
-            framework: args.framework,
-            outDir: config.outDir || 'dist',
-            port: args.port,
-            production: args.prod,
-          });
-
-          await server.start();
-        } catch (error: any) {
-          log.error(`❌ SSR Server failed: ${error.message}`);
-          process.exit(1);
-        }
+        const { handleSSRCommand } = await import('./commands/ssr.js');
+        await handleSSRCommand(args);
       }
     )
     .command(

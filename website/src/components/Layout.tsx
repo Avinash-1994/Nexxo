@@ -29,13 +29,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
     const sidebarSections = [
         {
-            title: 'Orientation',
-            links: [
-                { label: 'Is Urja for you?', href: '#/docs/decision-guide' },
-                { label: 'Governance & Stability', href: '#/docs/governance' },
-            ]
-        },
-        {
             title: 'Getting Started',
             links: [
                 { label: 'Installation', href: '#/docs/getting-started' },
@@ -43,7 +36,24 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 { label: 'Audits & Reports', href: '#/docs/quality' },
                 { label: 'Technical Specs', href: '#/docs/tech-specs' },
                 { label: 'Glossary', href: '#/docs/glossary' },
-                { label: 'Home Page', href: '#/' },
+            ]
+        },
+        {
+            title: 'Framework Guides',
+            links: [
+                { label: 'React (Tier 1)', href: '#/guides/react' },
+                { label: 'Vue (Tier 1)', href: '#/guides/vue' },
+                { label: 'SolidJS (Tier 1)', href: '#/guides/solid' },
+                { label: 'Angular (Tier 2)', href: '#/guides/angular' },
+                { label: 'Lit (Verified)', href: '#/guides/lit' },
+                { label: 'Svelte (Verified)', href: '#/guides/svelte' },
+            ]
+        },
+        {
+            title: 'Orientation',
+            links: [
+                { label: 'Is Urja for you?', href: '#/docs/decision-guide' },
+                { label: 'Governance & Stability', href: '#/docs/governance' },
             ]
         },
         {
@@ -55,17 +65,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 { label: 'Supported Patterns', href: '#/mfe/patterns' },
                 { label: 'Risks & Limitations', href: '#/mfe/risks' },
                 { label: 'Framework Policy', href: '#/mfe/framework-policy' },
-            ]
-        },
-        {
-            title: 'Framework Guides',
-            links: [
-                { label: 'React (Tier 1)', href: '#/guides/react' },
-                { label: 'Vue (Tier 1)', href: '#/guides/vue' },
-                { label: 'Angular (Tier 2)', href: '#/guides/angular' },
-                { label: 'SolidJS (Tier 1)', href: '#/guides/solid' },
-                { label: 'Lit (Verified)', href: '#/guides/lit' },
-                { label: 'Svelte (Verified)', href: '#/guides/svelte' },
             ]
         },
         {

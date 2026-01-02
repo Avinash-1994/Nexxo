@@ -1,7 +1,9 @@
 export interface AIConfig {
     enabled: boolean;
-    provider: 'local' | 'openai' | 'anthropic';
+    provider: 'local' | 'openai' | 'anthropic' | 'ollama';
     apiKey?: string;
+    endpoint?: string;    // Special for Ollama
+    modelName?: string;   // Special for Ollama
     maxTokens: number;
     privacy: {
         sendSourceSnippets: boolean; // If false, only send AST/Metrics
