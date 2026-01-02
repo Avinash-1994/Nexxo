@@ -1,0 +1,46 @@
+name: Urja Governance Enforcement
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  governance-audit:
+    name: Governance & Stability Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Governance Linter
+        run: npm run lint
+        # This will catch: 
+        # - Internal imports from public/plugin files
+        # - Direct graph/cache mutations
+        # - Missing experimental flags
+
+      - name: Run Stability Audits
+        run: npm run governance:check
+        # This will catch:
+        # - API Surface drift
+        # - Plugin contract breakages
+        # - Forbidden FIXME comments in core
+        # - Inspector schema changes
+
+      - name: Upload Audit Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: governance-audit-report
+          path: .governance/AUDIT_REPORT_*.md

@@ -145,7 +145,7 @@ export async function startDevServer(cfg: BuildConfig) {
       NODE_ENV: process.env.NODE_ENV || 'development'
     });
 
-  log.info('Loaded Environment Variables', { category: 'server', count: Object.keys(publicEnv).length });
+  log.debug('Loaded Environment Variables', { category: 'server', count: Object.keys(publicEnv).length });
 
   // 2. Detect Framework (Universal Support)
   const { FrameworkDetector } = await import('../core/framework-detector.js');
@@ -157,7 +157,7 @@ export async function startDevServer(cfg: BuildConfig) {
   // @ts-ignore - Pipeline owns opinionated defaults
   pipeline.applyDefaults();
 
-  log.info(`Pipeline: Active ${primaryFramework} dev-workflow`);
+  log.debug(`Pipeline: Active ${primaryFramework} dev-workflow`);
 
   // 3. Initialize Universal Transformer
   const { UniversalTransformer } = await import('../core/universal-transformer.js');
@@ -175,9 +175,11 @@ export async function startDevServer(cfg: BuildConfig) {
 
   // Auto-register Tailwind Plugin if config exists
   const tailwindConfigPath = path.join(cfg.root, 'tailwind.config.js');
+  log.debug(`Checking for Tailwind at: ${tailwindConfigPath}`);
   if (await fs.access(tailwindConfigPath).then(() => true).catch(() => false)) {
     const { TailwindPlugin } = await import('../plugins/css/tailwind.js');
     pluginManager.register(new TailwindPlugin(cfg.root));
+    log.info('--> Dev Server: Tailwind CSS Plugin registered', { category: 'server' });
   }
 
   // Auto-register CSS Preprocessor Plugins
@@ -207,7 +209,7 @@ export async function startDevServer(cfg: BuildConfig) {
   const preBundler = new DependencyPreBundler(cfg.root);
 
   // Scan and pre-bundle dependencies on server start
-  log.info('Scanning dependencies for pre-bundling...');
+  log.debug('Scanning dependencies for pre-bundling...');
   const entryPoint = path.join(cfg.root, 'public', 'index.html');
   let preBundledDeps = new Map<string, string>();
 
@@ -314,7 +316,7 @@ export async function startDevServer(cfg: BuildConfig) {
       if (validDeps.size > 0) {
         // 4. Pass to PreBundler
         preBundledDeps = await preBundler.preBundleDependencies(Array.from(validDeps));
-        log.info('Dependencies pre-bundled successfully', { count: preBundledDeps.size });
+        log.debug('Dependencies pre-bundled successfully', { count: preBundledDeps.size });
       }
     }
 
@@ -401,7 +403,7 @@ export async function startDevServer(cfg: BuildConfig) {
   // Initialize security headers once
   const { createSecurityHeaders } = await import('../server/security-headers.js');
   const securityHeaders = createSecurityHeaders({
-    csp: true,
+    csp: false,
     hsts: cfg.server?.https ? true : false,
     frameOptions: 'SAMEORIGIN',
     xssProtection: true,
@@ -792,9 +794,12 @@ export async function startDevServer(cfg: BuildConfig) {
         if (ext === '.ts' || ext === '.tsx' || ext === '.jsx' || ext === '.js' || ext === '.mjs') {
           try {
             raw = nativeWorker.transformSync(raw, filePath);
-          } catch (e) {
-            log.error('NativeWorker error', { category: 'build', error: e });
-            // Continue with raw content
+          } catch (e: any) {
+            // Silently continue - native worker is optional optimization
+            // Only log in debug mode to avoid terminal spam
+            if (process.env.DEBUG) {
+              log.debug(`NativeWorker skipped for ${filePath}: ${e.message}`, { category: 'build' });
+            }
           }
         }
 

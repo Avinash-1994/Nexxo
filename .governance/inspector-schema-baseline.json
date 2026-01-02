@@ -1,0 +1,32 @@
+[
+  {
+    "name": "id",
+    "type": "string",
+    "optional": false
+  },
+  {
+    "name": "path",
+    "type": "string",
+    "optional": false
+  },
+  {
+    "name": "type",
+    "type": "string",
+    "optional": false
+  },
+  {
+    "name": "content",
+    "type": "string",
+    "optional": false
+  },
+  {
+    "name": "edges",
+    "type": "array",
+    "optional": false
+  },
+  {
+    "name": "hash",
+    "type": "string",
+    "optional": true
+  }
+]

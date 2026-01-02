@@ -1,4 +1,10 @@
 
+/**
+ * Engine Emission and Fingerprinting Stage
+ * 
+ * @internal - This handles FS writes and build auditing. Not for public use.
+ */
+
 import { BuildArtifact, BuildContext, BuildFingerprint, InputFingerprint, BuildPlan } from './types.js';
 import { explainReporter } from './events.js';
 import { canonicalHash } from './hash.js';
@@ -17,6 +23,8 @@ export async function emit(artifacts: BuildArtifact[], ctx: BuildContext): Promi
         if (artifact.source === undefined) continue;
 
         const outputPath = path.join(ctx.config.outputDir, artifact.fileName);
+
+        await fs.mkdir(path.dirname(outputPath), { recursive: true });
 
         explainReporter.report('emit', 'writing', `Writing artifact: ${outputPath}`);
         await fs.writeFile(outputPath, artifact.source);

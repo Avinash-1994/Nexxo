@@ -1,0 +1,15 @@
+{
+    "name": "alpine-basic-starter",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "dev": "urja dev",
+        "build": "urja build"
+    },
+    "dependencies": {
+        "alpinejs": "^3.0.0"
+    },
+    "devDependencies": {
+        "urja": "latest"
+    }
+}

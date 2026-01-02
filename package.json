@@ -3,7 +3,8 @@
   "version": "1.0.0-freeze",
   "description": "⚡ Urja - Energy-powered build tool with AI optimization, Rust native workers, and parallel execution",
   "type": "module",
-  "main": "./dist/main.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "bin": {
     "urja": "./dist/cli.js"
   },
@@ -22,7 +23,12 @@
     "test:repro": "node ./scripts/repro_test.mjs",
     "prepublishOnly": "npm run build",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test:all": "tsc -p tsconfig.build.json && npx tsx tests/config_test.ts && npx tsx tests/bootstrap_test.ts && npx tsx tests/integration_test.ts && npx tsx tests/asset_test.ts && npx tsx tests/federation_core_test.ts && npx tsx tests/core_engine_test.ts"
+    "test:all": "tsc -p tsconfig.build.json && npx tsx tests/config_test.ts && npx tsx tests/bootstrap_test.ts && npx tsx tests/integration_test.ts && npx tsx tests/asset_test.ts && npx tsx tests/federation_core_test.ts && npx tsx tests/core_engine_test.ts && npx tsx tests/framework_verification_test.ts",
+    "audit:api-surface": "npx tsx scripts/audit/api-surface.ts",
+    "audit:plugin-contract": "npx tsx scripts/audit/plugin-contract.ts",
+    "audit:all": "npx tsx scripts/audit/run-all.ts",
+    "governance:check": "npm run audit:all",
+    "lint": "eslint 'src/**/*.ts' 'tests/**/*.ts'"
   },
   "keywords": [
     "build-tool",
@@ -104,7 +110,11 @@
     "@types/react-dom": "^19.2.3",
     "@types/selfsigned": "^2.0.4",
     "@types/ws": "^8.5.4",
+    "@typescript-eslint/eslint-plugin": "^8.51.0",
+    "@typescript-eslint/parser": "^8.51.0",
     "esbuild-svelte": "^0.9.3",
+    "eslint": "^9.39.2",
+    "eslint-plugin-urja-governance": "file:eslint-plugin-urja-governance",
     "jest": "^30.2.0",
     "jsdom": "^27.2.0",
     "svelte": "^5.43.14",

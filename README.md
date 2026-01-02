@@ -1,166 +1,88 @@
-# Urja ⚡
+# Urja - The Honest Build System
 
-> **Urja** (Sanskrit: ऊर्जा - Energy/Power) - The Zero-Config Build Tool for the Modern Stack.
+> **Build with Integrity.** No hidden configs, no magic, just pure performance.
 
-<div align="center">
+Urja is a production-grade build engine designed for technical architects who demand stability, transparency, and performance. It enforces architectural discipline through a frozen core and strictly isolated framework adapters.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![npm version](https://img.shields.io/npm/v/urja.svg)](https://www.npmjs.com/package/urja)
-[![Status](https://img.shields.io/badge/status-beta-yellow.svg)]()
-[![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)]()
+![Versions](https://img.shields.io/badge/Urja-v1.0.0--Freeze-blue)
+![Stability](https://img.shields.io/badge/Stability-Stable-success)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-[Quick Start](#quick-start) • [Features](#features) • [Frameworks](#-supported-frameworks) • [Configuration](#-configuration) 
+## 📚 Documentation
 
-</div>
+The official documentation website is available at [http://localhost:5174](http://localhost:5174) (when running locally).
 
----
+To run the documentation website:
 
-## 🚀 Quick Start
+```bash
+cd website
+npx urja dev
+```
+
+## 🚀 Key Features
+
+- **Frozen Core Architecture**: Stability by design. The core logic is locked, ensuring no breaking changes.
+- **Micro-Frontend First**: Built-in Federation v2 with strict "One Framework per MFE" policy.
+- **HMR Engine**: Custom Rust-backed HMR with sub-50ms latency.
+- **Universal Framework Support**:
+  - **Tier 1 (Core)**: React, Vue, Solid
+  - **Tier 2 (Verified)**: Angular, Svelte, Lit
+  - **Tier 3 (Experimental)**: Qwik, Astro
+- **AI Self-Healing**: Automated error detection and fix suggestions.
+- **Quality Auditing**: Built-in SEO, Accessibility, and Performance audits.
+
+## 📦 Quick Start
 
 ### Installation
 
 ```bash
-# Install globally (once published)
 npm install -g urja
-
-# Or use with npx (recommended for new projects)
-npx urja bootstrap --name my-app --template react
 ```
 
-### Your First Project (30 seconds)
+### Create a New Project
 
 ```bash
-# 1. Bootstrap a new project
-npx urja bootstrap --name my-app
-
-# 2. Enter project and install
-cd my-app && npm install
-
-# 3. Start development server
-npm run dev
-
-# 4. Open http://localhost:5173
+urja init
 ```
 
-### Initializing in an Existing Project
+### Run Development Server
 
 ```bash
-cd existing-project
-npx urja init
+npx urja dev
 ```
 
----
+## 🛠️ Developer Guide
 
-## ✨ Why Urja?
+### Prerequisites
 
-Urja is designed to be a simpler, faster alternative to complex build setups. It works out-of-the-box for the most popular frameworks.
+- Node.js v18+
+- Rust & Cargo (for native extensions)
 
-### Core Features
-- ⚡ **Lightning-fast Dev Server**: Starts in <500ms using native ESM.
-- 🔄 **Reliable HMR**: Instant updates for React, Vue, Solid, and CSS.
-- 📦 **Smart Bundling**: Handles dependency pre-bundling automatically (CJS $\to$ ESM).
-- 🎨 **Universal Transformer**: One pipeline for JSX, TSX, Vue SFC, and Svelte.
-- 🛠️ **Production Optimized**: Minification, Tree-shaking, and Code Splitting built-in.
-- 📝 **TypeScript First**: Full type support without extra config.
+### Building from Source
 
----
-
-## 📚 Supported Frameworks
-
-Urja v0.1.5 is **Production Ready** for **ALL 12 Major Frameworks**:
-
-### Core Frameworks
-| Framework | Status | Features |
-|-----------|--------|----------|
-| **React 18** | 🟢 Production | Fast Refresh, JSX, Hooks, Suspense |
-| **Vue 3** | 🟢 Production | SFC (.vue), Composition API, Reactivity |
-| **Solid.js** | 🟢 Production | Signals, Stores, JSX, Fine-grained Reactivity |
-| **Preact** | 🟢 Production | Compat, Signals, Lightweight |
-
-### Advanced Frameworks
-| Framework | Status | Features |
-|-----------|--------|----------|
-| **Svelte 5** | 🟢 Production | Runes, Reactive Statements, New Compiler |
-| **Angular 17+** | 🟢 Production | AOT-like Transformation, Decorators, Templates |
-| **Qwik 1.5** | 🟢 Production | Resumability, Optimizer, Lazy Loading |
-| **Lit 3.0** | 🟢 Production | Web Components, Decorators, Reactive Properties |
-| **Astro 4.0** | 🟢 Production | Island Architecture, Component Integration |
-
-### Meta-Frameworks
-| Framework | Status | Features |
-|-----------|--------|----------|
-| **Next.js 14** | 🟢 Production | Pages Router, App Router, File-based Routing |
-| **Nuxt 3** | 🟢 Production | Auto-routing, Layouts, Server Components |
-| **Remix** | 🟢 Production | Nested Routes, Loaders, Actions |
-
----
-
-Urja is **Zero-Config** by default. However, you can customize it with `urja.config.json` or `urja.config.ts`:
-
-```typescript
-// urja.config.ts
-import { defineConfig } from 'urja';
-
-export default defineConfig({
-  entry: ['src/main.tsx'],
-  outDir: 'dist',
-  mode: 'production',
-  port: 5173
-});
-```
-
----
-
-## 🖥️ CLI Commands
-
-### `urja dev`
-Start the high-performance development server.
-- **Port**: Default 3000 (auto-increments if busy).
-- **HMR**: Enabled by default.
-
-### `urja build`
-Build your application for production.
-- **Output**: Optimized static files in `dist/`.
-- **Features**: Minification, Source Maps, Asset Hashing.
-
-### `urja init`
-Interactively create a new project.
-- Supports: React, Vue, Svelte, Vanilla etc.
-
----
-
-## 📊 Performance Benchmarks
-
-| Feature | Urja | Webpack |
-|---------|------|---------|
-| Dev Start | **<500ms** | ~5000ms |
-| HMR | **<50ms** | ~500ms |
-| Config Lines | **0** | ~50+ |
-
----
-
-## 🤝 Contributing to Urja ⚡
-
-We welcome contributions! Please check `CONTRIBUTING.md` for details on how to set up the development environment and run the stability audits.
-
-### Development Commands
 ```bash
-# Fork on GitHub, then clone your fork
-git clone https://github.com/YOUR_USERNAME/urja.git
-cd urja
+# Install dependencies
+npm install
 
-# Add upstream remote
-git remote add upstream https://github.com/Avinash-1994/urja.git
+# Build the project (includes native worker)
+npm run build
 ```
 
----
+### Running Tests
+
+```bash
+npm test
+```
+
+## 🤝 Governance & Stability
+
+Urja follows a **Frozen Core** philosophy.
+- The Core Orchestrator is immutable.
+- New features are added via **Plugins** and **Transformers**.
+- API stability is guaranteed for all LTS releases.
+
+See the [Governance Hub](/website/src/pages/GovernanceHub.tsx) in the documentation for more details.
 
 ## 📄 License
 
-MIT © [Avinash-1994](https://github.com/Avinash-1994)
-
----
-
-<div align="center">
-Made with ⚡ for the Modern Web.
-</div>
+MIT © 2026 Urja Build Systems

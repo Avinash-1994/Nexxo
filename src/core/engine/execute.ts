@@ -1,4 +1,10 @@
 
+/**
+ * Engine Execution Stage
+ * 
+ * @internal - This handles the actual transformation and bundling. Not for public use.
+ */
+
 import { BuildContext, BuildPlan, BuildArtifact, ExecutionPlan } from './types.js';
 import { explainReporter } from './events.js';
 import { canonicalHash } from './hash.js';
@@ -90,7 +96,22 @@ export async function executeParallel(execPlan: ExecutionPlan, buildPlan: BuildP
                         continue;
                     }
 
-                    let content = await fs.readFile(node.path, 'utf-8');
+                    // LOAD HOOK (Phase 6 Specs)
+                    // Check if a plugin wants to load this module (e.g. assets, virtual mods)
+                    const loadResult = await ctx.pluginManager.runHook('load', {
+                        path: node.path,
+                        namespace: node.metadata?.namespace,
+                        mode: ctx.mode
+                    }, ctx);
+
+                    let content: string;
+                    if (loadResult && typeof loadResult.code === 'string') {
+                        content = loadResult.code;
+                        explainReporter.report('execute', 'load', `Plugin loaded content for ${modId}`);
+                    } else {
+                        // Default Fallback
+                        content = await fs.readFile(node.path, 'utf-8');
+                    }
 
                     // RUN PLUGINS (Phase B1/B2)
                     const transformed = await ctx.pluginManager.runHook('transformModule', {

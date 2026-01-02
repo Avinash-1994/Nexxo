@@ -12,10 +12,21 @@ import { explainReporter } from './events.js';
 import { log } from '../../utils/logger.js';
 import { canonicalHash } from './hash.js';
 
+/**
+ * Core Build Engine
+ * 
+ * PUBLIC: The main orchestrator for the Urja build pipeline.
+ * Use this class to run builds programmatically.
+ * 
+ * @public
+ */
 export class CoreBuildEngine {
+    /** @internal */
     private latestGraph: DependencyGraph | null = null;
+    /** @internal */
     private ctx: any = null;
 
+    /** @public */
     getGraph() { return this.latestGraph; }
 
     /**
@@ -87,6 +98,16 @@ export class CoreBuildEngine {
 
             // Stage 8: Optimization
             artifacts = await optimizeArtifacts(artifacts, this.ctx);
+
+            // POST-BUILD HOOK (Federation, Manifests, etc.)
+            const hookResult = await this.ctx.pluginManager.runHook('buildEnd', {
+                artifacts,
+                ctx: this.ctx
+            }, this.ctx);
+
+            if (hookResult && hookResult.artifacts) {
+                artifacts = hookResult.artifacts;
+            }
 
             // Stage 9: Emit Artifacts
             // Write files, Store metadata

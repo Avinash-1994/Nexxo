@@ -1,4 +1,10 @@
 
+/**
+ * Engine Configuration and Initialization
+ * 
+ * @internal - This is part of the core engine and NOT a public API.
+ */
+
 import { BuildConfig } from '../../config/index.js';
 import { BuildContext, ResolvedConfig, BuildMode, EngineInfo, InputFingerprint } from './types.js';
 import { InMemoryBuildCache, PersistentBuildCache } from './cache.js';
@@ -30,7 +36,7 @@ export async function initBuild(
     const pluginManager = new PluginManager();
 
     // 1. Register Infrastructure (Phase B2)
-    const infraPlugins = getInfrastructurePreset(rootDir);
+    const infraPlugins = getInfrastructurePreset(rootDir, config.outputDir);
     for (const p of infraPlugins) {
         await pluginManager.register(p);
     }

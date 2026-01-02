@@ -1,0 +1,76 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Urja Adapter Manifest",
+    "description": "Canonical schema for Urja Framework Adapters",
+    "type": "object",
+    "required": [
+        "name",
+        "tier",
+        "renderModel",
+        "compiled",
+        "hmr",
+        "ssr",
+        "status"
+    ],
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "Unique name of the adapter (e.g., 'lit-adapter')"
+        },
+        "tier": {
+            "type": "integer",
+            "enum": [
+                1,
+                2,
+                3
+            ],
+            "description": "Support tier: 1=Core/Stable, 2=Community/Candidate, 3=Experimental"
+        },
+        "renderModel": {
+            "type": "string",
+            "enum": [
+                "dom",
+                "vdom",
+                "web-components"
+            ],
+            "description": "The primary rendering strategy"
+        },
+        "compiled": {
+            "type": "boolean",
+            "description": "Whether the framework requires a compilation step"
+        },
+        "hmr": {
+            "type": "boolean",
+            "description": "Whether Hot Module Replacement is supported"
+        },
+        "ssr": {
+            "type": "string",
+            "enum": [
+                "none",
+                "optional",
+                "supported"
+            ],
+            "description": "Server-Side Rendering support level"
+        },
+        "status": {
+            "type": "string",
+            "enum": [
+                "experimental",
+                "stable",
+                "frozen",
+                "deprecated"
+            ],
+            "description": "Current stability status"
+        },
+        "maintainer": {
+            "type": "string",
+            "description": "Primary maintainer (e.g. 'Urja Core Team')"
+        },
+        "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "description": "Semantic version of the adapter"
+        }
+    },
+    "additionalProperties": false
+}

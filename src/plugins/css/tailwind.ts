@@ -94,7 +94,12 @@ export default {
             const require = createRequire(path.resolve(this.root, 'package.json'));
 
             const postcss = require('postcss');
-            const tailwindcss = require('@tailwindcss/postcss');
+            let tailwindcss;
+            try {
+                tailwindcss = require('@tailwindcss/postcss');
+            } catch {
+                tailwindcss = require('tailwindcss');
+            }
             const autoprefixer = require('autoprefixer');
 
 

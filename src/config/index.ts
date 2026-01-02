@@ -1,5 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
+import kleur from 'kleur';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const yaml = require('js-yaml');
@@ -117,25 +118,51 @@ export async function loadConfig(cwd: string): Promise<BuildConfig> {
   const urjaTsPath = path.join(cwd, 'urja.config.ts');
   const urjaJsPath = path.join(cwd, 'urja.config.js');
   const urjaJsonPath = path.join(cwd, 'urja.config.json');
+  const urjaYamlPath = path.join(cwd, 'urja.config.yaml');
+  const urjaYmlPath = path.join(cwd, 'urja.config.yml');
   const legacyJsonPath = path.join(cwd, 'urja.build.json');
   const legacyTsPath = path.join(cwd, 'urja.build.ts');
+  const legacyYamlPath = path.join(cwd, 'urja.build.yaml');
+  const legacyYmlPath = path.join(cwd, 'urja.build.yml');
 
   let rawConfig: any;
+  let loadedConfigPath = 'default';
 
   try {
     if (await fs.access(urjaTsPath).then(() => true).catch(() => false)) {
       rawConfig = await loadModuleConfig(urjaTsPath, cwd);
+      loadedConfigPath = 'urja.config.ts';
     } else if (await fs.access(urjaJsPath).then(() => true).catch(() => false)) {
       const mod = await import('file://' + urjaJsPath);
       rawConfig = mod.default || mod;
+      loadedConfigPath = 'urja.config.js';
     } else if (await fs.access(urjaJsonPath).then(() => true).catch(() => false)) {
       const raw = await fs.readFile(urjaJsonPath, 'utf-8');
       rawConfig = JSON.parse(raw);
+      loadedConfigPath = 'urja.config.json';
+    } else if (await fs.access(urjaYamlPath).then(() => true).catch(() => false)) {
+      const raw = await fs.readFile(urjaYamlPath, 'utf-8');
+      rawConfig = yaml.load(raw);
+      loadedConfigPath = 'urja.config.yaml';
+    } else if (await fs.access(urjaYmlPath).then(() => true).catch(() => false)) {
+      const raw = await fs.readFile(urjaYmlPath, 'utf-8');
+      rawConfig = yaml.load(raw);
+      loadedConfigPath = 'urja.config.yml';
     } else if (await fs.access(legacyTsPath).then(() => true).catch(() => false)) {
       rawConfig = await loadModuleConfig(legacyTsPath, cwd);
+      loadedConfigPath = 'urja.build.ts';
     } else if (await fs.access(legacyJsonPath).then(() => true).catch(() => false)) {
       const raw = await fs.readFile(legacyJsonPath, 'utf-8');
       rawConfig = JSON.parse(raw);
+      loadedConfigPath = 'urja.build.json';
+    } else if (await fs.access(legacyYamlPath).then(() => true).catch(() => false)) {
+      const raw = await fs.readFile(legacyYamlPath, 'utf-8');
+      rawConfig = yaml.load(raw);
+      loadedConfigPath = 'urja.build.yaml';
+    } else if (await fs.access(legacyYmlPath).then(() => true).catch(() => false)) {
+      const raw = await fs.readFile(legacyYmlPath, 'utf-8');
+      rawConfig = yaml.load(raw);
+      loadedConfigPath = 'urja.build.yml';
     } else {
       // Return default config if file not found, with auto-detection
       log.info('No config file found, using defaults...');
@@ -174,7 +201,15 @@ export async function loadConfig(cwd: string): Promise<BuildConfig> {
     const result = BuildConfigSchema.safeParse(rawConfig);
 
     if (!result.success) {
-      const errorMsg = `Invalid config file: ${JSON.stringify(result.error.format())}`;
+      const issues = result.error.issues;
+      const formattedErrors = issues.map(issue => {
+        const path = issue.path.join('.');
+        return `\n    - ${kleur.bold(path)}: ${issue.message}`;
+      }).join('');
+
+      const errorMsg = `Invalid Configuration in ${loadedConfigPath}${formattedErrors}`;
+      // Log it nicely here before throwing, or let the catcher handle it. 
+      // Since the catcher wraps it, let's just make the message clean.
       throw new Error(errorMsg);
     }
 

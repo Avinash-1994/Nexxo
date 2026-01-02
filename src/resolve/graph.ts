@@ -18,6 +18,7 @@ export type CSSImportPrecedence = {
   cascadeLayer?: string;     // @layer base|components|utilities
 };
 
+/** @public */
 export interface GraphEdge {
   from: string; // Node ID
   to: string;   // Node ID
@@ -31,6 +32,7 @@ export interface GraphEdge {
   target?: 'client' | 'server' | 'edge' | 'universal'; // Target affinity (Phase 4)
 }
 
+/** @public */
 export interface GraphNode {
   id: string;             // canonicalHash(type + normalizedPath)
   type: 'file' | 'virtual' | 'css' | 'css-module' | 'style-asset' | 'css-in-js';
@@ -59,6 +61,14 @@ export interface DeltaGraph {
   timestamp: string;
 }
 
+/**
+ * Dependency Graph Implementation
+ * 
+ * INTERNAL: This class is used for graph construction and traversal.
+ * Only the results (GraphNode, GraphEdge) are considered public for consumption.
+ * 
+ * @internal
+ */
 export class DependencyGraph {
   nodes = new Map<string, GraphNode>();
   graphHash: string = '';
@@ -98,9 +108,16 @@ export class DependencyGraph {
 
     // 0. Try Load Plugins
     if (this.pluginManager) {
-      const result = await this.pluginManager.runHook('load', { id: absPath });
-      if (result && result.code) {
+      const result = await this.pluginManager.runHook('load', {
+        path: absPath,
+        id: id
+      });
+      if (result && typeof result.code === 'string') {
         content = result.code;
+        // If a plugin provides code for an asset, treat it as a file (module) so it gets bundled
+        if (type === 'style-asset') {
+          type = 'file';
+        }
       }
     }
 
@@ -124,6 +141,8 @@ export class DependencyGraph {
 
     // INCREMENTAL: If content hash hasn't changed, skip re-parsing dependencies
     if (existing && existing.contentHash === contentHash && !force) {
+      // Ensure we update the type if it changed from asset to file in a previous run
+      if (existing.type !== type) existing.type = type;
       return;
     }
 

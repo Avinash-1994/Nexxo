@@ -1,6 +1,7 @@
 
 // Module 6: Plugin System Types (LOCKED SPEC)
 
+/** @public */
 export type PluginHookName =
     | 'beforeGraph'
     | 'afterGraph'
@@ -12,10 +13,13 @@ export type PluginHookName =
     | 'renderChunk'
     | 'cssPrecedence'
     | 'cssTreeShake'
-    | 'analyzeBuild';
+    | 'analyzeBuild'
+    | 'buildEnd';
 
+/** @public */
 export type PluginType = 'js' | 'wasm';
 
+/** @public */
 export interface PluginManifest {
     name: string;
     version: string;
@@ -28,6 +32,7 @@ export interface PluginManifest {
     };
 }
 
+/** @internal */
 export interface PluginValidation {
     passesDeterminism: boolean;
     executionTimeMs: number;
@@ -35,6 +40,7 @@ export interface PluginValidation {
     mutationScore: number; // 0 = pure, >0 = suspicious
 }
 
+/** @internal */
 export interface PluginExecutionRecord {
     pluginId: string;
     hook: PluginHookName;
@@ -43,6 +49,7 @@ export interface PluginExecutionRecord {
     validation: PluginValidation;
 }
 
+/** @public */
 export interface UrjaPlugin {
     manifest: PluginManifest;
     id: string; // sha256(name + version)
@@ -50,3 +57,4 @@ export interface UrjaPlugin {
     // Hook implementations
     runHook(hook: PluginHookName, input: any, context?: any): Promise<any>;
 }
+

@@ -1,4 +1,10 @@
 
+/**
+ * Engine Build Planning
+ * 
+ * @internal - This is part of the core engine and NOT a public API.
+ */
+
 import { BuildContext, BuildPlan, ChunkPlan, AssetPlan, ExecutionPlan, BuildMode } from './types.js';
 import { explainReporter } from './events.js';
 import { canonicalHash } from './hash.js';

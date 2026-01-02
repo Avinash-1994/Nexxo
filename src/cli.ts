@@ -23,6 +23,21 @@ import { startDevServer } from './dev/devServer.js';
 import { build } from './build/bundler.js';
 import { initProject } from './init/index.js';
 import { log } from './utils/logger.js';
+import { AuditReport } from './audit/types.js';
+
+function printAuditReport(report: AuditReport) {
+  console.log('\n🛡️  Audit Report');
+
+  Object.entries(report.groups).forEach(([key, group]) => {
+    if (!group) return;
+    const color = group.score >= 90 ? '\x1b[32m' : group.score >= 70 ? '\x1b[33m' : '\x1b[31m';
+    console.log(`\n${group.name} (Score: ${color}${group.score}\x1b[0m)`);
+    group.results.forEach(r => {
+      const icon = r.status === 'PASS' ? '✅' : r.status === 'WARN' ? '⚠️ ' : '❌';
+      console.log(`  ${icon} ${r.title}`);
+    });
+  });
+}
 
 async function main() {
   const argv = yargs(hideBin(process.argv))
@@ -32,14 +47,24 @@ async function main() {
       (yargs: any) => {
         return yargs.option('port', {
           type: 'number',
-          description: 'Server port',
-          default: 5173
+          description: 'Server port'
         });
       },
       async (args: any) => {
-        const cfg = await loadConfig((globalThis as any).process.cwd());
-        cfg.port = args.port;
-        await startDevServer(cfg);
+        try {
+          const cfg = await loadConfig((globalThis as any).process.cwd());
+          // CLI override > Config > Default
+          cfg.port = args.port || cfg.port || 5173;
+          await startDevServer(cfg);
+
+          // Run initial audit on dev start
+          const { AuditEngine } = await import('./audit/index.js');
+          const report = await AuditEngine.runAll(`http://localhost:${cfg.port || 5173}`);
+          printAuditReport(report);
+        } catch (e: any) {
+          log.error(e.message);
+          process.exit(1);
+        }
       }
     )
     .command(
@@ -55,6 +80,12 @@ async function main() {
         try {
           const config = await loadConfig(process.cwd());
           await build(config);
+
+          // Auto-run audits after build
+          const { AuditEngine } = await import('./audit/index.js');
+          const report = await AuditEngine.runAll(process.cwd());
+          printAuditReport(report);
+
           await telemetry.stop(true);
         } catch (e: any) {
           log.error('Build failed', { error: e });
@@ -230,6 +261,21 @@ async function main() {
       }
     )
     .command(
+      'inspect',
+      'Inspect the dependency graph',
+      (yargs: any) => {
+        return yargs.option('filter', {
+          alias: 'f',
+          type: 'string',
+          description: 'Filter modules by path/ID'
+        });
+      },
+      async (args: any) => {
+        const { inspectProject } = await import('./cli/inspect.js');
+        await inspectProject(args.filter);
+      }
+    )
+    .command(
       'report',
       'Generate a build report from the latest session',
       () => { },
@@ -274,18 +320,7 @@ async function main() {
 
         log.info(`Auditing ${target}...`, { category: 'audit' });
         const report = await AuditEngine.runAll(target);
-
-        console.log('\n🛡️  Audit Report');
-
-        Object.entries(report.groups).forEach(([key, group]) => {
-          if (!group) return;
-          const color = group.score >= 90 ? '\x1b[32m' : group.score >= 70 ? '\x1b[33m' : '\x1b[31m';
-          console.log(`\n${group.name} (Score: ${color}${group.score}\x1b[0m)`);
-          group.results.forEach(r => {
-            const icon = r.status === 'PASS' ? '✅' : r.status === 'WARN' ? '⚠️ ' : '❌';
-            console.log(`  ${icon} ${r.title}`);
-          });
-        });
+        printAuditReport(report);
       }
     )
     .command(

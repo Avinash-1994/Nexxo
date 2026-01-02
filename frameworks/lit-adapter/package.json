@@ -1,0 +1,32 @@
+{
+    "name": "@urja/lit-adapter",
+    "version": "0.1.0",
+    "description": "Urja Framework Adapter for Lit (Tier-1 Supported)",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "test": "echo 'Run integration tests via Urja runner'"
+    },
+    "dependencies": {
+        "vite": "^5.0.0"
+    },
+    "devDependencies": {
+        "typescript": "^5.4.0",
+        "lit": "^3.1.0",
+        "@types/node": "^20.0.0"
+    },
+    "urja": {
+        "name": "Lit Adapter",
+        "state": "candidate",
+        "maintainer": "Urja Core Team",
+        "supported_capabilities": [
+            "build",
+            "hmr",
+            "css",
+            "assets",
+            "split"
+        ],
+        "last_reviewed": "2025-12-31"
+    }
+}

@@ -1,0 +1,50 @@
+{
+  "version": "0.1.3",
+  "hooks": [
+    {
+      "name": "name",
+      "parameters": [],
+      "returnType": "string",
+      "optional": false
+    },
+    {
+      "name": "transform",
+      "parameters": [
+        "code: string",
+        "id: string"
+      ],
+      "returnType": "{ code: string; map?: SourceMap } | null",
+      "optional": true
+    },
+    {
+      "name": "load",
+      "parameters": [
+        "id: string"
+      ],
+      "returnType": "{ code: string; map?: SourceMap } | null",
+      "optional": true
+    },
+    {
+      "name": "resolveId",
+      "parameters": [
+        "source: string",
+        "importer?: string"
+      ],
+      "returnType": "string | null",
+      "optional": true
+    },
+    {
+      "name": "enforce",
+      "parameters": [],
+      "returnType": "'pre' | 'post' | undefined",
+      "optional": true
+    },
+    {
+      "name": "apply",
+      "parameters": [],
+      "returnType": "'build' | 'serve' | 'all' | undefined",
+      "optional": true
+    }
+  ],
+  "timestamp": "2025-12-30T04:54:41.848Z"
+}

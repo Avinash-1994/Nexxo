@@ -1,5 +1,5 @@
 
-import { ExplainEvent } from './types';
+import { ExplainEvent } from './types.js';
 
 class ExplainReporter {
     private events: ExplainEvent[] = [];

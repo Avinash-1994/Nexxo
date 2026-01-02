@@ -3,9 +3,19 @@ import { UrjaPlugin, PluginHookName, PluginExecutionRecord, PluginValidation } f
 import { canonicalHash } from '../engine/hash.js';
 import { explainReporter } from '../engine/events.js';
 
+/**
+ * Plugin Manager
+ * 
+ * PUBLIC: Responsible for registering and executing plugins in the Urja pipeline.
+ * Use this to extend engine functionality via the official plugin contract.
+ * 
+ * @public
+ */
 export class PluginManager {
+    /** @internal */
     private plugins: Map<string, UrjaPlugin> = new Map();
 
+    /** @public */
     async register(plugin: UrjaPlugin) {
         const { name, version } = plugin.manifest;
         const pluginId = canonicalHash(`${name}@${version}`);
@@ -22,8 +32,10 @@ export class PluginManager {
         explainReporter.report('plugins', 'load', `Loaded plugin: ${name}@${version} (${plugin.manifest.type})`);
     }
 
+    /** @internal */
     private metrics: Map<string, { time: number, calls: number }> = new Map();
 
+    /** @internal - Used by the engine to execute hooks. */
     async runHook(hookName: PluginHookName, input: any, context?: any): Promise<any> {
         let result = input;
 
@@ -81,6 +93,7 @@ export class PluginManager {
         return result;
     }
 
+    /** @public */
     getMetricsSummary() {
         return Array.from(this.metrics.entries()).map(([name, m]) => ({
             plugin: name,

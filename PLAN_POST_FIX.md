@@ -1,4 +1,5 @@
-# Urja — Post-Fix Execution Plan (Master Roadmap)
+# Urja — Post-Fix Execution Plan (Master Roadmap) [SUPERSEDED]
+> **Status**: Completed / Archived. See `PLAN_PHASE_H2.md` for current objectives.
 
 ## 🧱 CURRENT STATE (LOCKED & ACCEPTED)
 - [x] Core frozen and snapshot-locked
@@ -58,14 +59,24 @@ Goal: Use Urja to build a real React application, verifying "Honest Code Splitti
 
 ### G2. Controlled External Feedback Simulator (Current Focus)
 - [x] **Bootstrap Challenge**: Verified a new user can start and build a project.
-- [ ] **Debugger Challenge**: Can a user fix a config error using only terminal output?
+- [x] **Debugger Challenge**: Can a user fix a config error using only terminal output?
+
+### G3. Production Readiness Verification
+- [x] **YAML Config Support**: Validated loading and parsing of `urja.config.yaml`.
+- [x] **Asset Pipeline Integrity**: Validated asset hashing, emission, and bundle referencing (`/assets/` paths).
+- [x] **Core Engine Stability**: Validated incremental updates, determinism, and input sensitivity.
+- [x] **Federation Basic Support**: Validated plugin-based federation manifest generation.
+- [x] **Full Regression Suite**: `npm run test:all` passed (Config, Bootstrap, Integration, Asset, Federation, Engine).
 
 ---
 
 ## 🌱 PHASE H — Ecosystem Seeding (CONTROLLED)
 *Goal: Grow safely without destabilizing the core*
 
-- [ ] **Official Surface Area Maintenance** (Core preset, React pipeline, Graph inspector).
+### H1. Official Surface Area Maintenance
+- [x] **Graph Inspector**: Implemented `urja inspect` CLI command to visualize dependency graph.
+- [x] **Core Preset Audit**: Verified `presets/infrastructure.ts` uses clean factory pattern and honest asset pipeline.
+- [x] **React Pipeline Audit**: Confirmed React defaults in `frameworks.ts` use automatic JSX runtime and correct Babel presets.
 - [ ] **On-Demand Compatibility Expansion**.
 
 ---

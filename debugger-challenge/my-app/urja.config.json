@@ -1,1 +1,6 @@
-{"entry": "not-an-array"}
+{
+    "entry": [
+        "src/main.tsx"
+    ],
+    "outDir": "dist"
+}

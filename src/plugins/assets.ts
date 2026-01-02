@@ -1,49 +1,63 @@
 import path from 'path';
 import fs from 'fs/promises';
-import { Plugin } from './index.js';
+import { UrjaPlugin } from '../core/plugins/types.js';
 import { RustNativeWorker } from '../native/index.js';
 
-export class AssetPlugin implements Plugin {
-    name = 'asset-plugin';
-    private worker: RustNativeWorker;
-    private outDir: string;
+export function createAssetPlugin(outDir: string = 'build_output'): UrjaPlugin {
+    const worker = new RustNativeWorker(4);
 
-    constructor(outDir: string = 'build_output') {
-        this.worker = new RustNativeWorker(4);
-        this.outDir = outDir;
-    }
+    return {
+        manifest: {
+            name: 'urja:asset',
+            version: '1.0.0',
+            engineVersion: '1.0.0',
+            type: 'js',
+            hooks: ['resolveId', 'load'],
+            permissions: { fs: 'read' }
+        },
+        id: 'urja:asset',
+        async runHook(hook, input, context) {
+            const ASSET_REGEX = /\.(png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf|eot|otf)$/;
 
-    setup(build: any) {
-        build.onResolve({ filter: /\.(png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf|eot|otf)$/ }, (args: any) => {
-            return {
-                path: path.resolve(args.resolveDir, args.path),
-                namespace: 'asset-ns'
-            };
-        });
+            if (hook === 'resolveId') {
+                if (ASSET_REGEX.test(input.path)) {
+                    return {
+                        id: path.resolve(input.resolveDir, input.path),
+                        external: false,
+                        namespace: 'asset-ns'
+                    };
+                }
+            }
 
-        build.onLoad({ filter: /.*/, namespace: 'asset-ns' }, async (args: any) => {
-            const content = await fs.readFile(args.path);
+            if (hook === 'load') {
+                if (input.namespace === 'asset-ns' || ASSET_REGEX.test(input.path)) {
+                    const content = await fs.readFile(input.path);
 
-            // Use Native Worker to calculate hash
-            const hash = this.worker.processAsset(content);
+                    // Use Native Worker to calculate hash
+                    const hash = worker.processAsset(content);
 
-            const ext = path.extname(args.path);
-            const name = path.basename(args.path, ext);
-            const hashedName = `${name}.${hash.slice(0, 8)}${ext}`;
+                    const ext = path.extname(input.path);
+                    const name = path.basename(input.path, ext);
+                    const hashedName = `${name}.${hash.slice(0, 8)}${ext}`;
 
-            // Create assets directory in output
-            const assetsDir = path.join(this.outDir, 'assets');
-            await fs.mkdir(assetsDir, { recursive: true });
+                    // Create assets directory in output
+                    const assetsDir = path.join(outDir, 'assets');
+                    await fs.mkdir(assetsDir, { recursive: true });
 
-            // Write the asset file
-            const outputPath = path.join(assetsDir, hashedName);
-            await fs.writeFile(outputPath, content);
+                    // Write the asset file
+                    const outputPath = path.join(assetsDir, hashedName);
+                    await fs.writeFile(outputPath, content);
 
-            // Return the public path as a JS module
-            return {
-                contents: `export default "/assets/${hashedName}";`,
-                loader: 'js'
-            };
-        });
-    }
+                    // Return the public path as a JS module
+                    return {
+                        code: `export default "/assets/${hashedName}";`,
+                        loader: 'js'
+                    };
+                }
+            }
+
+            return null; // Return null to let other plugins handle it
+        }
+    };
 }
+

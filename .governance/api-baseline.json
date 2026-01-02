@@ -1,0 +1,102 @@
+{
+  "version": "0.1.3",
+  "exports": [
+    {
+      "name": "CoreBuildEngine",
+      "type": "const"
+    },
+    {
+      "name": "BuildFingerprint",
+      "type": "const"
+    },
+    {
+      "name": "BuildArtifact",
+      "type": "const"
+    },
+    {
+      "name": "BuildMode",
+      "type": "const"
+    },
+    {
+      "name": "loadConfig",
+      "type": "const"
+    },
+    {
+      "name": "BuildConfig",
+      "type": "const"
+    },
+    {
+      "name": "UrjaPlugin",
+      "type": "const"
+    },
+    {
+      "name": "PluginHookName",
+      "type": "const"
+    },
+    {
+      "name": "PluginManifest",
+      "type": "const"
+    },
+    {
+      "name": "PluginType",
+      "type": "const"
+    },
+    {
+      "name": "PluginManager",
+      "type": "const"
+    },
+    {
+      "name": "createJsTransformPlugin",
+      "type": "const"
+    },
+    {
+      "name": "createAssetPlugin",
+      "type": "const"
+    },
+    {
+      "name": "createPostCssPlugin",
+      "type": "const"
+    },
+    {
+      "name": "createFederationPlugin",
+      "type": "const"
+    },
+    {
+      "name": "FederationConfig",
+      "type": "const"
+    },
+    {
+      "name": "Framework",
+      "type": "const"
+    },
+    {
+      "name": "FrameworkPreset",
+      "type": "const"
+    },
+    {
+      "name": "getFrameworkPreset",
+      "type": "const"
+    },
+    {
+      "name": "frameworkPresets",
+      "type": "const"
+    },
+    {
+      "name": "DependencyGraph",
+      "type": "const"
+    },
+    {
+      "name": "GraphNode",
+      "type": "const"
+    },
+    {
+      "name": "GraphEdge",
+      "type": "const"
+    },
+    {
+      "name": "log",
+      "type": "const"
+    }
+  ],
+  "timestamp": "2025-12-30T04:58:31.129Z"
+}

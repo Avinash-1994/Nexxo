@@ -8,6 +8,11 @@ import path from 'path';
 
 // Phase 10: Main Detection API
 
+/**
+ * Framework Detection System
+ * 
+ * @internal - This is part of the core detection logic. Use public APIs or official presets.
+ */
 export async function detectFramework(rootDir: string, candidateEntries: string[] = []): Promise<FrameworkProfile> {
     explainReporter.report('detect', 'start', 'Starting framework detection');
 

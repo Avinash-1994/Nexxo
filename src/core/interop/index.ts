@@ -8,6 +8,11 @@ import fs from 'fs/promises';
 
 // Phase 10: Main Interop Logic (Upgraded)
 
+/**
+ * Interop Engine (ESM/CJS bridging)
+ * 
+ * @internal - This ensures module compatibility. Not for public use.
+ */
 export class InteropEngine {
     constructor(private rootDir: string) { }
 

@@ -1,0 +1,6 @@
+module.exports = {
+    adapter: 'lit-adapter',
+    entryPoints: ['src/main.js'],
+    root: __dirname,
+    outputDir: 'dist'
+};
