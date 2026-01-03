@@ -47,6 +47,9 @@ export default [
                 TextDecoder: 'readonly',
                 TextEncoder: 'readonly',
                 WebAssembly: 'readonly',
+                performance: 'readonly',
+                PerformanceNavigationTiming: 'readonly',
+                HTMLInputElement: 'readonly',
                 // Jest globals
                 describe: 'readonly',
                 it: 'readonly',

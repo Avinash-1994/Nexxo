@@ -282,6 +282,7 @@ export class DependencyGraph {
 
         // 0.2 Try extensions on plugin result
         for (const ext of extensions) {
+          // console.log(`[DEBUG] Trying extension: ${absResult + ext} - exists: ${existsSync(absResult + ext)}`);
           if (existsSync(absResult + ext)) return absResult + ext;
         }
 

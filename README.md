@@ -93,7 +93,20 @@ Urja provides **40+ production-ready features** across 10 categories:
   - *Implementation:* Universal module wrapper with framework-specific adapters
   - *Source:* `src/federation/universal.ts`
 
-### 🚀 Production Optimization
+### �️ Project Scaffolding & CLI
+- **Interactive Project Initializer** - Guided setup wizard for new projects with zero manual config
+  - *Implementation:* Custom interactive TTY wizard with keyboard shortcuts and multi-framework templates
+  - *Source:* `src/create/index.ts`
+
+- **Architectural Choice Guidance** - Expert-guided setup for frameworks and Micro-Frontend structures
+  - *Implementation:* Dependency graph generation and adapter mapping based on user choices
+  - *Source:* `src/create/index.ts`
+
+- **Production-Grade Generation** - Generates ready-to-run projects with HMR and audits pre-configured
+  - *Implementation:* Scaffolding engine with template injection and automatic dependency management
+  - *Source:* `src/create/index.ts`
+
+### �🚀 Production Optimization
 - **Tree Shaking** - Remove unused code for smaller bundles
   - *Implementation:* ESM-based tree shaking via esbuild with dead code elimination
   - *Source:* `src/core/engine/bundler.ts`
@@ -201,9 +214,19 @@ npm install -g urja
 
 ### Create a New Project
 
+The recommended way to start a new Urja project is with the interactive initializer:
+
 ```bash
-urja init
+npx create-urja <project-name>
 ```
+
+#### ✨ Interactive Initializer Features
+- **Modern UI**: Full-screen interactive wizard with arrow-key navigation.
+- **Power User Shortcuts**: Numbers (1-9) for instant selection and Vim-keys (j/k) for navigation.
+- **Zero-Config Generation**: Automatically scaffolds the core structure, configuration, and dependencies based on your choices.
+- **Multi-Framework Support**: Choose from React, Vue, Svelte, Lit, Preact, Alpine, or Mithril.
+- **Project Blueprints**: Support for Standard SPAs and Micro-Frontend (Remote/Host) architectures.
+- **Built-in Quality**: Enable ESLint, Prettier, and performance/accessibility reports during setup.
 
 ### Run Development Server
 

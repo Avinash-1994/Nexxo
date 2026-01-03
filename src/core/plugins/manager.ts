@@ -87,7 +87,14 @@ export class PluginManager {
 
             explainReporter.report('plugins', 'hook', `Executed ${plugin.manifest.name}:${hookName} (${executionTime}ms)`);
 
-            result = hookResult;
+            if (hookResult !== null && hookResult !== undefined) {
+                result = hookResult;
+
+                // Stop at first successful resolution for resolveId/load
+                if (hookName === 'resolveId' || hookName === 'load') {
+                    break;
+                }
+            }
         }
 
         return result;

@@ -6,7 +6,8 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "urja": "./dist/cli.js"
+    "urja": "./dist/cli.js",
+    "create-urja": "./dist/create-urja.js"
   },
   "files": [
     "dist",

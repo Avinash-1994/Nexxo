@@ -18,5 +18,6 @@ export interface AuditReport {
         a11y?: AuditGroup;
         perf?: AuditGroup;
         seo?: AuditGroup;
+        bestPractices?: AuditGroup;
     };
 }

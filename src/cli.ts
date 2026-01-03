@@ -57,10 +57,13 @@ async function main() {
           cfg.port = args.port || cfg.port || 5173;
           await startDevServer(cfg);
 
-          // Run initial audit on dev start
+          // Run initial audit on dev start (Background only)
+          /*
           const { AuditEngine } = await import('./audit/index.js');
           const report = await AuditEngine.runAll(`http://localhost:${cfg.port || 5173}`);
           printAuditReport(report);
+          */
+          console.log('\n💡  Tip: Run `npx urja audit --url http://localhost:' + (cfg.port || 5173) + '` to generate an audit report.');
         } catch (e: any) {
           log.error(e.message);
           process.exit(1);
@@ -81,10 +84,13 @@ async function main() {
           const config = await loadConfig(process.cwd());
           await build(config);
 
-          // Auto-run audits after build
+          // Auto-run audits after build (Disabled for noise reduction)
+          /*
           const { AuditEngine } = await import('./audit/index.js');
           const report = await AuditEngine.runAll(process.cwd());
           printAuditReport(report);
+          */
+          console.log('\n💡  Tip: Run `npx urja audit` to generate a full audit report.');
 
           await telemetry.stop(true);
         } catch (e: any) {

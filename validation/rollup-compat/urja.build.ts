@@ -1,4 +1,3 @@
-
 import alias from '@rollup/plugin-alias';
 import { createRollupAdapter } from '../../dist/plugins/compat/rollup.js';
 import path from 'path';
