@@ -23,6 +23,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
     const navLinks = [
         { label: t('nav.home'), href: '#/' },
+        { label: 'Features', href: '#/features' },
         { label: t('nav.docs'), href: '#/docs/getting-started' },
         { label: t('nav.guides'), href: '#/guides/react' },
     ];
@@ -32,6 +33,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             title: 'Getting Started',
             links: [
                 { label: 'Installation', href: '#/docs/getting-started' },
+                { label: 'Features', href: '#/features' },
                 { label: 'Architecture', href: '#/docs/core-concepts' },
                 { label: 'Audits & Reports', href: '#/docs/quality' },
                 { label: 'Technical Specs', href: '#/docs/tech-specs' },

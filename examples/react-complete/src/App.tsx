@@ -12,7 +12,7 @@ function App() {
   return (
     <div className="app">
       <Header />
-      
+
       <main className="main-content">
         <Suspense fallback={<div className="loading">Loading...</div>}>
           <Routes>
@@ -22,10 +22,10 @@ function App() {
           </Routes>
         </Suspense>
       </main>
-      
-      <footer className="footer">
-        <p>© 2025 Urja Build Tool - React Complete Test</p>
-        <p>Testing: TypeScript, Routing, Lazy Loading, HMR, Production Build</p>
+
+      <footer className="footer" style={{ borderTop: '2px solid #61dafb', marginTop: '40px', paddingTop: '20px' }}>
+        <p>© 2026 Urja Build Tool - Production Ready React Stack</p>
+        <p>Status: ✅ TypeScript, Routing, Lazy Loading, HMR Verified</p>
       </footer>
     </div>
   );

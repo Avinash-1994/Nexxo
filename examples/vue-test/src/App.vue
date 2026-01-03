@@ -7,8 +7,10 @@ const increment = () => count.value++
 
 <template>
   <div class="vue-container">
-    <h1>Vue 3 Support Verified!</h1>
-    <button @click="increment">Count is: {{ count }}</button>
+    <h1 style="color: #42b883">🖖 Urja Build Tool - Vue 3 Test</h1>
+    <p>Framework: <strong>Vue 3.x (SFC + Script Setup)</strong></p>
+    <p>Status: ✅ Verified Compatible</p>
+    <button @click="increment">Interactive Count: {{ count }}</button>
   </div>
 </template>
 

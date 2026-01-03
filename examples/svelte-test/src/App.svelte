@@ -6,9 +6,11 @@
 </script>
 
 <main>
-  <h1>Svelte Support Verified!</h1>
+  <h1 style="color: #ff3e00">🔥 Urja Build Tool - Svelte Test</h1>
+  <p>Framework: <strong>Svelte 4.x</strong></p>
+  <p>Status: ✅ HMR Stable</p>
   <button on:click={handleClick}>
-    Clicks: {count}
+    Reactive Clicks: {count}
   </button>
 </main>
 

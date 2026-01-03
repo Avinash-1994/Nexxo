@@ -12,6 +12,7 @@ export class VuePlugin implements Plugin {
 
     async transform(code: string, id: string): Promise<string | void> {
         if (!id.endsWith('.vue')) return;
+        console.log(`[VuePlugin] Transforming ${id}`);
 
         try {
             const require = createRequire(path.join(this.root, 'package.json'));
@@ -27,35 +28,19 @@ export class VuePlugin implements Plugin {
 
             // 2. Script
             if (descriptor.script || descriptor.scriptSetup) {
-                const scriptBlock = descriptor.script || descriptor.scriptSetup;
-                // If scriptSetup, we need to compile it
-                if (descriptor.scriptSetup) {
-                    const compiledScript = compiler.compileScript(descriptor, { id: scopeId });
-                    scriptContent = compiledScript.content;
-                } else {
-                    // For normal script, simpler handling (naive regex replacing export default)
-                    // But compileScript handles both usually if we pass descriptor
-                    const compiledScript = compiler.compileScript(descriptor, { id: scopeId });
-                    scriptContent = compiledScript.content;
-                }
+                const compiledScript = compiler.compileScript(descriptor, { id: scopeId });
+                scriptContent = compiledScript.content;
             }
 
-            // Rewrite "export default" to "const script =" so we can attach render
-            // But compileScript usually outputs "export default"
-            // We need to capture the default export.
-            // A simple hack: replace "export default" with "const script ="
-            // But this is risky if "export default" is inside a string or comment.
-            // Better: Import it.
-            // Since we are generating ONE module, we have to massage the code.
-
-            // Actually, correct way:
-            // scriptContent usually has imports.
-            // We can leave scriptContent as is, but we need to add named exports?
-            // If scriptContent has `export default`, we need to append `import { render } ...` and `export default { ...script, render }`.
-
-            // Let's try to rewrite `export default` to `const _sfc_main =`
-            // This is fragile but works for simple cases.
-            scriptContent = scriptContent.replace('export default', 'const _sfc_main =');
+            // Robustly find and replace the default export with a variable declaration
+            // so we can attach the render function later.
+            const exportDefaultRegex = /export\s+default\s+/;
+            if (exportDefaultRegex.test(scriptContent)) {
+                scriptContent = scriptContent.replace(exportDefaultRegex, 'const _sfc_main = ');
+            } else {
+                // Fallback if no export default is found (though rare in Vue SFC)
+                scriptContent += '\nconst _sfc_main = {};';
+            }
 
 
             // 3. Template
@@ -106,7 +91,7 @@ export class VuePlugin implements Plugin {
             return output;
 
         } catch (e: any) {
-            console.error('Vue SFC Compilation Error:', e);
+            console.error('[VuePlugin] SFC Compilation Error:', e);
             // Log warning but don't crash
             return;
         }

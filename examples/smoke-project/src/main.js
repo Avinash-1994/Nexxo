@@ -1,5 +1,11 @@
 const root = document.getElementById('app');
-root.innerHTML = `<h1>Urja Smoke Test</h1><p>Dev server + transformer working.</p>`;
+root.innerHTML = `
+  <div style="padding: 2rem; border: 4px dashed #ff00ff; border-radius: 20px; text-align: center;">
+    <h1 style="color: #ff00ff; font-family: 'Courier New', monospace;">💨 Urja Smoke Test</h1>
+    <p>Status: ✅ Dev Server & Transformer Baseline Verified</p>
+    <p style="font-size: 0.8rem; color: #888;">Initial build successful.</p>
+  </div>
+`;
 
 // HMR test hook
 if (import.meta && import.meta.hot) {

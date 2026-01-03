@@ -38,7 +38,7 @@ jobs:
         with:
           files: |
             dist/*
-            nextgen_native.node
+            urja_native.node
             package.json
             README.md
             LICENSE

@@ -17,11 +17,14 @@ function App() {
 
     return (
         <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-            <h1>🌐 Module Federation Host</h1>
-            <p>This app loads a Button component from a remote application.</p>
+            <h1 style={{ fontSize: '2.5rem', marginBottom: '10px' }}>🌐 Urja Federation Host</h1>
+            <div style={{ backgroundColor: '#e9ecef', padding: '15px', borderRadius: '10px', marginBottom: '20px' }}>
+                <p>Framework: <strong>React 18 + Urja Federation Runtime</strong></p>
+                <p>Status: ✅ Dynamic Remote Module Resolution Active</p>
+            </div>
 
-            <div style={{ marginTop: '20px', padding: '20px', backgroundColor: '#f5f5f5', borderRadius: '8px' }}>
-                <h2>Local Counter: {count}</h2>
+            <div style={{ marginTop: '20px', padding: '30px', backgroundColor: '#fff', border: '1px solid #dee2e6', borderRadius: '15px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                <h2 style={{ color: '#495057' }}>Shared Orchestration: {count}</h2>
                 <button
                     onClick={() => setCount(count + 1)}
                     style={{

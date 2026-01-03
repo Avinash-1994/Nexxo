@@ -15,6 +15,7 @@ import { Glossary } from './pages/Glossary';
 import { MfeFrameworkConstraint } from './pages/MfeFrameworkConstraint';
 import { Play } from './pages/Play';
 import { QualityGuide } from './pages/QualityGuide';
+import Features from './pages/Features';
 import { I18nProvider } from './components/I18nContext';
 import './styles/theme.css';
 
@@ -80,6 +81,8 @@ const App = () => {
                 return <GovernanceHub />;
             case '#/play':
                 return <Play />;
+            case '#/features':
+                return <Features />;
             case '#/':
             default:
                 return <Home />;

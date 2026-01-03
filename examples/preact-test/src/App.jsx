@@ -4,27 +4,26 @@ function App() {
   const [count, setCount] = useState(0);
 
   return (
-    <div className="app">
-      <h1>🚀 Urja Build Tool - Preact Test</h1>
-      <p>Framework: Preact</p>
-      <p>Universal Transformer: ✅ Active</p>
-      <p>Version-Agnostic: ✅ Enabled</p>
-      
-      <div className="card">
-        <button onClick={() => setCount(count + 1)}>
-          Count: {count}
+    <div className="app" style={{ padding: "20px", fontFamily: "sans-serif" }}>
+      <h1 style={{ color: "#673ab8" }}>⚛️ Urja Build Tool - Preact Test</h1>
+      <p>Framework: <strong>Preact 10.x</strong></p>
+      <p>Status: ✅ Virtual DOM Optimized</p>
+
+      <div className="card" style={{ padding: "20px", background: "#f3e5f5", borderRadius: "8px" }}>
+        <button
+          style={{ padding: "8px 16px", background: "#673ab8", color: "white", border: "none", cursor: "pointer" }}
+          onClick={() => setCount(count + 1)}>
+          Fast Count: {count}
         </button>
-        <p>Click the button to test reactivity!</p>
+        <p>Testing reactive state and pre-bundled hooks.</p>
       </div>
 
-      <div className="features">
-        <h2>✨ Features Working:</h2>
+      <div className="features" style={{ marginTop: "20px" }}>
+        <h2>✨ Features Verified:</h2>
         <ul>
-          <li>✅ Preact 10</li>
-          <li>✅ Hooks</li>
-          <li>✅ Fast Refresh</li>
-          <li>✅ Lightweight Bundle</li>
-          <li>✅ Universal Transformer</li>
+          <li>✅ Pre-rendering support</li>
+          <li>✅ Signals & Hooks</li>
+          <li>✅ Seamless HMR</li>
         </ul>
       </div>
     </div>

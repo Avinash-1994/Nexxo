@@ -6,10 +6,10 @@ function App() {
 
     return (
         <div className="App">
-            <h1>🚀 Urja Build Tool - React Test (HMR Live)</h1>
-            <p>Framework: React 18 (verified)</p>
-            <p>Universal Transformer: ✅ Active</p>
-            <p>Version-Agnostic: ✅ Enabled</p>
+            <h1 style={{ color: '#61dafb' }}>⚛️ Urja Build Tool - React Test</h1>
+            <p>Framework: <strong>React 18.2.0</strong></p>
+            <p>Status: 🚀 Dev Mode Stable</p>
+            <p>Transformer: ✅ Universal (Babel-free)</p>
 
             <div className="card">
                 <button onClick={() => setCount(count + 1)}>

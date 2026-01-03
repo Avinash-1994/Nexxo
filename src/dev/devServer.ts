@@ -192,17 +192,8 @@ export async function startDevServer(cfg: BuildConfig) {
   const { StylusPlugin } = await import('../plugins/css/stylus.js');
   pluginManager.register(new StylusPlugin(cfg.root));
 
-  // Vue Support
-  if (primaryFramework === 'vue' || primaryFramework === 'nuxt') {
-    const { VuePlugin } = await import('../plugins/vue.js');
-    pluginManager.register(new VuePlugin(cfg.root));
-  }
-
-  // Svelte Support
-  if (primaryFramework === 'svelte' || (primaryFramework as string) === 'svelte-kit') {
-    const { SveltePlugin } = await import('../plugins/svelte.js');
-    pluginManager.register(new SveltePlugin(cfg.root));
-  }
+  // Svelte Support removed - Handled by UniversalTransformer
+  // Vue Support removed - Handled by UniversalTransformer
 
   // Initialize Dependency Pre-Bundler
   const { DependencyPreBundler } = await import('./preBundler.js');

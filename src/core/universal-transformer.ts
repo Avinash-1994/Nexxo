@@ -125,7 +125,7 @@ export class UniversalTransformer {
             try {
                 const finalResult = await esbuild.transform(result.code, {
                     define: options.define || {},
-                    loader: 'jsx',
+                    loader: 'tsx',
                     format: options.target === 'node' ? 'cjs' : 'esm',
                     platform: options.target === 'node' ? 'node' : 'browser',
                     target: 'es2020'
@@ -202,66 +202,96 @@ export class UniversalTransformer {
         try {
             let compiler: any;
             try {
-                compiler = await import('@vue/compiler-sfc');
+                const compilerPath = _require.resolve('@vue/compiler-sfc', { paths: [this.root, process.cwd()] });
+                compiler = await import(compilerPath);
             } catch {
-                try {
-                    const compilerPath = _require.resolve('@vue/compiler-sfc', { paths: [this.root] });
-                    compiler = await import(compilerPath);
-                } catch {
-                    try {
-                        // @ts-ignore
-                        compiler = await import('vue-template-compiler');
-                    } catch {
-                        try {
-                            const compilerPath = _require.resolve('vue-template-compiler', { paths: [this.root] });
-                            compiler = await import(compilerPath);
-                        } catch {
-                            log.warn('No Vue compiler found, treating as vanilla');
-                            return this.transformVanilla(code, filePath, isDev);
-                        }
-                    }
-                }
+                log.warn('No Vue 3 compiler found, treating as vanilla');
+                return this.transformVanilla(code, filePath, isDev);
             }
 
-            if (compiler.parse) {
-                const { descriptor } = compiler.parse(code, { filename: filePath });
-                let output = '';
+            if (!compiler.parse) return { code };
 
-                if (descriptor.script || descriptor.scriptSetup) {
-                    const scriptResult = compiler.compileScript(descriptor, {
-                        id: filePath,
-                        inlineTemplate: false
-                    });
-                    output += scriptResult.content;
-                }
+            const { descriptor } = compiler.parse(code, { filename: filePath });
+            const scopeId = `data-v-${Math.random().toString(36).substring(2, 9)}`;
+            const hasTemplate = !!descriptor.template;
 
-                if (descriptor.template) {
-                    const templateResult = compiler.compileTemplate({
-                        source: descriptor.template.content,
+            let scriptContent = 'const _sfc_main = {};';
+            if (descriptor.script || descriptor.scriptSetup) {
+                const compiledScript = compiler.compileScript(descriptor, {
+                    id: scopeId,
+                    inlineTemplate: hasTemplate,
+                    templateOptions: hasTemplate ? {
+                        source: descriptor.template!.content,
                         filename: filePath,
-                        id: filePath,
+                        id: scopeId,
                         scoped: descriptor.styles.some((s: any) => s.scoped),
-                        compilerOptions: { mode: 'module' }
-                    });
-                    output += '\n' + templateResult.code;
-                }
+                        compilerOptions: {
+                            scopeId: descriptor.styles.some((s: any) => s.scoped) ? scopeId : undefined
+                        }
+                    } : undefined
+                });
+                scriptContent = compiledScript.content;
 
-                if (descriptor.styles.length > 0) {
-                    for (const style of descriptor.styles) {
-                        const styleResult = compiler.compileStyle({
-                            source: style.content,
-                            filename: filePath,
-                            id: filePath,
-                            scoped: style.scoped
-                        });
-                        output += `\nconst style = document.createElement('style');\nstyle.textContent = ${JSON.stringify(styleResult.code)};\ndocument.head.appendChild(style);`;
-                    }
+                // Replace "export default" but keep the object/definition intact
+                // Vue's compileScript for setup usually exports an object with a setup() function
+                const exportDefaultRegex = /export\s+default\s+/;
+                if (exportDefaultRegex.test(scriptContent)) {
+                    scriptContent = scriptContent.replace(exportDefaultRegex, 'const _sfc_main = ');
                 }
-
-                return { code: output };
             }
 
-            return { code };
+            // Fallback for template-only components or if script-setup didn't inline
+            let templateCode = '';
+            if (hasTemplate && !scriptContent.includes('const _sfc_main =')) {
+                const templateResult = compiler.compileTemplate({
+                    source: descriptor.template!.content,
+                    filename: filePath,
+                    id: scopeId,
+                    scoped: descriptor.styles.some((s: any) => s.scoped),
+                    compilerOptions: {
+                        scopeId: descriptor.styles.some((s: any) => s.scoped) ? scopeId : undefined
+                    }
+                });
+                templateCode = templateResult.code.replace('export function render', 'const _sfc_render = function render');
+                if (!scriptContent.includes('const _sfc_main =')) {
+                    scriptContent = 'const _sfc_main = {};\n' + scriptContent;
+                }
+            }
+
+            let cssCode = '';
+            for (const style of descriptor.styles) {
+                const styleResult = compiler.compileStyle({
+                    source: style.content,
+                    filename: filePath,
+                    id: scopeId,
+                    scoped: style.scoped
+                });
+                cssCode += styleResult.code;
+            }
+
+            const output = `
+                ${scriptContent}
+                ${templateCode ? `
+                ${templateCode}
+                _sfc_main.render = _sfc_render;
+                ` : ''}
+                
+                // Inject CSS
+                ${cssCode ? `
+                if (typeof document !== 'undefined') {
+                    const _style = document.createElement('style');
+                    _style.innerHTML = ${JSON.stringify(cssCode)};
+                    document.head.appendChild(_style);
+                }
+                ` : ''}
+
+                ${descriptor.styles.some((s: any) => s.scoped) ? `_sfc_main.__scopeId = "${scopeId}";` : ''}
+                _sfc_main.__file = "${filePath}";
+                
+                export default _sfc_main;
+            `;
+
+            return { code: output };
         } catch (error: any) {
             log.error(`Vue transform failed for ${filePath}:`, error.message);
             return { code };

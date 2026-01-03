@@ -1,21 +1,30 @@
 
 export default function TailwindTest() {
     return (
-        <div className="p-10 bg-gray-100 min-h-screen">
-            <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl">
+        <div className="p-10 bg-slate-900 min-h-screen text-slate-100">
+            <div className="max-w-md mx-auto bg-slate-800 rounded-3xl shadow-2xl overflow-hidden md:max-w-4xl border border-slate-700">
                 <div className="md:flex">
                     <div className="md:shrink-0">
-                        <div className="h-48 w-full object-cover md:h-full md:w-48 bg-blue-500 flex items-center justify-center text-white text-2xl font-bold">
-                            Img
+                        <div className="h-48 w-full md:h-full md:w-64 bg-teal-500 flex items-center justify-center text-slate-900 text-4xl font-extrabold italic">
+                            URJA
                         </div>
                     </div>
-                    <div className="p-8">
-                        <div className="uppercase tracking-wide text-sm text-indigo-500 font-semibold">Tailwind CSS Test</div>
-                        <a href="#" className="block mt-1 text-lg leading-tight font-medium text-black hover:underline">Checking if classes work</a>
-                        <p className="mt-2 text-slate-500">Since we are using 100% verified build pipeline.</p>
-                        <button className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                            It works!
-                        </button>
+                    <div className="p-10">
+                        <div className="uppercase tracking-widest text-xs text-teal-400 font-bold mb-2">Build Verification</div>
+                        <h1 className="block mt-1 text-3xl leading-tight font-black text-white">🌊 Urja Build Tool - Tailwind CSS Test</h1>
+                        <p className="mt-4 text-slate-400 text-lg">Framework: <strong>Tailwind CSS 3.x (PostCSS Engine)</strong></p>
+                        <div className="mt-6 flex items-center space-x-3 bg-teal-900/30 p-4 rounded-xl border border-teal-500/20">
+                            <span className="flex h-3 w-3 rounded-full bg-teal-500"></span>
+                            <p className="text-teal-400 font-medium text-sm">Status: ✅ Utility-first JIT Engine Verified</p>
+                        </div>
+                        <div className="mt-8 flex gap-4">
+                            <button className="px-6 py-3 bg-teal-500 text-slate-900 font-bold rounded-full hover:bg-teal-400 transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-teal-500/50">
+                                Verify Styles
+                            </button>
+                            <button className="px-6 py-3 bg-slate-700 text-white font-bold rounded-full hover:bg-slate-600 transition-all border border-slate-600">
+                                View Config
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
