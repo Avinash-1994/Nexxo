@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 
 export class UrDocsGettingStarted extends LitElement {
-    static styles = css`
+  static styles = css`
     :host {
       display: block;
     }
@@ -32,8 +32,8 @@ export class UrDocsGettingStarted extends LitElement {
     }
   `;
 
-    render() {
-        return html`
+  render() {
+    return html`
       <h1>Getting Started</h1>
       
       <div class="step">
@@ -64,7 +64,7 @@ export class UrDocsGettingStarted extends LitElement {
         <pre><code>npx urja dev</code></pre>
       </div>
     `;
-    }
+  }
 }
 
 customElements.define('ur-docs-getting-started', UrDocsGettingStarted);
