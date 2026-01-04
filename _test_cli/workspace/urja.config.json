@@ -1,0 +1,9 @@
+{
+  "root": ".",
+  "entry": [
+    "index.html"
+  ],
+  "mode": "development",
+  "outDir": "dist",
+  "port": 5173
+}

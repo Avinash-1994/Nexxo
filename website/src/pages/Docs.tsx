@@ -27,6 +27,31 @@ export const Docs: React.FC = () => {
                 <CodeBlock code="npm install --save-dev urja" />
             </section>
 
+            <section className="mb-16 p-8 rounded-3xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-2 border-purple-500/20">
+                <div className="flex items-center gap-3 mb-6">
+                    <Rocket className="text-purple-500" size={32} />
+                    <h2 className="text-3xl font-black font-display tracking-tight">Create New Project</h2>
+                </div>
+                <p className="text-[var(--text-secondary)] mb-6">
+                    The fastest way to get started is with our interactive project scaffolding tool:
+                </p>
+                <CodeBlock code="npx create-urja my-awesome-app" />
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-4 rounded-xl bg-slate-900/50 border border-purple-500/30">
+                        <div className="text-purple-400 font-bold mb-2">🎨 7 Frameworks</div>
+                        <div className="text-xs text-slate-400">React, Vue, Svelte, Lit, Alpine, Preact, Mithril</div>
+                    </div>
+                    <div className="p-4 rounded-xl bg-slate-900/50 border border-purple-500/30">
+                        <div className="text-purple-400 font-bold mb-2">⚡ Interactive UI</div>
+                        <div className="text-xs text-slate-400">Keyboard navigation with instant feedback</div>
+                    </div>
+                    <div className="p-4 rounded-xl bg-slate-900/50 border border-purple-500/30">
+                        <div className="text-purple-400 font-bold mb-2">🛠️ Full Config</div>
+                        <div className="text-xs text-slate-400">TypeScript, CSS frameworks, tooling & more</div>
+                    </div>
+                </div>
+            </section>
+
             <section className="mb-16 p-8 rounded-3xl bg-gradient-to-br from-blue-500/10 to-emerald-500/10 border-2 border-blue-500/20">
                 <div className="flex items-center gap-3 mb-6">
                     <Terminal className="text-blue-500" size={32} />
@@ -97,16 +122,17 @@ export const Docs: React.FC = () => {
                 </div>
                 <div className="space-y-4">
                     {[
+                        { cmd: 'create-urja', desc: '🎨 Interactive project scaffolding with framework selection (React, Vue, Svelte, Lit, Alpine, Preact, Mithril).' },
                         { cmd: 'urja dev', desc: 'Starts the high-performance development server with HMR.' },
                         { cmd: 'urja build', desc: 'Triggers the production build pipeline with full optimizations.' },
                         { cmd: 'urja init', desc: 'Interactive wizard to initialize urja.config.js in your project.' },
                         { cmd: 'urja bootstrap', desc: 'Scaffold a new project from premium templates (React, Vue, Svelte, etc.).' },
-                        { cmd: 'urja ssr', desc: 'Starts the universal SSR runtime for meta-frameworks.' },
-                        { cmd: 'urja inspect', desc: 'Launches the dependency graph visualization tool.' },
-                        { cmd: 'urja report', desc: 'Generates a detailed build analytics report.' },
+                        { cmd: 'urja ssr', desc: 'Starts the universal SSR runtime for meta-frameworks (Next.js, Nuxt, Remix).' },
+                        { cmd: 'urja audit', desc: '🛡️ Run comprehensive audits for Accessibility, Performance, SEO, and Best Practices.' },
+                        { cmd: 'urja optimize', desc: '🤖 AI-powered project analysis with configuration optimization suggestions.' },
+                        { cmd: 'urja inspect', desc: 'Visualize and inspect the dependency graph with filtering options.' },
+                        { cmd: 'urja report', desc: 'Generates a detailed build analytics report from the latest session.' },
                         { cmd: 'urja css purge', desc: 'Deep-cleans CSS by removing unused styles from your bundle.' },
-                        { cmd: 'urja ai fix', desc: 'Analyzes build errors and applies AI-powered code fixes.' },
-                        { cmd: 'urja ai status', desc: 'View AI learning metrics and known fix patterns for this project.' },
                     ].map(item => (
                         <div key={item.cmd} className="group flex flex-col md:flex-row md:items-center gap-2 md:gap-4 p-5 rounded-2xl bg-[var(--surface-color)] border border-[var(--border-color)] hover:border-blue-500/50 transition-all">
                             <div className="font-mono text-[13px] font-bold text-blue-500 bg-blue-500/5 px-3 py-1 rounded-lg w-fit transition-colors group-hover:bg-blue-500 group-hover:text-white">{item.cmd}</div>

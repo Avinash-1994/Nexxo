@@ -100,7 +100,7 @@ async function testBuild(framework, exampleDir) {
 
     if (result.success) {
         // Check if output was created
-        const distExists = await fs.access(path.join(dir, 'dist')).then(() => true).catch(() => false);
+        const distExists = await fs.access(path.join(dir, 'build_output')).then(() => true).catch(() => false);
         if (distExists) {
             results.passed.push(name);
             log(`✅ ${name}`, 'green');
@@ -112,6 +112,7 @@ async function testBuild(framework, exampleDir) {
     log(`❌ ${name}`, 'red');
     if (result.timedOut) log(`   Timeout after 60s`, 'red');
     if (result.stderr) log(`   Error: ${result.stderr.substring(0, 200)}`, 'red');
+    if (result.stdout) log(`   Output: ${result.stdout.substring(0, 200)}`, 'yellow');
     return false;
 }
 
@@ -119,8 +120,9 @@ async function testDevServer() {
     const name = 'Dev Server Start';
     log(`🔨 Testing ${name}...`, 'blue');
 
+    const port = Math.floor(Math.random() * 1000) + 5000;
     const result = await runCommand(
-        'npx tsx src/cli.ts dev --port 5555',
+        `npx tsx src/cli.ts dev --port ${port}`,
         ROOT,
         5000 // Just test if it starts
     );
@@ -134,6 +136,8 @@ async function testDevServer() {
 
     results.failed.push(name);
     log(`❌ ${name}`, 'red');
+    if (result.stdout) log(`   Output: ${result.stdout.substring(0, 200)}`, 'yellow');
+    if (result.stderr) log(`   Error: ${result.stderr.substring(0, 200)}`, 'red');
     return false;
 }
 
@@ -152,12 +156,22 @@ async function testCompression() {
         return false;
     }
 
-    const result = await runCommand('npx tsx ../../src/cli.ts build', testDir, 60000);
+    const result = await runCommand('npx tsx ../../src/cli.ts build --prod', testDir, 60000);
 
     if (result.success) {
         // Check for compressed files
-        const distDir = path.join(testDir, 'dist');
-        const files = await fs.readdir(distDir).catch(() => []);
+        const distDir = path.join(testDir, 'build_output');
+
+        async function getFiles(dir) {
+            const dirents = await fs.readdir(dir, { withFileTypes: true });
+            const files = await Promise.all(dirents.map((dirent) => {
+                const res = path.resolve(dir, dirent.name);
+                return dirent.isDirectory() ? getFiles(res) : res;
+            }));
+            return Array.prototype.concat(...files);
+        }
+
+        const files = await getFiles(distDir).catch(() => []);
         const hasCompressed = files.some(f => f.endsWith('.br') || f.endsWith('.gz'));
 
         if (hasCompressed) {
@@ -218,10 +232,17 @@ async function testIncrementalBuilds() {
         'src/cache/incremental.ts'
     );
 
-    if (exists) {
-        // TODO: Actually test cache hits
+    const cacheExists = await fs.access(path.join(ROOT, 'examples/react-test/.urja_cache/cache.db'))
+        .then(() => true).catch(() => false);
+
+    if (exists && cacheExists) {
+        results.passed.push(name);
+        log(`✅ ${name} - Cache database verification successful`, 'green');
+        return true;
+    } else if (exists) {
+        // If module exists but cache not found (maybe react test failed or wasn't run yet)
         results.passed.push(name + ' (Module Only)');
-        log(`⚠️  ${name} - Module exists, not tested`, 'yellow');
+        log(`⚠️  ${name} - Module exists, cache DB not found`, 'yellow');
         return true;
     }
 
@@ -262,8 +283,8 @@ async function runAllTests() {
     section('1. Core Files');
     await testExists('Universal Transformer', 'src/core/universal-transformer.ts');
     await testExists('Dev Server', 'src/dev/devServer.ts');
-    await testExists('Build Pipeline', 'src/core/pipeline.ts');
-    await testExists('Build Steps', 'src/core/steps.ts');
+    await testExists('Build Pipeline', 'src/core/pipeline/framework-pipeline.ts');
+    await testExists('Build Steps (CSS Opt)', 'src/core/steps/css-optimization.ts');
 
     // Test 2: Production Features
     section('2. Production Features');

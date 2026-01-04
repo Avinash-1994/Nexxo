@@ -56,7 +56,32 @@ export class DependencyPreBundler {
 
         log.info('Pre-bundling dependencies with full graph...', { count: deps.length });
 
-        const root = this.root; // Capture root for usage in plugin
+        log.info('Pre-bundling dependencies with full graph...', { count: deps.length });
+
+        const root = this.root;
+
+        // Helper to check if file exists
+        const fileExists = async (p: string) => {
+            try {
+                await fs.access(p);
+                return true;
+            } catch {
+                return false;
+            }
+        };
+
+        // Helper to find node_modules up the tree
+        const findNodeModules = async (startDir: string, pkgName: string): Promise<string | undefined> => {
+            let current = startDir;
+            while (current !== path.parse(current).root) {
+                const maybe = path.join(current, 'node_modules', pkgName);
+                if (await fileExists(maybe)) return maybe;
+                const parent = path.dirname(current);
+                if (parent === current) break;
+                current = parent;
+            }
+            return undefined;
+        };
 
         try {
             // Resolve all entry points
@@ -68,19 +93,15 @@ export class DependencyPreBundler {
                 try {
                     // Find package root
                     const pkgName = dep.startsWith('@') ? dep.split('/').slice(0, 2).join('/') : dep.split('/')[0];
-                    // Clean handling of subpaths (e.g. react-dom/client) - we need the ROOT package for package.json
-                    // But if dep IS a subpath, we might not want the root main/module. 
-                    // Actually, modern generic resolving is hard.
-                    // Let's stick to resolving the PACKAGE root first.
 
                     let pkgDir;
                     try {
-                        const mainFile = require.resolve(pkgName + '/package.json', { paths: [root] });
-                        pkgDir = path.dirname(mainFile);
+                        const pkgJsonResolved = require.resolve(pkgName + '/package.json', { paths: [root] });
+                        pkgDir = path.dirname(pkgJsonResolved);
                     } catch (e: any) {
-                        // Fallback guessing
-                        pkgDir = path.join(root, 'node_modules', pkgName);
-                        // log.debug(`[PreBundler] JSON resolve failed for ${pkgName}: ${e.message}, using fallback: ${pkgDir}`);
+                        // Manual search up the tree
+                        pkgDir = await findNodeModules(root, pkgName);
+                        // log.debug(`[PreBundler] JSON resolve failed for ${pkgName}, using fallback: ${pkgDir}`);
                     }
 
                     if (pkgDir) {
@@ -92,25 +113,26 @@ export class DependencyPreBundler {
                             // log.debug(`[PreBundler] Checked ${pkgName} package.json. Module: ${pkgJson.module}`);
 
                             // 1. Check 'exports' (Modern Node Resolution - Precedence over 'module')
-                            // 1. Check 'exports' (Modern Node Resolution - Precedence over 'module')
                             if (pkgJson.exports) {
                                 let exportKey = '.';
                                 if (dep !== pkgName) {
-                                    // Calculate subpath: solid-js/web -> ./web
-                                    const subpath = '.' + dep.substring(pkgName.length);
+                                    // Calculate subpath: preact/hooks -> ./hooks
+                                    const subpath = './' + dep.substring(pkgName.length + 1);
                                     exportKey = subpath;
                                 }
 
                                 if (typeof pkgJson.exports === 'object') {
                                     const exportEntry = pkgJson.exports[exportKey];
                                     if (exportEntry) {
-                                        // Handle nested conditions (browser > import > default)
+                                        // Handle nested conditions (browser > import > default > node > source)
                                         const resolveCondition = (entry: any): string | undefined => {
                                             if (typeof entry === 'string') return entry;
-                                            if (typeof entry === 'object') {
+                                            if (typeof entry === 'object' && entry !== null) {
                                                 return resolveCondition(entry.browser) ||
                                                     resolveCondition(entry.import) ||
                                                     resolveCondition(entry.default) ||
+                                                    resolveCondition(entry.node) ||
+                                                    resolveCondition(entry.source) ||
                                                     resolveCondition(entry.require);
                                             }
                                             return undefined;
@@ -118,17 +140,26 @@ export class DependencyPreBundler {
 
                                         const importPath = resolveCondition(exportEntry);
                                         if (importPath) {
-                                            resolvedPath = path.join(pkgDir, importPath);
-                                            log.debug(`[PreBundler] Resolved via exports for ${dep}: ${resolvedPath}`);
+                                            const candidate = path.join(pkgDir, importPath);
+                                            if (await fileExists(candidate)) {
+                                                resolvedPath = candidate;
+                                                log.debug(`[PreBundler] Resolved via exports for ${dep}: ${resolvedPath}`);
+                                            }
                                         }
                                     }
                                 }
                             }
 
-                            // 2. Fallback to 'module' (only for main entry)
-                            if (!resolvedPath && dep === pkgName && pkgJson.module) {
-                                resolvedPath = path.join(pkgDir, pkgJson.module);
-                                log.debug(`[PreBundler] Using ESM module for ${dep}: ${resolvedPath}`);
+                            // 2. Fallback to 'module' or 'source' (only for main entry)
+                            if (!resolvedPath && dep === pkgName) {
+                                if (pkgJson.module && await fileExists(path.join(pkgDir, pkgJson.module))) {
+                                    resolvedPath = path.join(pkgDir, pkgJson.module);
+                                } else if (pkgJson.source && await fileExists(path.join(pkgDir, pkgJson.source))) {
+                                    resolvedPath = path.join(pkgDir, pkgJson.source);
+                                    log.debug(`[PreBundler] Using 'source' field for ${dep}: ${resolvedPath}`);
+                                } else if (pkgJson.main && await fileExists(path.join(pkgDir, pkgJson.main))) {
+                                    resolvedPath = path.join(pkgDir, pkgJson.main);
+                                }
                             }
                         } catch (e: any) {
                             log.warn(`[PreBundler] Failed to read/parse package.json for ${pkgName}: ${e.message}`);
@@ -138,16 +169,17 @@ export class DependencyPreBundler {
                     log.warn(`[PreBundler] ESM resolution error for ${dep}: ${e.message}`);
                 }
 
-                // Fallback to require.resolve (Standard Node Resolution - usually CJS)
+                // Fallback to require.resolve (Standard Node Resolution)
                 if (!resolvedPath) {
                     try {
-                        resolvedPath = require.resolve(dep, { paths: [root] });
+                        const cand = require.resolve(dep, { paths: [root] });
+                        if (await fileExists(cand)) {
+                            resolvedPath = cand;
+                        }
                     } catch (e) {
-                        // Double fallback (candidates)
-                        // ... existing code ...
                         try {
                             const maybeDirect = path.join(root, 'node_modules', dep);
-                            try { await fs.access(maybeDirect); resolvedPath = maybeDirect; } catch { }
+                            if (await fileExists(maybeDirect)) resolvedPath = maybeDirect;
                         } catch { }
                     }
                 }
@@ -208,8 +240,17 @@ export class DependencyPreBundler {
                                                     if (basename === normalizedName) {
                                                         try {
                                                             // Load the original CJS module to get exports
-                                                            const pkgPath = require.resolve(dep, { paths: [root] });
-                                                            const pkg = require(pkgPath);
+                                                            let pkg;
+                                                            try {
+                                                                const pkgPath = require.resolve(dep, { paths: [root] });
+                                                                pkg = require(pkgPath);
+                                                            } catch (e) {
+                                                                // If require fails (e.g. ESM package), try to find common names or skip
+                                                                log.debug(`[PreBundler] Skipped CJS re-export for ${dep} (ESM or missing)`);
+                                                                continue;
+                                                            }
+
+                                                            if (!pkg) continue;
 
                                                             // Get all named exports
                                                             const exportNames = Object.getOwnPropertyNames(pkg)

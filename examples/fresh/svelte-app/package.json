@@ -1,6 +1,0 @@
-{
-  "name": "svelte-app",
-  "version": "0.0.1",
-  "type": "module",
-  "dependencies": {"svelte": "^4.0.0"}
-}

@@ -73,8 +73,14 @@ async function main() {
     .command(
       'build',
       'Build for production',
-      () => { },
-      async () => {
+      (yargs: any) => {
+        return yargs.option('prod', {
+          type: 'boolean',
+          description: 'Force production mode',
+          default: false
+        });
+      },
+      async (args: any) => {
         const { Telemetry } = await import('./ai/telemetry.js');
         const telemetry = new Telemetry(process.cwd());
         await telemetry.init();
@@ -82,6 +88,9 @@ async function main() {
 
         try {
           const config = await loadConfig(process.cwd());
+          if (args.prod) {
+            config.mode = 'production';
+          }
           await build(config);
 
           // Auto-run audits after build (Disabled for noise reduction)
@@ -98,8 +107,10 @@ async function main() {
           await telemetry.stop(false, {}, [e.message]);
 
           // AI Self-Healing
+          /*
           const { HealerCLI } = await import('./ai/healer/cli.js');
           await HealerCLI.handle(e);
+          */
 
           process.exit(1);
         }
@@ -313,6 +324,7 @@ async function main() {
         printAuditReport(report);
       }
     )
+    /*
     .command(
       'ai',
       'AI-Powered Superpowers',
@@ -478,6 +490,7 @@ async function main() {
           .demandCommand(1, 'You must specify a subcommand: init, chat, dashboard, fix, status, forget, sync-models, contribute');
       }
     )
+    */
     .demandCommand(1, 'You must specify a command')
     .help()
     .argv;

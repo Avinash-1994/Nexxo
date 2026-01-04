@@ -1,8 +1,0 @@
-{
-  "name": "preact-test",
-  "version": "1.0.0",
-  "type": "module",
-  "dependencies": {
-    "preact": "^10.19.0"
-  }
-}

@@ -32,7 +32,7 @@ export interface ProjectConfig {
 }
 
 // Helpers
-import { text, select, multiselect } from './ui.js';
+import { text, select, multiselect, closeUI } from './ui.js';
 
 // ... (removing old helper definitions) ...
 
@@ -102,6 +102,8 @@ export async function createUrjaProject(initialName?: string) {
     const packageManager = await select<PackageManager>('Select package manager:', [
         'npm', 'pnpm', 'yarn'
     ]);
+
+    closeUI();
 
     const config: ProjectConfig = {
         name,
@@ -261,7 +263,7 @@ function generateUrjaConfig(config: ProjectConfig) {
 
     content += `export default defineConfig({\n`;
     content += `  framework: ${frameworkImport}(),\n`;
-    content += `  entry: "src/main.${entryExt}",\n`;
+    content += `  entry: ["src/main.${entryExt}"],\n`;
 
     if (config.projectType.includes('Micro-Frontend')) {
         content += `  federation: {\n`;

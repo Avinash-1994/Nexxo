@@ -19,7 +19,7 @@ export type { BuildFingerprint, BuildArtifact, BuildMode } from './core/engine/t
 // CONFIGURATION
 // ============================================================================
 
-export { loadConfig } from './config/index.js';
+export { loadConfig, defineConfig } from './config/index.js';
 export type { BuildConfig } from './config/index.js';
 
 // ============================================================================

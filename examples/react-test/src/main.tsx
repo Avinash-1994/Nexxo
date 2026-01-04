@@ -1,3 +1,0 @@
-import './main.jsx';
-
-export {};

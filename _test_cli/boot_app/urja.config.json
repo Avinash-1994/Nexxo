@@ -1,0 +1,8 @@
+{
+  "entry": [
+    "src/main.tsx"
+  ],
+  "mode": "development",
+  "preset": "spa",
+  "platform": "browser"
+}
