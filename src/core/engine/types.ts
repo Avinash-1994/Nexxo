@@ -95,6 +95,7 @@ export interface BuildCache {
     get(key: string): CachedResult | null;
     set(key: string, value: CachedResult): void;
     clear(): void;
+    close(): void;
 }
 
 // Configuration

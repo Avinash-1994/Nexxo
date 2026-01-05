@@ -100,6 +100,7 @@ async function runTest() {
     assert.ok(logExists, 'build-explain.json should be created');
 
     console.log('\n--- All Tests Passed! ---');
+    await engine.close();
     await cleanup();
 }
 

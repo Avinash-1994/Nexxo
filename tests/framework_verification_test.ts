@@ -163,6 +163,7 @@ async function testFramework(test: FrameworkTest): Promise<{ success: boolean; e
         const result = await engine.run(config, 'production', testDir);
 
         if (!result.success) {
+            await engine.close();
             return { success: false, error: result.error?.message || 'Build failed' };
         }
 
@@ -173,6 +174,7 @@ async function testFramework(test: FrameworkTest): Promise<{ success: boolean; e
         // Check expected content
         for (const expected of test.expectedInBundle) {
             if (!content.includes(expected)) {
+                await engine.close();
                 return { success: false, error: `Missing expected content: ${expected}` };
             }
         }
@@ -180,9 +182,11 @@ async function testFramework(test: FrameworkTest): Promise<{ success: boolean; e
         // Check HMR configuration
         const preset = getFrameworkPreset(test.name as any);
         if (!preset.hmr?.enabled) {
+            await engine.close();
             return { success: false, error: 'HMR not enabled in preset' };
         }
 
+        await engine.close();
         return { success: true };
 
     } catch (e: any) {

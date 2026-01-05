@@ -39,6 +39,16 @@ export class CoreBuildEngine {
     }
 
     /**
+     * Shutdown and cleanup resources
+     */
+    async close() {
+        if (this.ctx && this.ctx.cache) {
+            this.ctx.cache.close();
+        }
+        this.ctx = null;
+    }
+
+    /**
      * Main Entry Point for the Build Engine (Pipeline Orchestrator)
      */
     async run(userConfig: BuildConfig, mode: BuildMode = 'dev', rootDir: string, changedFiles: string[] = []) {

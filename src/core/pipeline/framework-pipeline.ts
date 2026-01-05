@@ -96,6 +96,10 @@ export class FrameworkPipeline {
         };
     }
 
+    async close() {
+        await this.engine.close();
+    }
+
     public applyDefaults() {
         // Here we can merge preset options into config with "escape hatches"
         // If user already specified something, we don't override it unless necessary.

@@ -20,5 +20,7 @@ export async function build(cfg: BuildConfig) {
   } catch (error: any) {
     console.error('❌ Build failed:', error.message);
     throw error;
+  } finally {
+    await pipeline.close();
   }
 }

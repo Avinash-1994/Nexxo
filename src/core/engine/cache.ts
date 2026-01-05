@@ -19,6 +19,8 @@ export class InMemoryBuildCache implements BuildCache {
     clear() {
         this.store.clear();
     }
+
+    close() { }
 }
 
 export class PersistentBuildCache implements BuildCache {
@@ -71,5 +73,12 @@ export class PersistentBuildCache implements BuildCache {
     clear() {
         if (!this.db) return;
         this.db.prepare('DELETE FROM cache').run();
+    }
+
+    close() {
+        if (this.db) {
+            this.db.close();
+            this.db = null;
+        }
     }
 }

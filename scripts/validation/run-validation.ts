@@ -23,16 +23,20 @@ async function createFile(relPath: string, content: string) {
 async function runBuild(name: string, config: BuildConfig): Promise<any> {
     console.log(`\n📋 [${name}] Starting Build...`);
     const engine = new CoreBuildEngine();
-    // Use 'build' mode for production-like consistency validation
-    const result = await engine.run(config, 'build', path.resolve(BASE_DIR, config.root || '.'));
+    try {
+        // Use 'build' mode for production-like consistency validation
+        const result = await engine.run(config, 'build', path.resolve(BASE_DIR, config.root || '.'));
 
-    if (!result.success) {
-        console.error(`❌ [${name}] Failed:`, result.error);
-        throw new Error(`Build failed for ${name}`);
+        if (!result.success) {
+            console.error(`❌ [${name}] Failed:`, result.error);
+            throw new Error(`Build failed for ${name}`);
+        }
+
+        console.log(`✅ [${name}] Success! (${result.artifacts?.length} artifacts)`);
+        return result;
+    } finally {
+        await engine.close();
     }
-
-    console.log(`✅ [${name}] Success! (${result.artifacts?.length} artifacts)`);
-    return result;
 }
 
 // --- Scenarios ---
