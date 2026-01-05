@@ -5,9 +5,9 @@ import { log } from '../utils/logger.js';
 import kleur from 'kleur';
 
 // Types
-export type Framework = 'React' | 'Preact' | 'Vue' | 'Svelte' | 'Lit' | 'Alpine' | 'Mithril';
+export type Framework = 'React' | 'Preact' | 'Vue' | 'Svelte' | 'Lit' | 'Alpine' | 'Mithril' | 'Vanilla';
 export type Language = 'TypeScript' | 'JavaScript';
-export type Styling = 'Plain CSS' | 'SCSS';
+export type Styling = 'Plain CSS' | 'CSS Modules' | 'SCSS';
 export type CSSFramework = 'None' | 'Tailwind CSS' | 'Bootstrap' | 'Vanilla Extract';
 export type ProjectType = 'Standard SPA' | 'Micro-Frontend (remote)' | 'Micro-Frontend (host)';
 export type PackageManager = 'npm' | 'pnpm' | 'yarn';
@@ -43,14 +43,21 @@ export async function createUrjaProject(initialName?: string) {
     console.log(kleur.bold().magenta("=".repeat(40) + "\n"));
 
     const name = initialName || await text('Project Name:', 'my-urja-app');
-    if (!name) {
-        log.error('Project name is required');
+
+    // Validate name
+    const nameSchema = z.string()
+        .min(1, "Project name is required")
+        .regex(/^[a-z0-9-_]+$/, "Project name can only contain lowercase letters, numbers, and dashes (kebab-case).");
+
+    const result = nameSchema.safeParse(name);
+    if (!result.success) {
+        log.error(result.error.issues[0].message);
         process.exit(1);
     }
 
     // 1. Framework Selection
     const framework = await select<Framework>('Select a framework:', [
-        'React', 'Preact', 'Vue', 'Svelte', 'Lit', 'Alpine', 'Mithril'
+        'React', 'Preact', 'Vue', 'Svelte', 'Lit', 'Alpine', 'Mithril', 'Vanilla'
     ]);
 
     // 2. Language Selection
@@ -60,7 +67,7 @@ export async function createUrjaProject(initialName?: string) {
 
     // 3. Styling Type
     const styling = await select<Styling>('Select styling type:', [
-        'Plain CSS', 'SCSS'
+        'Plain CSS', 'CSS Modules', 'SCSS'
     ]);
 
     // 4. CSS Framework
@@ -234,10 +241,16 @@ function generatePackageJson(config: ProjectConfig) {
             pkg.dependencies['mithril'] = '^2.2.0';
             if (isTS) pkg.devDependencies['@types/mithril'] = '^2.2.0';
             break;
+        case 'Vanilla':
+            // No additional dependencies
+            break;
     }
 
     if (isTS) pkg.devDependencies['typescript'] = '^5.3.0';
     if (config.styling === 'SCSS') pkg.devDependencies['sass'] = '^1.69.0';
+    if (config.styling === 'CSS Modules') {
+        // No specific deps, but ensures config knows
+    }
 
     if (config.cssFramework === 'Tailwind CSS') {
         pkg.devDependencies['tailwindcss'] = '^3.4.0';
@@ -251,6 +264,7 @@ function generatePackageJson(config: ProjectConfig) {
 }
 
 function generateUrjaConfig(config: ProjectConfig) {
+    const isVanilla = config.framework === 'Vanilla';
     const frameworkImport = config.framework.toLowerCase();
     const adapterPkg = `@urja/framework-${frameworkImport}`;
     const isTS = config.language === 'TypeScript';
@@ -259,10 +273,17 @@ function generateUrjaConfig(config: ProjectConfig) {
         (['React', 'Preact', 'Mithril'].includes(config.framework) ? 'jsx' : 'js');
 
     let content = `import { defineConfig } from "urja";\n`;
-    content += `import ${frameworkImport} from "${adapterPkg}";\n\n`;
+
+    if (!isVanilla) {
+        content += `import ${frameworkImport} from "${adapterPkg}";\n\n`;
+    } else {
+        content += `\n`;
+    }
 
     content += `export default defineConfig({\n`;
-    content += `  framework: ${frameworkImport}(),\n`;
+    if (!isVanilla) {
+        content += `  framework: ${frameworkImport}(),\n`;
+    }
     content += `  entry: ["src/main.${entryExt}"],\n`;
 
     if (config.projectType.includes('Micro-Frontend')) {
@@ -288,6 +309,9 @@ function generateUrjaConfig(config: ProjectConfig) {
     content += `  css: {\n`;
     content += `    preprocessor: "${config.styling === 'SCSS' ? 'scss' : 'none'}",\n`;
     content += `    framework: "${config.cssFramework === 'Tailwind CSS' ? 'tailwind' : config.cssFramework.toLowerCase()}",\n`;
+    if (config.styling === 'CSS Modules') {
+        content += `    modules: true,\n`;
+    }
     content += `  },\n`;
 
     content += `  reports: {\n`;
@@ -352,6 +376,25 @@ body { margin: 0; display: flex; place-items: center; min-width: 320px; min-heig
 h1 { font-size: 3.2em; line-height: 1.1; }
 `);
 
+    // CSS Modules file
+    if (config.styling === 'CSS Modules') {
+        const moduleExt = config.framework === 'Svelte' || config.framework === 'Vue' ? 'css' : 'module.css'; // Svelte/Vue have scoped CSS built-in/module support differently
+        // React/Preact use .module.css
+        if (['React', 'Preact', 'Vanilla'].includes(config.framework)) {
+            await fsPromises.writeFile(path.join(srcDir, `App.module.css`), `
+.container {
+  text-align: center;
+  padding: 2rem;
+  border: 1px solid #444;
+  border-radius: 8px;
+}
+.title {
+  color: #646cff;
+}
+`);
+        }
+    }
+
     // TSConfig
     if (isTS) {
         await fsPromises.writeFile(path.join(projectPath, 'tsconfig.json'), JSON.stringify({
@@ -405,7 +448,7 @@ ${runCmd} dev
 \`\`\`
 
 ## Architecture
-- **Adapter**: \`@urja/framework-${config.framework.toLowerCase()}\`
+- **Adapter**: ${config.framework === 'Vanilla' ? 'None' : `@urja/framework-${config.framework.toLowerCase()}`}
 - **Config**: \`urja.config.${config.language === 'TypeScript' ? 'ts' : 'js'}\`
 
 Built with energy, powered by Urja.
@@ -471,6 +514,26 @@ import '${styleImportSource}';
 m.mount(document.getElementById('root')!, {
   view: () => m("h1", "Mithril + Urja")
 });`;
+        case 'Vanilla':
+            if (config.styling === 'CSS Modules') {
+                return `import '${styleImportSource}';
+import styles from './App.module.css';
+
+document.querySelector('#root')!.innerHTML = \`
+  <div class="\${styles.container}">
+    <h1 class="\${styles.title}">⚡ Vanilla JS + Urja</h1>
+    <p>Zero dependencies. Pure speed. CSS Modules.</p>
+  </div>
+\`;`;
+            }
+            return `import '${styleImportSource}';
+// Vanilla Entry
+document.querySelector('#root')!.innerHTML = \`
+  <div style="text-align: center; font-family: sans-serif;">
+    <h1>⚡ Vanilla JS + Urja</h1>
+    <p>Zero dependencies. Pure speed.</p>
+  </div>
+\`;`;
         default:
             return `import '${styleImportSource}';
 document.getElementById('root')!.innerHTML = '<h1>Hello Urja</h1>';`;
@@ -478,9 +541,22 @@ document.getElementById('root')!.innerHTML = '<h1>Hello Urja</h1>';`;
 }
 
 function getAppComponentContent(config: ProjectConfig): string {
+    const useModules = config.styling === 'CSS Modules';
+
     switch (config.framework) {
         case 'React':
         case 'Preact':
+            if (useModules) {
+                return `import styles from './App.module.css';
+export default function App() {
+  return (
+    <div className={styles.container}>
+      <h1 className={styles.title}>Urja + ${config.framework} + CSS Modules</h1>
+      <p>Modern, Fast, Energy-powered building.</p>
+    </div>
+  );
+}`;
+            }
             return `export default function App() {
   return (
     <div>
@@ -496,11 +572,21 @@ function getAppComponentContent(config: ProjectConfig): string {
   </div>
 </template>
 <script setup>
-</script>`;
+</script>
+<style scoped>
+.app {
+  text-align: center;
+}
+</style>`;
         case 'Svelte':
             return `<main>
   <h1>Urja + Svelte</h1>
-</main>`;
+</main>
+<style>
+  main {
+    text-align: center;
+  }
+</style>`;
         default:
             return ``;
     }

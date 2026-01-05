@@ -82,6 +82,8 @@ async function main() {
       },
       async (args: any) => {
         const { Telemetry } = await import('./ai/telemetry.js');
+        const { wrapError, printHeroError } = await import('./core/errors/hero-errors.js');
+
         const telemetry = new Telemetry(process.cwd());
         await telemetry.init();
         telemetry.start();
@@ -93,20 +95,19 @@ async function main() {
           }
           await build(config);
 
-          // Auto-run audits after build (Disabled for noise reduction)
-          /*
-          const { AuditEngine } = await import('./audit/index.js');
-          const report = await AuditEngine.runAll(process.cwd());
-          printAuditReport(report);
-          */
           console.log('\n💡  Tip: Run `npx urja audit` to generate a full audit report.');
 
           await telemetry.stop(true);
         } catch (e: any) {
-          log.error('Build failed', { error: e });
-          await telemetry.stop(false, {}, [e.message]);
+          // Convert to Hero Error
+          const heroError = wrapError(e);
 
-          // AI Self-Healing
+          // Print formatted error with context
+          printHeroError(heroError);
+
+          await telemetry.stop(false, {}, [heroError.message]);
+
+          // AI Self-Healing capability
           /*
           const { HealerCLI } = await import('./ai/healer/cli.js');
           await HealerCLI.handle(e);
@@ -308,7 +309,7 @@ async function main() {
     )
     .command(
       'audit',
-      'Run terminal audits (Accessibility, Performance, SEO)',
+      'Run comprehensive audits (Accessibility, Performance, SEO)',
       (yargs: any) => {
         return yargs.option('url', {
           type: 'string',
@@ -322,6 +323,42 @@ async function main() {
         log.info(`Auditing ${target}...`, { category: 'audit' });
         const report = await AuditEngine.runAll(target);
         printAuditReport(report);
+      }
+    )
+    .command(
+      'verify',
+      'Verify project health and configuration',
+      (yargs: any) => {
+        return yargs
+          .option('ci', {
+            type: 'boolean',
+            description: 'CI mode (exit 1 on failure)',
+            default: false
+          })
+          .option('strict', {
+            type: 'boolean',
+            description: 'Strict mode (warnings = failures)',
+            default: false
+          })
+          .option('explain', {
+            type: 'boolean',
+            description: 'Show detailed explanations',
+            default: false
+          })
+          .option('fix', {
+            type: 'boolean',
+            description: 'Auto-fix issues where possible',
+            default: false
+          });
+      },
+      async (args: any) => {
+        const { verify } = await import('./commands/verify.js');
+        await verify({
+          ci: args.ci,
+          strict: args.strict,
+          explain: args.explain,
+          fix: args.fix
+        });
       }
     )
     /*

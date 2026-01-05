@@ -1,6 +1,6 @@
 
 import { UrjaPlugin } from '../core/plugins/types.js';
-import { createRollupAdapter } from '../plugins/compat/rollup.js';
+import { rollupAdapter } from '../plugins/compat/rollup.js';
 import { createJsTransformPlugin } from '../plugins/js-transform.js';
 import { createPostCssPlugin } from '../plugins/css/postcss.js';
 import { createLinkerPlugin } from '../plugins/core/linker.js';

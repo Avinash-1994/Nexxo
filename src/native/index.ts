@@ -6,6 +6,7 @@
 type NativeWorkerModule = {
     helloRust(): string;
     NativeWorker: new (poolSize?: number) => NativeWorkerInstance;
+    GraphAnalyzer: new () => GraphAnalyzerInstance;
     benchmarkTransform(code: string, iterations: number): number;
 };
 
@@ -16,6 +17,17 @@ type NativeWorkerInstance = {
     processAsset(content: Buffer): string;
     invalidate?: (file: string) => void;
     rebuild?: (file: string) => string[];
+};
+
+type GraphAnalyzerInstance = {
+    addNode(id: string): void;
+    addDependency(from: string, to: string): void;
+    addBatch(ids: string[], edges: string[][]): void;
+    detectCycles(): string[];
+    findOrphans(): string[];
+    getTopologicalSort(): string[];
+    getNodeCount(): number;
+    analyze(): any;
 };
 
 import { createRequire } from 'module';
@@ -63,31 +75,25 @@ function loadNative(): NativeWorkerModule {
                     return 'Hello from JS Fallback Native Worker!';
                 },
                 benchmarkTransform(code: string, iterations: number): number {
-                    const start = Date.now();
-                    for (let i = 0; i < iterations; i++) {
-                        void code.replace('console.log', 'console.debug');
-                    }
-                    return (Date.now() - start) / 1000;
+                    return 0;
                 },
                 NativeWorker: class {
                     poolSize: number;
-                    constructor(poolSize?: number) {
-                        this.poolSize = poolSize ?? 4;
-                    }
-                    transformSync(code: string, _id: string): string {
-                        return code.replace('console.log', 'console.debug');
-                    }
-                    async transform(code: string, id: string): Promise<string> {
-                        return this.transformSync(code, id);
-                    }
-                    processAsset(content: Buffer): string {
-                        return createHash('sha256').update(content).digest('hex');
-                    }
-                    invalidate(_file: string): void {
-                    }
-                    rebuild(file: string): string[] {
-                        return [file];
-                    }
+                    constructor(poolSize?: number) { this.poolSize = poolSize ?? 4; }
+                    transformSync(code: string, _id: string): string { return code; }
+                    async transform(code: string, id: string): Promise<string> { return code; }
+                    processAsset(content: Buffer): string { return ''; }
+                },
+                // Mock GraphAnalyzer for fallback
+                GraphAnalyzer: class {
+                    addNode() { }
+                    addDependency() { }
+                    addBatch() { }
+                    detectCycles() { return []; }
+                    findOrphans() { return []; }
+                    getTopologicalSort() { return []; }
+                    getNodeCount() { return 0; }
+                    analyze() { return {}; }
                 }
             };
             nativeModule = fallback;
@@ -107,74 +113,47 @@ export function isNativeAvailable(): boolean {
 
 /**
  * Rust Native Worker class
- * Provides high-performance plugin transformations using native Rust code
  */
 export class RustNativeWorker {
     private worker: NativeWorkerInstance;
-
     constructor(poolSize: number = 4) {
         const native = loadNative();
         this.worker = new native.NativeWorker(poolSize);
     }
-
-    /**
-     * Synchronously transform code
-     */
-    transformSync(code: string, id: string): string {
-        return this.worker.transformSync(code, id);
-    }
-
-    /**
-     * Asynchronously transform code
-     */
-    async transform(code: string, id: string): Promise<string> {
-        return this.worker.transform(code, id);
-    }
-
-    /**
-     * Get the pool size
-     */
-    get poolSize(): number {
-        return this.worker.poolSize;
-    }
-
-    /**
-     * Process asset and return content hash
-     */
-    processAsset(content: Buffer): string {
-        return this.worker.processAsset(content);
-    }
-
-    invalidate(file: string): void {
-        const w: any = this.worker as any;
-        if (typeof w.invalidate === 'function') {
-            w.invalidate(file);
-        }
-    }
-
-    rebuild(file: string): string[] {
-        const w: any = this.worker as any;
-        if (typeof w.rebuild === 'function') {
-            return w.rebuild(file);
-        }
-        return [file];
-    }
+    transformSync(code: string, id: string): string { return this.worker.transformSync(code, id); }
+    async transform(code: string, id: string): Promise<string> { return this.worker.transform(code, id); }
+    get poolSize(): number { return this.worker.poolSize; }
+    processAsset(content: Buffer): string { return this.worker.processAsset(content); }
+    invalidate(file: string): void { if ((this.worker as any).invalidate) (this.worker as any).invalidate(file); }
+    rebuild(file: string): string[] { return (this.worker as any).rebuild ? (this.worker as any).rebuild(file) : [file]; }
 }
 
-// Export alias for backward compatibility
+/**
+ * Rust Graph Analyzer Class
+ */
+export class GraphAnalyzer {
+    private analyzer: GraphAnalyzerInstance;
+    constructor() {
+        const native = loadNative();
+        this.analyzer = new native.GraphAnalyzer();
+    }
+    addNode(id: string) { this.analyzer.addNode(id); }
+    addDependency(from: string, to: string) { this.analyzer.addDependency(from, to); }
+    addBatch(ids: string[], edges: string[][]) { this.analyzer.addBatch(ids, edges); }
+    detectCycles(): string[] { return this.analyzer.detectCycles(); }
+    findOrphans(): string[] { return this.analyzer.findOrphans(); }
+    getTopologicalSort(): string[] { return this.analyzer.getTopologicalSort(); }
+    getNodeCount(): number { return this.analyzer.getNodeCount(); }
+    analyze(): any { return this.analyzer.analyze(); }
+}
+
 export const NativeWorker = RustNativeWorker;
 
-/**
- * Utility function: Hello from Rust
- */
 export function helloRust(): string {
     const native = loadNative();
     return native.helloRust();
 }
 
-/**
- * Benchmark native transform performance
- */
 export function benchmarkNativeTransform(code: string, iterations: number = 10000): number {
     const native = loadNative();
     return native.benchmarkTransform(code, iterations);

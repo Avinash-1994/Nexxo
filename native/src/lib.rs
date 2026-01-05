@@ -1,4 +1,13 @@
-// use napi::bindgen_prelude::*;
+// High-performance native modules for Urja
+// Focus: Speed and minimal bundle size
+
+mod graph;
+
+// Re-export graph module
+// Re-export graph module
+pub use graph::{GraphAnalyzer, GraphNode, CircularDependency, GraphAnalysisResult};
+
+use napi::bindgen_prelude::*;
 use napi_derive::napi;
 
 /// High-performance native worker for plugin transformations

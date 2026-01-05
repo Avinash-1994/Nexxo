@@ -159,9 +159,9 @@ npx create-urja <project-name>
 ```
 
 The interactive wizard will guide you through:
-- Framework selection (React, Vue, Svelte, Lit, Preact, Alpine, Mithril)
+- Framework selection (React, Vue, Svelte, Lit, Preact, Alpine, Mithril, Vanilla)
 - Language choice (JavaScript or TypeScript)
-- Styling options (CSS, SCSS, Tailwind)
+- Styling options (CSS, SCSS, CSS Modules, Tailwind)
 - Project type (SPA or Micro-Frontend)
 - Tooling setup (ESLint, Prettier, Audits)
 
@@ -183,9 +183,9 @@ npx urja build
 ### Project Creation
 ```bash
 create-urja [project-name]  # Interactive project scaffolding
-                            # - 7 Framework choices (React, Vue, Svelte, Lit, Alpine, Preact, Mithril)
+                            # - 8 Framework choices (React, Vue, Svelte, Lit, Alpine, Preact, Mithril, Vanilla)
                             # - Language selection (TypeScript/JavaScript)
-                            # - Styling options (CSS/SCSS + Tailwind/Bootstrap/Vanilla Extract)
+                            # - Styling options (CSS/SCSS + CSS Modules + Tailwind/Bootstrap/Vanilla Extract)
                             # - Project type (SPA/Micro-Frontend)
                             # - Tooling setup (ESLint, Prettier, Audits)
 ```
