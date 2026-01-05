@@ -14,3 +14,8 @@ export {
     urjaSvgr,
     TierA
 } from './tier-a.js';
+
+export { webpackLoaderAdapter } from './webpack.js';
+export * from './tier-b.js'; // urjaCopy, urjaHtml
+export * from './tier-c.js'; // urjaReact, urjaVue, urjaSvelte
+export * from './deferred.js'; // urjaCompress, urjaCssExtract

@@ -1,5 +1,7 @@
 import { PluginSandbox } from '../core/sandbox.js';
 import { PermissionManager, PermissionSet } from '../core/permissions.js';
+import { validatePlugin, PluginStability } from './governance.js';
+import { log } from '../utils/logger.js';
 
 export type PluginHook = 'resolve' | 'load' | 'transform' | 'buildStart' | 'buildEnd';
 
@@ -11,6 +13,18 @@ export class PluginManager {
   private hooksCached = false;
 
   register(p: Plugin) {
+    // Advanced Governance Check
+    const validation = validatePlugin(p);
+
+    if (!validation.valid) {
+      log.error(`[PluginManager] Rejected plugin: ${validation.errors.join(', ')}`);
+      return; // Reject
+    }
+
+    if (validation.warnings.length > 0) {
+      validation.warnings.forEach(w => log.warn(`[PluginManager] ${w}`));
+    }
+
     this.plugins.push(p);
     this.hooksCached = false; // Invalidate cache
   }
@@ -122,6 +136,9 @@ export interface Plugin {
   buildStart?: () => Promise<void> | void;
   buildEnd?: () => Promise<void> | void;
   permissions?: PermissionSet;
+  // Governance
+  stability?: PluginStability;
+  version?: string;
 }
 
 

@@ -572,9 +572,23 @@ export async function startDevServer(cfg: BuildConfig) {
         }
 
         // Inject only client runtime
-        const clientScript = `
+        let clientScript = `
     <script type="module" src="/@urja/client"></script>
         `;
+
+        // Inject React Refresh Preamble
+        if (['react', 'next', 'remix', 'gatsby'].includes(primaryFramework)) {
+          console.log('[Urja] Injecting React Refresh Preamble');
+          clientScript = `
+    <script type="module">
+      import RefreshRuntime from "/@react-refresh";
+      RefreshRuntime.injectIntoGlobalHook(window);
+      window.$RefreshReg$ = () => {};
+      window.$RefreshSig$ = () => (type) => type;
+      window.__vite_plugin_react_preamble_installed__ = true;
+    </script>
+          ` + clientScript;
+        }
 
         data = data.replace('<head>', '<head>' + clientScript);
 
