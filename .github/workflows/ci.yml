@@ -82,24 +82,38 @@ jobs:
           fi
       
       - name: 🧪 Run Unit Tests
+        env:
+          NODE_OPTIONS: --experimental-vm-modules
         run: npm test -- --passWithNoTests
       
       - name: 🧪 Run Integration Tests
+        env:
+          NODE_OPTIONS: --experimental-vm-modules
         run: npm run test:all
       
       - name: 🧪 Run Validation Scenarios
+        env:
+          NODE_OPTIONS: --experimental-vm-modules
         run: npx tsx scripts/validation/run-validation.ts
       
       - name: 🧪 Run Dogfooding Validation (React + Tailwind)
+        env:
+          NODE_OPTIONS: --experimental-vm-modules
         run: npx tsx scripts/validation/dogfood-react.ts
-
+ 
       - name: 🧪 Run Rollup Plugin Stress Test
+        env:
+          NODE_OPTIONS: --experimental-vm-modules
         run: npx tsx scripts/validation/stress-test-rollup.ts
-
+ 
       - name: 🧪 Run Incremental Build Stress Test
+        env:
+          NODE_OPTIONS: --experimental-vm-modules
         run: npx tsx scripts/validation/incremental-stress-test.ts
-
+ 
       - name: 🧪 Run Snapshot Stability Audit
+        env:
+          NODE_OPTIONS: --experimental-vm-modules
         run: npx tsx scripts/validation/f3-snapshot-audit.ts
 
       - name: 📤 Upload Build Artifacts
