@@ -52,6 +52,7 @@ try {
 import { HMRThrottle } from './hmrThrottle.js';
 import { ConfigWatcher } from './configWatcher.js';
 import { StatusHandler } from './statusHandler.js';
+import { LiveConfigManager } from '../config/live-config.js';
 
 /**
  * Rewrite bare module imports to node_modules paths
@@ -195,9 +196,11 @@ export async function startDevServer(cfg: BuildConfig) {
   // Svelte Support removed - Handled by UniversalTransformer
   // Vue Support removed - Handled by UniversalTransformer
 
-  // Initialize Dependency Pre-Bundler
   const { DependencyPreBundler } = await import('./preBundler.js');
   const preBundler = new DependencyPreBundler(cfg.root);
+
+  // Initialize Live Config Manager
+  const liveConfig = new LiveConfigManager(cfg, cfg.root);
 
   // Scan and pre-bundle dependencies on server start
   log.debug('Scanning dependencies for pre-bundling...');
@@ -400,6 +403,77 @@ export async function startDevServer(cfg: BuildConfig) {
     xssProtection: true,
     contentTypeNosniff: true
   });
+
+  // Setup WebSocket Handlers for Config Sync (Advanced & Secure)
+  const setupWssHandlers = (server: WebSocketServer) => {
+    server.on('connection', (ws, req) => {
+      // Security Gate: Origin Validation
+      const origin = req.headers.origin;
+      const allowedOrigins = [
+        `http://${host}:${port}`,
+        `https://${host}:${port}`,
+        'http://localhost:5173',
+        'http://127.0.0.1:5173'
+      ];
+
+      if (origin && !allowedOrigins.some(o => origin.startsWith(o))) {
+        log.warn(`Blocked unauthorized WebSocket connection from origin: ${origin}`);
+        ws.terminate();
+        return;
+      }
+
+      // 1. Initial Handshake: Send current config AND session token
+      ws.send(JSON.stringify({
+        type: 'config:init',
+        config: liveConfig.getConfig(),
+        token: liveConfig.getSessionToken() // Only shared over this secure local WS
+      }));
+
+      // 2. Heartbeat to keep connection alive
+      const heartbeat = setInterval(() => {
+        if (ws.readyState === ws.OPEN) ws.ping();
+      }, 30000);
+
+      ws.on('close', () => clearInterval(heartbeat));
+
+      ws.on('message', async (data) => {
+        try {
+          const message = JSON.parse(data.toString());
+
+          if (message.type === 'config:update') {
+            // Security: Token must match
+            const success = liveConfig.updateConfig(message.update, message.token);
+            if (success) {
+              // Broadcast update to ALL clients (without token)
+              broadcast(JSON.stringify({
+                type: 'config:changed',
+                config: liveConfig.getConfig(),
+                update: message.update
+              }));
+
+              if (message.persist) {
+                await liveConfig.persist();
+              }
+            } else {
+              ws.send(JSON.stringify({
+                type: 'config:error',
+                message: 'Update rejected (invalid token or protected path)'
+              }));
+            }
+          }
+
+          if (message.type === 'config:get') {
+            ws.send(JSON.stringify({
+              type: 'config:current',
+              config: liveConfig.getConfig()
+            }));
+          }
+        } catch (e) {
+          log.error('Failed to handle WS message', e);
+        }
+      });
+    });
+  };
 
   const requestHandler = async (req: http.IncomingMessage, res: http.ServerResponse) => {
     statusHandler.trackRequest();
@@ -929,6 +1003,10 @@ export async function startDevServer(cfg: BuildConfig) {
 
   // WebSocket Server setup
   wss = new WebSocketServer({ server });
+
+  // Initialize Config Sync Handlers
+  setupWssHandlers(wss);
+
   wss.on('connection', (ws: WebSocket) => {
     log.info('HMR client connected', { category: 'hmr' });
     hmrThrottle.registerClient(ws);
@@ -950,10 +1028,25 @@ export async function startDevServer(cfg: BuildConfig) {
 
   // Config Watcher
   const configWatcher = new ConfigWatcher(cfg.root, async (type, file) => {
-    if (type === 'hot') {
-      // Reload env vars (simplified)
-      log.info('Hot reloading config...', { category: 'server' });
-      // In a real app we'd re-read .env and broadcast updates if needed
+    if (type === 'hot' || (file.endsWith('.json') && !file.includes('package.json'))) {
+      log.info(`Hot reloading config from ${path.basename(file)}...`, { category: 'server' });
+      try {
+        const { loadConfig } = await import('../config/index.js');
+        const updatedCfg = await loadConfig(cfg.root);
+
+        // Update live config manager (which will broadcast to clients)
+        // We do a full replacement here because the whole file changed
+        Object.entries(updatedCfg).forEach(([key, value]) => {
+          liveConfig.updateConfig({ path: key, value });
+        });
+
+        broadcast(JSON.stringify({
+          type: 'config:changed',
+          config: liveConfig.getConfig()
+        }));
+      } catch (e) {
+        log.error('Failed to hot reload config', e);
+      }
     } else if (type === 'restart') {
       log.warn('Restarting server due to config change...', { category: 'server' });
       broadcast(JSON.stringify({ type: 'restarting' }));

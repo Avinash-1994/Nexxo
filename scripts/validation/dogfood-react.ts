@@ -14,7 +14,8 @@ async function run() {
     // 1. Install dependencies (if not already there)
     if (!existsSync(path.join(rootDir, 'node_modules'))) {
         console.log('📦 Installing dependencies in validation/react-app...');
-        execSync('npm install', { cwd: rootDir, stdio: 'inherit' });
+        const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+        execSync(`${npmCmd} install`, { cwd: rootDir, stdio: 'inherit' });
     }
 
     // 2. Run Build

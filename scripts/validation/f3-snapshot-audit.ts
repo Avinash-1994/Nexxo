@@ -60,12 +60,12 @@ async function runSnapshot(framework: 'react' | 'vue' | 'svelte') {
     // Sort nodes and edges for deterministic comparison
     const nodes = Array.from(graph.nodes.values()).map((n: any) => ({
         type: n.type,
-        path: path.relative(rootDir, n.path),
+        path: path.relative(rootDir, n.path).split(path.sep).join('/'),
         edges: n.edges.map((e: any) => {
             const targetNode = Array.from(graph.nodes.values()).find((node: any) => node.id === e.to) as any;
             return {
                 kind: e.kind,
-                toPath: path.relative(rootDir, targetNode?.path || 'unknown')
+                toPath: path.relative(rootDir, targetNode?.path || 'unknown').split(path.sep).join('/')
             };
         }).sort((a: any, b: any) => a.toPath.localeCompare(b.toPath))
     })).sort((a: any, b: any) => a.path.localeCompare(b.path));

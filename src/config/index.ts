@@ -11,7 +11,7 @@ import { spaPreset, ssrPreset, ssgPreset } from '../presets/index.js';
 
 export type BuildMode = 'development' | 'production' | 'test';
 
-const BuildConfigSchema = z.object({
+export const BuildConfigSchema = z.object({
   root: z.string().optional(),
   entry: z.array(z.string()).default(['src/main.tsx']),
   mode: z.enum(['development', 'production', 'test']).default('development'),

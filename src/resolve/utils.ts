@@ -17,16 +17,16 @@ export function normalizePath(p: string): string {
     let abs = path.isAbsolute(p) ? p : path.resolve(p);
 
     // 2. Normalize separators to forward slashes
-    abs = abs.split(path.sep).join('/');
+    // We replace all backslashes first to handle mixed paths, then ensure consistency
+    abs = abs.replace(/\\/g, '/');
 
     // 3. Handle Windows Drive Letters (c:/users... vs C:/Users...)
-    // This is crucial for cross-platform cache hits
     if (/^[a-zA-Z]:\//.test(abs)) {
         abs = abs.charAt(0).toLowerCase() + abs.slice(1);
     }
 
     // 4. Remove trailing slashes unless root
-    if (abs.length > 1 && abs.endsWith('/')) {
+    if (abs.length > 3 && abs.endsWith('/')) {
         abs = abs.slice(0, -1);
     }
 
@@ -45,8 +45,14 @@ import { canonicalHash } from '../core/engine/hash.js';
 
 export function generateModuleId(type: 'file' | 'virtual' | 'css' | 'css-module' | 'style-asset' | 'css-in-js', normalizedPath: string, rootDir?: string): string {
     let key = normalizedPath;
-    if (rootDir && normalizedPath.startsWith(normalizePath(rootDir))) {
-        key = path.relative(normalizePath(rootDir), normalizedPath).split(path.sep).join('/');
+    if (rootDir) {
+        const normalizedRoot = normalizePath(rootDir);
+        if (normalizedPath.startsWith(normalizedRoot)) {
+            // path.relative on Windows expects native slashes to work reliably for drive letters
+            const nativePath = normalizedPath.replace(/\//g, path.sep);
+            const nativeRoot = normalizedRoot.replace(/\//g, path.sep);
+            key = path.relative(nativeRoot, nativePath).replace(/\\/g, '/');
+        }
     }
 
     // We hash the key (type + path) to get a fixed-length ID, 

@@ -29,17 +29,37 @@ let ws: WebSocket;
 let reconnectAttempts = 0;
 const MAX_ATTEMPTS = 50;
 
+// Secure Config Sync State
+let config: any = null;
+let sessionToken: string = '';
+
 function connect() {
     ws = new WebSocket(`${protocol}//${window.location.host}`);
 
     ws.onopen = () => {
-        console.log('[urja] Connected to dev server');
+        // console.log('[urja] Connected to dev server');
         reconnectAttempts = 0;
     };
 
     ws.onmessage = (event) => {
         try {
             const message = JSON.parse(event.data);
+
+            // Security: Config Sync Handlers
+            if (message.type === 'config:init') {
+                config = message.config;
+                sessionToken = message.token;
+                // console.log('[urja] Live config initialized');
+            }
+
+            if (message.type === 'config:changed') {
+                config = message.config;
+                // console.log('[urja] Config updated remotely:', message.update);
+            }
+
+            if (message.type === 'config:error') {
+                console.error('[urja] Config Error:', message.message);
+            }
 
             if (message.type === 'error') {
                 console.error('[urja] Build Error:', message.error);
@@ -56,8 +76,6 @@ function connect() {
 
             if (message.type === 'update') {
                 clearErrors();
-                // console.log('[urja] HMR Update');
-                // HMR logic would go here
             }
 
         } catch (e) {
@@ -76,6 +94,23 @@ function connect() {
         }
     };
 }
+
+// 2. Global API for Developer/Tooling Interaction (Secure)
+(window as any).urja = {
+    getConfig: () => config,
+    updateConfig: (path: string, value: any, persist = false) => {
+        if (!ws || ws.readyState !== ws.OPEN) {
+            console.error('[urja] WebSocket not connected');
+            return;
+        }
+        ws.send(JSON.stringify({
+            type: 'config:update',
+            token: sessionToken,
+            persist,
+            update: { path, value }
+        }));
+    }
+};
 
 connect();
 
