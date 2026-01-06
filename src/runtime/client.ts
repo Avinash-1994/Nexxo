@@ -1,3 +1,4 @@
+/* global HTMLLinkElement */
 import './error-overlay.js';
 
 let overlay: any;

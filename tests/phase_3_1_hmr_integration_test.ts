@@ -99,101 +99,113 @@ async function testHMRClientConnection() {
 async function testCSSFileChange() {
     console.log('\n[Test 4] HMR - CSS File Change Detection');
 
-    return new Promise<void>(async (resolve, reject) => {
-        // Connect to HMR
-        const response = await fetch('http://localhost:3001/__hmr');
-        const reader = response.body?.getReader();
-        const decoder = new TextDecoder();
+    return new Promise<void>((resolve, reject) => {
+        (async () => {
+            try {
+                // Connect to HMR
+                const response = await fetch('http://localhost:3001/__hmr');
+                const reader = response.body?.getReader();
+                const decoder = new TextDecoder();
 
-        let messageReceived = false;
+                let messageReceived = false;
 
-        // Read SSE stream
-        const readStream = async () => {
-            while (true) {
-                const { done, value } = await reader!.read();
-                if (done) break;
+                // Read SSE stream
+                const readStream = async () => {
+                    while (true) {
+                        const { done, value } = await reader!.read();
+                        if (done) break;
 
-                const text = decoder.decode(value);
-                if (text.includes('hmr-update')) {
-                    const match = text.match(/data: ({.*})/);
-                    if (match) {
-                        const data = JSON.parse(match[1]);
+                        const text = decoder.decode(value);
+                        if (text.includes('hmr-update')) {
+                            const match = text.match(/data: ({.*})/);
+                            if (match) {
+                                const data = JSON.parse(match[1]);
 
-                        assert.strictEqual(data.type, 'hmr-update');
-                        assert.strictEqual(data.decision.level, 'HMR_SAFE');
-                        assert.ok(data.decision.reason.includes('Stylesheet'));
+                                assert.strictEqual(data.type, 'hmr-update');
+                                assert.strictEqual(data.decision.level, 'HMR_SAFE');
+                                assert.ok(data.decision.reason.includes('Stylesheet'));
 
-                        messageReceived = true;
-                        console.log('✅ CSS change detected and classified as SAFE');
-                        resolve();
-                        break;
+                                messageReceived = true;
+                                console.log('✅ CSS change detected and classified as SAFE');
+                                resolve();
+                                break;
+                            }
+                        }
                     }
-                }
+                };
+
+                readStream();
+
+                // Trigger CSS file change after a delay
+                setTimeout(() => {
+                    const cssPath = path.join(testRoot, 'style.css');
+                    fs.writeFileSync(cssPath, `body { background: blue; color: white; }`);
+                }, 500);
+
+                // Timeout after 3 seconds
+                setTimeout(() => {
+                    if (!messageReceived) {
+                        reject(new Error('No HMR message received'));
+                    }
+                }, 3000);
+            } catch (error) {
+                reject(error);
             }
-        };
-
-        readStream();
-
-        // Trigger CSS file change after a delay
-        setTimeout(() => {
-            const cssPath = path.join(testRoot, 'style.css');
-            fs.writeFileSync(cssPath, `body { background: blue; color: white; }`);
-        }, 500);
-
-        // Timeout after 3 seconds
-        setTimeout(() => {
-            if (!messageReceived) {
-                reject(new Error('No HMR message received'));
-            }
-        }, 3000);
+        })();
     });
 }
 
 async function testJSFileChange() {
     console.log('\n[Test 5] HMR - JS File Change Detection');
 
-    return new Promise<void>(async (resolve, reject) => {
-        const response = await fetch('http://localhost:3001/__hmr');
-        const reader = response.body?.getReader();
-        const decoder = new TextDecoder();
+    return new Promise<void>((resolve, reject) => {
+        (async () => {
+            try {
+                const response = await fetch('http://localhost:3001/__hmr');
+                const reader = response.body?.getReader();
+                const decoder = new TextDecoder();
 
-        let messageReceived = false;
+                let messageReceived = false;
 
-        const readStream = async () => {
-            while (true) {
-                const { done, value } = await reader!.read();
-                if (done) break;
+                const readStream = async () => {
+                    while (true) {
+                        const { done, value } = await reader!.read();
+                        if (done) break;
 
-                const text = decoder.decode(value);
-                if (text.includes('hmr-update') && text.includes('app.js')) {
-                    const match = text.match(/data: ({.*})/);
-                    if (match) {
-                        const data = JSON.parse(match[1]);
+                        const text = decoder.decode(value);
+                        if (text.includes('hmr-update') && text.includes('app.js')) {
+                            const match = text.match(/data: ({.*})/);
+                            if (match) {
+                                const data = JSON.parse(match[1]);
 
-                        assert.strictEqual(data.type, 'hmr-update');
-                        assert.strictEqual(data.decision.level, 'HMR_PARTIAL');
+                                assert.strictEqual(data.type, 'hmr-update');
+                                assert.strictEqual(data.decision.level, 'HMR_PARTIAL');
 
-                        messageReceived = true;
-                        console.log('✅ JS change detected and classified as PARTIAL');
-                        resolve();
-                        break;
+                                messageReceived = true;
+                                console.log('✅ JS change detected and classified as PARTIAL');
+                                resolve();
+                                break;
+                            }
+                        }
                     }
-                }
+                };
+
+                readStream();
+
+                setTimeout(() => {
+                    const jsPath = path.join(testRoot, 'app.js');
+                    fs.writeFileSync(jsPath, `console.log('App updated');`);
+                }, 500);
+
+                setTimeout(() => {
+                    if (!messageReceived) {
+                        reject(new Error('No HMR message received for JS change'));
+                    }
+                }, 3000);
+            } catch (error) {
+                reject(error);
             }
-        };
-
-        readStream();
-
-        setTimeout(() => {
-            const jsPath = path.join(testRoot, 'app.js');
-            fs.writeFileSync(jsPath, `console.log('App updated');`);
-        }, 500);
-
-        setTimeout(() => {
-            if (!messageReceived) {
-                reject(new Error('No HMR message received for JS change'));
-            }
-        }, 3000);
+        })();
     });
 }
 
