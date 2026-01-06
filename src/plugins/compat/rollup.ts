@@ -105,3 +105,6 @@ export function rollupAdapter(plugin: RollupPlugin): Plugin {
         }
     };
 }
+
+// Alias for backward compatibility
+export const createRollupAdapter = rollupAdapter;
