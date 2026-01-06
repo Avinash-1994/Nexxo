@@ -1,0 +1,22 @@
+body {
+    background: gold;
+    color: red;
+}
+
+h1 {
+    color: blue;
+    font-size: 40px;
+}
+
+.status.info {
+    background-color: green;
+}
+
+/* 
+INSTRUCTIONS:
+1. Start the dev server
+2. Open index.html in browser
+3. Change this background color to 'lightgreen'
+4. Save this file
+5. Watch the page background change WITHOUT refreshing!
+*/

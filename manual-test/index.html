@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Manual HMR Test</title>
+    <link rel="stylesheet" href="test.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Manual HMR Test</h1>
+
+    <div class="status info">
+        <strong>Instructions:</strong>
+        <ol>
+            <li>Start dev server: <code>npx tsx src/dev-server-manual.ts</code></li>
+            <li>Open this page in browser</li>
+            <li>Edit <code>test.css</code> and save</li>
+            <li>Watch the background color change WITHOUT page reload!</li>
+        </ol>
+    </div>
+
+    <div id="log"></div>
+
+    <script>
+        const log = document.getElementById('log');
+
+        function addLog(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            log.appendChild(div);
+        }
+
+        addLog('Page loaded');
+    </script>
+</body>
+
+</html>

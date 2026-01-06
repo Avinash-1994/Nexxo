@@ -88,7 +88,7 @@ export function urjaSvelte(options: SveltePluginOptions = {}): Plugin {
             const compiled = await compileSvelte(code, {
                 filename: id,
                 dev: development,
-                css: false, // Extract CSS separately
+                css: 'external', // Svelte 5 API: 'external' instead of false
                 hydratable: false,
                 ...compilerOptions
             }, preprocess);

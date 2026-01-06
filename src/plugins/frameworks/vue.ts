@@ -120,8 +120,8 @@ export function urjaVue(options: VuePluginOptions = {}): Plugin {
                 return undefined;
             }
 
-            // Parse SFC
-            const descriptor = await parseSFC(code, id);
+            // Parse SFC - get both our simplified and raw descriptor
+            const { descriptor, rawDescriptor } = await parseSFC(code, id);
 
             // Store SFC parts for virtual modules
             sfcDeps.set(id, {
@@ -150,8 +150,8 @@ export function urjaVue(options: VuePluginOptions = {}): Plugin {
 
             // Compile script
             let scriptCode = descriptor.script?.content || '';
-            if (descriptor.scriptSetup) {
-                scriptCode = await compileScriptSetup(descriptor.scriptSetup.content, {
+            if (descriptor.scriptSetup && rawDescriptor) {
+                scriptCode = await compileScriptSetup(rawDescriptor, {
                     id,
                     templateCode
                 });
@@ -201,37 +201,39 @@ interface SFCDescriptor {
     customBlocks: Array<{ content: string; type: string }>;
 }
 
-async function parseSFC(code: string, id: string): Promise<SFCDescriptor> {
+async function parseSFC(code: string, id: string): Promise<{ descriptor: SFCDescriptor; rawDescriptor?: any }> {
     try {
         // Try to use @vue/compiler-sfc if available
         const compiler = await import('@vue/compiler-sfc');
-        const { descriptor } = compiler.parse(code, { filename: id });
+        const { descriptor: rawDescriptor } = compiler.parse(code, { filename: id });
 
-        return {
-            template: descriptor.template ? {
-                content: descriptor.template.content,
-                attrs: descriptor.template.attrs as Record<string, string>
+        const descriptor: SFCDescriptor = {
+            template: rawDescriptor.template ? {
+                content: rawDescriptor.template.content,
+                attrs: rawDescriptor.template.attrs as Record<string, string>
             } : undefined,
-            script: descriptor.script ? {
-                content: descriptor.script.content,
-                attrs: descriptor.script.attrs as Record<string, string>
+            script: rawDescriptor.script ? {
+                content: rawDescriptor.script.content,
+                attrs: rawDescriptor.script.attrs as Record<string, string>
             } : undefined,
-            scriptSetup: descriptor.scriptSetup ? {
-                content: descriptor.scriptSetup.content,
-                attrs: descriptor.scriptSetup.attrs as Record<string, string>
+            scriptSetup: rawDescriptor.scriptSetup ? {
+                content: rawDescriptor.scriptSetup.content,
+                attrs: rawDescriptor.scriptSetup.attrs as Record<string, string>
             } : undefined,
-            styles: descriptor.styles.map(s => ({
+            styles: rawDescriptor.styles.map((s: any) => ({
                 content: s.content,
                 attrs: s.attrs as Record<string, string>
             })),
-            customBlocks: descriptor.customBlocks.map(b => ({
+            customBlocks: rawDescriptor.customBlocks.map((b: any) => ({
                 content: b.content,
                 type: b.type
             }))
         };
+
+        return { descriptor, rawDescriptor };
     } catch (error) {
         console.warn('[urja-vue] @vue/compiler-sfc not available, using basic parser');
-        return basicParseSFC(code);
+        return { descriptor: basicParseSFC(code) };
     }
 }
 
@@ -267,17 +269,19 @@ async function compileTemplate(template: string, options: any): Promise<string> 
     }
 }
 
-async function compileScriptSetup(script: string, options: any): Promise<string> {
+async function compileScriptSetup(rawDescriptor: any, options: any): Promise<string> {
     try {
         const compiler = await import('@vue/compiler-sfc');
-        const { content } = compiler.compileScript(
-            { script: null, scriptSetup: { content: script, attrs: {} } } as any,
-            { id: options.id }
-        );
+
+        // Use the raw descriptor directly - it has all the loc information
+        const { content } = compiler.compileScript(rawDescriptor, {
+            id: options.id,
+            inlineTemplate: false
+        });
         return content;
     } catch (error) {
         console.warn('[urja-vue] Script setup compilation failed:', error);
-        return script;
+        return rawDescriptor.scriptSetup?.content || '';
     }
 }
 
