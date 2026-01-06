@@ -137,7 +137,9 @@ export class DependencyGraph {
       }
     }
 
-    const contentHash = canonicalHash(content);
+    const contentHash = canonicalHash(
+      typeof content === 'string' ? content.replace(/\r\n/g, '\n') : content
+    );
 
     // INCREMENTAL: If content hash hasn't changed, skip re-parsing dependencies
     if (existing && existing.contentHash === contentHash && !force) {
