@@ -1,4 +1,5 @@
-import { Plugin } from '../index.js';
+import { canonicalHash } from '../../core/engine/hash.js';
+import { UrjaPlugin, PluginHookName, PluginManifest } from '../../core/plugins/types.js';
 
 // Basic Rollup Plugin Interface
 interface RollupPlugin {
@@ -17,94 +18,73 @@ interface RollupPlugin {
  * @param plugin The Rollup plugin instance
  * @returns An Urja-compatible plugin
  */
-export function rollupAdapter(plugin: RollupPlugin): Plugin {
+export function rollupAdapter(plugin: RollupPlugin): UrjaPlugin {
+    const hooks: PluginHookName[] = [];
+    if (plugin.resolveId) hooks.push('resolveId');
+    // Note: load hook in Urja takes {path, id}, rollup takes id.
+    if (plugin.load) hooks.push('load');
+    // transformModule maps to transform
+    if (plugin.transform) hooks.push('transformModule');
+    if (plugin.renderChunk) hooks.push('renderChunk');
+    if (plugin.buildEnd) hooks.push('buildEnd');
+
+    const manifest: PluginManifest = {
+        name: `rollup-compat-${plugin.name}`,
+        version: '1.0.0',
+        engineVersion: '1.0.0',
+        type: 'js',
+        hooks,
+        permissions: { fs: 'read' }
+    };
+
+    const id = canonicalHash(manifest.name + manifest.version);
+
     return {
-        name: plugin.name,
-
-        async buildStart() {
-            if (plugin.buildStart) {
-                // Mock context if needed
-                await plugin.buildStart.call({ meta: {} } as any, {} as any);
+        manifest,
+        id,
+        async runHook(hook: PluginHookName, input: any, context?: any) {
+            if (hook === 'resolveId' && plugin.resolveId) {
+                const { source, importer } = input;
+                // Rollup context mock
+                const ctx = {
+                    meta: {},
+                    resolve: async () => null
+                };
+                const res = await plugin.resolveId.call(ctx, source, importer);
+                if (!res) return null;
+                if (typeof res === 'string') return { id: res };
+                if (typeof res === 'object' && res.id) return res;
+                return null;
             }
-        },
 
-        async buildEnd() {
-            if (plugin.buildEnd) {
+            if (hook === 'load' && plugin.load) {
+                const { id } = input; // Use current ID
+                const ctx = { meta: {} };
+                const res = await plugin.load.call(ctx, id);
+                if (!res) return null;
+                if (typeof res === 'string') return { code: res };
+                if (typeof res === 'object' && res.code) return { code: res.code };
+                return null;
+            }
+
+            if (hook === 'transformModule' && plugin.transform) {
+                const { code, id } = input;
+                const ctx = { meta: {} };
+                const res = await plugin.transform.call(ctx, code, id);
+
+                if (!res) return { code }; // No transform
+                if (typeof res === 'string') return { code: res };
+                if (typeof res === 'object' && res.code) return { code: res.code, map: res.map };
+                return { code };
+            }
+
+            if (hook === 'buildEnd' && plugin.buildEnd) {
                 await plugin.buildEnd();
             }
-        },
 
-        async resolveId(source: string, importer?: string) {
-            if (!plugin.resolveId) return undefined;
-
-            // Call Rollup hook
-            // Note: Rollup resolveId context includes `resolve` method etc.
-            // We provide a minimal mock context
-            const ctx = {
-                meta: {},
-                resolve: async () => null // Mock resolve
-            };
-
-            const result = await plugin.resolveId.call(ctx as any, source, importer);
-
-            if (result === null || result === undefined) return undefined;
-            if (typeof result === 'string') return result;
-            if (typeof result === 'object' && result.id) return result.id;
-
-            return undefined;
-        },
-
-        async renderChunk(code: string, chunk: any) {
-            if (!plugin.renderChunk) return undefined;
-
-            const ctx = { meta: {} };
-            // Mock options as empty
-            const result = await plugin.renderChunk.call(ctx as any, code, chunk, {});
-
-            if (result === null || result === undefined) return undefined;
-            if (typeof result === 'string') return result;
-
-            if (typeof result === 'object') {
-                return {
-                    code: result.code,
-                    map: result.map
-                };
-            }
-            return undefined;
-        },
-
-        async load(id: string) {
-            if (!plugin.load) return undefined;
-
-            const ctx = { meta: {} };
-            const result = await plugin.load.call(ctx as any, id);
-
-            if (result === null || result === undefined) return undefined;
-            if (typeof result === 'string') return result;
-            if (typeof result === 'object' && result.code) return result.code; // Urja simplifies loaded content to string for now
-
-            return undefined;
-        },
-
-        async transform(code: string, id: string) {
-            if (!plugin.transform) return undefined;
-
-            const ctx = { meta: {} };
-            const result = await plugin.transform.call(ctx as any, code, id);
-
-            if (result === null || result === undefined) return undefined;
-            if (typeof result === 'string') return result;
-
-            if (typeof result === 'object') {
-                return {
-                    code: result.code,
-                    map: result.map
-                };
-            }
-            return undefined;
+            return input;
         }
     };
 }
 
-// Alias for backward compatibility
 export const createRollupAdapter = rollupAdapter;
