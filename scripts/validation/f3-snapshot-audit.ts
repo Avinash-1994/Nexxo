@@ -91,7 +91,25 @@ async function runSnapshot(framework: 'react' | 'vue' | 'svelte') {
         const baseline = await fs.readFile(baselinePath, 'utf-8');
         if (baseline !== currentData) {
             console.error(`❌ FAILURE: ${framework} graph semantic mismatch!`);
-            // await fs.writeFile(baselinePath + '.actual', currentData); // For diffing
+
+            // Basic Diff Logging
+            console.log('--- EXPECTED (Baseline) ---');
+            console.log(baseline);
+            console.log('--- ACTUAL (Computed) ---');
+            console.log(currentData);
+
+            // Identify first divergence
+            const blines = baseline.split('\n');
+            const clines = currentData.split('\n');
+            for (let i = 0; i < Math.max(blines.length, clines.length); i++) {
+                if (blines[i] !== clines[i]) {
+                    console.log(`Mismatch at line ${i + 1}:`);
+                    console.log(`EXP: ${blines[i]}`);
+                    console.log(`ACT: ${clines[i]}`);
+                    break;
+                }
+            }
+
             process.exit(1);
         } else {
             console.log(`✅ ${framework} graph is stable.`);
