@@ -60,6 +60,9 @@ async function runSnapshot(framework: 'react' | 'vue' | 'svelte') {
     assert.ok(result.success, `${framework} build failed`);
 
     const graph = (engine as any).latestGraph;
+    // We must verify the graph, THEN close the engine.
+    // However, if we close the engine, the graph object is still in memory which is what we need.
+    await engine.close();
 
     // Helper for cross-platform relative paths
     const getRelative = (from: string, to: string) => {
