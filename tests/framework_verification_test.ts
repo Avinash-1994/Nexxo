@@ -105,7 +105,7 @@ const FRAMEWORK_TESTS: FrameworkTest[] = [
                     template: '<h1>{{title}}</h1>'
                 })
                 export class AppComponent {
-                    title = 'urja-angular';
+                    title = 'nexxo-angular';
                 }
             `,
             'src/main.ts': `

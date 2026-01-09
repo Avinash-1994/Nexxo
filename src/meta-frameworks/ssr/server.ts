@@ -336,11 +336,11 @@ export class SSRServer {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="urja-version" content="PROD-READY-V1">
+  <meta name="nexxo-version" content="PROD-READY-V1">
   <title><!--app-title--></title>
 </head>
 <body>
-  <div id="urja-root"><!--app-html--></div>
+  <div id="nexxo-root"><!--app-html--></div>
   <!--app-data-->
   <script type="module" src="/assets/entry0.js"></script>
 </body>

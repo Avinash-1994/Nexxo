@@ -1,4 +1,4 @@
-# What NOT to Touch in Urja Core — Internal Guide
+# What NOT to Touch in Nexxo Core — Internal Guide
 
 **Audience**: New core engineers, contributors  
 **Purpose**: Prevent accidental core breakage  
@@ -8,7 +8,7 @@
 
 ## 🎯 Purpose
 
-This guide explains **WHAT NOT TO TOUCH** in the Urja codebase.
+This guide explains **WHAT NOT TO TOUCH** in the Nexxo codebase.
 
 **Rule**: If it's listed here, you need explicit approval from the core team before modifying it.
 
@@ -400,7 +400,7 @@ function resolvePackageExports(pkg: PackageJson, subpath: string): string;
 
 ## 🧠 Mental Model
 
-**Think of Urja core as a database**:
+**Think of Nexxo core as a database**:
 - You wouldn't modify PostgreSQL's B-tree implementation
 - You wouldn't change MySQL's transaction log format
 - You wouldn't alter Redis's persistence layer
@@ -418,6 +418,6 @@ function resolvePackageExports(pkg: PackageJson, subpath: string): string;
 
 ---
 
-**If you're unsure, ask in #urja-core Slack channel.**
+**If you're unsure, ask in #nexxo-core Slack channel.**
 
 **Better to ask than to break production.**

@@ -1,7 +1,7 @@
-# Urja Core Contract (v1.x)
+# Nexxo Core Contract (v1.x)
 
 ## 1. Unified Pipeline Specification
-Urja operates on a strictly ordered **10-stage pipeline**. Any modification to the core engine must preserve this sequence.
+Nexxo operates on a strictly ordered **10-stage pipeline**. Any modification to the core engine must preserve this sequence.
 
 1.  **Initialization**: Normalize config and initialize services.
 2.  **Input Fingerprinting**: Hash all base inputs (config, source files).
@@ -21,31 +21,31 @@ Urja operates on a strictly ordered **10-stage pipeline**. Any modification to t
 ### 2.1 Component Status
 | Component | Status | Guarantee |
 |-----------|--------|-----------|
-| **Core Engine** | **Frozen** | No behavioral changes; locked by snapshot tests. |
-| **Graph Semantics** | **Frozen** | SHA-256 ID stability; content-hash invalidation. |
+| **Core Engine** | **V1 Stable** | No behavioral changes; locked by industrial scale tests. |
+| **Graph Semantics** | **Frozen** | XXH3 ID stability; content-hash invalidation. |
 | **Plugin Compatibility** | **Stable** | Support for **Transform-level only** Rollup/Webpack adapters. |
-| **Multi-Target Graph** | **Experimental**| Internal use only (SSR/Edge). Not part of public API. |
-| **AI Features** | **Future** | Non-core; reserved for Phase 6. |
+| **Multi-Target Graph** | **Stable** | Production use for SSR/Edge workflows. |
+| **AI Features** | **Available** | Real-time diagnostics and optimization hints. |
 
 ---
 
 ## 3. Plugin Compatibility Contract
-Urja provides a compatibility layer for the ecosystem. However, this is strictly limited to:
-- **Stateless Transforms**: Mapping Rollup `transform` or Webpack `loader` to Urja's `transformModule` hook.
+Nexxo provides a compatibility layer for the ecosystem. However, this is strictly limited to:
+- **Stateless Transforms**: Mapping Rollup `transform` or Webpack `loader` to Nexxo's `transformModule` hook.
 - **Stateless Resolvers**: Mapping standard `resolveId` hooks.
 - **Output Rendering**: Basic `renderChunk` support.
 
-*Plugins requiring deep access to Urja's Internal Graph API are NOT supported.*
+*Plugins requiring deep access to Nexxo's Internal Graph API are NOT supported.*
 
 ---
 
 ## 4. Determinism Guarantee
-In `ci` mode, Urja asserts that identical inputs MUST produce identical `BuildFingerprint` outputs.
-- Hashing Algorithm: **SHA-256**.
+In `ci` mode, Nexxo asserts that identical inputs MUST produce identical `BuildFingerprint` outputs.
+- Hashing Algorithm: **XXH3** (Native).
 - Serialization: Sorted-key JSON stringification.
 - Delta: Any drift results in a `DETERMINISM_VIOLATION`.
 
 ---
 
-## 5. Exit Condition (Phase 0)
-Phase 0 (Core Stabilization) is officially **Complete**. The engine is now in Phase B (Adoption Enablement).
+## 5. Exit Condition (Phase 5)
+Phase 5 (Scale & Release) is officially **Complete**. The engine is now in its LTS (Long Term Support) cycle for v1.x.

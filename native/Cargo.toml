@@ -1,5 +1,5 @@
 [package]
-name = "urja_native"
+name = "nexxo_native"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,8 +7,11 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
+lazy_static = "1.5.0"
 napi = { version = "3", features = ["async", "tokio_rt"] }
 napi-derive = "3"
+regex = "1.12.2"
+xxhash-rust = { version = "0.8.15", features = ["xxh3", "xxh64"] }
 
 [build-dependencies]
 napi-build = "2"

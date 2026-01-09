@@ -44,7 +44,7 @@ export class OllamaProvider {
     }
 
     private generatePrompt(error: ParsedError): string {
-        return `You are an AI build engineer for the Urja build tool.
+        return `You are an AI build engineer for the Nexxo build tool.
 Analyze the following build error and suggest a fix in JSON format.
 
 Error Message: ${error.message}

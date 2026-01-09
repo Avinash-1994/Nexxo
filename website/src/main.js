@@ -1,5 +1,5 @@
 import './styles/theme.css';
-import './components/ur-layout.js';
+import './components/nexxo-layout.js';
 import './pages/index.js';
 import './pages/getting-started.js';
 import './pages/guide-lit.js';
@@ -26,7 +26,7 @@ function render() {
         content = '<ur-guide-angular></ur-guide-angular>';
     }
 
-    container.innerHTML = `<ur-layout>${content}</ur-layout>`;
+    container.innerHTML = `<nexxo-layout>${content}</nexxo-layout>`;
 }
 
 window.addEventListener('hashchange', render);

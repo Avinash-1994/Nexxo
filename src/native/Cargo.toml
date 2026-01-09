@@ -1,5 +1,5 @@
 [package]
-name = "urja-native"
+name = "nexxo-native"
 version = "0.1.0"
 edition = "2021"
 
@@ -16,3 +16,6 @@ dashmap = "5.5"
 serde = { version = "1.0", features = ["derive"] }
 bincode = "1.3"
 petgraph = "0.6"
+xxhash-rust = { version = "0.8.15", features = ["xxh3", "xxh64"] }
+regex = "1.12.2"
+lazy_static = "1.5.0"

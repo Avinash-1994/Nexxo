@@ -33,7 +33,8 @@ export async function executeParallel(execPlan: ExecutionPlan, buildPlan: BuildP
             if (!chunk) return;
 
             // CALCULATE CACHE KEY (Phase 3.1 Precision)
-            // Key = HASH(ChunkID + Map(modId -> node.contentHash) + ConfigHash)
+            // Key = HASH(ChunkID + Map(modId -> node.contentHash) + ConfigHash + PipelineHash)
+            const pipelineHash = ctx.pluginManager.getPipelineHash();
             const moduleHashes: Record<string, string> = {};
             for (const modId of chunk.modules) {
                 const node = ctx.graph.nodes.get(modId);
@@ -45,7 +46,8 @@ export async function executeParallel(execPlan: ExecutionPlan, buildPlan: BuildP
             const chunkKey = canonicalHash({
                 id: chunk.id,
                 moduleHashes,
-                configHash: ctx.cache instanceof Object ? canonicalHash(ctx.config) : 'default'
+                configHash: ctx.cache instanceof Object ? canonicalHash(ctx.config) : 'default',
+                pipelineHash
             });
 
             // TRY CACHE
@@ -62,24 +64,26 @@ export async function executeParallel(execPlan: ExecutionPlan, buildPlan: BuildP
             // Add Runtime for JS (Phase B2)
             if (!isCss) {
                 bundleContent += `
-/* Urja Runtime */
+/* Nexxo Runtime */
 (function() {
   const modules = {};
   const cache = {};
-  function __urja_require(id) {
+  function __nexxo_require(id) {
     if (cache[id]) return cache[id].exports;
     const module = cache[id] = { exports: {} };
-    modules[id](module, module.exports, __urja_require);
+    modules[id](module, module.exports, __nexxo_require);
     return module.exports;
   }
-  function __urja_define(id, factory) {
+  function __nexxo_define(id, factory) {
     modules[id] = factory;
   }
-  globalThis.__urja_define = __urja_define;
-  globalThis.__urja_require = __urja_require;
+  globalThis.__nexxo_define = __nexxo_define;
+  globalThis.__nexxo_require = __nexxo_require;
 })();
 `;
             }
+
+            const artifactModules: Array<{ id: string, size: number, originalSize: number }> = [];
 
             for (const modId of chunk.modules) {
                 try {
@@ -88,45 +92,87 @@ export async function executeParallel(execPlan: ExecutionPlan, buildPlan: BuildP
                     if (!node) {
                         explainReporter.report('execute', 'warning', `Module ${modId} absent from graph, trying as path`);
                         const rawContent = await fs.readFile(modId, 'utf-8');
+                        const size = Buffer.byteLength(rawContent);
+
+                        artifactModules.push({ id: modId, size, originalSize: size });
+
                         if (isCss) {
                             bundleContent += `\n/* Module: ${modId} */\n${rawContent}`;
                         } else {
-                            bundleContent += `\n__urja_define(${JSON.stringify(modId)}, function(module, exports, require) {\n${rawContent}\n});`;
+                            bundleContent += `\n__nexxo_define(${JSON.stringify(modId)}, function(module, exports, require) {\n${rawContent}\n});`;
                         }
                         continue;
                     }
 
-                    // LOAD HOOK (Phase 6 Specs)
-                    // Check if a plugin wants to load this module (e.g. assets, virtual mods)
-                    const loadResult = await ctx.pluginManager.runHook('load', {
-                        path: node.path,
-                        namespace: node.metadata?.namespace,
-                        mode: ctx.mode
-                    }, ctx);
+                    // MODULE TRANSFORM CACHE (Phase 4.3 Efficiency)
+                    const modTransformKey = `transform:${modId}:${node.contentHash}:${ctx.target}:${ctx.mode}:${pipelineHash}`;
+                    const cachedMod = ctx.cache.get(modTransformKey);
 
-                    let content: string;
-                    if (loadResult && typeof loadResult.code === 'string') {
-                        content = loadResult.code;
-                        explainReporter.report('execute', 'load', `Plugin loaded content for ${modId}`);
+                    let transformedCode: string;
+                    let originalSize = 0;
+
+                    if (cachedMod && typeof cachedMod.artifact.source === 'string') {
+                        transformedCode = cachedMod.artifact.source;
+                        // Use metadata if available in cache, else calculate
+                        originalSize = cachedMod.artifact.modules?.[0]?.originalSize || Buffer.byteLength(transformedCode);
+                        explainReporter.report('execute', 'cache_hit', `Transform cache hit: ${modId}`);
                     } else {
-                        // Default Fallback
-                        content = await fs.readFile(node.path, 'utf-8');
+                        // LOAD HOOK
+                        const loadResult = await ctx.pluginManager.runHook('load', {
+                            path: node.path,
+                            namespace: node.metadata?.namespace,
+                            mode: ctx.mode
+                        }, ctx);
+
+                        let content: string;
+                        if (loadResult && typeof loadResult.code === 'string') {
+                            content = loadResult.code;
+                            // explainReporter.report('execute', 'load', `Plugin loaded content for ${modId}`);
+                        } else {
+                            content = await fs.readFile(node.path, 'utf-8');
+                        }
+
+                        originalSize = Buffer.byteLength(content);
+
+                        // TRANSFORM HOOK
+                        explainReporter.record({ stage: 'execute', decision: 'transform', reason: 'profiling', name: 'transform:start', id: modId, timestamp: performance.now() });
+                        const transformed = await ctx.pluginManager.runHook('transformModule', {
+                            code: content,
+                            path: node.path,
+                            id: modId,
+                            target: ctx.target,
+                            mode: ctx.mode,
+                            format: 'cjs' // Inform transformer we are bundling in CJS wrapper
+                        }, ctx);
+                        explainReporter.record({ stage: 'execute', decision: 'transform', reason: 'profiling', name: 'transform:end', id: modId, timestamp: performance.now() });
+
+
+                        transformedCode = transformed.code;
+
+                        // STORE IN CACHE
+                        ctx.cache.set(modTransformKey, {
+                            hash: modTransformKey,
+                            artifact: {
+                                id: node.contentHash,
+                                type: isCss ? 'css' : 'js',
+                                fileName: '',
+                                dependencies: [],
+                                source: transformedCode,
+                                modules: [{ id: modId, size: Buffer.byteLength(transformedCode), originalSize }]
+                            }
+                        });
                     }
 
-                    // RUN PLUGINS (Phase B1/B2)
-                    const transformed = await ctx.pluginManager.runHook('transformModule', {
-                        code: content,
-                        path: node.path,
+                    artifactModules.push({
                         id: modId,
-                        target: ctx.target,
-                        mode: ctx.mode
-                    }, ctx);
-
+                        size: Buffer.byteLength(transformedCode),
+                        originalSize
+                    });
 
                     if (isCss) {
-                        bundleContent += `\n/* Module: ${node.path} */\n${transformed.code}`;
+                        bundleContent += `\n/* Module: ${node.path} */\n${transformedCode}`;
                     } else {
-                        bundleContent += `\n__urja_define(${JSON.stringify(modId)}, function(module, exports, require) {\n${transformed.code}\n});`;
+                        bundleContent += `\n__nexxo_define(${JSON.stringify(modId)}, function(module, exports, require) {\n${transformedCode}\n});`;
                     }
                 } catch (e: any) {
                     throw {
@@ -141,7 +187,7 @@ export async function executeParallel(execPlan: ExecutionPlan, buildPlan: BuildP
             // Entry Execution for JS
             if (!isCss && chunk.entry) {
                 const entryId = generateModuleId('file', normalizePath(chunk.entry), ctx.rootDir);
-                bundleContent += `\n\n/* Entry Point */\n__urja_require(${JSON.stringify(entryId)});`;
+                bundleContent += `\n\n/* Entry Point */\n__nexxo_require(${JSON.stringify(entryId)});`;
             }
 
             const contentHash = canonicalHash(bundleContent).substring(0, 16);
@@ -151,7 +197,8 @@ export async function executeParallel(execPlan: ExecutionPlan, buildPlan: BuildP
                 type: isCss ? 'css' : 'js',
                 fileName: chunk.outputName,
                 dependencies: [...chunk.modules],
-                source: bundleContent
+                source: bundleContent,
+                modules: artifactModules
             };
 
             // SET CACHE

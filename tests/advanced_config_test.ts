@@ -13,7 +13,7 @@ async function runTest() {
     await fs.mkdir(testDir, { recursive: true });
 
     // Create .env file
-    await fs.writeFile(path.join(testDir, '.env'), 'URJA_TEST_VAR=hello\nSECRET=hidden');
+    await fs.writeFile(path.join(testDir, '.env'), 'NEXXO_TEST_VAR=hello\nSECRET=hidden');
 
     // Create dummy index.html
     await fs.mkdir(path.join(testDir, 'public'), { recursive: true });
@@ -59,7 +59,7 @@ async function runTest() {
         console.log('✅ Server started');
 
         // Check Env Vars
-        if (process.env.URJA_TEST_VAR === 'hello') {
+        if (process.env.NEXXO_TEST_VAR === 'hello') {
             console.log('✅ Environment variables loaded');
         } else {
             throw new Error('Environment variables failed to load');

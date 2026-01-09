@@ -26,7 +26,7 @@ export async function initBuild(
     explainReporter.report('init', 'initialize', 'Starting build initialization');
 
     const engine: EngineInfo = {
-        name: "Urja",
+        name: "Nexxo",
         version: "0.1.3", // Should normally come from package.json
         buildTime: new Date().toISOString()
     };

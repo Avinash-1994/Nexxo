@@ -14,14 +14,14 @@ const translations: Record<Language, Record<string, string>> = {
         'nav.docs': 'Docs',
         'nav.guides': 'Guides',
         'hero.title': 'The Honest Build System.',
-        'hero.subtitle': 'Urja is a production-grade build engine designed for technical architects.',
+        'hero.subtitle': 'Nexxo is a production-grade build engine designed for technical architects.',
     },
     hi: {
         'nav.home': 'मुख्य पृष्ठ',
         'nav.docs': 'दस्तावेज़',
         'nav.guides': 'मार्गदर्शिका',
         'hero.title': 'ईमानदार निर्माण प्रणाली।',
-        'hero.subtitle': 'Urja तकनीकी आर्किटेक्ट्स के लिए डिज़ाइन किया गया एक प्रोडक्शन-ग्रेड बिल्ड इंजन है।',
+        'hero.subtitle': 'Nexxo तकनीकी आर्किटेक्ट्स के लिए डिज़ाइन किया गया एक प्रोडक्शन-ग्रेड बिल्ड इंजन है।',
     }
 };
 

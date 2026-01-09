@@ -1,5 +1,5 @@
 /**
- * @urja/solid - Production-Grade Solid.js Plugin
+ * @nexxo/solid - Production-Grade Solid.js Plugin
  * 
  * Features:
  * - JSX transformation with Solid preset
@@ -39,7 +39,7 @@ export interface SolidPluginOptions {
     };
 }
 
-export function urjaSolid(options: SolidPluginOptions = {}): Plugin {
+export function nexxoSolid(options: SolidPluginOptions = {}): Plugin {
     const {
         hmr = true,
         development = process.env.NODE_ENV !== 'production',
@@ -48,7 +48,7 @@ export function urjaSolid(options: SolidPluginOptions = {}): Plugin {
     } = options;
 
     return {
-        name: 'urja-solid',
+        name: 'nexxo-solid',
 
         async transform(code: string, id: string) {
             // Only process Solid files (.jsx, .tsx with Solid imports)
@@ -139,7 +139,7 @@ async function transformSolidJSX(
 
         return solidResult.code;
     } catch (error) {
-        console.warn('[urja-solid] Transform failed:', error);
+        console.warn('[nexxo-solid] Transform failed:', error);
         return null;
     }
 }
@@ -157,6 +157,6 @@ function generateSourceMap(originalCode: string, transformedCode: string, id: st
 // Export helper for use in config
 export function solidPreset(options: SolidPluginOptions = {}): Plugin[] {
     return [
-        urjaSolid(options)
+        nexxoSolid(options)
     ];
 }

@@ -22,6 +22,7 @@ export interface TransformOptions {
     isDev?: boolean;
     define?: Record<string, string>;
     target?: 'browser' | 'node' | 'edge';
+    format?: 'esm' | 'cjs' | 'iife';
 }
 
 export interface TransformResult {
@@ -128,7 +129,7 @@ export class UniversalTransformer {
                 const finalResult = await esbuild.transform(result.code, {
                     define: options.define || {},
                     loader: 'tsx',
-                    format: options.target === 'node' ? 'cjs' : 'esm',
+                    format: options.format || (options.target === 'node' ? 'cjs' : 'esm'),
                     platform: options.target === 'node' ? 'node' : 'browser',
                     target: 'es2020'
                 });
@@ -200,8 +201,8 @@ export class UniversalTransformer {
             if (isDev) {
                 const hmrFooter = `
 
-// Urja Advanced HMR (React)
-import { createHotContext } from '/@urja/client';
+// Nexxo Advanced HMR (React)
+import { createHotContext } from '/@nexxo/client';
 if (!import.meta.hot) {
     import.meta.hot = createHotContext("${filePath}");
 }
@@ -217,8 +218,27 @@ if (import.meta.hot) {
                 map: output?.map ? JSON.stringify(output.map) : undefined
             };
         } catch (error: any) {
-            log.error(`React transform failed for ${filePath}: ${error.stack}`);
-            return this.transformVanilla(code, filePath, isDev);
+            // Display error prominently to user
+            const relativePath = filePath.replace(this.root, '').replace(/^\//, '');
+            const errorMessage = error.message?.split('\n')[0] || String(error);
+            const lineMatch = error.loc?.line || error.message?.match(/\(\d+:\d+\)/)?.[0];
+
+            // ALWAYS log to console for debugging
+            console.error('\n=== TRANSFORMATION ERROR ===');
+            console.error('File:', relativePath);
+            console.error('Error:', errorMessage);
+            console.error('Line:', error.loc?.line, 'Column:', error.loc?.column);
+            console.error('===========================\n');
+
+            log.projectError({
+                file: relativePath,
+                message: errorMessage,
+                line: error.loc?.line,
+                column: error.loc?.column
+            });
+
+            // Re-throw the error instead of falling back
+            throw error;
         }
     }
 
@@ -244,8 +264,8 @@ if (import.meta.hot) {
 const _sfc_main = { template: \`${code.replace(/`/g, '\\`')}\` };
 export default _sfc_main;
 
-// Urja Advanced HMR (Vue - Fallback)
-import { createHotContext } from '/@urja/client';
+// Nexxo Advanced HMR (Vue - Fallback)
+import { createHotContext } from '/@nexxo/client';
 if (!import.meta.hot) {
     import.meta.hot = createHotContext("${filePath}");
 }
@@ -344,8 +364,8 @@ if (import.meta.hot) {
             if (isDev) {
                 output += `
 
-// Urja Advanced HMR (Vue)
-import { createHotContext } from '/@urja/client';
+// Nexxo Advanced HMR (Vue)
+import { createHotContext } from '/@nexxo/client';
 if (!import.meta.hot) {
     import.meta.hot = createHotContext("${filePath}");
 }
@@ -406,8 +426,8 @@ if (import.meta.hot) {
                 const componentId = canonicalHash(filePath).substring(0, 16);
                 finalCode += `
 
-// Urja Advanced HMR (Svelte)
-import { createHotContext } from '/@urja/client';
+// Nexxo Advanced HMR (Svelte)
+import { createHotContext } from '/@nexxo/client';
 if (!import.meta.hot) {
     import.meta.hot = createHotContext("${filePath}");
 }
@@ -415,7 +435,7 @@ if (import.meta.hot) {
     import.meta.hot.accept((newModule) => {
         if (!newModule) return;
         // Svelte HMR: Re-create component instances
-        const instances = window.__URJA_SVELTE_INSTANCES__ || (window.__URJA_SVELTE_INSTANCES__ = new Map());
+        const instances = window.__NEXXO_SVELTE_INSTANCES__ || (window.__NEXXO_SVELTE_INSTANCES__ = new Map());
         const componentInstances = instances.get("${componentId}") || [];
         componentInstances.forEach(instance => {
             if (instance && instance.$set) {
@@ -478,8 +498,8 @@ if (import.meta.hot) {
                         const componentId = canonicalHash(filePath).substring(0, 16);
                         finalCode += `
 
-// Urja Advanced HMR (Angular)
-import { createHotContext } from '/@urja/client';
+// Nexxo Advanced HMR (Angular)
+import { createHotContext } from '/@nexxo/client';
 if (!import.meta.hot) {
     import.meta.hot = createHotContext("${filePath}");
 }
@@ -487,7 +507,7 @@ if (import.meta.hot) {
     import.meta.hot.accept((newModule) => {
         if (!newModule) return;
         // Angular HMR: Re-bootstrap components
-        const registry = window.__URJA_ANGULAR_REGISTRY__ || (window.__URJA_ANGULAR_REGISTRY__ = new Map());
+        const registry = window.__NEXXO_ANGULAR_REGISTRY__ || (window.__NEXXO_ANGULAR_REGISTRY__ = new Map());
         const components = registry.get("${componentId}") || [];
         components.forEach(({ componentRef, viewContainerRef }) => {
             if (componentRef && viewContainerRef) {
@@ -547,8 +567,8 @@ if (import.meta.hot) {
             if (isDev) {
                 const hmrFooter = `
 
-// Urja Advanced HMR (Solid)
-import { createHotContext } from '/@urja/client';
+// Nexxo Advanced HMR (Solid)
+import { createHotContext } from '/@nexxo/client';
 if (!import.meta.hot) {
     import.meta.hot = createHotContext("${filePath}");
 }
@@ -556,7 +576,7 @@ if (import.meta.hot) {
     import.meta.hot.accept((newModule) => {
         if (!newModule) return;
         // Solid HMR: Re-render root components
-        const roots = window.__URJA_SOLID_ROOTS__ || (window.__URJA_SOLID_ROOTS__ = new Map());
+        const roots = window.__NEXXO_SOLID_ROOTS__ || (window.__NEXXO_SOLID_ROOTS__ = new Map());
         const componentRoots = roots.get("${filePath}") || [];
         componentRoots.forEach(({ dispose, container, component }) => {
             if (dispose) dispose();
@@ -593,8 +613,8 @@ if (import.meta.hot) {
                 if (isDev) {
                     const hmrFooter = `
 
-// Urja Advanced HMR (Solid - Fallback)
-import { createHotContext } from '/@urja/client';
+// Nexxo Advanced HMR (Solid - Fallback)
+import { createHotContext } from '/@nexxo/client';
 if (!import.meta.hot) {
     import.meta.hot = createHotContext("${filePath}");
 }
@@ -687,8 +707,8 @@ if (import.meta.hot) {
                 const componentId = canonicalHash(filePath).substring(0, 16);
                 finalCode += `
 
-// Urja Advanced HMR (Lit)
-import { createHotContext } from '/@urja/client';
+// Nexxo Advanced HMR (Lit)
+import { createHotContext } from '/@nexxo/client';
 if (!import.meta.hot) {
     import.meta.hot = createHotContext("${filePath}");
 }
@@ -696,7 +716,7 @@ if (import.meta.hot) {
     import.meta.hot.accept((newModule) => {
         if (!newModule) return;
         // Lit HMR: Re-register custom elements
-        const registry = window.__URJA_LIT_REGISTRY__ || (window.__URJA_LIT_REGISTRY__ = new Map());
+        const registry = window.__NEXXO_LIT_REGISTRY__ || (window.__NEXXO_LIT_REGISTRY__ = new Map());
         const elements = registry.get("${componentId}") || [];
         elements.forEach(({ tagName, constructor }) => {
             const instances = document.querySelectorAll(tagName);

@@ -109,14 +109,14 @@ export class UrHome extends LitElement {
         return html`
       <div class="hero">
         <h1>Energy-Powered Built Interface.</h1>
-        <p class="tagline">Urja is a production-grade build tool that enforces architectural discipline through a frozen core and strictly isolated framework adapters.</p>
+        <p class="tagline">Nexxo is a production-grade build tool that enforces architectural discipline through a frozen core and strictly isolated framework adapters.</p>
         <a href="/docs/getting-started" class="cta-button">Get Started →</a>
       </div>
 
       <div class="grid">
         <div class="card">
           <h2>Isolated Adapters</h2>
-          <p>Whether you're using React, Vue, or Angular, Urja ensures that framework logic never leaks into your core engine. Each adapter operates as a pure data producer.</p>
+          <p>Whether you're using React, Vue, or Angular, Nexxo ensures that framework logic never leaks into your core engine. Each adapter operates as a pure data producer.</p>
           <div style="margin-top: 1rem;">
             <span class="framework-pill">React</span>
             <span class="framework-pill">Vue</span>
@@ -129,21 +129,21 @@ export class UrHome extends LitElement {
         </div>
         <div class="card">
           <h2>Neutral HMR</h2>
-          <p>Urja's Hot Module Replacement uses a standard invalidation model that works universally across VDOM, DOM, and Web Component paradigms.</p>
+          <p>Nexxo's Hot Module Replacement uses a standard invalidation model that works universally across VDOM, DOM, and Web Component paradigms.</p>
         </div>
       </div>
 
       <div class="alert">
         <div class="alert-title">⚠️ Non-Goal: Meta-Framework Logic</div>
-        <p>Urja is a <strong>Bundler</strong>, not a framework. It does not provide built-in SSR, file-system routing, or data-fetching hooks. It is designed to be the foundation for your custom architecture.</p>
+        <p>Nexxo is a <strong>Bundler</strong>, not a framework. It does not provide built-in SSR, file-system routing, or data-fetching hooks. It is designed to be the foundation for your custom architecture.</p>
       </div>
 
-      <h2>How Urja Compares</h2>
+      <h2>How Nexxo Compares</h2>
       <table class="comparison-table">
         <thead>
           <tr>
             <th>Axis</th>
-            <th>Urja</th>
+            <th>Nexxo</th>
             <th>Vite / Webpack</th>
           </tr>
         </thead>
@@ -172,7 +172,7 @@ export class UrHome extends LitElement {
       </table>
 
       <h2>Who is this for?</h2>
-      <p>Urja is built for <strong>Technical Architects</strong> who are tired of their build tool dictating their project's structure. If you need a stable, long-term foundation for a multi-framework organization, Urja is your tool.</p>
+      <p>Nexxo is built for <strong>Technical Architects</strong> who are tired of their build tool dictating their project's structure. If you need a stable, long-term foundation for a multi-framework organization, Nexxo is your tool.</p>
     `;
     }
 }

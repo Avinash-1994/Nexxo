@@ -12,7 +12,7 @@ async function testPluginValidation() {
 
     // Valid Plugin
     const valid = validatePlugin({
-        name: 'urja-plugin-good',
+        name: 'nexxo-plugin-good',
         stability: 'stable'
     });
     assert.strictEqual(valid.valid, true);
@@ -60,7 +60,7 @@ async function testStabilityWarning() {
     console.log('\n[Test 3] Deprecation Warning');
     const manager = new PluginManager();
 
-    // NOTE: Urja's logger uses console.log for warnings (yellow text), not console.warn!
+    // NOTE: Nexxo's logger uses console.log for warnings (yellow text), not console.warn!
     const originalLog = console.log;
     let logs: string[] = [];
     console.log = (msg: string) => {
@@ -70,7 +70,7 @@ async function testStabilityWarning() {
     };
 
     manager.register({
-        name: 'urja-plugin-old',
+        name: 'nexxo-plugin-old',
         stability: 'deprecated',
         transform: async (c) => c
     });

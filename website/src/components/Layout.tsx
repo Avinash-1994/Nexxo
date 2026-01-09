@@ -2,6 +2,7 @@ import React from 'react';
 import { useTheme } from './ThemeContext';
 import { Sun, Moon, Zap, Menu, Github, Search, ArrowLeft, ArrowRight, Languages } from 'lucide-react';
 import { BackgroundAnimation } from './BackgroundAnimation';
+import { Logo } from './Logo';
 import { useI18n } from './I18nContext';
 
 interface LayoutProps {
@@ -45,16 +46,19 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             links: [
                 { label: 'React (Tier 1)', href: '#/guides/react' },
                 { label: 'Vue (Tier 1)', href: '#/guides/vue' },
+                { label: 'Svelte (Tier 1)', href: '#/guides/svelte' },
                 { label: 'SolidJS (Tier 1)', href: '#/guides/solid' },
-                { label: 'Angular (Tier 2)', href: '#/guides/angular' },
+                { label: 'Preact (Tier 1)', href: '#/guides/preact' },
                 { label: 'Lit (Verified)', href: '#/guides/lit' },
-                { label: 'Svelte (Verified)', href: '#/guides/svelte' },
+                { label: 'Alpine (Verified)', href: '#/guides/alpine' },
+                { label: 'Qwik (Experimental)', href: '#/guides/qwik' },
+                { label: 'Mithril (Legacy)', href: '#/guides/mithril' },
             ]
         },
         {
             title: 'Orientation',
             links: [
-                { label: 'Is Urja for you?', href: '#/docs/decision-guide' },
+                { label: 'Is Nexxo for you?', href: '#/docs/decision-guide' },
                 { label: 'Governance & Stability', href: '#/docs/governance' },
             ]
         },
@@ -109,12 +113,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                         >
                             <Menu size={20} />
                         </button>
-                        <a href="#/" className="flex items-center gap-2 group">
-                            <div className="bg-blue-600 p-1 rounded-lg group-hover:bg-blue-500 transition-colors">
-                                <Zap size={22} className="text-white fill-white" />
-                            </div>
-                            <span className="text-xl font-bold tracking-tight">URJA</span>
-                            <span className="hidden sm:block px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-500 text-[10px] font-black uppercase border border-blue-500/20">v1.0.0-freeze</span>
+                        <a href="#/">
+                            <Logo />
                         </a>
                     </div>
 
@@ -168,7 +168,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     </nav>
 
                     <div className="flex items-center gap-4">
-                        <a href="https://github.com/avinash-1994/urja" className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors flex items-center gap-2 text-sm font-medium">
+                        <a href="https://github.com/avinash-1994/nexxo" className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors flex items-center gap-2 text-sm font-medium">
                             <Github size={20} />
                             <span className="hidden sm:inline">Star</span>
                         </a>
@@ -267,9 +267,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
                         <footer className="mt-20 pt-8 border-t border-[var(--border-color)] text-[var(--text-secondary)] text-sm flex flex-col sm:flex-row justify-between gap-4">
                             <div className="flex items-center gap-2">
-                                © 2026 Urja Build Systems. All rights reserved.
+                                © 2026 NEXXO Build Systems. All rights reserved.
                             </div>
-                            <a href="https://github.com/avinash-1994/urja/edit/main/website/docs" className="hover:text-blue-500 transition-colors">
+                            <a href="https://github.com/avinash-1994/nexxo/edit/main/website/docs" className="hover:text-indigo-500 transition-colors">
                                 Edit this page on GitHub
                             </a>
                         </footer>

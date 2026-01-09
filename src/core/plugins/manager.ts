@@ -1,22 +1,22 @@
 
-import { UrjaPlugin, PluginHookName, PluginExecutionRecord, PluginValidation } from './types.js';
+import { NexxoPlugin, PluginHookName, PluginExecutionRecord, PluginValidation } from './types.js';
 import { canonicalHash } from '../engine/hash.js';
 import { explainReporter } from '../engine/events.js';
 
 /**
  * Plugin Manager
  * 
- * PUBLIC: Responsible for registering and executing plugins in the Urja pipeline.
+ * PUBLIC: Responsible for registering and executing plugins in the Nexxo pipeline.
  * Use this to extend engine functionality via the official plugin contract.
  * 
  * @public
  */
 export class PluginManager {
     /** @internal */
-    private plugins: Map<string, UrjaPlugin> = new Map();
+    private plugins: Map<string, NexxoPlugin> = new Map();
 
     /** @public */
-    async register(plugin: UrjaPlugin) {
+    async register(plugin: NexxoPlugin) {
         const { name, version } = plugin.manifest;
         const pluginId = canonicalHash(`${name}@${version}`);
 
@@ -98,6 +98,14 @@ export class PluginManager {
         }
 
         return result;
+    }
+
+    /** @public */
+    getPipelineHash() {
+        const pluginIdentities = Array.from(this.plugins.values())
+            .map(p => `${p.manifest.name}@${p.manifest.version}`)
+            .sort();
+        return canonicalHash(pluginIdentities);
     }
 
     /** @public */

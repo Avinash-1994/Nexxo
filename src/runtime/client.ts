@@ -5,7 +5,7 @@ let overlay: any;
 
 function getOverlay() {
     if (!overlay) {
-        overlay = document.createElement('urja-error-overlay');
+        overlay = document.createElement('nexxo-error-overlay');
         document.body.appendChild(overlay);
     }
     return overlay;
@@ -51,7 +51,7 @@ function connect() {
     ws = new WebSocket(`${protocol}//${window.location.host}`);
 
     ws.onopen = () => {
-        // console.log('[urja] Connected to dev server');
+        // console.log('[nexxo] Connected to dev server');
         reconnectAttempts = 0;
         // Notify server we are ready?
     };
@@ -61,7 +61,7 @@ function connect() {
             const message = JSON.parse(event.data);
 
             if (message.type === 'connected') {
-                console.log('[urja] Connected.');
+                console.log('[nexxo] Connected.');
             }
 
             // Security: Config Sync
@@ -72,16 +72,16 @@ function connect() {
 
             if (message.type === 'config:changed') {
                 config = message.config;
-                // console.log('[urja] Config updated remotely:', message.update);
+                // console.log('[nexxo] Config updated remotely:', message.update);
             }
 
             if (message.type === 'error') {
-                console.error('[urja] Build Error:', message.error);
+                console.error('[nexxo] Build Error:', message.error);
                 showError({ type: 'build', ...message.error });
             }
 
             if (message.type === 'reload') {
-                console.log('[urja] Reloading page...');
+                console.log('[nexxo] Reloading page...');
                 window.location.reload();
             }
 
@@ -108,12 +108,12 @@ function connect() {
 
                 // Handle <style> tags (CSS-in-JS or Vue/Angular injections)
                 if (!handled) {
-                    // This is harder without IDs. Urja's CSS plugin injects with IDs?
+                    // This is harder without IDs. Nexxo's CSS plugin injects with IDs?
                     // Assuming global reload for now if not found
                     // Or trying to find style tag with data-vite-dev-id equivalent
                 }
 
-                if (handled) console.log(`[urja] CSS updated: ${path}`);
+                if (handled) console.log(`[nexxo] CSS updated: ${path}`);
             }
 
             if (message.type === 'update') {
@@ -123,14 +123,14 @@ function connect() {
             }
 
         } catch (e) {
-            console.error('[urja] Failed to parse WebSocket message', e);
+            console.error('[nexxo] Failed to parse WebSocket message', e);
         }
     };
 
     ws.onclose = () => {
         if (reconnectAttempts < MAX_ATTEMPTS) {
             const timeout = Math.min(1000 * Math.pow(2, reconnectAttempts), 5000);
-            console.log(`[urja] Disconnected. Reconnecting in ${timeout}ms...`);
+            console.log(`[nexxo] Disconnected. Reconnecting in ${timeout}ms...`);
             setTimeout(connect, timeout);
             reconnectAttempts++;
         }
@@ -142,7 +142,7 @@ async function applyUpdates(updates: any[]) {
     for (const update of updates) {
         const mod = hotModulesMap.get(update.path);
         if (mod) {
-            console.log(`[urja] HMR Update: ${update.path}`);
+            console.log(`[nexxo] HMR Update: ${update.path}`);
 
             // 1. Call dispose
             const data = {};
@@ -160,7 +160,7 @@ async function applyUpdates(updates: any[]) {
                     cb.fn([newMod]);
                 });
             } catch (e) {
-                console.error(`[urja] HMR Error in ${update.path}:`, e);
+                console.error(`[nexxo] HMR Error in ${update.path}:`, e);
                 window.location.reload(); // Fallback
             }
         } else {
@@ -170,7 +170,7 @@ async function applyUpdates(updates: any[]) {
 }
 
 // 2. Global API
-(window as any).urja = {
+(window as any).nexxo = {
     getConfig: () => config,
     updateConfig: (path: string, value: any, persist = false) => {
         if (ws && ws.readyState === WebSocket.OPEN) {
@@ -213,7 +213,7 @@ export function createHotContext(ownerPath: string) {
                 });
             } else {
                 // Dep-accept: accept(['./foo'], cb)
-                // Urja v1 simplified: treat as self-accept for now or reload
+                // Nexxo v1 simplified: treat as self-accept for now or reload
                 // Proper dep support requires graph analysis on client or server sending graph
             }
         },

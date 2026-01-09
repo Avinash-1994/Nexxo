@@ -35,23 +35,23 @@ export const GovernanceHub: React.FC = () => {
                     Governance & Stability
                 </div>
                 <h1 className="text-5xl lg:text-7xl font-black font-display mb-8 tracking-tighter">
-                    Stability Gaurantee.
+                    Stability Guarantee.
                 </h1>
                 <p className="text-xl text-[var(--text-secondary)] leading-relaxed max-w-4xl">
-                    Urja is built on the principle of the "Frozen Core". Our governance model ensures that your build infrastructure remains a constant, predictable utility.
+                    Nexxo is built on the principle of the "Frozen Core". Our governance model ensures that your build infrastructure remains a constant, predictable utility.
                 </p>
             </div>
 
             <HubSection icon={Lock} title="The Frozen Core Philosophy">
                 <p>
-                    The Urja core engine is strictly feature-frozen regarding its fundamental build orchestration. We do not accept feature requests that compromise the determinism of the Build Graph.
+                    The Nexxo core engine is strictly feature-frozen regarding its fundamental build orchestration. We do not accept feature requests that compromise the determinism of the Build Graph.
                 </p>
                 <CodeBlock code={`// Immutable Core Modules
 - src/core/graph-planner.ts (LOCKED)
 - src/core/universal-transformer.ts (LOCKED)
 - src/resolve/path-resolver.ts (LOCKED)`} />
                 <p className="text-sm italic">
-                    "Architecture should be boring. Urja ensures the foundations of your build process never shift under your feet."
+                    "Architecture should be boring. Nexxo ensures the foundations of your build process never shift under your feet."
                 </p>
             </HubSection>
 
@@ -80,7 +80,7 @@ export const GovernanceHub: React.FC = () => {
 
             <HubSection icon={History} title="Breaking Change Policy">
                 <p>
-                    Urja follows a strict "Long-Term Reliability" cycle. Breaking changes to the core config schema (`urja.config.js`) are only permitted during major release cycles, which occur no more than once every 18 months.
+                    Nexxo follows a strict "Long-Term Reliability" cycle. Breaking changes to the core config schema (`nexxo.config.js`) are only permitted during major release cycles, which occur no more than once every 18 months.
                 </p>
                 <div className="flex items-center gap-4 p-4 rounded-xl border border-amber-500/20 bg-amber-500/5 text-amber-600">
                     <AlertTriangle size={20} />
@@ -105,7 +105,7 @@ export const GovernanceHub: React.FC = () => {
                 <Zap size={48} className="text-blue-500 mx-auto mb-6" />
                 <h2 className="text-4xl font-black font-display mb-6">Built for the Long Term.</h2>
                 <p className="text-[var(--text-secondary)] max-w-2xl mx-auto mb-10 text-lg">
-                    We understand that build tools are the most critical piece of an organization's infrastructure. Urja's governance ensures that piece never breaks.
+                    We understand that build tools are the most critical piece of an organization's infrastructure. Nexxo's governance ensures that piece never breaks.
                 </p>
                 <a href="#/docs/getting-started" className="inline-flex h-14 items-center justify-center px-10 rounded-2xl bg-blue-600 text-white font-bold hover:bg-blue-500 transition-all shadow-xl shadow-blue-500/25">
                     Explore System Manual

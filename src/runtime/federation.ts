@@ -16,7 +16,7 @@ export interface SharedScope {
 
 declare global {
     interface Window {
-        __URJA_FEDERATION__: {
+        __NEXXO_FEDERATION__: {
             remotes: Record<string, RemoteConfig>;
             shared: SharedScope;
             initPromises: Record<string, Promise<any>>;
@@ -26,7 +26,7 @@ declare global {
 
 // Initialize Global Scope
 if (typeof window !== 'undefined') {
-    window.__URJA_FEDERATION__ = window.__URJA_FEDERATION__ || {
+    window.__NEXXO_FEDERATION__ = window.__NEXXO_FEDERATION__ || {
         remotes: {},
         shared: {},
         initPromises: {}
@@ -37,14 +37,14 @@ export async function initFederation(remotes: Record<string, string>) {
     if (typeof window === 'undefined') return;
 
     Object.entries(remotes).forEach(([name, url]) => {
-        window.__URJA_FEDERATION__.remotes[name] = { url };
+        window.__NEXXO_FEDERATION__.remotes[name] = { url };
     });
 }
 
 export async function loadRemote(remoteName: string, exposedModule: string) {
     if (typeof window === 'undefined') return null;
 
-    const remote = window.__URJA_FEDERATION__.remotes[remoteName];
+    const remote = window.__NEXXO_FEDERATION__.remotes[remoteName];
     if (!remote) {
         throw new Error(`Remote ${remoteName} not configured`);
     }
@@ -100,7 +100,7 @@ export async function loadRemote(remoteName: string, exposedModule: string) {
 export function registerShared(name: string, version: string, factory: () => Promise<any>) {
     if (typeof window === 'undefined') return;
 
-    const scope = window.__URJA_FEDERATION__.shared;
+    const scope = window.__NEXXO_FEDERATION__.shared;
     if (!scope[name]) scope[name] = {};
 
     if (!scope[name][version]) {
@@ -114,7 +114,7 @@ export function registerShared(name: string, version: string, factory: () => Pro
 export async function loadShared(name: string, requiredVersion: string) {
     if (typeof window === 'undefined') return null;
 
-    const scope = window.__URJA_FEDERATION__.shared;
+    const scope = window.__NEXXO_FEDERATION__.shared;
     const versions = scope[name];
 
     if (!versions) {

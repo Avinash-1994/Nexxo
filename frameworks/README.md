@@ -1,13 +1,13 @@
-# Urja Adapter Registry
+# Nexxo Adapter Registry
 
 **Phase**: H.1 (Module 9)  
 **Status**: ✅ Active
 
-This registry indexes all supported framework adapters for the Urja build system.
+This registry indexes all supported framework adapters for the Nexxo build system.
 
 ## 📖 What is an Adapter?
 
-An **Adapter** is an isolated translation layer that allows Urja to build, bundle, and serve a specific frontend framework without modifying Urja's core logic. Adapters are **data producers**, not policy engines.
+An **Adapter** is an isolated translation layer that allows Nexxo to build, bundle, and serve a specific frontend framework without modifying Nexxo's core logic. Adapters are **data producers**, not policy engines.
 
 See: [Adapter Architecture](../MODULE_8_SCOPE.md)
 

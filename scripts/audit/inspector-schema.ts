@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Urja Stability Audit — Inspector Schema Check
+ * Nexxo Stability Audit — Inspector Schema Check
  * 
  * Verifies that the Graph Node and Edge structure remains stable.
  * This ensures external visualization tools won't break.
@@ -51,7 +51,7 @@ async function saveBaseline(fields: SchemaField[]): Promise<void> {
 }
 
 async function main() {
-    console.log('🔍 Urja Inspector Schema Audit\n');
+    console.log('🔍 Nexxo Inspector Schema Audit\n');
 
     const currentFields = EXPECTED_GRAPH_NODE_FIELDS;
     const baseline = await loadBaseline();

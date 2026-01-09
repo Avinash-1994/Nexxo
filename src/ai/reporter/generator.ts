@@ -38,7 +38,7 @@ export class ReportGenerator {
         }
 
         if (session.metrics?.bundleSize && session.metrics.bundleSize > 1024 * 1024) {
-            report += `- 📦 Bundle is large (>1MB). Run \`urja optimize\` to analyze.\n`;
+            report += `- 📦 Bundle is large (>1MB). Run \`nexxo optimize\` to analyze.\n`;
         }
 
         return report;

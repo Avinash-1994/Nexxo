@@ -17,6 +17,7 @@ export async function build(cfg: BuildConfig) {
       throw new Error(errorMsg);
     }
     console.log('✅ Build completed successfully!');
+    return result; // Added
   } catch (error: any) {
     console.error('❌ Build failed:', error.message);
     throw error;

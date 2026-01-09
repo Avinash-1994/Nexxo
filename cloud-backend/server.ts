@@ -1,5 +1,5 @@
 /**
- * Urja Cloud API - Production Backend Server
+ * Nexxo Cloud API - Production Backend Server
  * 
  * This is a production-ready backend for the Self-Learning AI system.
  * Deploy to Vercel, Cloudflare Workers, or any Node.js hosting.
@@ -187,7 +187,7 @@ export default app;
 // For local development
 if (import.meta.url === `file://${process.argv[1]}`) {
     const port = parseInt(process.env.PORT || '3000');
-    console.log(`🚀 Urja Cloud API running on http://localhost:${port}`);
+    console.log(`🚀 Nexxo Cloud API running on http://localhost:${port}`);
 
     Bun.serve({
         port,

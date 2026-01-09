@@ -10,7 +10,7 @@ export const Play: React.FC = () => {
     const [lives, setLives] = useState(3);
 
     useEffect(() => {
-        const saved = localStorage.getItem('urja-game-highscore');
+        const saved = localStorage.getItem('nexxo-game-highscore');
         if (saved) setHighScore(parseInt(saved));
     }, []);
 
@@ -160,7 +160,7 @@ export const Play: React.FC = () => {
                 ctx.fill();
             });
 
-            // Draw player (Urja Core)
+            // Draw player (Nexxo Core)
             ctx.save();
             ctx.translate(player.x, player.y);
 
@@ -180,7 +180,7 @@ export const Play: React.FC = () => {
             ctx.arc(0, 0, player.radius, 0, Math.PI * 2);
             ctx.fill();
 
-            // Urja logo
+            // Nexxo logo
             ctx.fillStyle = '#fff';
             ctx.font = 'bold 14px Inter';
             ctx.textAlign = 'center';
@@ -201,7 +201,7 @@ export const Play: React.FC = () => {
                         const newScore = s + 10 * level;
                         if (newScore > highScore) {
                             setHighScore(newScore);
-                            localStorage.setItem('urja-game-highscore', newScore.toString());
+                            localStorage.setItem('nexxo-game-highscore', newScore.toString());
                         }
                         if (newScore % 100 === 0) {
                             setLevel(l => l + 1);
@@ -393,7 +393,7 @@ export const Play: React.FC = () => {
                             How to Play
                         </h3>
                         <ul className="text-sm text-slate-300 space-y-2 text-left">
-                            <li>🖱️ Move your mouse to control the Urja Core</li>
+                            <li>🖱️ Move your mouse to control the Nexxo Core</li>
                             <li>⚡ Collect framework modules (hexagons) to gain points</li>
                             <li>❌ Avoid red bugs that break your build</li>
                             <li>🎯 Each level increases speed and difficulty</li>

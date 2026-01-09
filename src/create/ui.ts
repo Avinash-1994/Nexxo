@@ -74,7 +74,7 @@ function cleanup() {
  * Interactive Text Input
  */
 export async function text(question: string, initial: string = ''): Promise<string> {
-    const forceFallback = process.env.URJA_NON_INTERACTIVE === 'true';
+    const forceFallback = process.env.NEXXO_NON_INTERACTIVE === 'true';
     if (!forceFallback && process.stdin.isTTY) {
         return new Promise((resolve) => {
             const rl = readline.createInterface({
@@ -98,7 +98,7 @@ export async function text(question: string, initial: string = ''): Promise<stri
  * Interactive Select (Radio)
  */
 export async function select<T extends string>(question: string, options: T[]): Promise<T> {
-    const forceFallback = process.env.URJA_NON_INTERACTIVE === 'true';
+    const forceFallback = process.env.NEXXO_NON_INTERACTIVE === 'true';
     if (!forceFallback && process.stdin.isTTY && typeof (process.stdin as any).setRawMode === 'function') {
         return new Promise((resolve) => {
             let index = 0;
@@ -154,7 +154,7 @@ export async function select<T extends string>(question: string, options: T[]): 
  * Interactive MultiSelect (Checkbox)
  */
 export async function multiselect<T extends string>(question: string, options: T[], defaults: boolean[] = []): Promise<T[]> {
-    const forceFallback = process.env.URJA_NON_INTERACTIVE === 'true';
+    const forceFallback = process.env.NEXXO_NON_INTERACTIVE === 'true';
     if (!forceFallback && process.stdin.isTTY && typeof (process.stdin as any).setRawMode === 'function') {
         return new Promise((resolve) => {
             let index = 0;

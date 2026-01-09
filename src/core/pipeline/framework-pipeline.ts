@@ -28,8 +28,24 @@ export class FrameworkPipeline {
      */
     static async auto(config: BuildConfig): Promise<FrameworkPipeline> {
         const rootDir = config.root || process.cwd();
-        const framework = await detectFramework(rootDir);
-        log.info(`Pipeline: Auto-detected ${framework} workflow`);
+
+        // Honor explicit configuration (Phase 2/3 Alignment)
+        let framework = config.framework as Framework;
+        if (!framework && config.adapter) {
+            if (config.adapter.includes('react')) framework = 'react';
+            else if (config.adapter.includes('vue')) framework = 'vue';
+            else if (config.adapter.includes('svelte')) framework = 'svelte';
+            else if (config.adapter.includes('angular')) framework = 'angular';
+            else if (config.adapter.includes('solid')) framework = 'solid';
+        }
+
+        if (!framework) {
+            framework = await detectFramework(rootDir);
+            log.info(`Pipeline: Auto-detected ${framework} workflow`);
+        } else {
+            log.info(`Pipeline: Using explicitly configured ${framework} workflow`);
+        }
+
         return new FrameworkPipeline(config, framework);
     }
 
@@ -92,7 +108,9 @@ export class FrameworkPipeline {
         return {
             success: true,
             targets: results,
-            artifactCount: results.reduce((acc, r) => acc + (r.artifacts?.length || 0), 0)
+            artifactCount: results.reduce((acc, r) => acc + (r.artifacts?.length || 0), 0),
+            events: results.flatMap(r => (r as any).events || []),
+            pluginMetrics: (results[results.length - 1] as any).pluginMetrics || []
         };
     }
 

@@ -13,7 +13,7 @@ export const QualityGuide: React.FC = () => {
                     Quality & Performance.
                 </h1>
                 <p className="text-xl text-[var(--text-secondary)] leading-relaxed max-w-4xl">
-                    Urja isn't just a bundler; it's a quality assurance engine. With built-in support for SEO, Accessibility, and Performance auditing, you can ship production-grade software with confidence.
+                    Nexxo isn't just a bundler; it's a quality assurance engine. With built-in support for SEO, Accessibility, and Performance auditing, you can ship production-grade software with confidence.
                 </p>
             </div>
 
@@ -40,13 +40,13 @@ export const QualityGuide: React.FC = () => {
                     <h2 className="text-3xl font-black font-display tracking-tight text-left">Automatic Terminal Feedback</h2>
                 </div>
                 <p className="text-[var(--text-secondary)] mb-6 text-left">
-                    Urja provides immediate feedback by automatically running audits after every successful build. You don't need to leave your terminal or run extra commands to see if your changes impacted site quality.
+                    Nexxo provides immediate feedback by automatically running audits after every successful build. You don't need to leave your terminal or run extra commands to see if your changes impacted site quality.
                 </p>
-                <CodeBlock code="urja build" />
+                <CodeBlock code="nexxo build" />
                 <p className="text-sm text-[var(--text-secondary)] mt-4 mb-6 text-left italic">
                     You can also run a targeted audit on any URL:
                 </p>
-                <CodeBlock code="urja audit --url http://localhost:5173" />
+                <CodeBlock code="nexxo audit --url http://localhost:5173" />
                 <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="p-6 rounded-2xl border border-[var(--border-color)] bg-[var(--surface-color)]/30">
                         <h4 className="font-bold flex items-center gap-2 mb-3">
@@ -63,27 +63,13 @@ export const QualityGuide: React.FC = () => {
                             Pre-build Gates
                         </h4>
                         <p className="text-sm text-[var(--text-secondary)] leading-relaxed text-left">
-                            Configure Urja to block production builds if any audit score falls below your organization's threshold.
+                            Configure Nexxo to block production builds if any audit score falls below your organization's threshold.
                         </p>
                     </div>
                 </div>
             </section>
 
-            <section className="mb-20">
-                <div className="flex items-center gap-3 mb-6">
-                    <LayoutDashboard className="text-blue-500" size={24} />
-                    <h2 className="text-3xl font-black font-display tracking-tight text-left">AI-Powered Build Reports</h2>
-                </div>
-                <p className="text-[var(--text-secondary)] mb-6 text-left">
-                    The <code>report</code> command provides a narrative summary of your build history, trends, and audit results using our internal AI narrator.
-                </p>
-                <CodeBlock code="urja report" />
-                <div className="p-8 rounded-[32px] bg-slate-900 border border-slate-800 font-mono text-sm text-blue-300">
-                    <div className="text-slate-500 mb-4 border-b border-slate-800 pb-2 uppercase text-[10px] tracking-widest font-bold">Example AI Narrative</div>
-                    <p className="mb-4">"Your build time has decreased by 12% since the last session. However, your Accessibility score dropped from 95 to 88 due to new buttons added in App.tsx without aria-labels."</p>
-                    <p>"Recommendation: Apply the suggested fix via 'urja ai fix' to restore your compliance."</p>
-                </div>
-            </section>
+
 
             <section className="p-10 rounded-[40px] bg-blue-600 shadow-2xl shadow-blue-500/25 text-white mb-24">
                 <div className="flex items-start gap-4">
@@ -91,7 +77,7 @@ export const QualityGuide: React.FC = () => {
                     <div className="text-left">
                         <h3 className="text-2xl font-bold mb-4">Why Architects Love It</h3>
                         <p className="text-blue-100 leading-relaxed">
-                            Most tools require external plugins or CI steps for these checks. Urja integrates them directly into the build graph, making quality a first-class citizen of the development lifecycle. No more "fixing accessibility later"—fix it as you build.
+                            Most tools require external plugins or CI steps for these checks. Nexxo integrates them directly into the build graph, making quality a first-class citizen of the development lifecycle. No more "fixing accessibility later"—fix it as you build.
                         </p>
                     </div>
                 </div>

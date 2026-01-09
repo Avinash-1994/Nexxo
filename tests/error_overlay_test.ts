@@ -13,8 +13,8 @@ async function runTests() {
     const { ErrorOverlay } = await import('../src/runtime/error-overlay.js');
 
     // Register component if not already registered (might need check)
-    if (!customElements.get('urja-error-overlay')) {
-        customElements.define('urja-error-overlay', ErrorOverlay);
+    if (!customElements.get('nexxo-error-overlay')) {
+        customElements.define('nexxo-error-overlay', ErrorOverlay);
     }
 
     console.log('🧪 Running Error Overlay Tests\n');

@@ -40,7 +40,7 @@ export const CoreConcepts: React.FC = () => {
                     Inside the Engine.
                 </h1>
                 <p className="text-xl text-[var(--text-secondary)] leading-relaxed max-w-4xl">
-                    Urja isn't just a wrapper around existing tools. It's a completely reimagined build architecture focused on **determinism**, **isolation**, and **performance**.
+                    Nexxo isn't just a wrapper around existing tools. It's a completely reimagined build architecture focused on **determinism**, **isolation**, and **performance**.
                 </p>
             </div>
 
@@ -48,7 +48,7 @@ export const CoreConcepts: React.FC = () => {
             <FeatureCard
                 icon={Network}
                 title="Graph-First Intelligence"
-                description="At the center of Urja is a persistent, semantic dependency graph. Unlike other tools that see files as a linear list, Urja understands the relationships between every module."
+                description="At the center of Nexxo is a persistent, semantic dependency graph. Unlike other tools that see files as a linear list, Nexxo understands the relationships between every module."
             >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-4">
                     <div className="p-6 rounded-2xl bg-slate-900 text-slate-100 font-mono text-sm border border-slate-800">
@@ -75,11 +75,11 @@ export const CoreConcepts: React.FC = () => {
             <FeatureCard
                 icon={Box}
                 title="Strict Adapter Isolation"
-                description="Urja operates on a 'Pure Data' principle. The core engine knows how to build graphs; it doesn't know what React or Vue is. This logic is strictly isolated in Adapters."
+                description="Nexxo operates on a 'Pure Data' principle. The core engine knows how to build graphs; it doesn't know what React or Vue is. This logic is strictly isolated in Adapters."
             >
                 <div className="p-8 rounded-2xl border border-dashed border-[var(--border-color)] bg-[var(--surface-color)]/30">
                     <div className="flex flex-wrap gap-4 items-center justify-center">
-                        <div className="px-4 py-2 rounded-lg bg-blue-500 text-white font-bold text-sm">URJA CORE</div>
+                        <div className="px-4 py-2 rounded-lg bg-blue-500 text-white font-bold text-sm">NEXXO CORE</div>
                         <Share2 size={24} className="text-[var(--text-secondary)]" />
                         <div className="px-4 py-2 rounded-lg border border-blue-500/30 font-bold text-sm">React Adapter</div>
                         <div className="px-4 py-2 rounded-lg border border-blue-500/30 font-bold text-sm">Vue Adapter</div>
@@ -95,7 +95,7 @@ export const CoreConcepts: React.FC = () => {
             <FeatureCard
                 icon={Cpu}
                 title="Universal Transformer"
-                description="Dealing with ESM and CommonJS concurrently is the 'JS Hell'. Urja resolves this by using an honest, esbuild-backed transformation bridge that ensures all browser targets receive pure ESM."
+                description="Dealing with ESM and CommonJS concurrently is the 'JS Hell'. Nexxo resolves this by using an honest, esbuild-backed transformation bridge that ensures all browser targets receive pure ESM."
             >
                 <div className="p-2">
                     <CodeBlock code={`// Internal Transformation Logic
@@ -112,7 +112,7 @@ if (target === 'browser') {
             <FeatureCard
                 icon={Zap}
                 title="Neutral HMR Runtime"
-                description="Urja's Hot Module Replacement isn't just for CSS. It uses a cross-compatible invalidation model that works identically across VDOM libraries, Web Components, and raw JS modules."
+                description="Nexxo's Hot Module Replacement isn't just for CSS. It uses a cross-compatible invalidation model that works identically across VDOM libraries, Web Components, and raw JS modules."
             >
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {[
@@ -132,7 +132,7 @@ if (target === 'browser') {
                 <ShieldCheck size={48} className="text-emerald-500 mx-auto mb-6" />
                 <h2 className="text-4xl font-black font-display mb-6">Built for Reliability.</h2>
                 <p className="text-[var(--text-secondary)] max-w-2xl mx-auto mb-10 text-lg">
-                    By focusing on these core concepts, Urja ensures that your build pipeline remains fast and stable, regardless of how many modules or which frameworks you add to your stack.
+                    By focusing on these core concepts, Nexxo ensures that your build pipeline remains fast and stable, regardless of how many modules or which frameworks you add to your stack.
                 </p>
                 <a href="#/docs/getting-started" className="inline-flex h-14 items-center justify-center px-10 rounded-2xl bg-blue-600 text-white font-bold hover:bg-blue-500 transition-all shadow-xl shadow-blue-500/25">
                     Read full Tech Specs

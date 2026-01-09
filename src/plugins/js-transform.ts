@@ -1,27 +1,27 @@
 
-import { UrjaPlugin } from '../core/plugins/types.js';
+import { NexxoPlugin } from '../core/plugins/types.js';
 import { UniversalTransformer } from '../core/universal-transformer.js';
 import { detectFramework } from '../core/framework-detector.js';
 
-export function createJsTransformPlugin(rootDir: string): UrjaPlugin {
+export function createJsTransformPlugin(rootDir: string): NexxoPlugin {
     const transformer = new UniversalTransformer(rootDir);
 
     return {
         manifest: {
-            name: 'urja:js-transform',
+            name: 'nexxo:js-transform',
             version: '1.0.0',
             engineVersion: '1.0.0',
             type: 'js',
             hooks: ['transformModule'],
             permissions: { fs: 'read' }
         },
-        id: 'urja:js-transform',
+        id: 'nexxo:js-transform',
         async runHook(hook, input) {
             if (hook === 'transformModule') {
                 const framework = await detectFramework(rootDir);
                 const defines: Record<string, string> = {};
                 for (const [key, value] of Object.entries(process.env)) {
-                    if (key.startsWith('URJA_') || key.startsWith('VITE_') || key === 'NODE_ENV') {
+                    if (key.startsWith('NEXXO_') || key.startsWith('VITE_') || key === 'NODE_ENV') {
                         defines[`process.env.${key}`] = JSON.stringify(value);
                     }
                 }
@@ -33,7 +33,8 @@ export function createJsTransformPlugin(rootDir: string): UrjaPlugin {
                     root: rootDir,
                     isDev: input.mode !== 'production', // Use mode if available
                     define: defines,
-                    target: input.target
+                    target: input.target,
+                    format: input.format
                 });
 
                 return {

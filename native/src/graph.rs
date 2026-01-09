@@ -291,15 +291,12 @@ impl GraphAnalyzer {
 }
 
 /// Fast content hashing for cache keys
-/// Uses xxHash (faster than SHA-256 for non-cryptographic use)
+/// Uses XXH3 (ultra-fast non-cryptographic hash)
 #[napi]
 pub fn fast_hash(content: String) -> String {
-    use std::collections::hash_map::DefaultHasher;
-    use std::hash::{Hash, Hasher};
-
-    let mut hasher = DefaultHasher::new();
-    content.hash(&mut hasher);
-    format!("{:x}", hasher.finish())
+    use xxhash_rust::xxh3::xxh3_64;
+    let hash = xxh3_64(content.as_bytes());
+    format!("{:x}", hash)
 }
 
 /// Batch hash multiple files (parallel processing in future)
@@ -309,6 +306,27 @@ pub fn batch_hash(contents: Vec<String>) -> Vec<String> {
         .into_iter()
         .map(|content| fast_hash(content))
         .collect()
+}
+
+/// Natively scan for imports/requires (Phase 4.2 Hot Path)
+/// This is significantly faster than JS-based regex or full AST parsing
+#[napi]
+pub fn scan_imports(code: String) -> Vec<String> {
+    use regex::Regex;
+    use std::collections::HashSet;
+
+    lazy_static::lazy_static! {
+        static ref RE: Regex = Regex::new(r#"(?:import|export)\s+.*\s+from\s+['"](.*)['"]|import\(['"](.*)['"]\)|require\(['"](.*)['"]\)"#).unwrap();
+    }
+
+    let mut imports = HashSet::new();
+    for cap in RE.captures_iter(&code) {
+        if let Some(m) = cap.get(1).or(cap.get(2)).or(cap.get(3)) {
+            imports.insert(m.as_str().to_string());
+        }
+    }
+    
+    imports.into_iter().collect()
 }
 
 /// Fast string operations for module resolution

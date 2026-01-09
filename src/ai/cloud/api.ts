@@ -26,8 +26,8 @@ export class CloudAPI {
 
     constructor(private config: AIConfig) {
         // Production API endpoint
-        this.baseUrl = process.env.URJA_CLOUD_API || 'https://api.urja.build';
-        this.apiKey = config.apiKey || process.env.URJA_API_KEY || '';
+        this.baseUrl = process.env.NEXXO_CLOUD_API || 'https://api.nexxo.build';
+        this.apiKey = config.apiKey || process.env.NEXXO_API_KEY || '';
         this.userId = this.getOrCreateUserId();
     }
 
@@ -35,7 +35,7 @@ export class CloudAPI {
         // Generate anonymous user ID (stored locally)
         const fs = require('fs');
         const path = require('path');
-        const configPath = path.join(process.env.HOME || process.env.USERPROFILE || '', '.urja', 'user.json');
+        const configPath = path.join(process.env.HOME || process.env.USERPROFILE || '', '.nexxo', 'user.json');
 
         try {
             if (fs.existsSync(configPath)) {

@@ -38,19 +38,19 @@ export class UrDocsGettingStarted extends LitElement {
       
       <div class="step">
         <h2><span class="step-number">01.</span> Installation</h2>
-        <p>Install the Urja CLI globally or as a dev dependency in your project.</p>
-        <pre><code>npm install -D urja</code></pre>
+        <p>Install the Nexxo CLI globally or as a dev dependency in your project.</p>
+        <pre><code>npm install -D nexxo</code></pre>
       </div>
 
       <div class="step">
         <h2><span class="step-number">02.</span> Initialize Project</h2>
         <p>Use the bootstrap command to create a new project from a Tier-1 template.</p>
-        <pre><code>npx urja bootstrap</code></pre>
+        <pre><code>npx nexxo bootstrap</code></pre>
       </div>
 
       <div class="step">
         <h2><span class="step-number">03.</span> Configuration</h2>
-        <p>Create an <code>urja.config.js</code> file in your project root. Specify your adapter and entry points.</p>
+        <p>Create an <code>nexxo.config.js</code> file in your project root. Specify your adapter and entry points.</p>
         <pre><code>module.exports = {
   adapter: 'lit-adapter',
   entryPoints: ['src/main.js'],
@@ -61,7 +61,7 @@ export class UrDocsGettingStarted extends LitElement {
       <div class="step">
         <h2><span class="step-number">04.</span> Start Development</h2>
         <p>Run the dev server to start working with HMR support.</p>
-        <pre><code>npx urja dev</code></pre>
+        <pre><code>npx nexxo dev</code></pre>
       </div>
     `;
   }

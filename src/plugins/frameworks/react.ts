@@ -1,5 +1,5 @@
 /**
- * @urja/react - Production-Grade React Plugin
+ * @nexxo/react - Production-Grade React Plugin
  * 
  * Features:
  * - Graph-derived HMR (no heuristics)
@@ -41,7 +41,7 @@ export interface ReactPluginOptions {
     };
 }
 
-export function urjaReact(options: ReactPluginOptions = {}): Plugin {
+export function nexxoReact(options: ReactPluginOptions = {}): Plugin {
     const {
         fastRefresh = true,
         development = process.env.NODE_ENV !== 'production',
@@ -54,7 +54,7 @@ export function urjaReact(options: ReactPluginOptions = {}): Plugin {
     const cssImports = new Map<string, Set<string>>();
 
     return {
-        name: 'urja-react',
+        name: 'nexxo-react',
 
         async buildStart() {
             // Clear dependency maps on rebuild
@@ -149,22 +149,24 @@ function extractComponentDeps(code: string): string[] {
 }
 
 function injectFastRefresh(code: string, id: string): string {
-    // Inject Fast Refresh runtime
+    // Inject Fast Refresh runtime variables that will be available at runtime
+    // The actual react-refresh import is handled via a virtual module
     const refreshRuntime = `
-if (import.meta.hot) {
-  const RefreshRuntime = await import('react-refresh/runtime');
-  RefreshRuntime.injectIntoGlobalHook(window);
-  window.$RefreshReg$ = () => {};
-  window.$RefreshSig$ = () => (type) => type;
-}
+(function() {
+  if (typeof window !== 'undefined' && import.meta.hot) {
+    // Initialize Fast Refresh globals if not already done
+    if (!window.$RefreshReg$) {
+      window.$RefreshReg$ = function() {};
+      window.$RefreshSig$ = function() { return function(type) { return type; }; };
+    }
+  }
+})();
 `.trim();
 
-    // Add refresh boundary
-    const componentName = path.basename(id, path.extname(id));
+    // Add HMR accept for this module
     const refreshBoundary = `
 if (import.meta.hot) {
   import.meta.hot.accept();
-  window.$RefreshReg$(${componentName}, '${componentName}');
 }
 `.trim();
 
@@ -178,7 +180,7 @@ async function transformJSX(code: string, options: any): Promise<string> {
         const result = await esbuild.transform(code, options);
         return result.code;
     } catch (error) {
-        console.warn('[urja-react] esbuild transform failed, returning original code:', error);
+        console.warn('[nexxo-react] esbuild transform failed, returning original code:', error);
         return code;
     }
 }
@@ -198,6 +200,6 @@ function generateSourceMap(originalCode: string, transformedCode: string, id: st
 // Export helper for use in config
 export function reactPreset(options: ReactPluginOptions = {}): Plugin[] {
     return [
-        urjaReact(options)
+        nexxoReact(options)
     ];
 }

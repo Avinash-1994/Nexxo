@@ -1,5 +1,5 @@
 /**
- * @urja/lit - Production-Grade Lit Plugin
+ * @nexxo/lit - Production-Grade Lit Plugin
  * 
  * Features:
  * - TypeScript decorator support
@@ -39,7 +39,7 @@ export interface LitPluginOptions {
     };
 }
 
-export function urjaLit(options: LitPluginOptions = {}): Plugin {
+export function nexxoLit(options: LitPluginOptions = {}): Plugin {
     const {
         hmr = true,
         development = process.env.NODE_ENV !== 'production',
@@ -48,7 +48,7 @@ export function urjaLit(options: LitPluginOptions = {}): Plugin {
     } = options;
 
     return {
-        name: 'urja-lit',
+        name: 'nexxo-lit',
 
         async transform(code: string, id: string) {
             // Only process Lit files (.ts, .js with Lit imports)
@@ -144,7 +144,7 @@ async function transformLit(
 
         return result.code;
     } catch (error) {
-        console.warn('[urja-lit] Transform failed:', error);
+        console.warn('[nexxo-lit] Transform failed:', error);
         return null;
     }
 }
@@ -162,6 +162,6 @@ function generateSourceMap(originalCode: string, transformedCode: string, id: st
 // Export helper for use in config
 export function litPreset(options: LitPluginOptions = {}): Plugin[] {
     return [
-        urjaLit(options)
+        nexxoLit(options)
     ];
 }

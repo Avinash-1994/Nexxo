@@ -1,4 +1,4 @@
-const CACHE_NAME = 'urja-cache-v1';
+const CACHE_NAME = 'nexxo-cache-v1';
 const ASSETS = [
     '/',
     '/index.html',

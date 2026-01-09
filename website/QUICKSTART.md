@@ -1,23 +1,23 @@
-# Urja Website - Quick Start Guide
+# Nexxo Website - Quick Start Guide
 
 ## Running the Website
 
-The Urja documentation website is built using Urja itself. Here's how to run it:
+The Nexxo documentation website is built using Nexxo itself. Here's how to run it:
 
 ### Development Mode
 
 ```bash
 cd website/
-npx urja dev
+npx nexxo dev
 ```
 
-The dev server will start at `http://localhost:5174` (configured port in `urja.config.js`)
+The dev server will start at `http://localhost:5174` (configured port in `nexxo.config.js`)
 
 ### Production Build
 
 ```bash
 cd website/
-npx urja build
+npx nexxo build
 ```
 
 The production bundle will be generated in the `dist/` directory.
@@ -26,13 +26,13 @@ The production bundle will be generated in the `dist/` directory.
 
 | Command | Description |
 |---------|-------------|
-| `npx urja dev` | Start development server with HMR |
-| `npx urja build` | Build for production |
-| `npx urja audit --url http://localhost:5174` | Run quality audits (SEO, A11y, Performance) |
+| `npx nexxo dev` | Start development server with HMR |
+| `npx nexxo build` | Build for production |
+| `npx nexxo audit --url http://localhost:5174` | Run quality audits (SEO, A11y, Performance) |
 
 ### Configuration
 
-The website uses the following configuration (`urja.config.js`):
+The website uses the following configuration (`nexxo.config.js`):
 
 - **Framework**: React with TypeScript
 - **CSS**: Tailwind CSS
@@ -52,7 +52,7 @@ website/
 ├── public/
 │   ├── index.html      # HTML template
 │   └── service-worker.js  # PWA offline support
-├── urja.config.js      # Urja build configuration
+├── nexxo.config.js      # Nexxo build configuration
 ├── tailwind.config.js  # Tailwind CSS configuration
 └── package.json        # Dependencies
 ```
@@ -73,14 +73,14 @@ website/
 # Kill the process using port 5174
 lsof -ti:5174 | xargs kill -9
 
-# Or change the port in urja.config.js
+# Or change the port in nexxo.config.js
 ```
 
 **Build errors?**
 ```bash
 # Clear cache and rebuild
-rm -rf .urja_cache dist
-npx urja build
+rm -rf .nexxo_cache dist
+npx nexxo build
 ```
 
 **Dependencies not found?**
@@ -91,7 +91,7 @@ npm install
 
 ### Development Tips
 
-- Use `DEBUG=true npx urja dev` to see detailed logs
+- Use `DEBUG=true npx nexxo dev` to see detailed logs
 - The audit report runs automatically after every build
 - HMR (Hot Module Replacement) preserves React component state
 - The game high score is stored in localStorage

@@ -31,7 +31,7 @@ export class IncrementalBuildManager {
 
     constructor(root: string) {
         this.root = root;
-        this.cacheDir = path.join(root, '.urja', 'incremental');
+        this.cacheDir = path.join(root, '.nexxo', 'incremental');
         this.manifestPath = path.join(this.cacheDir, 'build-manifest.json');
     }
 

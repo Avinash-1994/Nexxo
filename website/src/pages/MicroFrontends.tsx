@@ -22,12 +22,12 @@ export const MicroFrontends = ({ section }: { section: string }) => {
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
                         <h1 className="text-4xl font-black font-display mb-6 tracking-tight">MFE Architecture & Graph Model</h1>
                         <p className="text-lg text-[var(--text-secondary)] mb-8">
-                            Urja treats Micro-Frontends as distributed nodes in a global dependency graph.
+                            Nexxo treats Micro-Frontends as distributed nodes in a global dependency graph.
                         </p>
                         <div className="p-8 rounded-2xl bg-slate-900 border border-slate-800 mb-10">
                             <h3 className="text-blue-500 font-bold mb-4 uppercase text-xs tracking-widest">The Remote Entry Bridge</h3>
                             <p className="text-slate-300 text-sm leading-relaxed mb-6">
-                                When a remote is built, Urja generates a canonical entry point that exposes the internal graph nodes. The host does not import files; it resolves semantic identifiers.
+                                When a remote is built, Nexxo generates a canonical entry point that exposes the internal graph nodes. The host does not import files; it resolves semantic identifiers.
                             </p>
                             <div className="flex items-center justify-center gap-4 py-8 border-y border-slate-800">
                                 <div className="px-4 py-2 rounded bg-blue-600 font-bold text-xs text-white">HOST GRAPH</div>
@@ -54,8 +54,8 @@ export const MicroFrontends = ({ section }: { section: string }) => {
                         <h1 className="text-4xl font-black font-display mb-6 tracking-tight">Getting Started (Host + Remote)</h1>
 
                         <h2 className="text-2xl font-bold mb-4">1. The Remote Setup</h2>
-                        <p className="mb-4 text-[var(--text-secondary)]">Expose modules in your <code>urja.config.js</code>:</p>
-                        <CodeBlock code={`// remote/urja.config.js
+                        <p className="mb-4 text-[var(--text-secondary)]">Expose modules in your <code>nexxo.config.js</code>:</p>
+                        <CodeBlock code={`// remote/nexxo.config.js
 module.exports = {
   adapter: 'react-adapter',
   plugins: [
@@ -72,7 +72,7 @@ module.exports = {
 
                         <h2 className="text-2xl font-bold mt-10 mb-4">2. The Host Setup</h2>
                         <p className="mb-4 text-[var(--text-secondary)]">Consume the remote in the host configuration:</p>
-                        <CodeBlock code={`// host/urja.config.js
+                        <CodeBlock code={`// host/nexxo.config.js
 module.exports = {
   adapter: 'react-adapter',
   plugins: [
@@ -148,7 +148,7 @@ module.exports = {
                                     <li>• Server-Side Rendering (SSR) with federated remotes.</li>
                                     <li>• Legacy Webpack-based Federation interop.</li>
                                     <li>• Global CSS side-effects from remotes.</li>
-                                    <li>• Dynamic script loading without Urja internal orchestration.</li>
+                                    <li>• Dynamic script loading without Nexxo internal orchestration.</li>
                                 </ul>
                             </div>
                         </div>
@@ -190,14 +190,14 @@ module.exports = {
                             Micro-Frontends
                         </h1>
                         <p className="text-xl text-[var(--text-secondary)] leading-relaxed max-w-4xl mb-12">
-                            Urja’s approach to Micro-Frontends is built on **Deterministic Federation**. It provides the power of modular development with the responsibility of explicit dependency boundaries.
+                            Nexxo’s approach to Micro-Frontends is built on **Deterministic Federation**. It provides the power of modular development with the responsibility of explicit dependency boundaries.
                         </p>
 
                         <div className="grid grid-cols-1 gap-8">
                             <div className="p-10 rounded-[40px] bg-slate-900 border border-slate-800 text-slate-100">
                                 <h3 className="text-2xl font-bold mb-4">Philosophy: Zero Hidden State</h3>
                                 <p className="text-slate-400 mb-6 leading-relaxed">
-                                    Unlike other tools that rely on magical runtime injections, Urja requires all federated boundaries to be declared in the Build Graph. This ensures that every remote module is linkable and verifiable.
+                                    Unlike other tools that rely on magical runtime injections, Nexxo requires all federated boundaries to be declared in the Build Graph. This ensures that every remote module is linkable and verifiable.
                                 </p>
                                 <div className="flex gap-4">
                                     <a href="#/mfe/architecture" className="px-6 py-3 bg-blue-600 rounded-xl font-bold hover:bg-blue-500 transition-colors">Internal Mechanics</a>

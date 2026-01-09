@@ -1,5 +1,5 @@
 
-import { UrjaPlugin } from '../core/plugins/types.js';
+import { NexxoPlugin } from '../core/plugins/types.js';
 import { rollupAdapter } from '../plugins/compat/rollup.js';
 import { createJsTransformPlugin } from '../plugins/js-transform.js';
 import { createPostCssPlugin } from '../plugins/css/postcss.js';
@@ -9,8 +9,8 @@ import { createLinkerPlugin } from '../plugins/core/linker.js';
 
 import { createAssetPlugin } from '../plugins/assets.js';
 
-export function getInfrastructurePreset(rootDir: string, outDir?: string): UrjaPlugin[] {
-    const plugins: UrjaPlugin[] = [];
+export function getInfrastructurePreset(rootDir: string, outDir?: string): NexxoPlugin[] {
+    const plugins: NexxoPlugin[] = [];
 
     // 1. Assets (Run early to handle imports)
     plugins.push(createAssetPlugin(outDir));

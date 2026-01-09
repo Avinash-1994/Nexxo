@@ -19,10 +19,10 @@ let NativeWorker: any;
 
 try {
   const candidates = [
-    path.resolve(__dirname, '../../urja_native.node'), // From src/dev/devServer.ts
-    path.resolve(__dirname, '../urja_native.node'),    // From dist/dev/devServer.js
-    path.resolve(process.cwd(), 'urja_native.node'),   // Root fallback
-    path.resolve(process.cwd(), 'dist/urja_native.node')
+    path.resolve(__dirname, '../../nexxo_native.node'), // From src/dev/devServer.ts
+    path.resolve(__dirname, '../nexxo_native.node'),    // From dist/dev/devServer.js
+    path.resolve(process.cwd(), 'nexxo_native.node'),   // Root fallback
+    path.resolve(process.cwd(), 'dist/nexxo_native.node')
   ];
 
   let pathFound = '';
@@ -96,7 +96,7 @@ function rewriteImports(code: string, rootDir: string, preBundledDeps?: Map<stri
           const pkgName = specifier.startsWith('@') ? parts.slice(0, 2).join('/') : parts[0];
           if (preBundledDeps.has(pkgName)) {
             const safeName = specifier.replace(/\//g, '_');
-            replacement = `/@urja-deps/${safeName}.js?v=${Date.now()}`;
+            replacement = `/@nexxo-deps/${safeName}.js?v=${Date.now()}`;
           }
         }
 
@@ -133,6 +133,34 @@ function rewriteImports(code: string, rootDir: string, preBundledDeps?: Map<stri
   }
 }
 
+/**
+ * Check if a port is available
+ */
+async function isPortAvailable(port: number, host: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const server = http.createServer();
+    server.on('error', () => resolve(false));
+    server.listen(port, host, () => {
+      server.close(() => resolve(true));
+    });
+  });
+}
+
+/**
+ * Find the next available port
+ */
+async function findAvailablePort(startPort: number, host: string): Promise<number> {
+  let port = startPort;
+  while (!(await isPortAvailable(port, host))) {
+    log.warn(`Port ${port} is already in use, trying ${port + 1}...`, { category: 'server' });
+    port++;
+    if (port > startPort + 100) {
+      throw new Error(`Could not find an available port after ${port - startPort} attempts`);
+    }
+  }
+  return port;
+}
+
 export async function startDevServer(cfg: BuildConfig) {
   // 1. Load Environment Variables
   const { config: loadEnv } = await import('dotenv');
@@ -141,7 +169,7 @@ export async function startDevServer(cfg: BuildConfig) {
 
   // Filter public env vars
   const publicEnv = Object.keys(process.env)
-    .filter(key => key.startsWith('URJA_') || key.startsWith('PUBLIC_') || key === 'NODE_ENV')
+    .filter(key => key.startsWith('NEXXO_') || key.startsWith('PUBLIC_') || key === 'NODE_ENV')
     .reduce((acc, key) => ({ ...acc, [key]: process.env[key] }), {
       NODE_ENV: process.env.NODE_ENV || 'development'
     });
@@ -153,12 +181,18 @@ export async function startDevServer(cfg: BuildConfig) {
   // 1. Initialize Framework Pipeline (Phase B3)
   const { FrameworkPipeline } = await import('../core/pipeline/framework-pipeline.js');
   const pipeline = await FrameworkPipeline.auto(cfg);
-  const primaryFramework = pipeline.getFramework();
+  let primaryFramework = pipeline.getFramework();
+  if (cfg.adapter && cfg.adapter.includes('react')) {
+    primaryFramework = 'react';
+  }
 
   // @ts-ignore - Pipeline owns opinionated defaults
   pipeline.applyDefaults();
 
-  log.debug(`Pipeline: Active ${primaryFramework} dev-workflow`);
+  log.info(`--> Dev Server: Active ${primaryFramework} workflow`, { category: 'server' });
+  if (primaryFramework === 'vanilla') {
+    log.warn('--> Dev Server: No framework detected, HMR might be limited', { category: 'server' });
+  }
 
   // 3. Initialize Universal Transformer
   const { UniversalTransformer } = await import('../core/universal-transformer.js');
@@ -325,8 +359,13 @@ export async function startDevServer(cfg: BuildConfig) {
     log.warn('Failed to pre-bundle or warmup:', error.message);
   }
 
-  const port = cfg.server?.port || cfg.port || 5173;
+  let port = cfg.server?.port || cfg.port || 5173;
   const host = cfg.server?.host || 'localhost';
+
+  // Dynamic port detection
+  if (!cfg.server?.strictPort) {
+    port = await findAvailablePort(port, host);
+  }
 
   // 2. Setup Proxy
   const { default: httpProxy } = await import('http-proxy');
@@ -347,7 +386,7 @@ export async function startDevServer(cfg: BuildConfig) {
       httpsOptions = cfg.server.https;
     } else {
       // Generate self-signed cert
-      const certDir = path.join(cfg.root, '.urja', 'certs');
+      const certDir = path.join(cfg.root, '.nexxo', 'certs');
       await fs.mkdir(certDir, { recursive: true });
       const keyPath = path.join(certDir, 'dev.key');
       const certPath = path.join(certDir, 'dev.crt');
@@ -534,7 +573,12 @@ export async function startDevServer(cfg: BuildConfig) {
       }
     }
 
-    if (url === '/') {
+    // SPA Fallback: If route has no extension and it's not a known internal route, serve index.html
+    const isInternal = url.startsWith('/@') || url.startsWith('/__') || url.startsWith('/node_modules/');
+    const hasExtension = path.extname(url.split('?')[0]) !== '';
+    const acceptsHtml = req.headers.accept?.includes('text/html');
+
+    if ((url === '/' || (!hasExtension && !isInternal && acceptsHtml)) && cfg.preset === 'spa') {
       let p = path.join(cfg.root, 'public', 'index.html');
       let data = '';
 
@@ -573,24 +617,46 @@ export async function startDevServer(cfg: BuildConfig) {
 
         // Inject only client runtime
         let clientScript = `
-    <script type="module" src="/@urja/client"></script>
+    <script type="module" src="/@nexxo/client"></script>
         `;
 
-        // Inject React Refresh Preamble
-        if (['react', 'next', 'remix', 'gatsby'].includes(primaryFramework)) {
-          console.log('[Urja] Injecting React Refresh Preamble');
-          clientScript = `
+        // Always inject basic shims in dev mode to prevent ReferenceErrors from any React-ish modules
+        let preamble = `
+    <script>
+      window.$RefreshReg$ = () => {};
+      window.$RefreshSig$ = () => (type) => type;
+    </script>
+        `;
+
+        // Inject full React Refresh Preamble if React is detected or configured
+        const isReact = ['react', 'next', 'remix', 'react-typescript', 'react-adapter'].includes(primaryFramework) ||
+          (cfg.adapter && cfg.adapter.includes('react'));
+
+        if (isReact) {
+          log.info('[Nexxo] Injecting React Refresh Preamble', { category: 'server' });
+          preamble += `
     <script type="module">
       import RefreshRuntime from "/@react-refresh";
       RefreshRuntime.injectIntoGlobalHook(window);
-      window.$RefreshReg$ = () => {};
-      window.$RefreshSig$ = () => (type) => type;
+      window.$RefreshReg$ = (type, id) => {
+        RefreshRuntime.register(type, id);
+      };
+      window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
       window.__vite_plugin_react_preamble_installed__ = true;
     </script>
-          ` + clientScript;
+          `;
         }
+        clientScript = preamble + clientScript;
 
-        data = data.replace('<head>', '<head>' + clientScript);
+        // Use a more robust injection that handles case-sensitivity and space variations
+        if (data.includes('<head>')) {
+          data = data.replace('<head>', '<head>' + clientScript);
+        } else if (data.includes('<HEAD>')) {
+          data = data.replace('<HEAD>', '<HEAD>' + clientScript);
+        } else {
+          // Fallback if no head tag found
+          data = clientScript + data;
+        }
 
         res.writeHead(200, { 'Content-Type': 'text/html' });
         res.end(data);
@@ -617,11 +683,11 @@ export async function startDevServer(cfg: BuildConfig) {
     }
 
     // Serve pre-bundled dependencies
-    if (url.startsWith('/@urja-deps/')) {
+    if (url.startsWith('/@nexxo-deps/')) {
       // Strip query parameters
       const cleanUrl = url.split('?')[0];
-      const depFile = cleanUrl.replace('/@urja-deps/', '');
-      const depPath = path.join(cfg.root, 'node_modules', '.urja', depFile);
+      const depFile = cleanUrl.replace('/@nexxo-deps/', '');
+      const depPath = path.join(cfg.root, 'node_modules', '.nexxo', depFile);
       try {
         const content = await fs.readFile(depPath, 'utf-8');
         res.writeHead(200, {
@@ -640,20 +706,41 @@ export async function startDevServer(cfg: BuildConfig) {
     if (url === '/@react-refresh') {
       try {
         let runtimePath;
-        try {
-          runtimePath = require.resolve('react-refresh/cjs/react-refresh-runtime.development.js', { paths: [cfg.root] });
-        } catch (e) {
-          // Fallback to manual path
-          runtimePath = path.join(cfg.root, 'node_modules/react-refresh/cjs/react-refresh-runtime.development.js');
+        // Try to find react-refresh in node_modules
+        const searchPaths = [
+          path.join(cfg.root, 'node_modules/react-refresh/cjs/react-refresh-runtime.development.js'),
+          path.join(cfg.root, '../node_modules/react-refresh/cjs/react-refresh-runtime.development.js'),
+          path.join(process.cwd(), 'node_modules/react-refresh/cjs/react-refresh-runtime.development.js'),
+        ];
+
+        let runtime = null;
+        for (const checkPath of searchPaths) {
+          try {
+            runtime = await fs.readFile(checkPath, 'utf-8');
+            runtimePath = checkPath;
+            break;
+          } catch {
+            // Continue to next path
+          }
         }
 
-        const runtime = await fs.readFile(runtimePath, 'utf-8');
-        res.writeHead(200, { 'Content-Type': 'application/javascript' });
-        res.end(`
+        if (!runtime) {
+          throw new Error('Could not find react-refresh runtime in any node_modules');
+        }
+
+        // Wrap the CJS module with process polyfill for browser environment
+        const wrappedRuntime = `
+          const process = { env: { NODE_ENV: 'development' } };
           const exports = {};
+          const module = { exports };
+          
           ${runtime}
-          export default exports;
-        `);
+          
+          export default module.exports;
+        `;
+
+        res.writeHead(200, { 'Content-Type': 'application/javascript' });
+        res.end(wrappedRuntime);
       } catch (e) {
         log.error('Failed to resolve React Refresh', { category: 'server', error: e });
         res.writeHead(404);
@@ -664,7 +751,7 @@ export async function startDevServer(cfg: BuildConfig) {
 
 
 
-    if (url === '/@urja/client') {
+    if (url === '/@nexxo/client') {
       const clientPath = path.resolve(__dirname, '../runtime/client.js');
       try {
         const client = await fs.readFile(clientPath, 'utf-8');
@@ -672,12 +759,12 @@ export async function startDevServer(cfg: BuildConfig) {
         res.end(client);
       } catch (e) {
         res.writeHead(404);
-        res.end('Urja client runtime not found');
+        res.end('Nexxo client runtime not found');
       }
       return;
     }
 
-    if (url === '/@urja/error-overlay.js') {
+    if (url === '/@nexxo/error-overlay.js') {
       const overlayPath = path.resolve(__dirname, '../runtime/error-overlay.js');
       try {
         const overlay = await fs.readFile(overlayPath, 'utf-8');
@@ -685,7 +772,7 @@ export async function startDevServer(cfg: BuildConfig) {
         res.end(overlay);
       } catch (e) {
         res.writeHead(404);
-        res.end('Urja error overlay not found');
+        res.end('Nexxo error overlay not found');
       }
       return;
     }
@@ -885,30 +972,19 @@ export async function startDevServer(cfg: BuildConfig) {
         // Plugin transform (JS plugins like Tailwind)
         raw = await pluginManager.transform(raw, filePath);
 
-        // Inject Env Vars (only for JS/TS files)
+        // Inject Env Vars and React Refresh Shims (only for JS/TS files)
+        // Aggressive In-Module Shim: Guarantee $RefreshSig$ existence
         if (ext === '.ts' || ext === '.tsx' || ext === '.jsx' || ext === '.js' || ext === '.mjs') {
           raw = `
-            if (!window.process) window.process = { env: {} };
-            Object.assign(window.process.env, ${JSON.stringify(publicEnv)});
-            
-            // Polyfill import.meta.env for Vite compatibility
-            try {
-              if (!import.meta.env) {
-                Object.defineProperty(import.meta, 'env', {
-                  value: { 
-                    MODE: '${process.env.NODE_ENV || 'development'}', 
-                    DEV: true, 
-                    PROD: false, 
-                    SSR: false,
-                    ...${JSON.stringify(publicEnv)} 
-                  },
-                  writable: true,
-                  configurable: true
-                });
-              }
-            } catch (e) { console.warn('Could not polyfill import.meta.env', e); }
+/** Nexxo Dev Preamble **/
+if (typeof window !== 'undefined') {
+  window.$RefreshReg$ = window.$RefreshReg$ || (() => {});
+  window.$RefreshSig$ = window.$RefreshSig$ || (() => (type) => type);
+}
+if (!window.process) window.process = { env: {} };
+Object.assign(window.process.env, ${JSON.stringify(publicEnv)});
 
-            ${raw}
+${raw}
           `;
         }
 
@@ -925,23 +1001,50 @@ export async function startDevServer(cfg: BuildConfig) {
           // Rewrite imports after transformation
           let code = rewriteImports(transformResult.code, cfg.root, preBundledDeps);
 
-          res.writeHead(200, { 'Content-Type': 'application/javascript' });
+          res.writeHead(200, {
+            'Content-Type': 'application/javascript',
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
+          });
           res.end(code);
           return;
         } catch (error: any) {
-          log.error(`Universal transformer failed for ${filePath}: `, error.message);
-          // Fallback to esbuild
-          const { transform } = await import('esbuild');
-          const result = await transform(raw, {
-            loader: ext.slice(1) as any,
-            sourcemap: 'inline',
-            format: 'esm',
-            target: 'es2020',
+          // Compute preamble line offset (we prepend a dev preamble before the original file)
+          let reportedLine: number | undefined = undefined;
+          try {
+            const sep = '\n\n';
+            const sepIdx = typeof raw === 'string' ? raw.indexOf(sep) : -1;
+            let preambleLines = 0;
+            if (sepIdx !== -1) {
+              preambleLines = raw.slice(0, sepIdx).split(/\r?\n/).length;
+            }
+            if (error && error.loc && typeof error.loc.line === 'number') {
+              reportedLine = Math.max(1, error.loc.line - preambleLines);
+            } else if (error && error.loc && typeof error.loc === 'object' && error.loc.line) {
+              reportedLine = Math.max(1, Number(error.loc.line) - preambleLines);
+            }
+          } catch (e) {
+            reportedLine = error.loc?.line;
+          }
+
+          const relativePath = path.relative(cfg.root, filePath).replace(/^[\\\/]/, '');
+          log.projectError({
+            file: relativePath,
+            message: error.message || String(error),
+            line: reportedLine,
+            column: error.loc?.column
           });
 
-          let code = rewriteImports(result.code, cfg.root, preBundledDeps);
+          // Send error to browser console as well (minimal)
+          const errorPayload = {
+            file: relativePath,
+            message: error.message || String(error),
+            line: reportedLine,
+            column: error.loc?.column
+          };
+
+          const errorScript = `console.error('Project Error:', ${JSON.stringify(errorPayload)});`;
           res.writeHead(200, { 'Content-Type': 'application/javascript' });
-          res.end(code);
+          res.end(errorScript);
           return;
         }
       }
@@ -988,22 +1091,41 @@ export async function startDevServer(cfg: BuildConfig) {
     } catch (e: any) {
       log.error('Request error', { category: 'server', error: e });
 
+      const isJS = url.match(/\.(js|ts|tsx|jsx|mjs|vue|svelte|astro)/);
+
       // If it's a build error (has loc/frame/stack), broadcast it
       if (e.message && (e.frame || e.loc || e.stack)) {
-        const msg = JSON.stringify({
+        const errorData = {
+          message: e.message,
+          stack: e.stack,
+          filename: filePath,
+          frame: e.frame
+        };
+
+        broadcast(JSON.stringify({
           type: 'error',
-          error: {
-            message: e.message,
-            stack: e.stack,
-            filename: filePath, // approximate
-            frame: e.frame
-          }
-        });
-        broadcast(msg);
+          error: errorData
+        }));
+
+        if (isJS && !res.headersSent) {
+          // Serve a JS fallback that throws in console and triggers overlay
+          res.writeHead(200, { 'Content-Type': 'application/javascript' });
+          res.end(`
+            console.error("[Nexxo Build Error] ${e.message.replace(/"/g, '\\"')}");
+            const error = ${JSON.stringify(errorData)};
+            if (window.__NEXXO_ERROR_OVERLAY__) {
+              window.__NEXXO_ERROR_OVERLAY__.show(error);
+            }
+            throw new Error("[Nexxo Build Error] See overlay for details");
+          `);
+          return;
+        }
       }
 
-      res.writeHead(500);
-      res.end(e.message);
+      if (!res.headersSent) {
+        res.writeHead(500);
+        res.end(e.message || 'Internal Server Error');
+      }
     }
   };
 
@@ -1081,35 +1203,92 @@ export async function startDevServer(cfg: BuildConfig) {
   configWatcher.start();
 
   const watcher = chokidar.watch(cfg.root, { ignored: /node_modules|\.git/ });
-  watcher.on('change', (file: string) => {
-    // Clear transform cache for changed file
-    universalTransformer.clearCache(file);
+  watcher.on('change', async (file: string) => {
+    try {
+      // Clear transform cache for changed file
+      universalTransformer.clearCache(file);
 
-    // Native Invalidation & Rebuild
-    nativeWorker.invalidate(file);
-    const affected = nativeWorker.rebuild(file);
+      // Proactively check for errors in JS/TS files
+      const ext = path.extname(file);
+      if (['.ts', '.tsx', '.jsx', '.js', '.mjs', '.vue', '.svelte'].includes(ext)) {
+        try {
+          const code = await fs.readFile(file, 'utf-8');
 
-    if (affected.length > 0) {
-      log.info(`Rebuild affected ${affected.length} files`, { category: 'build', duration: 10 }); // Mock duration
-    }
+          // Attempt transformation to catch errors immediately
+          await universalTransformer.transform({
+            filePath: file,
+            code,
+            framework: primaryFramework,
+            root: cfg.root,
+            isDev: true
+          });
 
-    affected.forEach((affectedFile: string) => {
-      // Clear cache for affected files too
-      universalTransformer.clearCache(affectedFile);
+          // If transformation succeeds, log success
+          if (process.env.DEBUG) {
+            log.debug(`✓ ${path.relative(cfg.root, file)} validated`, { category: 'hmr' });
+          }
+        } catch (transformError: any) {
+          // Error is already logged by universal-transformer
+          // Also broadcast to browser
+          const relativePath = path.relative(cfg.root, file);
+          broadcast(JSON.stringify({
+            type: 'error',
+            error: {
+              message: transformError.message || String(transformError),
+              file: relativePath,
+              line: transformError.loc?.line,
+              column: transformError.loc?.column,
+              stack: transformError.stack
+            }
+          }));
 
-      // Determine message type
-      let type = 'reload';
-      if (affectedFile.endsWith('.css')) {
-        type = 'update-css';
+          // Don't continue with HMR if there's an error
+          return;
+        }
       }
 
-      // Normalize path for client (relative to root)
-      const rel = '/' + path.relative(cfg.root, affectedFile);
+      // Native Invalidation & Rebuild
+      try {
+        nativeWorker.invalidate(file);
+        const affected = nativeWorker.rebuild(file);
 
-      // Queue update via throttle
-      hmrThrottle.queueUpdate(rel, type);
-      statusHandler.trackHMR();
-    });
+        if (affected.length > 0) {
+          log.info(`Rebuild affected ${affected.length} files`, { category: 'build', duration: 10 }); // Mock duration
+        }
+
+        affected.forEach((affectedFile: string) => {
+          // Clear cache for affected files too
+          universalTransformer.clearCache(affectedFile);
+
+          // Determine message type
+          let type = 'reload';
+          if (affectedFile.endsWith('.css')) {
+            type = 'update-css';
+          }
+
+          // Normalize path for client (relative to root)
+          const rel = '/' + path.relative(cfg.root, affectedFile);
+
+          // Queue update via throttle
+          hmrThrottle.queueUpdate(rel, type);
+          statusHandler.trackHMR();
+        });
+      } catch (nativeError: any) {
+        log.error(`Native worker failed for ${file}, falling back to full reload`, { category: 'hmr', error: nativeError });
+        broadcast(JSON.stringify({
+          type: 'error',
+          error: { message: `Build optimization failed: ${nativeError.message}. Recovering via full reload...` }
+        }));
+        broadcast(JSON.stringify({ type: 'restarting' }));
+      }
+    } catch (e: any) {
+      log.error(`Watcher crash recovery for ${file}:`, e);
+      // Ensure we don't leave the client hanging
+      broadcast(JSON.stringify({
+        type: 'error',
+        error: { message: `Watcher error: ${e.message}`, stack: e.stack }
+      }));
+    }
   });
 
   server.listen(port, () => {
@@ -1120,7 +1299,7 @@ export async function startDevServer(cfg: BuildConfig) {
       'HTTP': url,
       'HTTPS': httpsOptions ? 'Enabled' : 'Disabled',
       'Proxy': cfg.server?.proxy ? Object.keys(cfg.server.proxy).join(', ') : 'None',
-      'Status': `${url}/__urja/status`,
+      'Status': `${url}/__nexxo/status`,
       'Federation': `${url}/__federation`
     });
 

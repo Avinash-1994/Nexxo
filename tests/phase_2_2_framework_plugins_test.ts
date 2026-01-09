@@ -3,14 +3,14 @@
  * Tests for React and Vue production-grade plugins
  */
 
-import { urjaReact } from '../src/plugins/frameworks/react.js';
-import { urjaVue } from '../src/plugins/frameworks/vue.js';
+import { nexxoReact } from '../src/plugins/frameworks/react.js';
+import { nexxoVue } from '../src/plugins/frameworks/vue.js';
 import { strict as assert } from 'assert';
 
 async function testReactBasicTransform() {
     console.log('\n[Test 1] React - Basic JSX Transform');
 
-    const plugin = urjaReact({ development: true, fastRefresh: false });
+    const plugin = nexxoReact({ development: true, fastRefresh: false });
 
     const code = `
 import React from 'react';
@@ -30,7 +30,7 @@ export default function App() {
 async function testReactCSSTracking() {
     console.log('\n[Test 2] React - CSS Import Tracking');
 
-    const plugin = urjaReact({ development: true });
+    const plugin = nexxoReact({ development: true });
 
     const code = `
 import './App.css';
@@ -51,7 +51,7 @@ export default function App() {
 async function testReactComponentDetection() {
     console.log('\n[Test 3] React - Component Detection');
 
-    const plugin = urjaReact({ development: true, fastRefresh: true });
+    const plugin = nexxoReact({ development: true, fastRefresh: true });
 
     // Function component
     const funcComponent = `
@@ -79,7 +79,7 @@ export const MyComponent = () => {
 async function testVueBasicSFC() {
     console.log('\n[Test 4] Vue - Basic SFC Parsing');
 
-    const plugin = urjaVue({ development: true });
+    const plugin = nexxoVue({ development: true });
 
     const code = `
 <template>
@@ -116,7 +116,7 @@ export default {
 async function testVueScriptSetup() {
     console.log('\n[Test 5] Vue - Script Setup Support');
 
-    const plugin = urjaVue({ development: true });
+    const plugin = nexxoVue({ development: true });
 
     const code = `
 <template>
@@ -141,7 +141,7 @@ const increment = () => count.value++;
 async function testVueMultipleStyles() {
     console.log('\n[Test 6] Vue - Multiple Style Blocks');
 
-    const plugin = urjaVue({ development: true });
+    const plugin = nexxoVue({ development: true });
 
     const code = `
 <template>
@@ -170,7 +170,7 @@ export default { name: 'App' }
 async function testReactProductionMode() {
     console.log('\n[Test 7] React - Production Mode');
 
-    const plugin = urjaReact({ development: false, fastRefresh: false });
+    const plugin = nexxoReact({ development: false, fastRefresh: false });
 
     const code = `
 export default function App() {
@@ -191,7 +191,7 @@ export default function App() {
 async function testVueProductionMode() {
     console.log('\n[Test 8] Vue - Production Mode');
 
-    const plugin = urjaVue({ development: false, hmr: false });
+    const plugin = nexxoVue({ development: false, hmr: false });
 
     const code = `
 <template><div>Production</div></template>
@@ -210,7 +210,7 @@ async function testVueProductionMode() {
 async function testReactTSXSupport() {
     console.log('\n[Test 9] React - TypeScript Support');
 
-    const plugin = urjaReact({ development: true });
+    const plugin = nexxoReact({ development: true });
 
     const code = `
 interface Props {
@@ -231,7 +231,7 @@ export default function Greeting({ name }: Props) {
 async function testVueVirtualModules() {
     console.log('\n[Test 10] Vue - Virtual Module Resolution');
 
-    const plugin = urjaVue({ development: true });
+    const plugin = nexxoVue({ development: true });
 
     // Test resolveId for virtual modules
     const templateId = await plugin.resolveId!('App.vue?type=template', undefined);

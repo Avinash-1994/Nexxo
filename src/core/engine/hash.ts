@@ -1,19 +1,16 @@
 
-import { createHash } from 'crypto';
+import { fastHash } from '../../native/index.js';
 
 /**
  * Single Source of Truth for Hashing
  * 
  * Guarantees:
- * - SHA-256
- * - Canonical JSON (sorted keys)
- * - UTF-8
- * - Stable Arrays
- * - No timestamps/randomness
+ * - Deterministic output via canonical stringify
+ * - Ultra-fast hashing via Native XXH3 (Phase 4.2)
  */
 export function canonicalHash(value: unknown): string {
     const canonicalString = stableStringify(value);
-    return createHash('sha256').update(canonicalString).digest('hex');
+    return fastHash(canonicalString);
 }
 
 function stableStringify(value: unknown): string {

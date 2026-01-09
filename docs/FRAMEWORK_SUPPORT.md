@@ -1,8 +1,8 @@
-# Urja Framework Support - Universal Production-Grade
+# Nexxo Framework Support - Universal Production-Grade
 
 ## 🌟 **All Frameworks Are Production-Ready**
 
-Urja provides **identical, production-grade support** for all major frameworks. There are no tiers - every framework receives:
+Nexxo provides **identical, production-grade support** for all major frameworks. There are no tiers - every framework receives:
 
 ### ✅ **Universal Guarantees (ALL Frameworks)**
 
@@ -12,7 +12,7 @@ Urja provides **identical, production-grade support** for all major frameworks. 
 - **CSS correctness** (scoped styles, extraction, injection)
 - **Graph-based rebuilds** (dependency tracking)
 - **Production builds work** (optimized, tree-shaken)
-- **Full `urja verify` support**
+- **Full `nexxo verify` support**
 
 ---
 
@@ -76,7 +76,7 @@ Urja provides **identical, production-grade support** for all major frameworks. 
 
 ## 🔧 **How It Works**
 
-All frameworks use Urja's **UniversalTransformer** which:
+All frameworks use Nexxo's **UniversalTransformer** which:
 
 1. **Detects** the framework from file extensions and imports
 2. **Transforms** using the framework's native compiler
@@ -103,4 +103,4 @@ We believe in **equality across frameworks**. Every framework deserves:
 - The same production-ready guarantees
 - The same developer experience
 
-**Urja treats all frameworks as first-class citizens.**
+**Nexxo treats all frameworks as first-class citizens.**

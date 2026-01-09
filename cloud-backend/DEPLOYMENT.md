@@ -1,4 +1,4 @@
-# Urja Cloud Backend - Deployment Guide
+# Nexxo Cloud Backend - Deployment Guide
 
 ## Quick Start
 
@@ -54,7 +54,7 @@ npm i -g wrangler
 
 # Configure wrangler.toml
 cat > wrangler.toml << EOF
-name = "urja-api"
+name = "nexxo-api"
 main = "server.ts"
 compatibility_date = "2024-01-01"
 
@@ -74,10 +74,10 @@ wrangler deploy
 
 ```bash
 # Health check
-curl https://api.urja.build/health
+curl https://api.nexxo.build/health
 
 # Upload learnings
-curl -X POST https://api.urja.build/api/v1/learnings \
+curl -X POST https://api.nexxo.build/api/v1/learnings \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer ngb_test_abc123" \
   -H "X-User-Id: anon-test123" \
@@ -96,7 +96,7 @@ curl -X POST https://api.urja.build/api/v1/learnings \
   }'
 
 # Download patterns
-curl https://api.urja.build/api/v1/patterns?limit=10 \
+curl https://api.nexxo.build/api/v1/patterns?limit=10 \
   -H "Authorization: Bearer ngb_test_abc123" \
   -H "X-User-Id: anon-test123"
 ```

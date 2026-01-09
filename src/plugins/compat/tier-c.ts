@@ -1,13 +1,13 @@
 import { Plugin } from '../index.js';
 
 /**
- * URJA TIER C PLUGINS (Graph-Aware / HMR)
+ * NEXXO TIER C PLUGINS (Graph-Aware / HMR)
  * 
- * Since Urja v1.0 handles HMR natively via UniversalTransformer for React, Vue, and Svelte,
+ * Since Nexxo v1.0 handles HMR natively via UniversalTransformer for React, Vue, and Svelte,
  * these plugins act as compatibility wrappers or configuration providers.
  * 
  * They ensure that if a user migrates from Vite, they can map existing plugins to these
- * without breaking the build, while Urja's core engine handles the heavy lifting.
+ * without breaking the build, while Nexxo's core engine handles the heavy lifting.
  */
 
 interface ReactOptions {
@@ -18,12 +18,12 @@ interface ReactOptions {
 }
 
 /**
- * Urja React Plugin
+ * Nexxo React Plugin
  * Compatible with @vitejs/plugin-react
  */
-export function urjaReact(options: ReactOptions = {}): Plugin {
+export function nexxoReact(options: ReactOptions = {}): Plugin {
     return {
-        name: 'urja-react',
+        name: 'nexxo-react',
         setup(api) {
             // In the future, we can push options to the UniversalTransformer via API
             // For now, we log that React support is active.
@@ -44,12 +44,12 @@ interface VueOptions {
 }
 
 /**
- * Urja Vue Plugin
+ * Nexxo Vue Plugin
  * Compatible with @vitejs/plugin-vue
  */
-export function urjaVue(options: VueOptions = {}): Plugin {
+export function nexxoVue(options: VueOptions = {}): Plugin {
     return {
-        name: 'urja-vue',
+        name: 'nexxo-vue',
         setup() {
             // Vue support is built-in
         }
@@ -63,12 +63,12 @@ interface SvelteOptions {
 }
 
 /**
- * Urja Svelte Plugin
+ * Nexxo Svelte Plugin
  * Compatible with @sveltejs/vite-plugin-svelte
  */
-export function urjaSvelte(options: SvelteOptions = {}): Plugin {
+export function nexxoSvelte(options: SvelteOptions = {}): Plugin {
     return {
-        name: 'urja-svelte',
+        name: 'nexxo-svelte',
         setup() {
             // Svelte support is built-in
         }
@@ -78,6 +78,6 @@ export function urjaSvelte(options: SvelteOptions = {}): Plugin {
 /**
  * Compatibility aliases
  */
-export const urjaReactRefresh = urjaReact;
-export const urjaVueHmr = urjaVue;
-export const urjaSvelteHmr = urjaSvelte;
+export const nexxoReactRefresh = nexxoReact;
+export const nexxoVueHmr = nexxoVue;
+export const nexxoSvelteHmr = nexxoSvelte;

@@ -1,21 +1,21 @@
 import path from 'path';
 import fs from 'fs/promises';
-import { UrjaPlugin } from '../core/plugins/types.js';
+import { NexxoPlugin } from '../core/plugins/types.js';
 import { RustNativeWorker } from '../native/index.js';
 
-export function createAssetPlugin(outDir: string = 'build_output'): UrjaPlugin {
+export function createAssetPlugin(outDir: string = 'build_output'): NexxoPlugin {
     const worker = new RustNativeWorker(4);
 
     return {
         manifest: {
-            name: 'urja:asset',
+            name: 'nexxo:asset',
             version: '1.0.0',
             engineVersion: '1.0.0',
             type: 'js',
             hooks: ['resolveId', 'load'],
             permissions: { fs: 'read' }
         },
-        id: 'urja:asset',
+        id: 'nexxo:asset',
         async runHook(hook, input, context) {
             const ASSET_REGEX = /\.(png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf|eot|otf)$/;
 

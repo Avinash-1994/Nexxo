@@ -8,7 +8,7 @@ export class FixStore {
     private db: Database.Database;
 
     constructor(rootDir: string) {
-        const dbDir = path.join(rootDir, '.urja');
+        const dbDir = path.join(rootDir, '.nexxo');
         if (!fs.existsSync(dbDir)) {
             fs.mkdirSync(dbDir, { recursive: true });
         }

@@ -28,10 +28,10 @@ export class UrGuideVue extends LitElement {
         return html`
       <div class="status-badge">MAINSTREAM ADAPTER</div>
       <h1>Vue Strategy</h1>
-      <p>Urja supports Vue Single File Components (SFCs) via a specialized compiler adapter. It separates the template, script, and style blocks and injects them into the Urja dependency graph as discrete modules.</p>
+      <p>Nexxo supports Vue Single File Components (SFCs) via a specialized compiler adapter. It separates the template, script, and style blocks and injects them into the Nexxo dependency graph as discrete modules.</p>
 
       <h2>Installation</h2>
-      <pre><code>npm install -D @urja/vue-adapter vue</code></pre>
+      <pre><code>npm install -D @nexxo/vue-adapter vue</code></pre>
 
       <h2>Configuration</h2>
       <pre><code>module.exports = {
@@ -40,10 +40,10 @@ export class UrGuideVue extends LitElement {
 };</code></pre>
 
       <h2>Scoped CSS</h2>
-      <p>Urja's CSS engine fully respects <code>&lt;style scoped&gt;</code>. The Vue adapter handles the unique attribute injection required to maintain scope across HMR updates.</p>
+      <p>Nexxo's CSS engine fully respects <code>&lt;style scoped&gt;</code>. The Vue adapter handles the unique attribute injection required to maintain scope across HMR updates.</p>
 
       <h2>Performance</h2>
-      <p>By isolating the SFC compiler in the adapter, Urja can parallelize the compilation of hundreds of Vue components across the native Rust worker pool.</p>
+      <p>By isolating the SFC compiler in the adapter, Nexxo can parallelize the compilation of hundreds of Vue components across the native Rust worker pool.</p>
     `;
     }
 }

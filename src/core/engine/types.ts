@@ -3,7 +3,7 @@ import { DependencyGraph } from '../../resolve/graph.js';
 
 // 6.1 EngineInfo
 export type EngineInfo = {
-    name: "Urja";
+    name: "Nexxo";
     version: string;
     commit?: string;
     buildTime?: string; // Observational only
@@ -72,6 +72,11 @@ export interface BuildArtifact {
     fileName: string;
     dependencies: string[];
     source?: string | Uint8Array;
+    modules?: Array<{
+        id: string;
+        size: number;
+        originalSize: number;
+    }>;
 }
 
 // 6.7 BuildFingerprint
@@ -120,10 +125,12 @@ export interface BuildError {
 // Explain Mode
 export interface ExplainEvent {
     stage: string;
-    subjectId?: string;
     decision: string;
     reason: string;
+    name?: string;
+    id?: string;
     data?: any;
+    timestamp?: number;
 }
 
 // Hot Reload

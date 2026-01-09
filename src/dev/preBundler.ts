@@ -13,7 +13,7 @@ const require = createRequire(import.meta.url);
  * Handles transitive dependencies automatically
  */
 export class DependencyPreBundler {
-    constructor(private root: string, private cacheDir: string = 'node_modules/.urja') { }
+    constructor(private root: string, private cacheDir: string = 'node_modules/.nexxo') { }
 
     /**
      * Pre-bundle dependencies using full graph approach
@@ -326,7 +326,7 @@ export class DependencyPreBundler {
                             // Exact match - prevent "react" matching "react-router-dom"
                             if (outputBasename === normalizedName) {
                                 const relativePath = path.relative(cacheDir, outputPath);
-                                const urlPath = `/@urja-deps/${relativePath}`;
+                                const urlPath = `/@nexxo-deps/${relativePath}`;
                                 bundledDeps.set(dep, urlPath);
                                 depMap[dep] = urlPath;
                                 log.info(`✓ Pre-bundled: ${dep} → ${urlPath}`);

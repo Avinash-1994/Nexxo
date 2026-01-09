@@ -1,4 +1,4 @@
-# Urja Extension Surface — Internal Contract
+# Nexxo Extension Surface — Internal Contract
 
 **Status**: 🔒 Locked (Phase H2.1)  
 **Version**: 1.0.0  
@@ -8,7 +8,7 @@
 
 ## 🎯 Purpose
 
-This document defines the **ONLY** extension points in Urja that are safe, supported, and guaranteed stable across minor versions.
+This document defines the **ONLY** extension points in Nexxo that are safe, supported, and guaranteed stable across minor versions.
 
 **Governance Rule**: If it's not listed here, it's internal and subject to change without notice.
 
@@ -22,7 +22,7 @@ This document defines the **ONLY** extension points in Urja that are safe, suppo
 
 **Interface**: 
 ```typescript
-interface UrjaPlugin {
+interface NexxoPlugin {
   name: string;
   transform?(code: string, id: string): { code: string; map?: SourceMap } | null;
   load?(id: string): { code: string; map?: SourceMap } | null;
@@ -52,7 +52,7 @@ interface UrjaPlugin {
 ```typescript
 interface FrameworkPreset {
   name: string;
-  plugins: UrjaPlugin[];
+  plugins: NexxoPlugin[];
   config?: Partial<BuildConfig>;
 }
 ```
@@ -193,5 +193,5 @@ Before exposing a new API, verify:
 
 ---
 
-**Signed**: Urja Core Team  
+**Signed**: Nexxo Core Team  
 **Effective**: Phase H2.1 Complete

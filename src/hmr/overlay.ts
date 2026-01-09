@@ -54,7 +54,7 @@ export class HMROverlay {
 
     private createOverlay(decision: HMRDecision): HTMLElement {
         const container = document.createElement('div');
-        container.className = 'urja-hmr-overlay';
+        container.className = 'nexxo-hmr-overlay';
         container.style.cssText = this.getContainerStyles();
 
         // Header

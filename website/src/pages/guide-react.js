@@ -35,14 +35,14 @@ export class UrGuideReact extends LitElement {
         return html`
       <div class="status-badge">MAINSTREAM ADAPTER</div>
       <h1>React Strategy</h1>
-      <p>Urja's React adapter focuses on absolute decoupling. It leverages <code>@babel/preset-react</code> or <code>esbuild</code> internally to handle JSX while maintaining Urja's strict HMR contract.</p>
+      <p>Nexxo's React adapter focuses on absolute decoupling. It leverages <code>@babel/preset-react</code> or <code>esbuild</code> internally to handle JSX while maintaining Nexxo's strict HMR contract.</p>
 
       <div class="info-box">
         <strong>Optimization Tip</strong>: The React adapter uses the automatic JSX runtime by default. You do not need to import React in every <code>.jsx</code> or <code>.tsx</code> file.
       </div>
 
       <h2>Installation</h2>
-      <pre><code>npm install -D @urja/react-adapter react react-dom</code></pre>
+      <pre><code>npm install -D @nexxo/react-adapter react react-dom</code></pre>
 
       <h2>Configuration</h2>
       <pre><code>module.exports = {
@@ -52,7 +52,7 @@ export class UrGuideReact extends LitElement {
 };</code></pre>
 
       <h2>HMR & State</h2>
-      <p>Urja implements a "Fast Refresh" bridge that preserves component state during development. Unlike standard Vite/Webpack plugins, this bridge is isolated within the <code>react-adapter</code> and does not modify the Urja core graph.</p>
+      <p>Nexxo implements a "Fast Refresh" bridge that preserves component state during development. Unlike standard Vite/Webpack plugins, this bridge is isolated within the <code>react-adapter</code> and does not modify the Nexxo core graph.</p>
 
       <h2>Handling CSS-in-JS</h2>
       <p>Whether you use Emotion, Styled Components, or Tailwind, the React adapter treats them as standard asset dependencies, ensuring they are bundled deterministically in production.</p>

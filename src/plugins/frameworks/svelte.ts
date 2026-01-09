@@ -1,5 +1,5 @@
 /**
- * @urja/svelte - Production-Grade Svelte Plugin
+ * @nexxo/svelte - Production-Grade Svelte Plugin
  * 
  * Features:
  * - Svelte component compilation
@@ -47,7 +47,7 @@ export interface SveltePluginOptions {
     preprocess?: any;
 }
 
-export function urjaSvelte(options: SveltePluginOptions = {}): Plugin {
+export function nexxoSvelte(options: SveltePluginOptions = {}): Plugin {
     const {
         hmr = true,
         development = process.env.NODE_ENV !== 'production',
@@ -60,7 +60,7 @@ export function urjaSvelte(options: SveltePluginOptions = {}): Plugin {
     const componentCache = new Map<string, { code: string; css: string; hash: string }>();
 
     return {
-        name: 'urja-svelte',
+        name: 'nexxo-svelte',
 
         async buildStart() {
             // Clear cache on rebuild
@@ -179,7 +179,7 @@ async function compileSvelte(
             css: result.css || { code: '' }
         };
     } catch (error) {
-        console.warn('[urja-svelte] Compilation failed:', error);
+        console.warn('[nexxo-svelte] Compilation failed:', error);
         return null;
     }
 }
@@ -207,6 +207,6 @@ function generateSourceMap(originalCode: string, transformedCode: string, id: st
 // Export helper for use in config
 export function sveltePreset(options: SveltePluginOptions = {}): Plugin[] {
     return [
-        urjaSvelte(options)
+        nexxoSvelte(options)
     ];
 }

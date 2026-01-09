@@ -1,10 +1,10 @@
-# Urja Performance Benchmarks
+# Nexxo Performance Benchmarks
 
 **Module**: 11 (Phase H.3)  
 **Status**: ✅ Active  
 **Last Updated**: 2026-01-02
 
-This document provides reproducible performance measurements for Urja using strictly Tier-1 templates on standardized hardware.
+This document provides reproducible performance measurements for Nexxo using strictly Tier-1 templates on standardized hardware.
 
 ## 💻 Machine Specs
 - **CPU**: 13th Gen Intel(R) Core(TM) i7-13650HX
@@ -29,9 +29,9 @@ All measurements were taken as the average of 5 consecutive "cold" runs.
 ## 🧪 Methodology
 
 ### Measurement Method
-- **Cold Dev Start**: Time from command execution (`urja dev`) to the "Ready" log emission.
+- **Cold Dev Start**: Time from command execution (`nexxo dev`) to the "Ready" log emission.
 - **HMR Latency**: Measured as the time between file save on disk and the "HMR Update" event being acknowledged by the browser client.
-- **Production Build**: Full end-to-end `urja build` including minification, CSS extraction, and asset hashing.
+- **Production Build**: Full end-to-end `nexxo build` including minification, CSS extraction, and asset hashing.
 
 ### Test Conditions
 1. No other heavy processes running on the machine.
@@ -49,4 +49,4 @@ All measurements were taken as the average of 5 consecutive "cold" runs.
 ## ⚠️ Known Weaknesses & Limitations
 - **Adapter Overhead**: Because Tier-1 adapters (Mithril, Alpine, Lit) proxy to specialized internal toolchains (e.g., Vite/esbuild), there is a ~100ms setup overhead compared to raw `esbuild`.
 - **HMR Fallback**: In complex circular dependency scenarios, HMR may fall back to `fullReload`, adding ~300ms to the latency.
-- **Memory Usage**: On very large projects (>5k modules), memory consumption can spike due to the dual-graph architecture (Urja Core + Adapter Internal Graph).
+- **Memory Usage**: On very large projects (>5k modules), memory consumption can spike due to the dual-graph architecture (Nexxo Core + Adapter Internal Graph).

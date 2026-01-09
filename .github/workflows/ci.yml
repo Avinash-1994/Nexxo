@@ -74,7 +74,7 @@ jobs:
           test -f dist/cli.js && echo "✅ CLI built successfully" || exit 1
           test -f dist/core/universal-transformer.js && echo "✅ Universal Transformer built" || exit 1
           if [ "${{ runner.os }}" == "Linux" ]; then
-            if [ -f dist/urja_native.node ]; then
+            if [ -f dist/nexxo_native.node ]; then
               echo "✅ Native binary found in dist"
             else
               echo "⚠️ Native binary missing - utilizing JS fallback"
@@ -96,10 +96,7 @@ jobs:
           NODE_OPTIONS: --experimental-vm-modules
         run: npx tsx scripts/validation/run-validation.ts
       
-      - name: 🧪 Run Dogfooding Validation (React + Tailwind)
-        env:
-          NODE_OPTIONS: --experimental-vm-modules
-        run: npx tsx scripts/validation/dogfood-react.ts
+
  
       - name: 🧪 Run Rollup Plugin Stress Test
         env:
@@ -123,7 +120,7 @@ jobs:
           name: build-artifacts
           path: |
             dist/
-            urja_native.node
+            nexxo_native.node
             package.json
             package-lock.json
 

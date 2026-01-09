@@ -22,7 +22,7 @@ export const FrameworkGuides = ({ framework }: { framework: string }) => {
             install: 'npm install react react-dom',
             preset: 'react',
             hmr: 'Fast Refresh (Component-level)',
-            example: `// urja.config.js
+            example: `// nexxo.config.js
 module.exports = {
   adapter: 'react-adapter',
   entry: ['./src/main.tsx'],
@@ -45,7 +45,7 @@ module.exports = {
             install: 'npm install vue',
             preset: 'vue',
             hmr: 'SFC Reload (File-level)',
-            example: `// urja.config.js
+            example: `// nexxo.config.js
 module.exports = {
   adapter: 'vue-adapter',
   entry: ['./src/main.js'],
@@ -61,27 +61,27 @@ module.exports = {
                 'Vue 2 is supported through a legacy adapter.'
             ]
         },
-        angular: {
-            name: 'Angular',
-            status: 'Verified (Tier 2)',
-            statusColor: 'text-blue-500 border-blue-500/20 bg-blue-500/5',
-            install: 'npm install @angular/core @angular/common',
-            preset: 'angular',
-            hmr: 'Full Module Refresh',
-            example: `// urja.config.js
+        svelte: {
+            name: 'Svelte',
+            status: 'Stable (Tier 1)',
+            statusColor: 'text-emerald-500 border-emerald-500/20 bg-emerald-500/5',
+            install: 'npm install svelte',
+            preset: 'svelte',
+            hmr: 'Component Reload',
+            example: `// nexxo.config.js
 module.exports = {
-  adapter: 'angular-adapter',
-  entry: ['./src/main.ts'],
+  adapter: 'svelte-adapter',
+  entry: ['./src/main.js'],
   preset: 'spa'
 };`,
             features: [
-                { title: 'TS Decorators', desc: 'Full support for Angular decorators.' },
-                { title: 'JIT Compilation', desc: 'High-speed dev server integration.' },
-                { title: 'MFE Ready', desc: 'Designed for federated Angular apps.' }
+                { title: 'Compiler Integration', desc: 'Direct 5.x compiler mapping.' },
+                { title: 'Reactive Prop Sync', desc: 'HMR preserves reactive state.' },
+                { title: 'Styling Isolation', desc: 'Automatic scoped CSS extraction.' }
             ],
             limitations: [
-                'Incremental compilation for large components may be slower.',
-                'AOT Linker is currently in experimental phase.'
+                'Legacy Svelte 3/4 requires compatibility shim.',
+                'No support for multi-entry Svelte files.'
             ]
         },
         solid: {
@@ -91,7 +91,7 @@ module.exports = {
             install: 'npm install solid-js',
             preset: 'solid',
             hmr: 'Brotli-compressed Fast Refresh',
-            example: `// urja.config.js
+            example: `// nexxo.config.js
 module.exports = {
   adapter: 'solid-adapter',
   entry: ['./src/index.tsx'],
@@ -106,6 +106,116 @@ module.exports = {
                 'Experimental SSR support only.',
                 'Strict requirement for pure function components.'
             ]
+        },
+        preact: {
+            name: 'Preact',
+            status: 'Stable (Tier 1)',
+            statusColor: 'text-emerald-500 border-emerald-500/20 bg-emerald-500/5',
+            install: 'npm install preact',
+            preset: 'preact',
+            hmr: 'Fast Refresh',
+            example: `// nexxo.config.js
+module.exports = {
+  adapter: 'preact-adapter',
+  entry: ['./src/index.js'],
+  preset: 'spa'
+};`,
+            features: [
+                { title: 'VNode Optimization', desc: 'Custom preact/jsx-runtime integration.' },
+                { title: 'Signals Support', desc: 'Deep-integrated preact-signals tracking.' },
+                { title: 'Ultra Lightweight', desc: '3KB core with full fresh support.' }
+            ],
+            limitations: [
+                'Requires manual aliasing for some React libraries.',
+            ]
+        },
+        lit: {
+            name: 'Lit',
+            status: 'Verified',
+            statusColor: 'text-blue-500 border-blue-500/20 bg-blue-500/5',
+            install: 'npm install lit',
+            preset: 'lit',
+            hmr: 'Web Component Hot-Patch',
+            example: `// nexxo.config.js
+module.exports = {
+  adapter: 'lit-adapter',
+  entry: ['./src/main.ts'],
+  preset: 'spa'
+};`,
+            features: [
+                { title: 'Decorator Support', desc: 'TC39 and TypeScript legacy decorators.' },
+                { title: 'Shadow DOM HMR', desc: 'In-place style updates without reload.' },
+                { title: 'Standard Compliant', desc: 'Pure Web Components orchestration.' }
+            ],
+            limitations: [
+                'Requires custom element registry management for HMR.',
+            ]
+        },
+        alpine: {
+            name: 'Alpine.js',
+            status: 'Verified',
+            statusColor: 'text-blue-500 border-blue-500/20 bg-blue-500/5',
+            install: 'npm install alpinejs',
+            preset: 'alpine',
+            hmr: 'Reactive Core Reload',
+            example: `// nexxo.config.js
+module.exports = {
+  adapter: 'alpine-adapter',
+  entry: ['./src/main.js'],
+  preset: 'spa'
+};`,
+            features: [
+                { title: 'Runtime Only', desc: 'Optimized for directive-driven logic.' },
+                { title: 'State Preservation', desc: 'Global $store remains after refresh.' },
+                { title: 'Vanilla First', desc: 'Zero-configuration template handling.' }
+            ],
+            limitations: [
+                'Complex component loops may require partial mount.',
+            ]
+        },
+        qwik: {
+            name: 'Qwik',
+            status: 'Experimental',
+            statusColor: 'text-amber-500 border-amber-500/20 bg-amber-500/5',
+            install: 'npm install @builder.io/qwik',
+            preset: 'qwik',
+            hmr: 'Modular Resumability',
+            example: `// nexxo.config.js
+module.exports = {
+  adapter: 'qwik-adapter',
+  entry: ['./src/main.tsx'],
+  preset: 'spa'
+};`,
+            features: [
+                { title: 'Resumability', desc: 'Zero hydration on client side.' },
+                { title: 'Optimizer Integration', desc: 'Full support for Qwik Optimizer hooks.' },
+                { title: 'Serializers', desc: 'Fast serialization of component state.' }
+            ],
+            limitations: [
+                'Experimental SSR mode only.',
+            ]
+        },
+        mithril: {
+            name: 'Mithril.js',
+            status: 'Legacy',
+            statusColor: 'text-slate-500 border-slate-500/20 bg-slate-500/5',
+            install: 'npm install mithril',
+            preset: 'mithril',
+            hmr: 'Full Module Replacement',
+            example: `// nexxo.config.js
+module.exports = {
+  adapter: 'mithril-adapter',
+  entry: ['./src/main.js'],
+  preset: 'spa'
+};`,
+            features: [
+                { title: 'Fast VDOM', desc: 'High-speed diffing and patching.' },
+                { title: 'Routing', desc: 'Built-in support for Mithril routing.' },
+                { title: 'Small Footprint', desc: 'Minimalistic core size.' }
+            ],
+            limitations: [
+                'State preservation requires extra boilerplate.',
+            ]
         }
     }[framework.toLowerCase()] || { name: framework, install: '', preset: '', example: '', features: [], limitations: [], status: 'Community', statusColor: 'text-slate-500 border-slate-500/20 bg-slate-500/5', hmr: 'Full Refresh' };
 
@@ -116,7 +226,7 @@ module.exports = {
                     <div className="inline-flex items-center gap-2 text-blue-500 font-bold text-xs uppercase tracking-widest mb-4">
                         Framework Guide
                     </div>
-                    <h1 className="text-4xl lg:text-5xl font-black font-display tracking-tight">Using {config.name} with Urja</h1>
+                    <h1 className="text-4xl lg:text-5xl font-black font-display tracking-tight">Using {config.name} with Nexxo</h1>
                 </div>
                 <div className={`px-4 py-2 rounded-xl border font-bold text-sm ${config.statusColor}`}>
                     {config.status}
@@ -124,7 +234,7 @@ module.exports = {
             </div>
 
             <p className="text-lg text-[var(--text-secondary)] mb-10 leading-relaxed max-w-3xl">
-                Urja provides first-class support for {config.name} through specialized adapters that isolate your framework logic from the core build engine.
+                Nexxo provides first-class support for {config.name} through specialized adapters that isolate your framework logic from the core build engine.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
@@ -175,14 +285,14 @@ module.exports = {
 
             <section className="mb-12">
                 <h3 className="text-xl font-bold mb-4">Configuration</h3>
-                <p className="text-[var(--text-secondary)] mb-4">Update your <code>urja.config.js</code> to use the {config.name} adapter:</p>
+                <p className="text-[var(--text-secondary)] mb-4">Update your <code>nexxo.config.js</code> to use the {config.name} adapter:</p>
                 <CodeBlock code={config.example} />
             </section>
 
             <section className="p-8 rounded-2xl bg-blue-500/5 border border-blue-500/10">
                 <h4 className="font-bold mb-2 uppercase text-xs tracking-widest text-blue-600">Architect's Tip</h4>
                 <p className="text-sm text-[var(--text-secondary)] italic">
-                    While Urja allows multiple frameworks in a single repository (e.g., a React Marketing site and a Vue Dashboard), it strictly enforces **one framework per runtime container**. You can mix frameworks across routes, but not within the same component tree.
+                    While Nexxo allows multiple frameworks in a single repository (e.g., a React Marketing site and a Vue Dashboard), it strictly enforces **one framework per runtime container**. You can mix frameworks across routes, but not within the same component tree.
                 </p>
                 <div className="mt-4">
                     <a href="#/mfe/framework-policy" className="text-xs font-bold text-blue-500 hover:underline flex items-center gap-1">

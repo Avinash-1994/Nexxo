@@ -28,8 +28,8 @@ export interface WebpackAdapterOptions {
 }
 
 /**
- * Adapter to use Webpack Loaders within Urja
- * Maps Webpack's loader API to Urja's transform hook.
+ * Adapter to use Webpack Loaders within Nexxo
+ * Maps Webpack's loader API to Nexxo's transform hook.
  */
 export function webpackLoaderAdapter(opts: WebpackAdapterOptions): Plugin {
     const name = opts.name || 'webpack-loader-compat';
@@ -52,17 +52,17 @@ export function webpackLoaderAdapter(opts: WebpackAdapterOptions): Plugin {
                     query: opts.options || {},
                     fs: fs,
 
-                    // Cacheable is a no-op in Urja (we handle caching at graph level)
+                    // Cacheable is a no-op in Nexxo (we handle caching at graph level)
                     cacheable: () => { },
 
                     // Dependency tracking
                     addDependency: (file: string) => {
-                        // TODO: Hook into Urja's graph dependency tracking
+                        // TODO: Hook into Nexxo's graph dependency tracking
                         // context.meta.watchFiles.add(file);
                     },
 
                     emitFile: (name: string, content: string | Buffer) => {
-                        // TODO: Hook into Urja's asset emission
+                        // TODO: Hook into Nexxo's asset emission
                     },
 
                     async: () => {

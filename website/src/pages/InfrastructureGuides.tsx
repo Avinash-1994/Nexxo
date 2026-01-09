@@ -9,19 +9,19 @@ export const InfrastructureGuides = ({ type }: { type: string }) => {
         tailwind: {
             name: 'Tailwind CSS',
             install: 'npm install -D tailwindcss postcss autoprefixer',
-            example: `// urja.config.js
+            example: `// nexxo.config.js
 module.exports = {
   css: {
     framework: 'tailwind'
   },
   // Auto-detects tailwind.config.js
 };`,
-            description: 'Urja provides built-in PostCSS processing with dedicated Tailwind support for lightning-fast styling.'
+            description: 'Nexxo provides built-in PostCSS processing with dedicated Tailwind support for lightning-fast styling.'
         },
         sass: {
             name: 'SASS / SCSS',
             install: 'npm install -D sass',
-            example: `// urja.config.js
+            example: `// nexxo.config.js
 module.exports = {
   css: {
     preprocessor: 'sass'
@@ -64,7 +64,7 @@ module.exports = {
                             Build Phase
                         </h4>
                         <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                            CSS transformations happen in a dedicated pre-processing phase of the Urja graph, ensuring that styles are correctly linked before the JS bundle is generated.
+                            CSS transformations happen in a dedicated pre-processing phase of the Nexxo graph, ensuring that styles are correctly linked before the JS bundle is generated.
                         </p>
                     </div>
                 </section>

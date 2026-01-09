@@ -1,4 +1,4 @@
-# Urja Compatibility Policy — Ruled, Not Open
+# Nexxo Compatibility Policy — Ruled, Not Open
 
 **Status**: 🔒 Locked (Phase H2.4)  
 **Version**: 1.0.0  
@@ -9,7 +9,7 @@
 
 ## 🎯 Purpose
 
-This document defines **WHEN** and **HOW** compatibility is added to Urja.
+This document defines **WHEN** and **HOW** compatibility is added to Nexxo.
 
 **Core Principle**: Compatibility grows because it was **needed**, not because it was **possible**.
 
@@ -50,14 +50,14 @@ npm run test:snapshots -- --adapter=angular-aot
 ---
 
 ### Rule 3: Fail Loudly When Unsupported
-**If Urja cannot handle a framework feature, it MUST fail with a clear error.**
+**If Nexxo cannot handle a framework feature, it MUST fail with a clear error.**
 
 ```typescript
 // ✅ GOOD
 if (isAngularAOT(config)) {
   throw new Error(
     'Angular AOT is not yet supported. ' +
-    'Use JIT mode or track: https://github.com/urja/issues/123'
+    'Use JIT mode or track: https://github.com/nexxo/issues/123'
   );
 }
 
@@ -250,5 +250,5 @@ Demand first, implementation second.
 
 ---
 
-**Signed**: Urja Core Team  
+**Signed**: Nexxo Core Team  
 **Effective**: Phase H2.4 Complete

@@ -9,6 +9,12 @@ temp_ts_config_test
 *.log
 .DS_Store
 nextgen.build.temp.mjs
-native/target/
-native/Cargo.lock
+
+# Rust/Native build artifacts
+src/native/target/
+src/native/Cargo.lock
+src/native/*.node
+src/native/native.d.ts
+src/native/urja_native*.node
+src/native/nextgen_native*.node
 

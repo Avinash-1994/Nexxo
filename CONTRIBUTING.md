@@ -1,9 +1,9 @@
-# Contributing to Urja
+# Contributing to Nexxo
 
 **Module**: 13 (Phase H.5)  
 **Status**: ✅ Active
 
-Thank you for your interest in Urja. Before contributing, please read this document carefully. Urja is a **frozen-core** project with strict architectural boundaries. We prioritize **determinism**, **isolation**, and **minimalism** over feature velocity.
+Thank you for your interest in Nexxo. Before contributing, please read this document carefully. Nexxo is a **frozen-core** project with strict architectural boundaries. We prioritize **determinism**, **isolation**, and **minimalism** over feature velocity.
 
 ---
 
@@ -22,7 +22,7 @@ Thank you for your interest in Urja. Before contributing, please read this docum
 2.  **Starter Templates**: Well-structured, production-grade templates for Tier-1 and Tier-2 adapters.
 3.  **Documentation**: Improvements to technical guides, benching methodologies, or onboarding flow.
 4.  **Benchmarks**: Transparent performance measurements on diverse hardware.
-5.  **Tooling**: External developer tools that consume Urja's manifest or output but live outside the core engine.
+5.  **Tooling**: External developer tools that consume Nexxo's manifest or output but live outside the core engine.
 
 ---
 
@@ -39,7 +39,7 @@ Thank you for your interest in Urja. Before contributing, please read this docum
 
 1.  **Discuss Before Coding**: Open a Detailed Technical Proposal (DTP) as an Issue.
 2.  **Adhere to Governance**: Ensure your proposal aligns with `ADAPTER_GOVERNANCE.md` and `GOVERNANCE_LOCK_v1.md`.
-3.  **Strict Linting**: PRs must pass the `urja-governance` ESLint rules.
+3.  **Strict Linting**: PRs must pass the `nexxo-governance` ESLint rules.
 4.  **Tests Mandatory**: No PR will be reviewed without 100% test coverage for the changes (unit and integration).
 5.  **Audit Check**: PRs affecting adapters must pass `scripts/verify.ts`.
 
@@ -58,4 +58,4 @@ PRs that fail any of these checks will be closed regardless of code quality.
 
 ## 🔒 Governance
 
-Urja is governed by the **Urja Core Team**. Decision authority is absolute regarding core freezes and architectural drift. See [GOVERNANCE.md](./GOVERNANCE.md) for details.
+Nexxo is governed by the **Nexxo Core Team**. Decision authority is absolute regarding core freezes and architectural drift. See [GOVERNANCE.md](./GOVERNANCE.md) for details.

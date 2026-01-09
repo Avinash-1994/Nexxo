@@ -1,6 +1,6 @@
 use napi_derive::napi;
 // use napi::bindgen_prelude::*;
-use sha2::{Sha256, Digest};
+// use sha2::{Sha256, Digest};
 use rayon::prelude::*;
 use std::sync::Arc;
 use std::fs;
@@ -54,10 +54,9 @@ impl NativeWorker {
         Err(_) => return format!("Error: Could not read {}", file_path),
     };
 
-    // 2. Compute Hash
-    let mut hasher = Sha256::new();
-    hasher.update(&content);
-    let hash = hex::encode(hasher.finalize());
+    // 2. Compute Faster Hash (XXH3 - Phase 4.2)
+    use xxhash_rust::xxh3::xxh3_64;
+    let hash = format!("{:x}", xxh3_64(&content));
 
     // 3. Check Cache
     if let Some(entry) = self.cache.get(file_path) {
@@ -76,7 +75,7 @@ impl NativeWorker {
         content: transformed.clone(),
     });
 
-    // 6. Update Graph (Placeholder)
+    // 6. Update Graph (Local)
     self.graph.add_node(file_path.to_string());
 
     transformed
@@ -94,10 +93,7 @@ impl NativeWorker {
 
   #[napi]
   pub fn invalidate(&self, file_path: String) {
-    // Remove from cache
-    // Note: DashMap doesn't have a simple remove that returns nothing, but remove works.
     self.cache.remove(&file_path);
-    // We don't remove from graph because the file still exists, just needs rebuild.
   }
 
   #[napi]
@@ -105,16 +101,11 @@ impl NativeWorker {
     let mut affected = Vec::new();
     affected.push(file_path.clone());
 
-    // Find dependents
     let dependents = self.graph.get_dependents(&file_path);
     for dep in dependents {
-        // Invalidate dependent in cache too
         self.cache.remove(&dep);
         affected.push(dep);
     }
-    
-    // In a real scenario, we might recursively find dependents of dependents (transitive).
-    // For now, direct dependents is a good start.
     
     affected
   }
@@ -123,6 +114,80 @@ impl NativeWorker {
   pub fn resolve_dependency(&self, from: String, specifier: String) -> Option<String> {
       self.resolver.resolve(&specifier, &from)
   }
+
+  #[napi]
+  pub fn fast_hash(&self, content: String) -> String {
+    use xxhash_rust::xxh3::xxh3_64;
+    format!("{:x}", xxh3_64(content.as_bytes()))
+  }
+
+  #[napi]
+  pub fn process_asset(&self, content: napi::bindgen_prelude::Uint8Array) -> String {
+    use xxhash_rust::xxh3::xxh3_64;
+    format!("{:x}", xxh3_64(content.as_ref()))
+  }
+
+  #[napi]
+  pub fn scan_imports(&self, code: String) -> Vec<String> {
+    use regex::Regex;
+    use std::collections::HashSet;
+    use lazy_static::lazy_static;
+
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r#"(?:import|export)\s+.*?\s+from\s+['"](.*?)['"]|import\(['"](.*?)['"]\)|require\(['"](.*?)['"]\)"#).unwrap();
+    }
+
+    let mut imports = HashSet::new();
+    for cap in RE.captures_iter(&code) {
+        if let Some(m) = cap.get(1).or(cap.get(2)).or(cap.get(3)) {
+            imports.insert(m.as_str().to_string());
+        }
+    }
+    
+    imports.into_iter().collect()
+  }
+}
+
+#[napi]
+pub struct GraphAnalyzer {
+    inner: graph::DependencyGraph,
+}
+
+#[napi]
+impl GraphAnalyzer {
+    #[napi(constructor)]
+    pub fn new() -> Self {
+        GraphAnalyzer {
+            inner: graph::DependencyGraph::new(),
+        }
+    }
+
+    #[napi]
+    pub fn add_node(&self, id: String) {
+        self.inner.add_node(id);
+    }
+
+    #[napi]
+    pub fn add_dependency(&self, from: String, to: String) {
+        self.inner.add_dependency(&from, &to);
+    }
+
+    #[napi]
+    pub fn add_batch(&self, ids: Vec<String>, edges: Vec<Vec<String>>) {
+        for (i, id) in ids.iter().enumerate() {
+            self.inner.add_node(id.clone());
+            if let Some(current_edges) = edges.get(i) {
+                for edge in current_edges {
+                    self.inner.add_dependency(id, edge);
+                }
+            }
+        }
+    }
+
+    #[napi]
+    pub fn detect_cycles(&self) -> Vec<String> {
+        self.inner.detect_cycles()
+    }
 }
 
 

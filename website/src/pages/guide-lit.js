@@ -28,7 +28,7 @@ export class UrGuideLit extends LitElement {
         return html`
       <div class="status-badge">TIER-1 ADAPTER</div>
       <h1>Lit Guide</h1>
-      <p>The Lit adapter provides first-class support for Web Components with Urja. It handles scoped CSS, HMR for component logic, and asset resolution within templates.</p>
+      <p>The Lit adapter provides first-class support for Web Components with Nexxo. It handles scoped CSS, HMR for component logic, and asset resolution within templates.</p>
 
       <h2>Core Guarantees</h2>
       <ul>
@@ -38,7 +38,7 @@ export class UrGuideLit extends LitElement {
       </ul>
 
       <div class="warning">
-        <strong>Limitation</strong>: SSR for Lit is not supported in the Urja core. Components must be rendered on the client.
+        <strong>Limitation</strong>: SSR for Lit is not supported in the Nexxo core. Components must be rendered on the client.
       </div>
 
       <h2>Setup</h2>
@@ -48,7 +48,7 @@ export class UrGuideLit extends LitElement {
 };</code></pre>
 
       <h2>HMR Behavior</h2>
-      <p>Urja's HMR for Lit uses a neutral invalidation model. When a component file changes, the adapter triggers a re-definition of the custom element or a full reload if state preservation is not possible.</p>
+      <p>Nexxo's HMR for Lit uses a neutral invalidation model. When a component file changes, the adapter triggers a re-definition of the custom element or a full reload if state preservation is not possible.</p>
     `;
     }
 }

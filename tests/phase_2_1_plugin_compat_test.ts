@@ -6,8 +6,8 @@
 import { PluginManager, Plugin } from '../src/plugins/index.js';
 import { rollupAdapter } from '../src/plugins/compat/rollup.js';
 import { webpackLoaderAdapter } from '../src/plugins/compat/webpack.js';
-import { urjaCopy, urjaHtml } from '../src/plugins/compat/tier-b.js';
-import { urjaReact, urjaVue, urjaSvelte } from '../src/plugins/compat/tier-c.js';
+import { nexxoCopy, nexxoHtml } from '../src/plugins/compat/tier-b.js';
+import { nexxoReact, nexxoVue, nexxoSvelte } from '../src/plugins/compat/tier-c.js';
 import fs from 'fs';
 import path from 'path';
 import { strict as assert } from 'assert';
@@ -138,12 +138,12 @@ async function testRollupAdapterBasic() {
         transform: (code: string) => code + '// rollup'
     };
 
-    const urjaPlugin = rollupAdapter(rollupPlugin);
+    const nexxoPlugin = rollupAdapter(rollupPlugin);
 
-    assert.strictEqual(urjaPlugin.name, 'test-rollup-plugin');
-    assert.ok(urjaPlugin.transform);
+    assert.strictEqual(nexxoPlugin.name, 'test-rollup-plugin');
+    assert.ok(nexxoPlugin.transform);
 
-    const result = await urjaPlugin.transform!('code', 'test.js');
+    const result = await nexxoPlugin.transform!('code', 'test.js');
     assert.strictEqual(result, 'code// rollup');
 
     console.log('✅ Rollup adapter converts plugins correctly');
@@ -159,15 +159,15 @@ async function testRollupAdapterHooks() {
         renderChunk: (code: string) => code.replace(/\s+/g, ' ')
     };
 
-    const urjaPlugin = rollupAdapter(rollupPlugin);
+    const nexxoPlugin = rollupAdapter(rollupPlugin);
 
-    const resolveResult = await urjaPlugin.resolveId!('virtual');
+    const resolveResult = await nexxoPlugin.resolveId!('virtual');
     assert.strictEqual(resolveResult, '/virtual/path.js');
 
-    const loadResult = await urjaPlugin.load!('test.virtual');
+    const loadResult = await nexxoPlugin.load!('test.virtual');
     assert.strictEqual(loadResult, 'export default "virtual"');
 
-    const renderResult = await urjaPlugin.renderChunk!('const  x  =  1;', {});
+    const renderResult = await nexxoPlugin.renderChunk!('const  x  =  1;', {});
     assert.strictEqual(renderResult, 'const x = 1;');
 
     console.log('✅ All Rollup hooks mapped correctly');
@@ -178,10 +178,10 @@ async function testRollupAdapterIntegration() {
 
     const manager = new PluginManager();
 
-    // Native Urja plugin
+    // Native Nexxo plugin
     manager.register({
-        name: 'urja-plugin',
-        transform: async (code) => code + ' [urja]'
+        name: 'nexxo-plugin',
+        transform: async (code) => code + ' [nexxo]'
     });
 
     // Adapted Rollup plugin
@@ -192,9 +192,9 @@ async function testRollupAdapterIntegration() {
     manager.register(rollupAdapter(rollupPlugin));
 
     const result = await manager.transform('start', 'test.js');
-    assert.strictEqual(result, 'start [urja] [rollup]');
+    assert.strictEqual(result, 'start [nexxo] [rollup]');
 
-    console.log('✅ Rollup plugins integrate seamlessly with Urja plugins');
+    console.log('✅ Rollup plugins integrate seamlessly with Nexxo plugins');
 }
 
 async function testPerformanceBenchmark() {
@@ -286,8 +286,8 @@ async function testWebpackLoaderAdapter() {
     console.log('✅ Webpack loader adapter works correctly');
 }
 
-async function testUrjaCopy() {
-    console.log('\n[Test 12] Tier B: urjaCopy');
+async function testNexxoCopy() {
+    console.log('\n[Test 12] Tier B: nexxoCopy');
 
     const testDir = path.resolve(process.cwd(), 'temp_test_copy');
     const srcFile = path.join(testDir, 'src/file.txt');
@@ -298,7 +298,7 @@ async function testUrjaCopy() {
     await fs.promises.mkdir(path.dirname(srcFile), { recursive: true });
     await fs.promises.writeFile(srcFile, 'hello');
 
-    const plugin = urjaCopy({
+    const plugin = nexxoCopy({
         targets: [{ src: srcFile, dest: destFile }]
     });
 
@@ -309,15 +309,15 @@ async function testUrjaCopy() {
 
     // Cleanup
     await fs.promises.rm(testDir, { recursive: true, force: true });
-    console.log('✅ urjaCopy copies files correctly');
+    console.log('✅ nexxoCopy copies files correctly');
 }
 
-async function testUrjaHtml() {
-    console.log('\n[Test 13] Tier B: urjaHtml');
+async function testNexxoHtml() {
+    console.log('\n[Test 13] Tier B: nexxoHtml');
 
     const testDest = path.resolve(process.cwd(), 'dist', 'test-index.html');
 
-    const plugin = urjaHtml({
+    const plugin = nexxoHtml({
         title: 'Test App',
         filename: 'test-index.html'
     });
@@ -329,21 +329,21 @@ async function testUrjaHtml() {
 
     // Cleanup
     await fs.promises.unlink(testDest);
-    console.log('✅ urjaHtml generates HTML correctly');
+    console.log('✅ nexxoHtml generates HTML correctly');
 }
 
 async function testTierC() {
     console.log('\n[Test 14] Tier C: Wrappers (React/Vue/Svelte)');
 
     // Just verify they return valid plugin objects
-    const react = urjaReact();
-    assert.strictEqual(react.name, 'urja-react');
+    const react = nexxoReact();
+    assert.strictEqual(react.name, 'nexxo-react');
 
-    const vue = urjaVue();
-    assert.strictEqual(vue.name, 'urja-vue');
+    const vue = nexxoVue();
+    assert.strictEqual(vue.name, 'nexxo-vue');
 
-    const svelte = urjaSvelte();
-    assert.strictEqual(svelte.name, 'urja-svelte');
+    const svelte = nexxoSvelte();
+    assert.strictEqual(svelte.name, 'nexxo-svelte');
 
     console.log('✅ Tier C wrappers instantiated correctly');
 }
@@ -367,9 +367,9 @@ async function runAllTests() {
         await testPerformanceBenchmark();
         await testReturnValueHandling();
         await testWebpackLoaderAdapter();
-        await testUrjaCopy();
-        // await testUrjaHtml(); // Skipped to avoid polling dist folder conflicts in parallel tests, but implemented.
-        try { await testUrjaHtml(); } catch (e) { console.warn('HTML test warning (non-critical):', e); }
+        await testNexxoCopy();
+        // await testNexxoHtml(); // Skipped to avoid polling dist folder conflicts in parallel tests, but implemented.
+        try { await testNexxoHtml(); } catch (e) { console.warn('HTML test warning (non-critical):', e); }
         await testTierC();
 
         console.log('\n' + '='.repeat(60));

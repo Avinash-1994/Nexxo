@@ -38,7 +38,7 @@ jobs:
         with:
           files: |
             dist/*
-            urja_native.node
+            nexxo_native.node
             package.json
             README.md
             LICENSE

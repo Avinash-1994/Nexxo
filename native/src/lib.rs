@@ -1,11 +1,14 @@
-// High-performance native modules for Urja
+// High-performance native modules for Nexxo
 // Focus: Speed and minimal bundle size
 
 mod graph;
 
 // Re-export graph module
 // Re-export graph module
-pub use graph::{GraphAnalyzer, GraphNode, CircularDependency, GraphAnalysisResult};
+pub use graph::{
+  GraphAnalyzer, GraphNode, CircularDependency, GraphAnalysisResult, 
+  fast_hash, batch_hash, scan_imports, normalize_path
+};
 
 use napi::bindgen_prelude::*;
 use napi_derive::napi;

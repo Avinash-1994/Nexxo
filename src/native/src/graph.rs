@@ -45,13 +45,33 @@ impl DependencyGraph {
         if let Some(idx) = indices.get(file) {
             let graph = self.graph.lock().unwrap();
             // Find nodes that have an edge pointing TO this file (if A imports B, A -> B)
-            // Wait, if A imports B, and B changes, we want A.
-            // If edge is A -> B, then we want Incoming neighbors of B.
             graph.neighbors_directed(*idx, petgraph::Direction::Incoming)
                 .map(|i| graph[i].clone())
                 .collect()
         } else {
             Vec::new()
         }
+    }
+
+    pub fn detect_cycles(&self) -> Vec<String> {
+        use petgraph::algo::tarjan_scc;
+        let graph = self.graph.lock().unwrap();
+        let scc = tarjan_scc(&*graph);
+        
+        let mut cycles = Vec::new();
+        for component in scc {
+            if component.len() > 1 {
+                // It's a cycle
+                let cycle_names: Vec<String> = component.iter().map(|idx| graph[*idx].clone()).collect();
+                cycles.push(cycle_names.join(" -> "));
+            } else if component.len() == 1 {
+                // Check for self-loop
+                let idx = component[0];
+                if graph.contains_edge(idx, idx) {
+                    cycles.push(graph[idx].clone());
+                }
+            }
+        }
+        cycles
     }
 }

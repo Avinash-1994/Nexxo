@@ -101,7 +101,7 @@ export class LiveConfigManager {
     }
 
     public async persist(): Promise<void> {
-        const configPath = path.join(this.cwd, 'urja.config.json');
+        const configPath = path.join(this.cwd, 'nexxo.config.json');
         await fs.writeFile(configPath, JSON.stringify(this.currentConfig, null, 2), 'utf-8');
         log.info(`Live configuration persisted to ${configPath}`);
     }

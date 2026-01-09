@@ -9,7 +9,7 @@ export class Telemetry {
     private telemetryDir: string;
 
     constructor(rootDir: string) {
-        this.telemetryDir = path.join(rootDir, '.urja', 'telemetry');
+        this.telemetryDir = path.join(rootDir, '.nexxo', 'telemetry');
         this.session = {
             id: crypto.randomUUID(),
             timestamp: Date.now(),
@@ -52,7 +52,7 @@ export class Telemetry {
     }
 
     static async getLatestSession(rootDir: string): Promise<BuildSession | null> {
-        const telemetryDir = path.join(rootDir, '.urja', 'telemetry');
+        const telemetryDir = path.join(rootDir, '.nexxo', 'telemetry');
         try {
             const files = await fs.readdir(telemetryDir);
             if (files.length === 0) return null;
@@ -69,7 +69,7 @@ export class Telemetry {
     }
 
     static async getSessions(rootDir: string, limit: number = 10): Promise<BuildSession[]> {
-        const telemetryDir = path.join(rootDir, '.urja', 'telemetry');
+        const telemetryDir = path.join(rootDir, '.nexxo', 'telemetry');
         try {
             const files = await fs.readdir(telemetryDir);
             if (files.length === 0) return [];

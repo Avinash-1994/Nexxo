@@ -1,0 +1,7 @@
+
+root: .
+entry: 
+  - src/main.tsx
+mode: production
+outDir: dist_yaml
+port: 4000

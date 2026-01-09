@@ -1,5 +1,5 @@
 /**
- * Urja Native Federation Runtime
+ * Nexxo Native Federation Runtime
  * 100% self-contained, zero external dependencies
  * Loads and manages federated modules using native ESM
  * With advanced fallback strategies and circuit breaker pattern
@@ -192,19 +192,19 @@ class FederationRuntime {
 
 // Global singleton instance
 if (typeof window !== 'undefined') {
-    window.__URJA_FEDERATION__ = window.__URJA_FEDERATION__ || new FederationRuntime();
+    window.__NEXXO_FEDERATION__ = window.__NEXXO_FEDERATION__ || new FederationRuntime();
 }
 
 // Export for module usage
-export default typeof window !== 'undefined' ? window.__URJA_FEDERATION__ : new FederationRuntime();
+export default typeof window !== 'undefined' ? window.__NEXXO_FEDERATION__ : new FederationRuntime();
 
 // Helper function for easier usage
 export async function loadRemote(remoteName, modulePath) {
-    const runtime = typeof window !== 'undefined' ? window.__URJA_FEDERATION__ : new FederationRuntime();
+    const runtime = typeof window !== 'undefined' ? window.__NEXXO_FEDERATION__ : new FederationRuntime();
     return runtime.loadRemoteModule(remoteName, modulePath);
 }
 
 export async function registerRemote(name, url) {
-    const runtime = typeof window !== 'undefined' ? window.__URJA_FEDERATION__ : new FederationRuntime();
+    const runtime = typeof window !== 'undefined' ? window.__NEXXO_FEDERATION__ : new FederationRuntime();
     return runtime.registerRemote(name, url);
 }

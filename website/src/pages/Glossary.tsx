@@ -35,14 +35,14 @@ export const Glossary: React.FC = () => {
                     Glossary.
                 </h1>
                 <p className="text-xl text-[var(--text-secondary)] leading-relaxed max-w-4xl">
-                    Deep technical definitions for the core concepts and terminologies used within the Urja Build Engine.
+                    Deep technical definitions for the core concepts and terminologies used within the Nexxo Build Engine.
                 </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-24">
                 <GlossaryItem
                     term="Build Graph"
-                    definition="A directed acyclic graph representing every file (node) and import (edge) in the application. Urja uses this for all optimization and transformation decisions."
+                    definition="A directed acyclic graph representing every file (node) and import (edge) in the application. Nexxo uses this for all optimization and transformation decisions."
                     icon={Network}
                 />
                 <GlossaryItem

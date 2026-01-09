@@ -38,7 +38,7 @@ export const TechSpecs: React.FC = () => {
                     Technical Specs.
                 </h1>
                 <p className="text-xl text-[var(--text-secondary)] leading-relaxed max-w-4xl">
-                    A definitive guide to the internal specifications, optimization strategies, and governance rules of the Urja Build Engine.
+                    A definitive guide to the internal specifications, optimization strategies, and governance rules of the Nexxo Build Engine.
                 </p>
             </div>
 
@@ -62,7 +62,7 @@ export const TechSpecs: React.FC = () => {
                     icon={Repeat}
                     title="Incrementality & Caching"
                     content={
-                        <p>Urja implements a multi-layer cache. Byte-level content hashing is applied to every file in the graph. If a file's hash remains unchanged, the transformation results are pulled from the <code>.urja_cache</code> directory, bypassing esbuild entirely. This allows for near-zero startup times on large projects.</p>
+                        <p>Nexxo implements a multi-layer cache. Byte-level content hashing is applied to every file in the graph. If a file's hash remains unchanged, the transformation results are pulled from the <code>.nexxo_cache</code> directory, bypassing esbuild entirely. This allows for near-zero startup times on large projects.</p>
                     }
                 />
 
@@ -71,7 +71,7 @@ export const TechSpecs: React.FC = () => {
                     title="Module Federation Design"
                     content={
                         <>
-                            <p>The build tool natively supports decentralized orchestration. Each build generates a <code>federation-manifest.json</code> that defines shared dependencies and remote entry points. Urja handles the runtime resolution without requiring heavy external runtimes.</p>
+                            <p>The build tool natively supports decentralized orchestration. Each build generates a <code>federation-manifest.json</code> that defines shared dependencies and remote entry points. Nexxo handles the runtime resolution without requiring heavy external runtimes.</p>
                             <ul className="list-disc ml-5 space-y-2 text-sm italic">
                                 <li>Dynamic remote loading via Web Workers.</li>
                                 <li>Version-aware dependency sharing (Semantic Versioning).</li>
@@ -112,7 +112,7 @@ export const TechSpecs: React.FC = () => {
                 <ScrollText size={32} className="text-blue-500 mx-auto mb-6" />
                 <h3 className="text-2xl font-bold text-slate-100 mb-4">Explore the Source</h3>
                 <p className="text-slate-400 mb-8 text-sm max-w-lg mx-auto leading-relaxed">
-                    Urja is built on a foundation of open-source excellence. Our core transformation logic and adapter templates are available for deep inspection.
+                    Nexxo is built on a foundation of open-source excellence. Our core transformation logic and adapter templates are available for deep inspection.
                 </p>
                 <div className="flex justify-center gap-4">
                     <a href="https://github.com" className="px-6 py-3 bg-white text-slate-900 font-bold rounded-xl text-sm hover:scale-105 transition-transform">View Core on GitHub</a>

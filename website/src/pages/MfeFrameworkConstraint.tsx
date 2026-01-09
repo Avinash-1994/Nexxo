@@ -22,10 +22,10 @@ export const MfeFrameworkConstraint: React.FC = () => {
                     Architectural Policy
                 </div>
                 <h1 className="text-4xl lg:text-6xl font-black font-display mb-8 tracking-tighter leading-tight">
-                    Why Urja Enforces One Framework per Micro-Frontend
+                    Why Nexxo Enforces One Framework per Micro-Frontend
                 </h1>
                 <p className="text-xl text-[var(--text-secondary)] leading-relaxed max-w-4xl">
-                    Urja enforces one framework per micro-frontend container by design. This is an intentional architectural decision, not a technical limitation, designed to ensure determinism and long-term maintainability.
+                    Nexxo enforces one framework per micro-frontend container by design. This is an intentional architectural decision, not a technical limitation, designed to ensure determinism and long-term maintainability.
                 </p>
             </div>
 
@@ -113,12 +113,12 @@ export const MfeFrameworkConstraint: React.FC = () => {
                 </p>
             </section>
 
-            {/* Urja's Architectural Decision */}
+            {/* Nexxo's Architectural Decision */}
             <section className="mb-20">
-                <h2 className="text-3xl font-black font-display mb-6 tracking-tight">Urja's Architectural Stance</h2>
+                <h2 className="text-3xl font-black font-display mb-6 tracking-tight">Nexxo's Architectural Stance</h2>
                 <div className="space-y-4 max-w-3xl">
                     <p className="text-[var(--text-secondary)] leading-relaxed">
-                        Urja prefers preventing unsafe architectures over enabling every possible configuration. Our engine enforces a 1:1 relationship between an **Adapter** and a **Micro-Frontend Container**.
+                        Nexxo prefers preventing unsafe architectures over enabling every possible configuration. Our engine enforces a 1:1 relationship between an **Adapter** and a **Micro-Frontend Container**.
                     </p>
                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {[
@@ -140,7 +140,7 @@ export const MfeFrameworkConstraint: React.FC = () => {
             <section className="mb-20">
                 <h2 className="text-3xl font-black font-display mb-6 tracking-tight">Correct Multi-Framework Setup</h2>
                 <p className="text-[var(--text-secondary)] mb-8 max-w-3xl">
-                    You can absolutely build a multi-framework ecosystem with Urja. The key is in how you organize your packages.
+                    You can absolutely build a multi-framework ecosystem with Nexxo. The key is in how you organize your packages.
                 </p>
                 <div className="p-2">
                     <CodeBlock code={`repo/
@@ -151,7 +151,7 @@ export const MfeFrameworkConstraint: React.FC = () => {
  │   └─ design-system (Lit)   <-- Shared Web Components`} />
                 </div>
                 <div className="space-y-4 text-sm text-[var(--text-secondary)] mt-6">
-                    <p>• <strong>Isolation</strong>: Each remote has its own <code>urja.config.js</code> and specific adapter.</p>
+                    <p>• <strong>Isolation</strong>: Each remote has its own <code>nexxo.config.js</code> and specific adapter.</p>
                     <p>• <strong>Scalability</strong>: Teams can deploy their remotes independently without framework conflicts.</p>
                     <p>• <strong>Interoperability</strong>: Use standard Web Components (Lit) for cross-framework UI components.</p>
                 </div>
@@ -168,10 +168,10 @@ export const MfeFrameworkConstraint: React.FC = () => {
                     </h3>
                     <div className="text-[var(--text-primary)] leading-relaxed font-medium">
                         <p className="mb-4">
-                            If your use case requires running multiple frontend frameworks inside a single micro-frontend container, <strong>Urja is not the right tool for that case</strong>.
+                            If your use case requires running multiple frontend frameworks inside a single micro-frontend container, <strong>Nexxo is not the right tool for that case</strong>.
                         </p>
                         <p>
-                            Urja intentionally enforces strict boundaries to preserve determinism, isolation, and long-term maintainability. We do not compromise on these principles for the sake of experimental flexibility.
+                            Nexxo intentionally enforces strict boundaries to preserve determinism, isolation, and long-term maintainability. We do not compromise on these principles for the sake of experimental flexibility.
                         </p>
                     </div>
                 </div>
@@ -215,12 +215,12 @@ export const MfeFrameworkConstraint: React.FC = () => {
 
             <div className="text-center py-16 border-t border-[var(--border-color)]">
                 <p className="text-2xl font-black font-display tracking-tight text-[var(--text-secondary)] max-w-2xl mx-auto italic leading-normal">
-                    "Urja enforces one framework per micro-frontend not because it cannot do otherwise, but because systems that last require boundaries."
+                    "Nexxo enforces one framework per micro-frontend not because it cannot do otherwise, but because systems that last require boundaries."
                 </p>
                 <div className="flex justify-center gap-6 mt-12">
                     <a href="#/mfe/overview" className="text-sm font-bold text-blue-500 border-b border-blue-500 pb-1 hover:text-blue-600 transition-colors">MFE Overview</a>
                     <a href="#/docs/governance" className="text-sm font-bold text-blue-500 border-b border-blue-500 pb-1 hover:text-blue-600 transition-colors">Governance Policy</a>
-                    <a href="#/docs/decision-guide" className="text-sm font-bold text-blue-500 border-b border-blue-500 pb-1 hover:text-blue-600 transition-colors">When Not to use Urja</a>
+                    <a href="#/docs/decision-guide" className="text-sm font-bold text-blue-500 border-b border-blue-500 pb-1 hover:text-blue-600 transition-colors">When Not to use Nexxo</a>
                 </div>
             </div>
         </div>

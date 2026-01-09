@@ -1,21 +1,21 @@
 /**
- * @urja/rollup-compat - Plugin Compatibility Layer
+ * @nexxo/rollup-compat - Plugin Compatibility Layer
  * 
- * This module provides adapters to use Rollup/Vite plugins within Urja.
+ * This module provides adapters to use Rollup/Vite plugins within Nexxo.
  */
 
 export { rollupAdapter } from './rollup.js';
 export {
-    urjaBabel,
-    urjaTerser,
-    urjaJson,
-    urjaYaml,
-    urjaMdx,
-    urjaSvgr,
+    nexxoBabel,
+    nexxoTerser,
+    nexxoJson,
+    nexxoYaml,
+    nexxoMdx,
+    nexxoSvgr,
     TierA
 } from './tier-a.js';
 
 export { webpackLoaderAdapter } from './webpack.js';
-export * from './tier-b.js'; // urjaCopy, urjaHtml
-export * from './tier-c.js'; // urjaReact, urjaVue, urjaSvelte
-export * from './deferred.js'; // urjaCompress, urjaCssExtract
+export * from './tier-b.js'; // nexxoCopy, nexxoHtml
+export * from './tier-c.js'; // nexxoReact, nexxoVue, nexxoSvelte
+export * from './deferred.js'; // nexxoCompress, nexxoCssExtract

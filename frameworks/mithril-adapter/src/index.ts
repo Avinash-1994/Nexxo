@@ -128,7 +128,7 @@ export class MithrilAdapter implements FrameworkAdapter {
         const mods = this.devServer.moduleGraph.getModulesByFile(event.file);
         if (mods && mods.size > 0) {
             // Mithril HMR: Usually requires logic to tear down and re-mount.
-            // For now, we return 'update' and leave it to the runtime (if configured) or Urja handles it.
+            // For now, we return 'update' and leave it to the runtime (if configured) or Nexxo handles it.
             // But realistically, Mithril often needs a reload/redraw.
             return { type: 'update', modules: Array.from(mods).map((m: any) => m.url) };
         }

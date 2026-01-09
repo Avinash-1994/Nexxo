@@ -214,12 +214,6 @@ export const Features: React.FC = () => {
                     description: "Track build times, bundle sizes, and HMR performance",
                     implementation: "Performance API integration with historical tracking",
                     file: "src/dev/metrics.ts"
-                },
-                {
-                    name: "AI-Powered Self-Healing",
-                    description: "Automatic error detection and fix suggestions",
-                    implementation: "Pattern matching with LLM-based code generation for common errors",
-                    file: "src/ai/self-healer.ts"
                 }
             ]
         },
@@ -232,7 +226,7 @@ export const Features: React.FC = () => {
                     name: "Built-in Linting",
                     description: "ESLint integration with framework-specific rules",
                     implementation: "Custom ESLint plugin with governance rules",
-                    file: "eslint-plugin-urja-governance/index.js"
+                    file: "eslint-plugin-nexxo-governance/index.js"
                 },
                 {
                     name: "Accessibility Audits",
@@ -292,7 +286,7 @@ export const Features: React.FC = () => {
             items: [
                 {
                     name: "Custom Plugins",
-                    description: "Extend Urja with custom transformations and hooks",
+                    description: "Extend Nexxo with custom transformations and hooks",
                     implementation: "Plugin API with lifecycle hooks and transform pipeline",
                     file: "src/plugins/plugin-api.ts"
                 },
@@ -435,7 +429,7 @@ export const Features: React.FC = () => {
                         Get Started →
                     </a>
                     <a
-                        href="https://github.com/Avinash-1994/urja"
+                        href="https://github.com/Avinash-1994/nexxo"
                         className="inline-flex h-14 items-center justify-center px-12 rounded-2xl border border-[var(--border-color)] font-bold hover:bg-white dark:hover:bg-slate-800 transition-all active:scale-95"
                         target="_blank"
                         rel="noopener noreferrer"

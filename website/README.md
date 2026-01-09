@@ -1,6 +1,6 @@
-# Urja Documentation Website
+# Nexxo Documentation Website
 
-The official documentation website for Urja - The Honest Build System.
+The official documentation website for Nexxo - The Honest Build System.
 
 ## 🚀 Quick Start
 
@@ -9,7 +9,7 @@ The official documentation website for Urja - The Honest Build System.
 cd website/
 
 # Start development server
-npx urja dev
+npx nexxo dev
 ```
 
 Visit `http://localhost:5174` to view the website.
@@ -18,9 +18,9 @@ Visit `http://localhost:5174` to view the website.
 
 | Command | Description |
 |---------|-------------|
-| `npx urja dev` | Start development server with HMR |
-| `npx urja build` | Build for production |
-| `npx urja audit --url http://localhost:5174` | Run quality audits |
+| `npx nexxo dev` | Start development server with HMR |
+| `npx nexxo build` | Build for production |
+| `npx nexxo audit --url http://localhost:5174` | Run quality audits |
 
 ## 🎯 Features
 
@@ -35,7 +35,7 @@ Visit `http://localhost:5174` to view the website.
 
 ## 🛠️ Tech Stack
 
-- **Build Tool**: Urja (dogfooding our own tool!)
+- **Build Tool**: Nexxo (dogfooding our own tool!)
 - **Framework**: React 18 + TypeScript
 - **Styling**: Tailwind CSS
 - **Icons**: Lucide React
@@ -64,14 +64,14 @@ website/
 ├── public/
 │   ├── index.html
 │   └── service-worker.js
-├── urja.config.js      # Urja configuration
+├── nexxo.config.js      # Nexxo configuration
 ├── tailwind.config.js  # Tailwind configuration
 └── package.json
 ```
 
 ## 🔧 Configuration
 
-The website is configured via `urja.config.js`:
+The website is configured via `nexxo.config.js`:
 
 ```javascript
 module.exports = {
@@ -97,13 +97,13 @@ lsof -ti:5174 | xargs kill -9
 
 **Clear cache and rebuild:**
 ```bash
-rm -rf .urja_cache dist
-npx urja build
+rm -rf .nexxo_cache dist
+npx nexxo build
 ```
 
 **Enable debug logging:**
 ```bash
-DEBUG=true npx urja dev
+DEBUG=true npx nexxo dev
 ```
 
 ## 📝 Development
@@ -116,10 +116,10 @@ The website automatically:
 
 ## 📄 License
 
-MIT License - See main Urja repository for details.
+MIT License - See main Nexxo repository for details.
 
 ## 🔗 Links
 
-- [Main Repository](https://github.com/avinash-1994/urja)
+- [Main Repository](https://github.com/avinash-1994/nexxo)
 - [Documentation](http://localhost:5174)
-- [Report Issues](https://github.com/avinash-1994/urja/issues)
+- [Report Issues](https://github.com/avinash-1994/nexxo/issues)

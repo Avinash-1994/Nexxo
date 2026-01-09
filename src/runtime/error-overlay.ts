@@ -341,4 +341,4 @@ export class ErrorOverlay extends HTMLElement {
 (ErrorOverlay.prototype as any).dismiss = ErrorOverlay.prototype.dismiss;
 (ErrorOverlay.prototype as any).openInEditor = ErrorOverlay.prototype.openInEditor;
 
-customElements.define('urja-error-overlay', ErrorOverlay);
+customElements.define('nexxo-error-overlay', ErrorOverlay);

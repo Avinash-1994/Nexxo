@@ -1,0 +1,9 @@
+{
+  "root": ".",
+  "entry": [
+    "src/main.tsx"
+  ],
+  "mode": "development",
+  "outDir": "dist",
+  "port": 5173
+}

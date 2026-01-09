@@ -6,7 +6,7 @@ function App() {
 
     return (
         <div className="app">
-            <h1>React + Urja</h1>
+            <h1>React + Nexxo</h1>
             <div className="card">
                 <button onClick={() => setCount((count) => count + 1)}>
                     count is {count}
@@ -16,7 +16,7 @@ function App() {
                 </p>
             </div>
             <p className="read-the-docs">
-                Testing Urja's React plugin with Fast Refresh
+                Testing Nexxo's React plugin with Fast Refresh
             </p>
         </div>
     );

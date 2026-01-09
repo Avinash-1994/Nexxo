@@ -7,6 +7,7 @@ import * as acorn from 'acorn';
 import * as walk from 'acorn-walk';
 import esbuild from 'esbuild';
 import { PluginManager } from '../core/plugins/manager.js';
+import { scanImports } from '../native/index.js';
 
 // Phase 1: Core Types
 
@@ -63,11 +64,6 @@ export interface DeltaGraph {
 
 /**
  * Dependency Graph Implementation
- * 
- * INTERNAL: This class is used for graph construction and traversal.
- * Only the results (GraphNode, GraphEdge) are considered public for consumption.
- * 
- * @internal
  */
 export class DependencyGraph {
   nodes = new Map<string, GraphNode>();
@@ -78,15 +74,10 @@ export class DependencyGraph {
     this.pluginManager = pluginManager || null;
   }
 
-  // Phase 1 & 2 & 5: Construction
-
   async addEntry(entryPath: string, rootDir: string) {
-    // Normalize
     const normalized = normalizePath(entryPath);
     const type = this.detectType(normalized);
     const id = generateModuleId(type, normalized, rootDir);
-
-    // Scan (Phase 3 currently placeholder)
     await this.scanAndAdd(id, type, normalized, rootDir);
   }
 
@@ -95,7 +86,7 @@ export class DependencyGraph {
     if (p.endsWith('.module.css')) return 'css-module';
     const ext = path.extname(p).toLowerCase();
     if (['.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.woff', '.woff2', '.ttf'].includes(ext)) {
-      return 'style-asset'; // Reusing style-asset or adding 'asset'
+      return 'style-asset';
     }
     return 'file';
   }
@@ -106,231 +97,142 @@ export class DependencyGraph {
 
     let content: string | Buffer = '';
 
-    // 0. Try Load Plugins
     if (this.pluginManager) {
-      const result = await this.pluginManager.runHook('load', {
-        path: absPath,
-        id: id
-      });
+      const result = await this.pluginManager.runHook('load', { path: absPath, id: id });
       if (result && typeof result.code === 'string') {
         content = result.code;
-        // If a plugin provides code for an asset, treat it as a file (module) so it gets bundled
-        if (type === 'style-asset') {
-          type = 'file';
-        }
+        if (type === 'style-asset') type = 'file';
       }
     }
 
     if (!content) {
       if (type === 'file' || type === 'css' || type === 'css-module') {
-        try {
-          content = await fs.readFile(absPath, 'utf-8');
-        } catch (e) {
-          return;
-        }
+        try { content = await fs.readFile(absPath, 'utf-8'); } catch (e) { return; }
       } else if (type === 'style-asset') {
-        try {
-          content = await fs.readFile(absPath);
-        } catch (e) {
-          return;
-        }
+        try { content = await fs.readFile(absPath); } catch (e) { return; }
       }
     }
 
-    const contentHash = canonicalHash(
-      typeof content === 'string' ? content.replace(/\r\n/g, '\n') : content
-    );
+    const contentHash = canonicalHash(typeof content === 'string' ? content.replace(/\r\n/g, '\n') : content);
 
-    // INCREMENTAL: If content hash hasn't changed, skip re-parsing dependencies
     if (existing && existing.contentHash === contentHash && !force) {
-      // Ensure we update the type if it changed from asset to file in a previous run
       if (existing.type !== type) existing.type = type;
       return;
     }
 
-    const node: GraphNode = {
-      id,
-      type,
-      path: absPath,
-      contentHash,
-      edges: [],
-      target
-    };
-
+    const node: GraphNode = { id, type, path: absPath, contentHash, edges: [], target };
     this.nodes.set(id, node);
 
-    // Phase 4: Extract Deps (Placeholder - reusing old recursive logic for now but mapped to new structure)
-    const imports = typeof content === 'string'
-      ? await this.parseImportsSimple(content, absPath)
-      : [];
-
+    const imports = typeof content === 'string' ? await this.parseImportsSimple(content, absPath) : [];
     node.specifierMap = {};
 
     for (const { original, resolved, kind } of imports) {
       const depAbs = normalizePath(resolved);
       const depType = this.detectType(depAbs);
       const depId = generateModuleId(depType, depAbs, rootDir);
-
       node.specifierMap[original] = depId;
-
-      node.edges.push({
-        from: id,
-        to: depId,
-        kind: kind as any,
-        target
-      });
-
+      node.edges.push({ from: id, to: depId, kind: kind as any, target });
       await this.scanAndAdd(depId, depType, depAbs, rootDir, target);
     }
   }
 
-  // Honest parser using Acorn (Phase B/C)
   private async parseImportsSimple(content: string, filePath: string): Promise<{ original: string, resolved: string, kind: string }[]> {
     const deps: { specifier: string, kind: string }[] = [];
     const ext = path.extname(filePath);
 
-    // Only parse JS/TS/JSX/TSX
     if (!['.js', '.ts', '.jsx', '.tsx', '.mjs', '.cjs'].includes(ext)) {
       return [];
     }
 
+    // 1. FAST NATIVE SCAN (Phase 4.2 Hot Path)
+    try {
+      const nativeDeps = scanImports(content);
+      nativeDeps.forEach(specifier => deps.push({ specifier, kind: 'import' }));
+      // If we found deps with native scanner, we can skip the expensive AST parse for simple graphs
+      if (deps.length > 0) {
+        return this.resolveAll(deps, filePath);
+      }
+    } catch (e) {
+      // Fallback to JS if native fails
+    }
+
+    // 2. JS FALLBACK (Full AST for complex cases)
     let jsContent = content;
     try {
-      // Transpile to JS first to handle JSX/TS/TSX (Phase F Honest)
       const transpileResult = await esbuild.transform(content, {
         loader: ext.slice(1) as any,
         format: 'esm',
         target: 'esnext'
       });
       jsContent = transpileResult.code;
-    } catch (e) {
-      // If transpilation fails, it might be a non-JS file or already valid JS
-    }
+    } catch (e) { }
 
     try {
-      const ast = acorn.parse(jsContent, {
-        sourceType: 'module',
-        ecmaVersion: 'latest',
-        allowImportExportEverywhere: true,
-        allowAwaitOutsideFunction: true,
-        allowReturnOutsideFunction: true
-      });
-
+      const ast = acorn.parse(jsContent, { sourceType: 'module', ecmaVersion: 'latest', allowImportExportEverywhere: true });
       walk.simple(ast, {
-        ImportDeclaration(node: any) {
-          if (node.source.value) deps.push({ specifier: node.source.value, kind: 'import' });
-        },
-        ExportNamedDeclaration(node: any) {
-          if (node.source?.value) deps.push({ specifier: node.source.value, kind: 'import' });
-        },
-        ExportAllDeclaration(node: any) {
-          if (node.source.value) deps.push({ specifier: node.source.value, kind: 'import' });
-        },
+        ImportDeclaration(node: any) { if (node.source.value) deps.push({ specifier: node.source.value, kind: 'import' }); },
+        ExportNamedDeclaration(node: any) { if (node.source?.value) deps.push({ specifier: node.source.value, kind: 'import' }); },
+        ExportAllDeclaration(node: any) { if (node.source.value) deps.push({ specifier: node.source.value, kind: 'import' }); },
         CallExpression(node: any) {
-          // require()
-          if (node.callee.type === 'Identifier' && node.callee.name === 'require' &&
-            node.arguments.length > 0 &&
-            node.arguments[0].type === 'Literal') {
+          if (node.callee.type === 'Identifier' && node.callee.name === 'require' && node.arguments[0]?.type === 'Literal') {
             deps.push({ specifier: node.arguments[0].value, kind: 'require' });
           }
         },
-        ImportExpression(node: any) {
-          if (node.source.type === 'Literal') {
-            deps.push({ specifier: node.source.value, kind: 'dynamic-import' });
-          }
-        }
+        ImportExpression(node: any) { if (node.source.type === 'Literal') deps.push({ specifier: node.source.value, kind: 'dynamic-import' }); }
       });
     } catch (e) {
-      // Final fallback to regex if AST still fails
       const regex = /(?:import|export)\s+.*?\s+from\s+['"](.*?)['"]/g;
       let match;
-      while ((match = regex.exec(content)) !== null) {
-        deps.push({ specifier: match[1], kind: 'import' });
-      }
-      const dynamicRegex = /import\s*\(\s*['"](.*?)['"]\s*\)/g;
-      while ((match = dynamicRegex.exec(content)) !== null) {
-        deps.push({ specifier: match[1], kind: 'dynamic-import' });
-      }
+      while ((match = regex.exec(content)) !== null) deps.push({ specifier: match[1], kind: 'import' });
     }
 
-    // Resolve specifiers
+    return this.resolveAll(deps, filePath);
+  }
+
+  private async resolveAll(deps: { specifier: string, kind: string }[], filePath: string) {
     const resolvedDeps: { original: string, resolved: string, kind: string }[] = [];
     const dir = path.dirname(filePath);
-
     for (const dep of deps) {
       const resolved = await this.resolvePath(dep.specifier, dir);
-      if (resolved) {
-        resolvedDeps.push({
-          original: dep.specifier,
-          resolved,
-          kind: dep.kind
-        });
-      }
+      if (resolved) resolvedDeps.push({ original: dep.specifier, resolved, kind: dep.kind });
     }
-
     return resolvedDeps;
   }
 
   private async resolvePath(specifier: string, dir: string): Promise<string | null> {
-    // 0. Try Resolve Plugins (rollup compatibility)
     if (this.pluginManager) {
       const result = await this.pluginManager.runHook('resolveId', { source: specifier, importer: dir });
       if (result && result.id) {
         let absResult = path.isAbsolute(result.id) ? result.id : path.resolve(dir, result.id);
         const extensions = ['.ts', '.tsx', '.js', '.jsx', '.json', '.css'];
-
-        // 0.1 Exact match
         if (existsSync(absResult) && (await fs.stat(absResult)).isFile()) return absResult;
-
-        // 0.2 Try extensions on plugin result
-        for (const ext of extensions) {
-          // console.log(`[DEBUG] Trying extension: ${absResult + ext} - exists: ${existsSync(absResult + ext)}`);
-          if (existsSync(absResult + ext)) return absResult + ext;
-        }
-
-        // 0.3 Try directory index on plugin result
+        for (const ext of extensions) { if (existsSync(absResult + ext)) return absResult + ext; }
         for (const ext of extensions) {
           const indexPath = path.join(absResult, 'index' + ext);
           if (existsSync(indexPath)) return indexPath;
         }
-
         return result.id;
       }
     }
 
-    // Only proceed with relative resolution if it starts with . or is absolute
-    if (!specifier.startsWith('.') && !path.isAbsolute(specifier)) {
-      return null;
-    }
+    if (!specifier.startsWith('.') && !path.isAbsolute(specifier)) return null;
 
     const absPath = path.resolve(dir, specifier);
     const extensions = ['.ts', '.tsx', '.js', '.jsx', '.json', '.css'];
-
-    // 1. Exact match
-    try {
-      if (existsSync(absPath) && (await fs.stat(absPath)).isFile()) return absPath;
-    } catch (e) { }
-
-    // 2. Try extensions
-    for (const ext of extensions) {
-      if (existsSync(absPath + ext)) return absPath + ext;
+    if (existsSync(absPath)) {
+      const stat = await fs.stat(absPath);
+      if (stat.isFile()) return absPath;
     }
-
-    // 3. Try directory index
+    for (const ext of extensions) { if (existsSync(absPath + ext)) return absPath + ext; }
     for (const ext of extensions) {
       const indexPath = path.join(absPath, 'index' + ext);
       if (existsSync(indexPath)) return indexPath;
     }
-
     return null;
   }
 
-  // Phase 6: Validation
   validate(): GraphValidation {
     const cycles: string[][] = [];
-    const errors: string[] = [];
-
-    // Cycle Detection (DFS)
     const visited = new Set<string>();
     const recursionStack = new Set<string>();
 
@@ -338,74 +240,37 @@ export class DependencyGraph {
       visited.add(nodeId);
       recursionStack.add(nodeId);
       path.push(nodeId);
-
       const node = this.nodes.get(nodeId);
       if (node) {
         for (const edge of node.edges) {
-          if (!visited.has(edge.to)) {
-            detectCycle(edge.to, path);
-          } else if (recursionStack.has(edge.to)) {
-            // Cycle found!
-            const cycleLoop = path.slice(path.indexOf(edge.to));
-            cycles.push([...cycleLoop]);
-          }
+          if (!visited.has(edge.to)) detectCycle(edge.to, path);
+          else if (recursionStack.has(edge.to)) cycles.push([...path.slice(path.indexOf(edge.to))]);
         }
       }
-
       recursionStack.delete(nodeId);
       path.pop();
     };
 
-    for (const nodeId of this.nodes.keys()) {
-      if (!visited.has(nodeId)) {
-        detectCycle(nodeId, []);
-      }
-    }
-
-    return {
-      isValid: errors.length === 0, // Cycles might be warnings in Dev
-      cycles,
-      errors
-    };
+    for (const nodeId of this.nodes.keys()) { if (!visited.has(nodeId)) detectCycle(nodeId, []); }
+    return { isValid: true, cycles, errors: [] };
   }
 
-  // Phase 9: Graph Hashing
   computeHash(): string {
-    // Sort Nodes by ID
     const sortedIds = Array.from(this.nodes.keys()).sort();
-
     const graphData = sortedIds.map(id => {
       const node = this.nodes.get(id)!;
-      // Sort edges
-      const sortedEdges = [...node.edges].sort((a, b) => {
-        if (a.to !== b.to) return a.to.localeCompare(b.to);
-        return a.kind.localeCompare(b.kind);
-      });
-
-      return {
-        id: node.id,
-        contentHash: node.contentHash,
-        edges: sortedEdges.map(e => ({ to: e.to, kind: e.kind }))
-      };
+      const sortedEdges = [...node.edges].sort((a, b) => a.to.localeCompare(b.to) || a.kind.localeCompare(b.kind));
+      return { id: node.id, contentHash: node.contentHash, edges: sortedEdges.map(e => ({ to: e.to, kind: e.kind })) };
     });
-
     this.graphHash = canonicalHash(graphData);
     return this.graphHash;
   }
 
-  // Phase 10: Incremental Update (Watch Mode)
   async invalidate(filePath: string, rootDir: string) {
     const normalized = normalizePath(filePath);
     const type = this.detectType(normalized);
     const id = generateModuleId(type, normalized, rootDir);
-
-    // If we have it, we must re-scan
-    if (this.nodes.has(id)) {
-      // We don't delete immediately to allow 'force' scan to compare
-      await this.scanAndAdd(id, type, normalized, rootDir, 'universal', true);
-    } else {
-      // New file added that might be hit by a resolve
-      await this.addEntry(filePath, rootDir);
-    }
+    if (this.nodes.has(id)) await this.scanAndAdd(id, type, normalized, rootDir, 'universal', true);
+    else await this.addEntry(filePath, rootDir);
   }
 }

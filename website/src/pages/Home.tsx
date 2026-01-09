@@ -14,6 +14,7 @@ import {
     Copy
 } from 'lucide-react';
 import { useI18n } from '../components/I18nContext';
+import { ErrorTest } from '../components/ErrorTest';
 
 const StatusBadge = ({ status }: { status: string }) => {
     const colors: Record<string, string> = {
@@ -105,7 +106,7 @@ export const Home: React.FC = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                     <div>
                         <p className="text-[var(--text-secondary)] leading-relaxed mb-6">
-                            Get started in seconds. Urja auto-detects your framework and configures the optimal build pipeline with best-in-class HMR.
+                            Get started in seconds. Nexxo auto-detects your framework and configures the optimal build pipeline with best-in-class HMR.
                         </p>
                         <ul className="space-y-4">
                             {[
@@ -121,7 +122,7 @@ export const Home: React.FC = () => {
                             ))}
                         </ul>
                     </div>
-                    <CodeBlock code="$ npx urja build --preset react" />
+                    <CodeBlock code="$ npx nexxo build --preset react" />
                 </div>
             </section>
 
@@ -146,12 +147,12 @@ export const Home: React.FC = () => {
                     {[
                         { name: 'React', status: 'Stable', version: 'v1.4.2', icon: Code2 },
                         { name: 'Vue', status: 'Stable', version: 'v1.2.0', icon: Code2 },
-                        { name: 'Angular', status: 'Verified', version: 'v1.0.5', icon: Code2 },
                         { name: 'Svelte', status: 'Stable', version: 'v1.1.0', icon: Code2 },
                         { name: 'Solid', status: 'Stable', version: 'v1.0.8', icon: Code2 },
+                        { name: 'Preact', status: 'Stable', version: 'v1.0.0', icon: Code2 },
                         { name: 'Astro', status: 'Stable', version: 'v1.0.1', icon: Globe },
-                        { name: 'SSR Support', status: 'Experimental', version: 'Beta', icon: Cpu },
-                        { name: 'Multi-Target', status: 'Upcoming', version: 'Q1 2026', icon: Activity },
+                        { name: 'Alpine', status: 'Verified', version: 'v0.9.5', icon: Code2 },
+                        { name: 'CSR/SPA', status: 'Stable', version: 'Standard', icon: Cpu },
                         { name: 'Native Worker', status: 'Stable', version: 'Rust-v2', icon: ShieldCheck },
                     ].map(item => (
                         <div key={item.name} className="p-5 rounded-2xl bg-[var(--surface-color)] border border-[var(--border-color)] group hover:border-blue-500 transition-all">

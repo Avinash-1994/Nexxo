@@ -16,7 +16,7 @@ export class AIClient {
 
     constructor(config: AIConfig, rootDir: string) {
         this.config = config;
-        this.cacheDir = path.join(rootDir, '.urja', 'ai-cache');
+        this.cacheDir = path.join(rootDir, '.nexxo', 'ai-cache');
     }
 
     async init() {

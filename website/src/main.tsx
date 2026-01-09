@@ -17,6 +17,7 @@ import { Play } from './pages/Play';
 import { QualityGuide } from './pages/QualityGuide';
 import Features from './pages/Features';
 import { I18nProvider } from './components/I18nContext';
+import { TestError } from './components/TestError';
 import './styles/theme.css';
 
 const App = () => {

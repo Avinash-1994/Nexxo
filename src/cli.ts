@@ -39,19 +39,73 @@ function printAuditReport(report: AuditReport) {
   });
 }
 
+function printProfileReport(result: any) {
+  if (!result.events) return;
+
+  const profileEvents = result.events.filter((e: any) => e.decision === 'performance');
+  if (profileEvents.length === 0) return;
+
+  console.log('\n⏱️  Build Profile');
+  console.log('='.repeat(40));
+
+  const tableData = profileEvents.map((e: any) => ({
+    Stage: e.stage.toUpperCase(),
+    'Duration (ms)': e.data.duration.toFixed(2),
+    Description: e.reason.split(' took ')[0]
+  }));
+
+  console.table(tableData);
+
+  const totalBuild = profileEvents.find((e: any) => e.reason.startsWith('Total Build'));
+  if (totalBuild) {
+    console.log(`\n🚀 Total Build Time: \x1b[32m${totalBuild.data.duration.toFixed(2)}ms\x1b[0m`);
+  }
+
+  // Plugin metrics
+  if (result.pluginMetrics && result.pluginMetrics.length > 0) {
+    console.log('\n🔌 Plugin Performance (Top 5 Slowest)');
+    const pluginTable = result.pluginMetrics.slice(0, 5).map((m: any) => ({
+      Plugin: m.plugin,
+      'Total Time (ms)': m.totalTimeMs.toFixed(2),
+      'Avg Time (ms)': m.avgTimeMs.toFixed(2),
+      Calls: m.callCount
+    }));
+    console.table(pluginTable);
+  }
+}
+
 async function main() {
   const argv = yargs(hideBin(process.argv))
     .command(
       'dev',
       'Start development server',
       (yargs: any) => {
-        return yargs.option('port', {
-          type: 'number',
-          description: 'Server port'
-        });
+        return yargs
+          .option('port', {
+            type: 'number',
+            description: 'Server port'
+          })
+          .option('quiet', {
+            type: 'boolean',
+            description: 'Suppress non-error output',
+            default: false
+          })
+          .option('verbose', {
+            type: 'boolean',
+            description: 'Show detailed debug output',
+            default: false
+          });
       },
       async (args: any) => {
         try {
+          // Set environment variables for logger
+          if (args.quiet) {
+            process.env.NEXXO_QUIET = 'true';
+          }
+          if (args.verbose) {
+            process.env.DEBUG = '*';
+          }
+
           const cfg = await loadConfig((globalThis as any).process.cwd());
           // CLI override > Config > Default
           cfg.port = args.port || cfg.port || 5173;
@@ -63,7 +117,9 @@ async function main() {
           const report = await AuditEngine.runAll(`http://localhost:${cfg.port || 5173}`);
           printAuditReport(report);
           */
-          console.log('\n💡  Tip: Run `npx urja audit --url http://localhost:' + (cfg.port || 5173) + '` to generate an audit report.');
+          if (!args.quiet) {
+            console.log('\n💡  Tip: Run `npx nexxo audit --url http://localhost:' + (cfg.port || 5173) + '` to generate an audit report.');
+          }
         } catch (e: any) {
           log.error(e.message);
           process.exit(1);
@@ -77,6 +133,10 @@ async function main() {
         return yargs.option('prod', {
           type: 'boolean',
           description: 'Force production mode',
+          default: false
+        }).option('profile', {
+          type: 'boolean',
+          description: 'Show detailed build profile',
           default: false
         });
       },
@@ -93,9 +153,13 @@ async function main() {
           if (args.prod) {
             config.mode = 'production';
           }
-          await build(config);
+          const result = await build(config);
 
-          console.log('\n💡  Tip: Run `npx urja audit` to generate a full audit report.');
+          if (args.profile) {
+            printProfileReport(result);
+          }
+
+          console.log('\n💡  Tip: Run `npx nexxo audit` to generate a full audit report.');
 
           await telemetry.stop(true);
         } catch (e: any) {
@@ -113,6 +177,34 @@ async function main() {
           await HealerCLI.handle(e);
           */
 
+          process.exit(1);
+        }
+      }
+    )
+    .command(
+      'analyze',
+      'Analyze bundle composition and module sizes',
+      (yargs: any) => {
+        return yargs.option('json', {
+          type: 'boolean',
+          description: 'Output as JSON instead of HTML report',
+          default: false
+        });
+      },
+      async (args: any) => {
+        const { loadConfig } = await import('./config/index.js');
+        const { build } = await import('./build/bundler.js');
+        const { generateAnalyzeReport } = await import('./commands/analyze.js');
+
+        try {
+          const config = await loadConfig(process.cwd());
+          // Run a build first to get the results
+          console.log('🔄 Gathering build metadata for analysis...');
+          const result = await build(config);
+
+          await generateAnalyzeReport(result, args.json);
+        } catch (e: any) {
+          log.error(`Analysis failed: ${e.message}`);
           process.exit(1);
         }
       }
@@ -374,16 +466,16 @@ async function main() {
             async () => {
               const { AIClient } = await import('./ai/client.js');
               const { Telemetry } = await import('./ai/telemetry.js');
-
+  
               log.info('Initializing AI features...', { category: 'ai' });
-
+  
               const root = process.cwd();
               const client = new AIClient({ provider: 'local' }, root);
               await client.init();
-
+  
               const telemetry = new Telemetry(root);
               await telemetry.init();
-
+  
               log.success('AI features initialized! Local telemetry enabled.', { category: 'ai' });
             }
           )
@@ -399,23 +491,23 @@ async function main() {
               const { FixGenerator } = await import('./ai/healer/fixer.js');
               const { ErrorParser } = await import('./ai/healer/parser.js');
               const readline = await import('readline');
-
+  
               const session = await Telemetry.getLatestSession(process.cwd());
               if (!session || !session.errors || session.errors.length === 0) {
                 log.info('No recent errors found to fix.', { category: 'ai' });
                 return;
               }
-
+  
               const lastError = session.errors[0];
               log.info(`Analyzing error: ${lastError.substring(0, 50)}...`, { category: 'ai' });
-
+  
               // 1. Memory & Recall
               const learnedError = ErrorMemory.normalize(lastError, { framework: 'unknown' }); // TODO: Pass real context
               const store = new FixStore(process.cwd());
               store.saveError(learnedError); // Remember this error
-
+  
               let fixes = store.findFixes(learnedError.id);
-
+  
               if (fixes.length > 0) {
                 log.success(`Found ${fixes.length} learned fix(es)!`, { category: 'ai' });
               } else {
@@ -424,35 +516,35 @@ async function main() {
                 const parsed = ErrorParser.parse(lastError);
                 fixes = FixGenerator.generate(parsed);
               }
-
+  
               if (fixes.length === 0) {
                 log.warn('Could not generate any fixes.', { category: 'ai' });
                 return;
               }
-
+  
               // 2. Interactive Selection
               console.log('\n🤖 AI Fix Suggestions:');
               fixes.forEach((f, i) => {
                 console.log(`${i + 1}. ${f.description} (Confidence: ${f.confidence || 'New'})`);
               });
-
+  
               const rl = readline.createInterface({
                 input: process.stdin,
                 output: process.stdout
               });
-
+  
               rl.question('\nApply fix [1-N, q=quit]: ', async (answer) => {
                 rl.close();
                 const idx = parseInt(answer) - 1;
                 if (isNaN(idx) || idx < 0 || idx >= fixes.length) return;
-
+  
                 const selectedFix = fixes[idx];
                 const applier = new FixApplier(process.cwd());
-
+  
                 // 3. Apply & Learn
                 const fixId = store.saveFix(learnedError.id, selectedFix); // Ensure it's in DB
                 const success = await applier.apply(selectedFix, fixId);
-
+  
                 if (success) {
                   log.success('Fix applied successfully! Re-run build to verify.', { category: 'ai' });
                   // In a real loop, we would re-run build here
@@ -470,7 +562,7 @@ async function main() {
               const { FixStore } = await import('./ai/local/fixStore.js');
               const store = new FixStore(process.cwd());
               const stats = store.getStats();
-
+  
               console.log('\n🧠 AI Learning Status');
               console.log(`   - Learned Errors: ${stats.errors}`);
               console.log(`   - Known Fixes:    ${stats.fixes}`);
@@ -499,11 +591,11 @@ async function main() {
               const { CloudAPI } = await import('./ai/cloud/api.js');
               const { ModelSync } = await import('./ai/cloud/modelSync.js');
               const { DEFAULT_AI_CONFIG } = await import('./ai/config.js');
-
+  
               const store = new FixStore(process.cwd());
               const api = new CloudAPI(DEFAULT_AI_CONFIG);
               const sync = new ModelSync(store, api, DEFAULT_AI_CONFIG);
-
+  
               await sync.sync();
             }
           )
@@ -516,11 +608,11 @@ async function main() {
               const { CloudAPI } = await import('./ai/cloud/api.js');
               const { ModelSync } = await import('./ai/cloud/modelSync.js');
               const { DEFAULT_AI_CONFIG } = await import('./ai/config.js');
-
+  
               const store = new FixStore(process.cwd());
               const api = new CloudAPI(DEFAULT_AI_CONFIG);
               const sync = new ModelSync(store, api, DEFAULT_AI_CONFIG);
-
+  
               await sync.contribute();
             }
           )

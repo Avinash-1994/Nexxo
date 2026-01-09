@@ -17,16 +17,16 @@ export async function bootstrapProject(cwd: string, template: string = 'react') 
     private: true,
     type: 'module',
     scripts: {
-      "dev": "urja dev",
-      "build": "urja build",
-      "preview": "urja dev --port 4173"
+      "dev": "nexxo dev",
+      "build": "nexxo build",
+      "preview": "nexxo dev --port 4173"
     },
     dependencies: template === 'react' ? {
       "react": "^18.2.0",
       "react-dom": "^18.2.0"
     } : {},
     devDependencies: {
-      "urja": "latest",
+      "nexxo": "latest",
       "typescript": "^5.0.0"
     }
   };
@@ -55,7 +55,7 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Urja + React</h1>
+      <h1>Nexxo + React</h1>
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
@@ -93,7 +93,7 @@ body {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Urja App</title>
+    <title>Nexxo App</title>
   </head>
   <body>
     <div id="root"></div>
@@ -102,14 +102,14 @@ body {
 </html>
     `.trim());
 
-  // 5. Create urja.config.json
+  // 5. Create nexxo.config.json
   const config = {
     entry: ["src/main.tsx"],
     mode: "development",
     preset: "spa",
     platform: "browser"
   };
-  await fs.writeFile(path.join(cwd, 'urja.config.json'), JSON.stringify(config, null, 2));
+  await fs.writeFile(path.join(cwd, 'nexxo.config.json'), JSON.stringify(config, null, 2));
 
   log.success(`Successfully bootstrapped ${template} project!`);
   log.info(`To get started:\n  cd ${path.basename(cwd)}\n  npm install\n  npm run dev`);

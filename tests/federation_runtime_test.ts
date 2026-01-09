@@ -9,7 +9,7 @@ global.window = dom.window as any;
 global.document = dom.window.document;
 
 // Initialize global scope manually for test
-(global.window as any).__URJA_FEDERATION__ = {
+(global.window as any).__NEXXO_FEDERATION__ = {
     remotes: {},
     shared: {},
     initPromises: {}
@@ -101,7 +101,7 @@ async function runTest() {
         // Test 2: Unhealthy Remote (Fallback)
         console.log('\nTest 2: Load Unhealthy Remote');
         // Configure fallback for remote2
-        window.__URJA_FEDERATION__.remotes['remote2'].fallback = 'http://fallback.com/remoteEntry.js';
+        window.__NEXXO_FEDERATION__.remotes['remote2'].fallback = 'http://fallback.com/remoteEntry.js';
 
         try {
             await loadRemote('remote2', './Header');

@@ -1,5 +1,5 @@
 import { canonicalHash } from '../../core/engine/hash.js';
-import { UrjaPlugin, PluginHookName, PluginManifest } from '../../core/plugins/types.js';
+import { NexxoPlugin, PluginHookName, PluginManifest } from '../../core/plugins/types.js';
 
 // Basic Rollup Plugin Interface
 interface RollupPlugin {
@@ -14,14 +14,14 @@ interface RollupPlugin {
 }
 
 /**
- * Adapter to use Rollup plugins within Urja
+ * Adapter to use Rollup plugins within Nexxo
  * @param plugin The Rollup plugin instance
- * @returns An Urja-compatible plugin
+ * @returns An Nexxo-compatible plugin
  */
-export function rollupAdapter(plugin: RollupPlugin): UrjaPlugin {
+export function rollupAdapter(plugin: RollupPlugin): NexxoPlugin {
     const hooks: PluginHookName[] = [];
     if (plugin.resolveId) hooks.push('resolveId');
-    // Note: load hook in Urja takes {path, id}, rollup takes id.
+    // Note: load hook in Nexxo takes {path, id}, rollup takes id.
     if (plugin.load) hooks.push('load');
     // transformModule maps to transform
     if (plugin.transform) hooks.push('transformModule');

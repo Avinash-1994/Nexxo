@@ -15,7 +15,7 @@ export class DevWatcher extends EventEmitter {
                 '**/node_modules/**',
                 '**/.git/**',
                 '**/dist/**',
-                '**/.urja/**'
+                '**/.nexxo/**'
             ],
             ignoreInitial: true
         });

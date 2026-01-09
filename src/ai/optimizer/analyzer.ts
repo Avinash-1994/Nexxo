@@ -22,7 +22,7 @@ export class Analyzer {
             packageManager: await this.detectPackageManager(),
             dependencies: pkg.dependencies || {},
             devDependencies: pkg.devDependencies || {},
-            configSummary: {} // TODO: Parse urja.config.ts
+            configSummary: {} // TODO: Parse nexxo.config.ts
         };
     }
 

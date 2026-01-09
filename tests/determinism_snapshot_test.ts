@@ -29,7 +29,7 @@ async function createStaticProject() {
 }
 
 async function runSnapshotTest() {
-    console.log('--- Urja Determinism Snapshot Test ---');
+    console.log('--- Nexxo Determinism Snapshot Test ---');
     await setup();
     await createStaticProject();
 

@@ -1,27 +1,31 @@
-# Urja - Modern Build Tool for JavaScript Frameworks
+# Nexxo - Modern Build Tool for JavaScript Frameworks
 
 > **Build with Integrity.** A production-ready build system with framework support and extensible architecture.
 
-Urja is a modern build tool designed for JavaScript applications with support for multiple frameworks. It provides a unified build experience with hot module replacement, TypeScript support, and a plugin-based architecture.
+Nexxo is a modern build tool designed for JavaScript applications with support for multiple frameworks. It provides a unified build experience with hot module replacement, TypeScript support, and a plugin-based architecture.
 
-![Version](https://img.shields.io/badge/Urja-v1.0.0--freeze-blue)
+![Version](https://img.shields.io/badge/Nexxo-v1.0.0--freeze-blue)
 ![Node](https://img.shields.io/badge/Node-%3E%3D18.0.0-green)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 ### ✅ Production-Ready Features
 These features are fully implemented, tested, and ready for production use.
-*   **Core Build Engine**: Fast, parallelized build pipeline using `esbuild` and custom native workers.
+*   **Core Build Engine**: Fast, parallelized build pipeline using `esbuild` and **Native Rust extensions** for hashing and scanning.
+*   **10k Scale Ready**: Verified stability and performance on projects with 10,000+ inter-dependent modules.
+*   **Native Hot Path**:
+    *   **XXH3 Hashing**: Ultra-fast fingerprinting via native code.
+    *   **Native Scanner**: High-performance dependency scanning using Rust regex.
 *   **Universal Framework Support** (Honest Status):
     *   ✅ **React (v18/v19)** - **STABLE**: Browser verified, full HMR, Fast Refresh.
     *   ✅ **Svelte (v4/v5)** - **STABLE**: Browser verified, component compilation, full reactivity.
     *   ✅ **Lit (v3)** - **STABLE**: Browser verified, web component rendering, HMR.
     *   ✅ **Vanilla JS** - **STABLE**: Browser verified, basic HMR.
-    *   ⚠️ **Vue (v3)** - **STABILIZING**: Build engine ready, resolving module pathing in certain environments.
-    *   ⚠️ **Solid (v1)** - **STABILIZING**: JSX pipeline ready, finishing pre-bundling optimizations.
+    *   ✅ **Vue (v3)** - **STABLE**: Full SFC support and optimized module pathing.
+    *   ✅ **Solid (v1)** - **STABLE**: Optimized pre-bundling and HMR runtime.
     *   ⚠️ **Preact** - **STABILIZING**: Core transformer ready, finalizing HMR runtime integration.
     *   🧪 **Meta-Frameworks**: Basic adapter patterns for Next.js, Nuxt, Remix (Experimental).
-*   **Advanced Caching**:
-    *   **Incremental Builds**: Smart cache invalidation and persistence (`.urja_cache`).
+*   **Stable Caching**:
+    *   **Incremental Builds**: Smart cache invalidation and persistence via Native Graph Analyzer.
 *   **Optimized Production Builds**:
     *   **Minification**: Production-grade JS/CSS minification.
     *   **Code Splitting**: Smart chunks for optimal loading.
@@ -94,7 +98,7 @@ These features are fully implemented, tested, and ready for production use.
 ### 🔐 Quality & Governance
 - ✅ **Built-in Linting** - ESLint integration with custom governance rules
   - All linting passes successfully
-  - Source: `eslint-plugin-urja-governance/`
+  - Source: `eslint-plugin-nexxo-governance/`
 
 - ✅ **Accessibility Audits** - Real-time accessibility checking
   - Source: `src/audit/a11y.ts`
@@ -136,10 +140,10 @@ The following features are implemented but require additional testing before pro
 
 ## 📦 Quick Start
 
-The fastest way to get started with Urja is using our interactive scaffolding tool:
+The fastest way to get started with Nexxo is using our interactive scaffolding tool:
 
 ```bash
-npx create-urja
+npx create-nexxo
 ```
 
 This will guide you through setting up a modern web project with your favorite framework and sensible defaults.
@@ -149,13 +153,13 @@ This will guide you through setting up a modern web project with your favorite f
 If you prefer to install the CLI globally:
 
 ```bash
-npm install -g urja
+npm install -g nexxo
 ```
 
 ### Create a New Project
 
 ```bash
-npx create-urja <project-name>
+npx create-nexxo <project-name>
 ```
 
 The interactive wizard will guide you through:
@@ -169,20 +173,20 @@ The interactive wizard will guide you through:
 
 ```bash
 cd <project-name>
-npx urja dev
+npx nexxo dev
 ```
 
 ### Build for Production
 
 ```bash
-npx urja build
+npx nexxo build
 ```
 
 ## 🛠️ Available Commands
 
 ### Project Creation
 ```bash
-create-urja [project-name]  # Interactive project scaffolding
+create-nexxo [project-name]  # Interactive project scaffolding
                             # - 8 Framework choices (React, Vue, Svelte, Lit, Alpine, Preact, Mithril, Vanilla)
                             # - Language selection (TypeScript/JavaScript)
                             # - Styling options (CSS/SCSS + CSS Modules + Tailwind/Bootstrap/Vanilla Extract)
@@ -192,23 +196,23 @@ create-urja [project-name]  # Interactive project scaffolding
 
 ### Core Commands
 ```bash
-urja dev                    # Start development server with HMR
+nexxo dev                    # Start development server with HMR
   --port <number>           # Custom port (default: 5173)
 
-urja build                  # Build for production with optimizations
+nexxo build                  # Build for production with optimizations
   --prod                    # Force production mode
 
-urja init                   # Initialize project configuration
+nexxo init                   # Initialize project configuration
   --yes                     # Use defaults without prompts
 
-urja bootstrap              # Create project from template
+nexxo bootstrap              # Create project from template
   --name <string>           # Project name (required)
   --template <string>       # Template: react, vanilla (default: react)
 ```
 
 ### SSR & Meta-Frameworks
 ```bash
-urja ssr                    # Start SSR server for meta-frameworks
+nexxo ssr                    # Start SSR server for meta-frameworks
   --port <number>           # Server port (default: 3000)
   --framework <string>      # Framework: nextjs, nuxt, remix (default: nextjs)
   --prod                    # Production mode
@@ -216,27 +220,27 @@ urja ssr                    # Start SSR server for meta-frameworks
 
 ### Quality & Analysis
 ```bash
-urja audit                  # Run comprehensive audits (A11y, Performance, SEO, Best Practices)
+nexxo audit                  # Run comprehensive audits (A11y, Performance, SEO, Best Practices)
   --url <string>            # URL to audit (default: current directory)
 
-urja optimize               # AI-powered project optimization analysis
+nexxo optimize               # AI-powered project optimization analysis
   --apply                   # Automatically apply safe changes
 
-urja inspect                # Inspect and visualize dependency graph
+nexxo inspect                # Inspect and visualize dependency graph
   --filter <string>         # Filter modules by path/ID (-f)
 
-urja report                 # Generate AI-narrated build report from latest session
+nexxo report                 # Generate AI-narrated build report from latest session
 ```
 
 ### CSS Utilities
 ```bash
-urja css purge              # Analyze and remove unused CSS from bundle
+nexxo css purge              # Analyze and remove unused CSS from bundle
 ```
 
 
 ## 🏗️ Architecture
 
-Urja follows a **Frozen Core** architecture for stability:
+Nexxo follows a **Frozen Core** architecture for stability:
 
 ```
 ┌─────────────────────────────────────────┐
@@ -266,12 +270,14 @@ Urja follows a **Frozen Core** architecture for stability:
 
 ## 📊 Test Results
 
-**Latest Test Run:** January 03, 2026
-- **Total Tests:** 19
-- **Passed:** 19 (100.0%)
+**Latest Test Run:** January 07, 2026
+- **Total Tests:** 21
+- **Passed:** 21 (100.0%)
 - **Failed:** 0 (0.0%)
 
 ### Validated Modules
+- ✅ Native Hot Path (XXH3 / Regex Scanner)
+- ✅ 10k Module Scale Stability
 - ✅ Universal Transformer
 - ✅ Dev Server & Middleware
 - ✅ Build Pipeline & Steps
@@ -281,7 +287,7 @@ Urja follows a **Frozen Core** architecture for stability:
 - ✅ Incremental Build Manager
 - ✅ Module Federation
 - ✅ SSR Server & Renderers
-- ✅ Framework Integration (React, Vue, Svelte)
+- ✅ Framework Integration (React, Vue, Svelte, Solid, Lit)
 
 ## 🧪 Framework Verification
 
@@ -319,7 +325,7 @@ npm run lint
 
 ## 🤝 Governance & Stability
 
-Urja follows a **Frozen Core** philosophy:
+Nexxo follows a **Frozen Core** philosophy:
 - The Core Orchestrator is immutable
 - New features added via **Plugins** and **Transformers**
 - API stability guaranteed for LTS releases
@@ -327,13 +333,13 @@ Urja follows a **Frozen Core** philosophy:
 
 ## 📄 License
 
-MIT © 2026 Urja Build Systems
+MIT © 2026 Nexxo Build Systems
 
 ## 🔗 Links
 
-- **Repository:** [github.com/Avinash-1994/urja](https://github.com/Avinash-1994/urja)
-- **Issues:** [github.com/Avinash-1994/urja/issues](https://github.com/Avinash-1994/urja/issues)
-- **Documentation:** Run `npx urja dev` in the `website/` directory
+- **Repository:** [github.com/Avinash-1994/nexxo](https://github.com/Avinash-1994/nexxo)
+- **Issues:** [github.com/Avinash-1994/nexxo/issues](https://github.com/Avinash-1994/nexxo/issues)
+- **Documentation:** Run `npx nexxo dev` in the `website/` directory
 
 ---
 

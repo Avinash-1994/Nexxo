@@ -9,7 +9,8 @@
         --border-color: #E5E7EB;
         --text-primary: #111827;
         --text-secondary: #4B5563;
-        --accent-primary: #2F80ED;
+        --accent-primary: #6366f1;
+        /* Indigo 500 */
     }
 
     .dark {
@@ -46,5 +47,5 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #3b82f6;
+    background: #6366f1;
 }

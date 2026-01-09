@@ -1,4 +1,4 @@
-# Urja Stability Audit Report
+# Nexxo Stability Audit Report
 
 **Version**: v1.0.0-freeze
 **Date**: 2026-01-03T14:59:52.948Z

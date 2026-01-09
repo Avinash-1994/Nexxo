@@ -15,9 +15,9 @@ export class ConfigWatcher {
 
     start() {
         const configFiles = [
-            'urja.config.ts',
-            'urja.config.js',
-            'urja.config.json',
+            'nexxo.config.ts',
+            'nexxo.config.js',
+            'nexxo.config.json',
             'tailwind.config.js',
             'tsconfig.json',
             '.env',
@@ -41,7 +41,7 @@ export class ConfigWatcher {
         if (filename.startsWith('.env')) return 'hot';
         if (filename === 'tsconfig.json') return 'rebuild';
         if (filename.includes('tailwind')) return 'rebuild';
-        return 'restart'; // urja.config changes usually require restart
+        return 'restart'; // nexxo.config changes usually require restart
     }
 
     async close() {

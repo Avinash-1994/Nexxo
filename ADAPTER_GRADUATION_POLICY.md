@@ -12,7 +12,7 @@
 Prevent adapter sprawl, unstable promises, and accidental “official” support.
 
 This policy answers one question clearly:
-**When can an adapter be trusted, and what does Urja guarantee about it?**
+**When can an adapter be trusted, and what does Nexxo guarantee about it?**
 
 Without this policy:
 - “Works on my machine” becomes support

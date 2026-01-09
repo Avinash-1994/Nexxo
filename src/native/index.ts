@@ -15,6 +15,9 @@ type NativeWorkerInstance = {
     transformSync(code: string, id: string): string;
     transform(code: string, id: string): Promise<string>;
     processAsset(content: Buffer): string;
+    // NAPI-RS converts snake_case to camelCase by default
+    fastHash(content: string): string;
+    scanImports(code: string): string[];
     invalidate?: (file: string) => void;
     rebuild?: (file: string) => string[];
 };
@@ -50,16 +53,16 @@ function loadNative(): NativeWorkerModule {
         try {
             // Try multiple locations to find the native binary
             const candidates = [
-                path.resolve(__dirname, '../../urja_native.node'), // From src/native/index.ts
-                path.resolve(__dirname, '../urja_native.node'),    // From dist/native/index.js
-                path.resolve(process.cwd(), 'urja_native.node'),   // Root fallback
-                path.resolve(process.cwd(), 'dist/urja_native.node')
+                path.resolve(__dirname, '../../nexxo_native.node'), // From src/native/index.ts
+                path.resolve(__dirname, '../nexxo_native.node'),    // From dist/native/index.js
+                path.resolve(process.cwd(), 'nexxo_native.node'),   // Root fallback
+                path.resolve(process.cwd(), 'dist/nexxo_native.node')
             ];
 
             let pathFound = '';
             for (const c of candidates) {
-                const fs = require('fs');
-                if (fs.existsSync(c)) {
+                const fsModule = nodeRequire('fs');
+                if (fsModule.existsSync(c)) {
                     pathFound = c;
                     break;
                 }
@@ -83,6 +86,18 @@ function loadNative(): NativeWorkerModule {
                     transformSync(code: string, _id: string): string { return code; }
                     async transform(code: string, id: string): Promise<string> { return code; }
                     processAsset(content: Buffer): string { return ''; }
+                    fastHash(content: string): string {
+                        return createHash('sha256').update(content).digest('hex').substring(0, 16);
+                    }
+                    scanImports(code: string): string[] {
+                        const imports: string[] = [];
+                        const re = /(?:import|export)\s+.*?\s+from\s+['"](.*?)['"]|import\(['"](.*?)['"]\)|require\(['"](.*?)['"]\)/g;
+                        let m;
+                        while ((m = re.exec(code)) !== null) {
+                            if (m[1] || m[2] || m[3]) imports.push(m[1] || m[2] || m[3]);
+                        }
+                        return Array.from(new Set(imports));
+                    }
                 },
                 // Mock GraphAnalyzer for fallback
                 GraphAnalyzer: class {
@@ -124,6 +139,8 @@ export class RustNativeWorker {
     async transform(code: string, id: string): Promise<string> { return this.worker.transform(code, id); }
     get poolSize(): number { return this.worker.poolSize; }
     processAsset(content: Buffer): string { return this.worker.processAsset(content); }
+    fastHash(content: string): string { return this.worker.fastHash(content); }
+    scanImports(code: string): string[] { return this.worker.scanImports(code); }
     invalidate(file: string): void { if ((this.worker as any).invalidate) (this.worker as any).invalidate(file); }
     rebuild(file: string): string[] { return (this.worker as any).rebuild ? (this.worker as any).rebuild(file) : [file]; }
 }
@@ -147,11 +164,26 @@ export class GraphAnalyzer {
     analyze(): any { return this.analyzer.analyze(); }
 }
 
+// Singleton for standalone functions
+let globalWorker: RustNativeWorker | null = null;
+function getGlobalWorker(): RustNativeWorker {
+    if (!globalWorker) globalWorker = new RustNativeWorker(1);
+    return globalWorker;
+}
+
 export const NativeWorker = RustNativeWorker;
 
 export function helloRust(): string {
     const native = loadNative();
     return native.helloRust();
+}
+
+export function fastHash(content: string): string {
+    return getGlobalWorker().fastHash(content);
+}
+
+export function scanImports(code: string): string[] {
+    return getGlobalWorker().scanImports(code);
 }
 
 export function benchmarkNativeTransform(code: string, iterations: number = 10000): number {

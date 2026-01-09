@@ -1,13 +1,13 @@
 {
-  "name": "urja",
+  "name": "nexxo",
   "version": "1.0.0-freeze",
-  "description": "⚡ Urja - Energy-powered build tool with AI optimization, Rust native workers, and parallel execution",
+  "description": "⚡ Nexxo - Energy-powered build tool with AI optimization, Rust native workers, and parallel execution",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "urja": "./dist/cli.js",
-    "create-urja": "./dist/create-urja.js"
+    "nexxo": "./dist/cli.js",
+    "create-nexxo": "./dist/create-nexxo.js"
   },
   "files": [
     "dist",
@@ -55,12 +55,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Avinash-1994/urja.git"
+    "url": "git+https://github.com/Avinash-1994/nexxo.git"
   },
   "bugs": {
-    "url": "https://github.com/Avinash-1994/urja/issues"
+    "url": "https://github.com/Avinash-1994/nexxo/issues"
   },
-  "homepage": "https://github.com/Avinash-1994/urja#readme",
+  "homepage": "https://github.com/Avinash-1994/nexxo#readme",
   "engines": {
     "node": ">=18.0.0"
   },
@@ -114,7 +114,7 @@
     "cross-env": "^10.1.0",
     "esbuild-svelte": "^0.9.3",
     "eslint": "^9.39.2",
-    "eslint-plugin-urja-governance": "file:eslint-plugin-urja-governance",
+    "eslint-plugin-nexxo-governance": "file:eslint-plugin-nexxo-governance",
     "jest": "^30.2.0",
     "jsdom": "^27.2.0",
     "puppeteer": "^24.34.0",
