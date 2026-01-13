@@ -65,7 +65,7 @@ export class BunParser {
             try {
                 // Use native Bun.transpiler (Ultra fast)
                 // log.info(`Debug: loader=${loader} code_len=${code.length}`);
-                const result = await this.transpiler.transform(code, loader);
+                const result = await this.transpiler.transform(code, { loader });
 
                 // Bun transpiler doesn't return source maps directly in transform() yet in all versions
                 // newer versions do. Assuming string output for now.

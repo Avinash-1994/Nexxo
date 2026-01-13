@@ -147,7 +147,7 @@ export class DependencyGraph {
     // 1. FAST NATIVE SCAN (Phase 4.2 Hot Path)
     try {
       const nativeDeps = scanImports(content);
-      nativeDeps.forEach(specifier => deps.push({ specifier, kind: 'import' }));
+      nativeDeps.forEach((specifier: string) => deps.push({ specifier, kind: 'import' }));
       // If we found deps with native scanner, we can skip the expensive AST parse for simple graphs
       if (deps.length > 0) {
         return this.resolveAll(deps, filePath);

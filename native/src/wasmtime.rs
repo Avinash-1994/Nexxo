@@ -1,8 +1,8 @@
 use napi_derive::napi;
-use napi::{Env, Result, Error, Status};
+use napi::{Error, Status};
 use wasmtime::*;
-use anyhow::Context;
-use std::sync::Mutex;
+// use anyhow::Context; // Unused
+// use std::sync::Mutex; // Unused
 
 #[napi]
 pub struct PluginRuntime {
@@ -12,7 +12,7 @@ pub struct PluginRuntime {
 #[napi]
 impl PluginRuntime {
     #[napi(constructor)]
-    pub fn new() -> Result<Self> {
+    pub fn new() -> napi::Result<Self> {
         let mut config = Config::new();
         config.consume_fuel(true);       // Enable CPU limits via fuel
         
@@ -28,7 +28,7 @@ impl PluginRuntime {
     }
 
     #[napi]
-    pub fn verify_plugin(&self, wasm_bytes: &[u8]) -> Result<bool> {
+    pub fn verify_plugin(&self, wasm_bytes: &[u8]) -> napi::Result<bool> {
         // Just checking if it compiles for now (Verification logic in Day 9)
         Module::validate(&self.engine, wasm_bytes)
             .map(|_| true)
@@ -36,7 +36,7 @@ impl PluginRuntime {
     }
 
     #[napi]
-    pub fn execute(&self, wasm_bytes: &[u8], input: String, timeout_ms: u32) -> Result<String> {
+    pub fn execute(&self, wasm_bytes: &[u8], _input: String, _timeout_ms: u32) -> napi::Result<String> {
         let module = Module::new(&self.engine, wasm_bytes)
             .map_err(|e| Error::new(Status::GenericFailure, format!("Failed to compile: {}", e)))?;
 
@@ -51,7 +51,7 @@ impl PluginRuntime {
         let mut linker = Linker::new(&self.engine);
         
         // Define 'env.console_log' for debugging (safe)
-        linker.func_wrap("env", "console_log", |mut caller: Caller<'_, ()>, ptr: i32, len: i32| {
+        linker.func_wrap("env", "console_log", |mut _caller: Caller<'_, ()>, _ptr: i32, _len: i32| {
             // In a real impl, we'd read memory. For MVP, just a stub or simple integer log if changed signature
             // Reading string from WASM memory requires knowning memory export.
             println!("[WASM] Log called"); 

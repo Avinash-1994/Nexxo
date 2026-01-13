@@ -24,9 +24,6 @@ export class CompatPluginAdapter {
      * This allows Nexxo (using Rolldown) to bundle using WASM plugins transparently.
      */
     adapt(manifest: any, wasmBytes: Buffer): RollupPlugin {
-        // Capture 'this' context for runWasm usage
-        const adapter = this;
-
         return {
             name: manifest.name,
 
@@ -39,7 +36,7 @@ export class CompatPluginAdapter {
                 });
 
                 // Execute with 100ms timeout
-                const result = adapter.runWasm(wasmBytes, input);
+                const result = this.runWasm(wasmBytes, input);
 
                 if (result && result.id) {
                     return result.id;
@@ -54,7 +51,7 @@ export class CompatPluginAdapter {
                     args: [id]
                 });
 
-                const result = adapter.runWasm(wasmBytes, input);
+                const result = this.runWasm(wasmBytes, input);
                 if (result && result.code) {
                     return result.code;
                 }
@@ -68,7 +65,7 @@ export class CompatPluginAdapter {
                     args: [code, id]
                 });
 
-                const result = adapter.runWasm(wasmBytes, input);
+                const result = this.runWasm(wasmBytes, input);
                 if (result && result.code) {
                     return { code: result.code, map: result.map };
                 }

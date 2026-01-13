@@ -185,7 +185,8 @@ export class UniversalTransformer {
                     const plugins: any[] = [];
                     if (isDev) {
                         try {
-                            plugins.push(_require.resolve('react-refresh/babel'));
+                            // Fix validation error in tests by skipping environment check
+                            plugins.push([_require.resolve('react-refresh/babel'), { skipEnvCheck: true }]);
                         } catch (e) {
                             // React refresh not found, skip
                         }

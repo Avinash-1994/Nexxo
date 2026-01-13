@@ -14,14 +14,8 @@ use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::sync::Arc;
 
-/// Cache entry metadata
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CacheEntry {
-    pub key: String,
-    pub value: String,
-    pub timestamp: i64,
-    pub target: String, // dev, prod, or lib
-}
+// Unused CacheEntry struct removed
+// pub struct CacheEntry { ... }
 
 /// Cache statistics
 #[derive(Debug, Clone, Serialize, Deserialize)]

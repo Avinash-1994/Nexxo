@@ -50,6 +50,14 @@ export default [
                 performance: 'readonly',
                 PerformanceNavigationTiming: 'readonly',
                 HTMLInputElement: 'readonly',
+                // Missing Globals
+                Bun: 'readonly',
+                Request: 'readonly',
+                CryptoKey: 'readonly',
+                CryptoKeyPair: 'readonly',
+                ErrorEvent: 'readonly',
+                PromiseRejectionEvent: 'readonly',
+                requestAnimationFrame: 'readonly',
                 // Jest globals
                 describe: 'readonly',
                 it: 'readonly',

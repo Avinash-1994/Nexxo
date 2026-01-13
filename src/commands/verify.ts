@@ -60,9 +60,9 @@ export async function verify(options: VerifyOptions = {}): Promise<VerifyResult>
     // Calculate summary
     const summary = {
         total: checks.length,
-        passed: checks.filter(c => c.status === 'pass').length,
-        failed: checks.filter(c => c.status === 'fail').length,
-        warnings: checks.filter(c => c.status === 'warn').length
+        passed: checks.filter((c: CheckResult) => c.status === 'pass').length,
+        failed: checks.filter((c: CheckResult) => c.status === 'fail').length,
+        warnings: checks.filter((c: CheckResult) => c.status === 'warn').length
     };
 
     const passed = summary.failed === 0 && (!options.strict || summary.warnings === 0);
@@ -175,7 +175,8 @@ async function checkConfig(options: VerifyOptions): Promise<CheckResult[]> {
  * 2. Graph Health Checks
  */
 // Helper to scan imports
-import { GraphAnalyzer } from '../native/index.js';
+// Helper to scan imports
+import { GraphAnalyzer, scanImports } from '../native/index.js';
 
 async function checkGraph(options: VerifyOptions): Promise<CheckResult[]> {
     const checks: CheckResult[] = [];
@@ -271,7 +272,7 @@ async function checkGraph(options: VerifyOptions): Promise<CheckResult[]> {
                 category: 'graph',
                 status: 'fail',
                 message: `Detected ${cycles.length} circular dependency chains`,
-                explanation: options.explain ? `Cycles: \n${cycles.map(c => '   - ' + c).join('\n')}` : undefined,
+                explanation: options.explain ? `Cycles: \n${cycles.map((c: any) => '   - ' + c.cycle.join(' -> ')).join('\n')}` : undefined,
                 fix: 'Refactor code to remove cycles'
             });
         } else {
@@ -499,11 +500,11 @@ function displayResults(checks: CheckResult[], summary: any, options: VerifyOpti
     // Group by category
     const categories = ['config', 'graph', 'adapter', 'cache', 'dependencies', 'permissions'] as const;
 
-    categories.forEach(category => {
-        const categoryChecks = checks.filter(c => c.category === category);
+    categories.forEach((category: string) => {
+        const categoryChecks = checks.filter((c: CheckResult) => c.category === category);
         if (categoryChecks.length === 0) return;
 
-        categoryChecks.forEach(check => {
+        categoryChecks.forEach((check: CheckResult) => {
             const icon = check.status === 'pass' ? '✅' : check.status === 'fail' ? '❌' : '⚠️';
             const color = check.status === 'pass' ? kleur.green : check.status === 'fail' ? kleur.red : kleur.yellow;
 

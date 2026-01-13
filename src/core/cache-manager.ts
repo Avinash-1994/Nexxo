@@ -42,8 +42,8 @@ export class CacheManager {
             const cachePath = path.join(this.root, '.nexxo_cache');
             this.cache = new BuildCache(cachePath);
             log.info(`🚀 Initialized RocksDB Cache at ${cachePath}`);
-        } catch (error) {
-            log.warn('Failed to initialize RocksDB cache, falling back to in-memory:', error);
+        } catch (error: any) {
+            log.warn(`Failed to initialize RocksDB cache, falling back to in-memory: ${error.message}`);
             this.enabled = false;
         }
     }
@@ -115,7 +115,8 @@ export class CacheManager {
                 // RocksDB makes LRU hard without column families or manual tracking.
                 // We'll clear 'dev' builds first, preserving 'prod'.
                 const initialSize = stats.totalEntries;
-                const cleared = this.cache.clearTarget('dev:');
+                // @ts-ignore - native clearTarget expects target prefix
+                const cleared = this.cache.clearTarget('dev');
                 log.info(`Evicted ${cleared} dev entries.`);
 
                 // If still too big, compact

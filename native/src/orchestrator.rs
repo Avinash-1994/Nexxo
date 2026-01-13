@@ -49,15 +49,8 @@ pub struct OrchestratorStats {
     pub parallelism: u32,
 }
 
-/// Task result
-#[derive(Debug, Clone)]
-pub struct TaskResult {
-    pub id: String,
-    pub success: bool,
-    pub output: Option<String>,
-    pub error: Option<String>,
-    pub duration_ms: f64,
-}
+// Unused TaskResult struct removed
+// pub struct TaskResult { ... }
 
 /// Tokio-based build orchestrator
 #[napi]
