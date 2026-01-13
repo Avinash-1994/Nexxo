@@ -23,7 +23,7 @@ rayon = "1.8"  # For parallel iterators
 chrono = "0.4"  # For timestamps
 
 # Day 8: WASM Runtime
-wasmtime = "16.0"
+wasmtime = "18.0"
 anyhow = "1.0"
 
 [build-dependencies]
