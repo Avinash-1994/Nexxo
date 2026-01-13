@@ -19,3 +19,7 @@ petgraph = "0.6"
 xxhash-rust = { version = "0.8.15", features = ["xxh3", "xxh64"] }
 regex = "1.12.2"
 lazy_static = "1.5.0"
+
+# Day 8: WASM Runtime
+wasmtime = "16.0"
+anyhow = "1.0"

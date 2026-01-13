@@ -784,6 +784,18 @@ if (import.meta.hot) {
         const ext = path.extname(filePath);
         if (ext === '.ts' || ext === '.tsx' || ext === '.js' || ext === '.jsx' || ext === '.mjs') {
             try {
+                // Day 3: Bun Parser Lock
+                // Try Bun parser first (17x faster)
+                const { bunParser } = await import('./parser-bun.js');
+                if (bunParser.isBun()) {
+                    try {
+                        return await bunParser.transform(code, filePath, { isDev });
+                    } catch (e) {
+                        log.warn(`Bun transform failed, falling back to esbuild: ${e}`);
+                    }
+                }
+
+                // Fallback to esbuild
                 const result = await esbuild.transform(code, {
                     loader: (ext === '.mjs' ? 'js' : ext.slice(1)) as any,
                     sourcemap: isDev ? 'inline' : false,

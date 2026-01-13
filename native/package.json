@@ -1,0 +1,8 @@
+{
+    "name": "nexxo-native",
+    "version": "0.1.0",
+    "type": "module",
+    "napi": {
+        "binaryName": "nexxo_native"
+    }
+}

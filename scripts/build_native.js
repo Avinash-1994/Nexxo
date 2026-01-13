@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const rootDir = join(__dirname, '..');
-const nativeDir = join(rootDir, 'src', 'native');
+const nativeDir = join(rootDir, 'native');
 
 function runNapiBuild() {
   return new Promise((resolve) => {

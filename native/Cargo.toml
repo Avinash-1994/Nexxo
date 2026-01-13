@@ -13,6 +13,19 @@ napi-derive = "3"
 regex = "1.12.2"
 xxhash-rust = { version = "0.8.15", features = ["xxh3", "xxh64"] }
 
+# Day 2: Tokio Orchestrator & RocksDB Cache
+tokio = { version = "1.35", features = ["full"] }
+rocksdb = "0.22"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+rayon = "1.8"  # For parallel iterators
+
+chrono = "0.4"  # For timestamps
+
+# Day 8: WASM Runtime
+wasmtime = "16.0"
+anyhow = "1.0"
+
 [build-dependencies]
 napi-build = "2"
 

@@ -1,0 +1,71 @@
+{
+    "name": "nexxo-vscode",
+    "displayName": "Nexxo v2.0 Elite DX",
+    "description": "Language Server and Developer Tools for Nexxo",
+    "version": "2.0.0",
+    "publisher": "nexxo-core",
+    "engines": {
+        "vscode": "^1.80.0"
+    },
+    "categories": [
+        "Programming Languages",
+        "Linters",
+        "Snippets"
+    ],
+    "activationEvents": [
+        "onLanguage:typescript",
+        "onLanguage:javascript",
+        "workspaceContains:nexxo.config.ts"
+    ],
+    "main": "./client/out/extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "nexxo.build",
+                "title": "Nexxo: Build Project"
+            },
+            {
+                "command": "nexxo.dev",
+                "title": "Nexxo: Start Dev Server"
+            },
+            {
+                "command": "nexxo.audit",
+                "title": "Nexxo: Run System Audit"
+            },
+            {
+                "command": "nexxo.visualize",
+                "title": "Nexxo: Open Bundle Visualizer"
+            }
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "Nexxo Configuration",
+            "properties": {
+                "nexxo.trace.server": {
+                    "scope": "window",
+                    "type": "string",
+                    "enum": [
+                        "off",
+                        "messages",
+                        "verbose"
+                    ],
+                    "default": "off",
+                    "description": "Traces the communication between VS Code and the language server."
+                }
+            }
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -b",
+        "watch": "tsc -b -w"
+    },
+    "dependencies": {
+        "vscode-languageclient": "^9.0.0"
+    },
+    "devDependencies": {
+        "@types/vscode": "^1.80.0",
+        "@types/node": "^18.0.0",
+        "typescript": "^5.0.0"
+    }
+}

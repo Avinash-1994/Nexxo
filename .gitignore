@@ -11,10 +11,40 @@ temp_ts_config_test
 nextgen.build.temp.mjs
 
 # Rust/Native build artifacts
-src/native/target/
-src/native/Cargo.lock
-src/native/*.node
-src/native/native.d.ts
-src/native/urja_native*.node
-src/native/nextgen_native*.node
+native/target/
+native/Cargo.lock
+native/*.node
+native/native.d.ts
+native/urja_native*.node
+native/nextgen_native*.node
+native/nexxo_native*.node
+*.node
 
+# Test artifacts
+.test_create_nexxo/
+test-project-*/
+my-react-app/
+
+# Marketplace/Plugin artifacts
+marketplace.db
+marketplace.db-journal
+
+# Build artifacts
+nexxo_native.node
+*.wasm
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+.cache/

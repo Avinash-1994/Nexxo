@@ -2,12 +2,29 @@
 // Focus: Speed and minimal bundle size
 
 mod graph;
+mod orchestrator; // Day 2: Tokio orchestrator
+mod cache;        // Day 2: RocksDB cache
+mod wasmtime;     // Day 8: WASM Runtime
 
-// Re-export graph module
+// Re-export wasmtime module
+pub use wasmtime::{PluginRuntime};
+
 // Re-export graph module
 pub use graph::{
   GraphAnalyzer, GraphNode, CircularDependency, GraphAnalysisResult, 
   fast_hash, batch_hash, scan_imports, normalize_path
+};
+
+// Re-export orchestrator module
+pub use orchestrator::{
+  BuildOrchestrator, BuildEvent, OrchestratorStats,
+  get_optimal_parallelism, benchmark_parallelism
+};
+
+// Re-export cache module
+pub use cache::{
+  BuildCache, CacheStats,
+  create_input_key, create_graph_key, create_plan_key, create_artifact_key
 };
 
 use napi::bindgen_prelude::*;

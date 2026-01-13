@@ -1,0 +1,227 @@
+
+> nexxo@1.0.0-freeze test
+> cross-env NODE_OPTIONS=--experimental-vm-modules jest
+
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in /home/avinash/Desktop/framework_practis/build/tsconfig.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in /home/avinash/Desktop/framework_practis/build/tsconfig.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+(node:116617) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS src/dev/__tests__/preBundler.test.ts
+(node:116618) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+FAIL src/core/__tests__/universal-transformer.test.ts
+  ● Console
+
+    console.error
+      
+      === TRANSFORMATION ERROR ===
+
+      225 |
+      226 |             // ALWAYS log to console for debugging
+    > 227 |             console.error('\n=== TRANSFORMATION ERROR ===');
+          |                     ^
+      228 |             console.error('File:', relativePath);
+      229 |             console.error('Error:', errorMessage);
+      230 |             console.error('Line:', error.loc?.line, 'Column:', error.loc?.column);
+
+      at UniversalTransformer.transformReact (src/core/universal-transformer.ts:227:21)
+      at UniversalTransformer.transform (src/core/universal-transformer.ts:84:26)
+      at Object.<anonymous> (src/core/__tests__/universal-transformer.test.ts:28:24)
+
+    console.error
+      File: test.tsx
+
+      226 |             // ALWAYS log to console for debugging
+      227 |             console.error('\n=== TRANSFORMATION ERROR ===');
+    > 228 |             console.error('File:', relativePath);
+          |                     ^
+      229 |             console.error('Error:', errorMessage);
+      230 |             console.error('Line:', error.loc?.line, 'Column:', error.loc?.column);
+      231 |             console.error('===========================\n');
+
+      at UniversalTransformer.transformReact (src/core/universal-transformer.ts:228:21)
+      at UniversalTransformer.transform (src/core/universal-transformer.ts:84:26)
+      at Object.<anonymous> (src/core/__tests__/universal-transformer.test.ts:28:24)
+
+    console.error
+      Error: [BABEL] /home/avinash/Desktop/framework_practis/build/test.tsx: React Refresh Babel transform should only be enabled in development environment. Instead, the environment is: "test". If you want to override this check, pass {skipEnvCheck: true} as plugin options. (While processing: "/home/avinash/Desktop/framework_practis/build/node_modules/react-refresh/babel.js")
+
+      227 |             console.error('\n=== TRANSFORMATION ERROR ===');
+      228 |             console.error('File:', relativePath);
+    > 229 |             console.error('Error:', errorMessage);
+          |                     ^
+      230 |             console.error('Line:', error.loc?.line, 'Column:', error.loc?.column);
+      231 |             console.error('===========================\n');
+      232 |
+
+      at UniversalTransformer.transformReact (src/core/universal-transformer.ts:229:21)
+      at UniversalTransformer.transform (src/core/universal-transformer.ts:84:26)
+      at Object.<anonymous> (src/core/__tests__/universal-transformer.test.ts:28:24)
+
+    console.error
+      Line: undefined Column: undefined
+
+      228 |             console.error('File:', relativePath);
+      229 |             console.error('Error:', errorMessage);
+    > 230 |             console.error('Line:', error.loc?.line, 'Column:', error.loc?.column);
+          |                     ^
+      231 |             console.error('===========================\n');
+      232 |
+      233 |             log.projectError({
+
+      at UniversalTransformer.transformReact (src/core/universal-transformer.ts:230:21)
+      at UniversalTransformer.transform (src/core/universal-transformer.ts:84:26)
+      at Object.<anonymous> (src/core/__tests__/universal-transformer.test.ts:28:24)
+
+    console.error
+      ===========================
+
+      229 |             console.error('Error:', errorMessage);
+      230 |             console.error('Line:', error.loc?.line, 'Column:', error.loc?.column);
+    > 231 |             console.error('===========================\n');
+          |                     ^
+      232 |
+      233 |             log.projectError({
+      234 |                 file: relativePath,
+
+      at UniversalTransformer.transformReact (src/core/universal-transformer.ts:231:21)
+      at UniversalTransformer.transform (src/core/universal-transformer.ts:84:26)
+      at Object.<anonymous> (src/core/__tests__/universal-transformer.test.ts:28:24)
+
+    console.error
+
+
+      70 |   },
+      71 |   projectError: (error: { file?: string; message: string; line?: number; column?: number; type?: string }) => {
+    > 72 |     console.error('');
+         |             ^
+      73 |     console.error(kleur.red('❌ PROJECT ERROR'));
+      74 |     if (error.file) console.error(kleur.gray(`   File: ${error.file}`));
+      75 |     if (error.line) console.error(kleur.gray(`   Line: ${error.line}${error.column ? `:${error.column}` : ''}`));
+
+      at Object.projectError (src/utils/logger.ts:72:13)
+      at UniversalTransformer.transformReact (src/core/universal-transformer.ts:233:17)
+      at UniversalTransformer.transform (src/core/universal-transformer.ts:84:26)
+      at Object.<anonymous> (src/core/__tests__/universal-transformer.test.ts:28:24)
+
+    console.error
+      ❌ PROJECT ERROR
+
+      71 |   projectError: (error: { file?: string; message: string; line?: number; column?: number; type?: string }) => {
+      72 |     console.error('');
+    > 73 |     console.error(kleur.red('❌ PROJECT ERROR'));
+         |             ^
+      74 |     if (error.file) console.error(kleur.gray(`   File: ${error.file}`));
+      75 |     if (error.line) console.error(kleur.gray(`   Line: ${error.line}${error.column ? `:${error.column}` : ''}`));
+      76 |     if (error.type) console.error(kleur.gray(`   Type: ${error.type}`));
+
+      at Object.projectError (src/utils/logger.ts:73:13)
+      at UniversalTransformer.transformReact (src/core/universal-transformer.ts:233:17)
+      at UniversalTransformer.transform (src/core/universal-transformer.ts:84:26)
+      at Object.<anonymous> (src/core/__tests__/universal-transformer.test.ts:28:24)
+
+    console.error
+         File: test.tsx
+
+      72 |     console.error('');
+      73 |     console.error(kleur.red('❌ PROJECT ERROR'));
+    > 74 |     if (error.file) console.error(kleur.gray(`   File: ${error.file}`));
+         |                             ^
+      75 |     if (error.line) console.error(kleur.gray(`   Line: ${error.line}${error.column ? `:${error.column}` : ''}`));
+      76 |     if (error.type) console.error(kleur.gray(`   Type: ${error.type}`));
+      77 |     console.error(kleur.red(`   ${error.message}`));
+
+      at Object.projectError (src/utils/logger.ts:74:29)
+      at UniversalTransformer.transformReact (src/core/universal-transformer.ts:233:17)
+      at UniversalTransformer.transform (src/core/universal-transformer.ts:84:26)
+      at Object.<anonymous> (src/core/__tests__/universal-transformer.test.ts:28:24)
+
+    console.error
+         [BABEL] /home/avinash/Desktop/framework_practis/build/test.tsx: React Refresh Babel transform should only be enabled in development environment. Instead, the environment is: "test". If you want to override this check, pass {skipEnvCheck: true} as plugin options. (While processing: "/home/avinash/Desktop/framework_practis/build/node_modules/react-refresh/babel.js")
+
+      75 |     if (error.line) console.error(kleur.gray(`   Line: ${error.line}${error.column ? `:${error.column}` : ''}`));
+      76 |     if (error.type) console.error(kleur.gray(`   Type: ${error.type}`));
+    > 77 |     console.error(kleur.red(`   ${error.message}`));
+         |             ^
+      78 |
+      79 |     // Try to show a small code snippet around the error line
+      80 |     try {
+
+      at Object.projectError (src/utils/logger.ts:77:13)
+      at UniversalTransformer.transformReact (src/core/universal-transformer.ts:233:17)
+      at UniversalTransformer.transform (src/core/universal-transformer.ts:84:26)
+      at Object.<anonymous> (src/core/__tests__/universal-transformer.test.ts:28:24)
+
+    console.error
+        Fix the error and save. Server will reload automatically.
+
+      102 |     }
+      103 |
+    > 104 |     console.error(kleur.gray('  Fix the error and save. Server will reload automatically.'));
+          |             ^
+      105 |     console.error('');
+      106 |   },
+      107 |   table: (rows: Record<string, string>) => {
+
+      at Object.projectError (src/utils/logger.ts:104:13)
+      at UniversalTransformer.transformReact (src/core/universal-transformer.ts:233:17)
+      at UniversalTransformer.transform (src/core/universal-transformer.ts:84:26)
+      at Object.<anonymous> (src/core/__tests__/universal-transformer.test.ts:28:24)
+
+    console.error
+
+
+      103 |
+      104 |     console.error(kleur.gray('  Fix the error and save. Server will reload automatically.'));
+    > 105 |     console.error('');
+          |             ^
+      106 |   },
+      107 |   table: (rows: Record<string, string>) => {
+      108 |     console.log('');
+
+      at Object.projectError (src/utils/logger.ts:105:13)
+      at UniversalTransformer.transformReact (src/core/universal-transformer.ts:233:17)
+      at UniversalTransformer.transform (src/core/universal-transformer.ts:84:26)
+      at Object.<anonymous> (src/core/__tests__/universal-transformer.test.ts:28:24)
+
+  ● UniversalTransformer › transforms React JSX files
+
+    [BABEL] /home/avinash/Desktop/framework_practis/build/test.tsx: React Refresh Babel transform should only be enabled in development environment. Instead, the environment is: "test". If you want to override this check, pass {skipEnvCheck: true} as plugin options. (While processing: "/home/avinash/Desktop/framework_practis/build/node_modules/react-refresh/babel.js")
+
+      at process.env.NODE_ENV.module.exports (node_modules/react-refresh/cjs/react-refresh-babel.development.js:267:15)
+      at apply (node_modules/@babel/core/src/gensync-utils/async.ts:36:33)
+      at async (node_modules/gensync/index.js:186:15)
+      at node_modules/gensync/index.js:216:13
+      at factory (node_modules/@babel/core/src/config/full.ts:274:23)
+      at Function.<anonymous> (node_modules/@babel/core/src/gensync-utils/async.ts:10:3)
+      at step (node_modules/gensync/index.js:269:25)
+      at evaluateAsync (node_modules/gensync/index.js:291:5)
+      at Function.errback (node_modules/gensync/index.js:113:7)
+      at errback (node_modules/@babel/core/src/gensync-utils/async.ts:88:18)
+      at async (node_modules/gensync/index.js:188:17)
+      at onFirstPause (node_modules/gensync/index.js:216:13)
+      at cachedFunction (node_modules/@babel/core/src/config/caching.ts:131:34)
+          at cachedFunction.next (<anonymous>)
+      at pluginDescriptorLoader (node_modules/@babel/core/src/config/full.ts:413:12)
+          at loadPluginDescriptor.next (<anonymous>)
+      at loadPluginDescriptor (node_modules/@babel/core/src/config/full.ts:193:33)
+          at loadPluginDescriptors.next (<anonymous>)
+      at fn (node_modules/@babel/core/src/config/full.ts:226:21)
+      at loadFullConfig (node_modules/@babel/core/src/config/full.ts:207:5)
+          at loadFullConfig.next (<anonymous>)
+      at transform (node_modules/@babel/core/src/transform.ts:26:58)
+          at transform.next (<anonymous>)
+      at step (node_modules/gensync/index.js:269:25)
+      at node_modules/gensync/index.js:273:13
+      at async.call.result.err.err (node_modules/gensync/index.js:223:11)
+      at node_modules/gensync/index.js:37:40
+
+Test Suites: 1 failed, 1 passed, 2 total
+Tests:       1 failed, 2 passed, 3 total
+Snapshots:   0 total
+Time:        1.066 s
+Ran all test suites.
