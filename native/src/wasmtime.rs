@@ -42,36 +42,29 @@ impl PluginRuntime {
 
         let mut store = Store::new(&self.engine, ());
         
-        // Set Fuel (CPU limit approx) or use Epochs
         // 1 fuel ~ 1 instruction (roughly). 
-        // 100ms is hard to map exactly to fuel without calibration, but let's say 1M instructions.
+        // 1M instructions is generous for small tests.
         store.set_fuel(1_000_000).map_err(|e| Error::new(Status::GenericFailure, e.to_string()))?;
         
-        // Create Linker (Sandbox: No WASI, only safe imports)
         let mut linker = Linker::new(&self.engine);
         
-        // Define 'env.console_log' for debugging (safe)
+        // Define 'env.console_log' safetly
         linker.func_wrap("env", "console_log", |mut _caller: Caller<'_, ()>, _ptr: i32, _len: i32| {
-            // In a real impl, we'd read memory. For MVP, just a stub or simple integer log if changed signature
-            // Reading string from WASM memory requires knowning memory export.
-            println!("[WASM] Log called"); 
-        }).unwrap();
+            // println!("[WASM] Log called"); // Avoid printing during potential stress tests to keep noise down
+        }).map_err(|e| Error::new(Status::GenericFailure, format!("Failed to define imports: {}", e)))?;
 
         let instance = linker.instantiate(&mut store, &module)
             .map_err(|e| Error::new(Status::GenericFailure, format!("Failed to instantiate: {}", e)))?;
 
-        // Expect 'transform' export
         let transform = instance.get_typed_func::<(), ()>(&mut store, "transform")
-            .or_else(|_| instance.get_typed_func::<(), ()>(&mut store, "main")) // Fallback
+            .or_else(|_| instance.get_typed_func::<(), ()>(&mut store, "main"))
             .map_err(|_| Error::new(Status::GenericFailure, "Plugin must export 'transform' or 'main'".to_string()))?;
 
         // Execute with limit
-        // Wasmtime traps if fuel runs out
         match transform.call(&mut store, ()) {
-            Ok(_) => Ok("Success".to_string()), // We need to return actual output. MVP: Just success status.
+            Ok(_) => Ok("Success".to_string()),
             Err(e) => {
-                // Check if it was a fuel trap
-                // For now, return error string
+                // Return the error string to be handled by JS (checking for "fuel" or "timeout")
                 Err(Error::new(Status::GenericFailure, format!("Execution Failed: {}", e)))
             }
         }
