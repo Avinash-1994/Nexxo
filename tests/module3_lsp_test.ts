@@ -4,7 +4,7 @@
  * Validates Day 18 Language Server Protocol Logic
  */
 
-import { NexxoLSPServer } from '../extensions/vscode-lsp/server/src/server.js';
+import { NexxoLSPServer } from '../extensions/vscode-lsp/server/src/server.ts';
 
 async function runLSPTest() {
     console.log('🧪 Testing Nexxo LSP Logic...');
