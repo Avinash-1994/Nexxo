@@ -124,6 +124,11 @@ export class CSSOptimizer {
         let currentRule = '';
         let keepRule = false;
 
+        log.info('Purging CSS...', {
+            classes: Array.from(usedClasses),
+            ids: Array.from(usedIds)
+        });
+
         for (const line of lines) {
             // Check if this is a selector line
             if (line.trim().endsWith('{')) {
@@ -133,6 +138,8 @@ export class CSSOptimizer {
                 // Check if selector is used
                 const selector = line.substring(0, line.lastIndexOf('{')).trim();
                 keepRule = this.isSelectorUsed(selector, usedClasses, usedIds);
+
+                log.debug(`Selector: "${selector}" -> Keep: ${keepRule}`);
 
                 if (keepRule) {
                     optimizedLines.push(line);
@@ -344,5 +351,31 @@ export class CSSOptimizer {
 
         await scan(outDir);
         return files;
+    }
+}
+
+/**
+ * Pipeline Step for CSS Optimization
+ */
+export class CSSOptimizationStep {
+    async run(ctx: any): Promise<void> {
+        // Only run optimization if enabled in config
+        if (ctx.config.build?.css?.minimize === false && !ctx.config.build?.css?.modules) {
+            return;
+        }
+
+        const outDir = ctx.config.outDir || 'dist';
+        const absOutDir = path.isAbsolute(outDir)
+            ? outDir
+            : path.resolve(ctx.config.root || process.cwd(), outDir);
+
+        // Optimize output directory
+        const optimizer = new CSSOptimizer(ctx.config.root, {
+            minify: ctx.config.build?.minify !== false,
+            purge: ctx.config.build?.css?.purge !== false,
+            critical: ctx.config.build?.css?.critical !== false
+        });
+
+        await optimizer.optimize(absOutDir);
     }
 }
