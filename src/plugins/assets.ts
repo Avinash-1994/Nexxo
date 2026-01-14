@@ -1,11 +1,9 @@
 import path from 'path';
 import fs from 'fs/promises';
 import { NexxoPlugin } from '../core/plugins/types.js';
-import { RustNativeWorker } from '../native/index.js';
+import { fastHash } from '../native/index.js';
 
 export function createAssetPlugin(outDir: string = 'build_output'): NexxoPlugin {
-    const worker = new RustNativeWorker(4);
-
     return {
         manifest: {
             name: 'nexxo:asset',
@@ -33,8 +31,8 @@ export function createAssetPlugin(outDir: string = 'build_output'): NexxoPlugin 
                 if (input.namespace === 'asset-ns' || ASSET_REGEX.test(input.path)) {
                     const content = await fs.readFile(input.path);
 
-                    // Use Native Worker to calculate hash
-                    const hash = worker.processAsset(content);
+                    // Use fastHash from native module to calculate hash
+                    const hash = fastHash(content.toString('utf-8'));
 
                     const ext = path.extname(input.path);
                     const name = path.basename(input.path, ext);

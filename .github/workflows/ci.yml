@@ -87,66 +87,66 @@ jobs:
           NODE_OPTIONS: --experimental-vm-modules
         run: |
           echo "Testing Module 1: Core Engine"
-          npx tsx tests/core_engine_test.ts || true
-          npx tsx tests/phase1_test.ts || true
+          npx tsx tests/core_engine_test.ts
+          npx tsx tests/phase1_test.ts
           
           echo "Testing Module 2: Zero-Trust Ecosystem"
-          npx tsx tests/module2_wasm_test.ts || true
-          npx tsx tests/module2_compat_test.ts || true
-          npx tsx tests/module2_marketplace_test.ts || true
-          npx tsx tests/module2_signer_test.ts || true
-          npx tsx tests/module2_security_suite.ts || true
-          npx tsx tests/phase_2_1_plugin_compat_test.ts || true
-          npx tsx tests/phase_2_2_framework_tier2_test.ts || true
-          npx tsx tests/phase_2_2_framework_plugins_test.ts || true
-          npx tsx tests/phase_2_3_governance_test.ts || true
+          npx tsx tests/module2_wasm_test.ts
+          npx tsx tests/module2_compat_test.ts
+          npx tsx tests/module2_marketplace_test.ts
+          npx tsx tests/module2_signer_test.ts
+          npx tsx tests/module2_security_suite.ts
+          npx tsx tests/phase_2_1_plugin_compat_test.ts
+          npx tsx tests/phase_2_2_framework_tier2_test.ts
+          npx tsx tests/phase_2_2_framework_plugins_test.ts
+          npx tsx tests/phase_2_3_governance_test.ts
           
           echo "Testing Module 3: Elite DX/UI"
-          npx tsx tests/module3_overlay_test.ts || true
-          npx tsx tests/module3_visualizer_test.ts || true
-          npx tsx tests/module3_create_nexxo_test.ts || true
-          npx tsx tests/module3_lsp_test.ts || true
-          npx tsx tests/module3_dashboard_test.ts || true
-          npx tsx tests/module3_hmr_logic_test.ts || true
-          npx tsx tests/phase_3_1_browser_visual_test.ts || true
-          npx tsx tests/phase_3_1_hmr_classification_test.ts || true
-          npx tsx tests/phase_3_1_hmr_integration_test.ts || true
+          npx tsx tests/module3_overlay_test.ts
+          npx tsx tests/module3_visualizer_test.ts
+          npx tsx tests/module3_create_nexxo_test.ts
+          npx tsx tests/module3_lsp_test.ts
+          npx tsx tests/module3_dashboard_test.ts
+          npx tsx tests/module3_hmr_logic_test.ts
+          npx tsx tests/phase_3_1_browser_visual_test.ts
+          npx tsx tests/phase_3_1_hmr_classification_test.ts
+          npx tsx tests/phase_3_1_hmr_integration_test.ts
           
           echo "Testing Module 4: Universal SSR/Edge"
-          npx tsx tests/module4_ssr_runtime_test.ts || true
-          npx tsx tests/module4_adapters_test.ts || true
-          npx tsx tests/module4_edge_test.ts || true
-          npx tsx tests/module4_legacy_test.ts || true
-          npx tsx tests/module4_env_test.ts || true
-          npx tsx tests/module4_build_test.ts || true
-          npx tsx tests/phase_2_test.ts || true
+          npx tsx tests/module4_ssr_runtime_test.ts
+          npx tsx tests/module4_adapters_test.ts
+          npx tsx tests/module4_edge_test.ts
+          npx tsx tests/module4_legacy_test.ts
+          npx tsx tests/module4_env_test.ts
+          npx tsx tests/module4_build_test.ts
+          npx tsx tests/phase2_test.ts
           
           echo "Testing Framework Support"
-          npx tsx tests/framework_detection_test.ts || true
-          npx tsx tests/framework_verification_test.ts || true
-          npx tsx tests/angular_compat_test.ts || true
-          npx tsx tests/solid_hmr_test.ts || true
+          npx tsx tests/framework_detection_test.ts
+          npx tsx tests/framework_verification_test.ts
+          npx tsx tests/angular_compat_test.ts
+          npx tsx tests/solid_hmr_test.ts
           
           echo "Testing Build & Bundling"
-          npx tsx tests/integration_test.ts || true
-          npx tsx tests/bootstrap_test.ts || true
-          npx tsx tests/production_build_test.ts || true
-          npx tsx tests/determinism_snapshot_test.ts || true
+          npx tsx tests/integration_test.ts
+          npx tsx tests/bootstrap_test.ts
+          npx tsx tests/production_build_test.ts
+          npx tsx tests/determinism_snapshot_test.ts
           
           echo "Testing CSS & Assets"
-          npx tsx tests/asset_test.ts || true
-          npx tsx tests/css_cli_test.ts || true
-          npx tsx tests/css_optimization_integration_test.ts || true
-          npx tsx tests/final_css_test.ts || true
-          npx tsx tests/sourcemap_test.ts || true
+          npx tsx tests/asset_test.ts
+          npx tsx tests/css_cli_test.ts
+          npx tsx tests/css_optimization_integration_test.ts
+          npx tsx tests/final_css_test.ts
+          npx tsx tests/sourcemap_test.ts
           
           echo "Testing Federation & Advanced Features"
-          npx tsx tests/federation_core_test.ts || true
-          npx tsx tests/federation_runtime_test.ts || true
-          npx tsx tests/federation_dev_test.ts || true
-          npx tsx tests/federation_editor_test.ts || true
+          npx tsx tests/federation_core_test.ts
+          npx tsx tests/federation_runtime_test.ts
+          npx tsx tests/federation_dev_test.ts
+          npx tsx tests/federation_editor_test.ts
           
-          echo "All tests completed (failures are tolerated for non-critical tests)"
+          echo "All tests completed successfully!"
 
       - name: 🏁 Run Benchmarks
         if: matrix.node-version == 20 && matrix.os == 'ubuntu-latest'
