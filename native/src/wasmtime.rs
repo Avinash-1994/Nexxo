@@ -14,8 +14,8 @@ impl PluginRuntime {
     #[napi(constructor)]
     pub fn new() -> napi::Result<Self> {
         let mut config = Config::new();
-        // Use epoch interruption instead of fuel for better cross-platform support
-        config.epoch_interruption(true);
+        // Enable fuel-based CPU limiting
+        config.consume_fuel(true);
         
         // Memory Limits (64MB)
         config.static_memory_maximum_size(64 * 1024 * 1024);
