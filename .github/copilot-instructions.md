@@ -1,10 +1,10 @@
-# Nexxo Build Tool - AI Agent Instructions
+# Urja Build Tool - AI Agent Instructions
 
-> Essential knowledge for productive development in the Nexxo codebase
+> Essential knowledge for productive development in the Urja codebase
 
 ## Architecture Overview
 
-**Nexxo** is a hybrid build tool combining TypeScript orchestration with Rust native extensions for performance. The architecture enforces **strict architectural boundaries**:
+**Urja** is a hybrid build tool combining TypeScript orchestration with Rust native extensions for performance. The architecture enforces **strict architectural boundaries**:
 
 - **Modules 1-8 (Core)**: Hard-frozen. Framework-agnostic engine using esbuild and SQLite caching. No framework-specific code allowed.
 - **Module 9 (Adapter Registry)**: Locked schema defining framework tier system (Tier 1=Stable, Tier 2=Candidate, Tier 3=Experimental).
@@ -46,7 +46,7 @@ npm run dev             # Start dev server with HMR
 ```
 
 **Build Pipeline Steps** (in `src/build/bundler.ts`):
-1. Load config via `loadConfig()` (reads nexxo.config.js)
+1. Load config via `loadConfig()` (reads urja.config.js)
 2. Auto-detect framework using `detectFramework()` from package.json
 3. Create `FrameworkPipeline` with detected framework
 4. Execute pipeline.build() which returns `{ success, artifacts, manifest }`
@@ -84,11 +84,11 @@ interface FrameworkAdapter {
 **Requirements**: Must include `adapter.manifest.json` declaring tier, renderModel (dom/string), ssr support.
 
 ### Plugin System
-Plugins are **pure functions** in a transformation pipeline, registered in `nexxo.config.js`:
+Plugins are **pure functions** in a transformation pipeline, registered in `urja.config.js`:
 
 ```typescript
 // src/plugins/ implementations
-export function myPlugin(options: PluginOptions): NexxoPlugin {
+export function myPlugin(options: PluginOptions): UrjaPlugin {
   return {
     name: 'my-plugin',
     resolveId(source: string): string | null { /* deterministic */ },
@@ -106,12 +106,12 @@ export function myPlugin(options: PluginOptions): NexxoPlugin {
 
 ### Configuration
 Entry point: `src/config/index.ts` exports `loadConfig()` which:
-1. Reads `nexxo.config.js` from project root
+1. Reads `urja.config.js` from project root
 2. Detects framework from `package.json`
 3. Applies framework preset (CSS, plugins, etc.)
 4. Validates config against BuildConfig schema
 
-**Config location**: Root `nexxo.config.js` (see examples/ for templates)
+**Config location**: Root `urja.config.js` (see examples/ for templates)
 
 ### Universal Transformer
 `src/core/universal-transformer.ts` bridges framework compilation to esbuild:
@@ -124,8 +124,8 @@ Entry point: `src/config/index.ts` exports `loadConfig()` which:
 
 1. **Zero Core Change Policy**: Modules 1-8 are frozen. Only security/regression fixes allowed.
 2. **No Framework Coupling in Core**: Never add `if (framework === 'react')` logic to `src/core/` or `src/resolve/`.
-3. **Deterministic Builds**: Every build must hash the same given identical inputs (tracked in SQLite cache at `.nexxo_cache/build.db`).
-4. **ESLint Governance**: Custom rules in `eslint-plugin-nexxo-governance/` enforce boundaries. Run `npm run lint` before commits.
+3. **Deterministic Builds**: Every build must hash the same given identical inputs (tracked in SQLite cache at `.urja_cache/build.db`).
+4. **ESLint Governance**: Custom rules in `eslint-plugin-urja-governance/` enforce boundaries. Run `npm run lint` before commits.
 
 ## File Organization
 

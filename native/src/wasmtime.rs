@@ -37,45 +37,18 @@ impl PluginRuntime {
     #[napi]
     pub fn execute(&self, wasm_bytes: &[u8], _input: String, timeout_ms: u32) -> napi::Result<String> {
         use std::thread;
-        use std::time::Duration;
+        use std::panic;
         
         let engine = self.engine.clone();
         let wasm_vec = wasm_bytes.to_vec();
         
-        // Run in a separate thread to isolate execution
+        // Wrap thread spawn with panic handler
         let handle = thread::spawn(move || {
-            let module = Module::new(&engine, &wasm_vec)
-                .map_err(|e| format!("Failed to compile: {}", e))?;
-
-            let mut store = Store::new(&engine, ());
-            
-            // Set Epoch deadline: traps when epoch >= 1
-            store.set_epoch_deadline(1);
-            
-            // Spawn timer thread to trigger interruption
-            let engine_timer = engine.clone();
-            thread::spawn(move || {
-                thread::sleep(Duration::from_millis(timeout_ms as u64));
-                engine_timer.increment_epoch();
-            });
-            
-            let mut linker = Linker::new(&engine);
-            
-            linker.func_wrap("env", "console_log", |_caller: Caller<'_, ()>, _ptr: i32, _len: i32| {
-                // No-op
-            }).map_err(|e| format!("Failed to define imports: {}", e))?;
-
-            let instance = linker.instantiate(&mut store, &module)
-                .map_err(|e| format!("Failed to instantiate: {}", e))?;
-
-            let transform = instance.get_typed_func::<(), ()>(&mut store, "transform")
-                .or_else(|_| instance.get_typed_func::<(), ()>(&mut store, "main"))
-                .map_err(|_| "Plugin must export 'transform' or 'main'".to_string())?;
-
-            match transform.call(&mut store, ()) {
-                Ok(_) => Ok("Success".to_string()),
-                Err(e) => Err(format!("Execution Failed: {}", e))
-            }
+            panic::catch_unwind(panic::AssertUnwindSafe(|| {
+                execute_wasm(&engine, &wasm_vec, timeout_ms)
+            })).unwrap_or_else(|_| {
+                Err("Execution Failed: stack overflow or panic detected".to_string())
+            })
         });
         
         match handle.join() {
@@ -84,8 +57,47 @@ impl PluginRuntime {
                 Err(e) => Err(Error::new(Status::GenericFailure, e)),
             },
             Err(_) => {
-                Err(Error::new(Status::GenericFailure, "Execution Failed: stack overflow or panic detected".to_string()))
+                Err(Error::new(Status::GenericFailure, "Execution Failed: thread panicked".to_string()))
             }
         }
+    }
+}
+
+// Helper function to execute WASM (extracted to allow panic catching)
+fn execute_wasm(engine: &Engine, wasm_vec: &[u8], timeout_ms: u32) -> Result<String, String> {
+    use std::thread;
+    use std::time::Duration;
+    
+    let module = Module::new(&engine, wasm_vec)
+        .map_err(|e| format!("Failed to compile: {}", e))?;
+
+    let mut store = Store::new(engine, ());
+    
+    // Set Epoch deadline: traps when epoch >= 1
+    store.set_epoch_deadline(1);
+    
+    // Spawn timer thread to trigger interruption
+    let engine_timer = engine.clone();
+    thread::spawn(move || {
+        thread::sleep(Duration::from_millis(timeout_ms as u64));
+        engine_timer.increment_epoch();
+    });
+    
+    let mut linker = Linker::new(&engine);
+    
+    linker.func_wrap("env", "console_log", |_caller: Caller<'_, ()>, _ptr: i32, _len: i32| {
+        // No-op
+    }).map_err(|e| format!("Failed to define imports: {}", e))?;
+
+    let instance = linker.instantiate(&mut store, &module)
+        .map_err(|e| format!("Failed to instantiate: {}", e))?;
+
+    let transform = instance.get_typed_func::<(), ()>(&mut store, "transform")
+        .or_else(|_| instance.get_typed_func::<(), ()>(&mut store, "main"))
+        .map_err(|_| "Plugin must export 'transform' or 'main'".to_string())?;
+
+    match transform.call(&mut store, ()) {
+        Ok(_) => Ok("Success".to_string()),
+        Err(e) => Err(format!("Execution Failed: {}", e))
     }
 }

@@ -1,0 +1,13 @@
+{
+  "id": "cf6e06a3-58a7-4066-ae89-7cf2c1d497e9",
+  "timestamp": 1768368982898,
+  "duration": 100,
+  "success": true,
+  "metrics": {
+    "modules": 10,
+    "bundleSize": 1024
+  },
+  "errors": [
+    "Error 1"
+  ]
+}

@@ -1,0 +1,1 @@
+import { Button } from './Button'; console.log(Button);

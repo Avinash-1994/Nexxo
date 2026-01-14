@@ -50,7 +50,9 @@ export class BunParser {
             });
             log.info(`🚀 using native Bun parser v${Bun!.version}`);
         } else {
-            log.warn('⚠️ Bun runtime not detected. Falling back to spawning bun or SWC.');
+            // Node.js runtime: Use SWC transpiler (built-in dependency)
+            // This is the expected behavior for non-Bun runtimes
+            log.debug('Node.js runtime detected. Using SWC transpiler.');
         }
     }
 
