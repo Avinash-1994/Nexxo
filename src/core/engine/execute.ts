@@ -198,7 +198,7 @@ export async function executeParallel(execPlan: ExecutionPlan, buildPlan: BuildP
             let mapArtifact: BuildArtifact | undefined;
             const sourceMapMode = ctx.config.sourceMaps;
 
-            if (sourceMapMode && sourceMapMode !== false) {
+            if (sourceMapMode) {
                 const mapFileName = `${chunk.outputName}.map`;
                 const dummyMap = JSON.stringify({
                     version: 3,

@@ -74,7 +74,7 @@ function resolveConfig(userConfig: BuildConfig, rootDir: string, mode: BuildMode
         publicPath: '/',
         splittingStrategy: userConfig.build?.splitting ? 'module' : 'route',
         hashing: 'content',
-        sourceMaps: sourcemap === 'none' ? false : (sourcemap === true || sourcemap === undefined ? 'external' : sourcemap),
+        sourceMaps: sourcemap === 'none' ? false : (sourcemap === undefined ? 'external' : sourcemap),
         minify: userConfig.build?.minify ?? (mode === 'production' || mode === 'build'),
     };
 }
