@@ -84,7 +84,12 @@ export async function computeInputFingerprint(ctx: BuildContext): Promise<InputF
     explainReporter.report('fingerprint', 'start', 'Computing input fingerprint');
 
     // 1. Hash Config
-    const configHash = canonicalHash(ctx.config);
+    // Normalize absolute paths to ensure deterministic hash across environments (CI vs Local)
+    const normalizedConfig = {
+        ...ctx.config,
+        outputDir: path.relative(ctx.rootDir, ctx.config.outputDir)
+    };
+    const configHash = canonicalHash(normalizedConfig);
 
     // 2. Hash Engine
     // We strictly use version/name, NOT buildTime for semantic hash
