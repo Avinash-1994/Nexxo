@@ -1,5 +1,5 @@
 {
-  "version": "0.1.3",
+  "version": "1.0.0-freeze",
   "exports": [
     {
       "name": "CoreBuildEngine",
@@ -19,6 +19,10 @@
     },
     {
       "name": "loadConfig",
+      "type": "const"
+    },
+    {
+      "name": "defineConfig",
       "type": "const"
     },
     {
@@ -98,5 +102,5 @@
       "type": "const"
     }
   ],
-  "timestamp": "2025-12-30T04:58:31.129Z"
+  "timestamp": "2026-01-14T00:00:00.000Z"
 }
