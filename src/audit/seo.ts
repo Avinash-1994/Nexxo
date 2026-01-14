@@ -1,8 +1,8 @@
 import { Page } from 'puppeteer';
-import { AuditGroup, AuditResult } from './types.js';
+import { AuditGroup, AuditResult, AuditContext } from './types.js';
 
 export class SEOAudit {
-    static async run(page: Page): Promise<AuditGroup> {
+    static async run(page: Page, context?: AuditContext): Promise<AuditGroup> {
         const results: AuditResult[] = [];
 
         // 1. Document Title

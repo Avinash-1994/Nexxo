@@ -121,6 +121,9 @@ jobs:
           npx tsx tests/module4_build_test.ts
           npx tsx tests/phase2_test.ts
           
+          echo "Testing Module 5: Adaptive Observability"
+          npx tsx tests/module5_day29_audit_engine_test.ts
+          
           echo "Testing Framework Support"
           npx tsx tests/framework_detection_test.ts
           npx tsx tests/framework_verification_test.ts
