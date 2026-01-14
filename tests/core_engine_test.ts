@@ -39,7 +39,10 @@ async function runTest() {
         outDir: 'dist',
         port: 0,
         platform: 'node',
-        preset: 'spa'
+        preset: 'spa',
+        build: {
+            sourcemap: 'none'
+        }
     };
 
     // Test 1: First Build
