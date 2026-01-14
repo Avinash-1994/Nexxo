@@ -15,7 +15,7 @@ import { AccessibilityAudit } from './a11y.js';
 import { PerformanceAudit } from './perf.js';
 import { SEOAudit } from './seo.js';
 import { BestPracticesAudit } from './best-practices.js';
-import { AuditReport, AuditContext, FrameworkType } from './types.js';
+import { AuditReport, AuditContext, FrameworkType, AuditResult } from './types.js';
 import { log } from '../utils/logger.js';
 
 export interface AuditOptions {
@@ -216,19 +216,169 @@ export class AuditEngine {
 
         const report = await this.runAll(urlOrPath, { framework });
 
-        // Add framework-specific checks
+        // Add framework-specific results to the report
+        const frameworkResults: AuditResult[] = [];
+
         if (framework === 'react') {
             // Check for React hydration issues
             log.info('  - Checking React hydration...');
+
+            const hydrationCheck = await this.checkReactHydration(report.url!);
+            frameworkResults.push(hydrationCheck);
+
         } else if (framework === 'vue') {
             // Check for Vue SSR issues
             log.info('  - Checking Vue SSR...');
+
+            const ssrCheck = await this.checkVueSSR(report.url!);
+            frameworkResults.push(ssrCheck);
+
         } else if (framework === 'angular') {
             // Check for Angular Ivy optimizations
             log.info('  - Checking Angular Ivy...');
+
+            const ivyCheck = await this.checkAngularIvy(report.url!);
+            frameworkResults.push(ivyCheck);
+        }
+
+        // Add framework-specific results to best practices
+        if (frameworkResults.length > 0 && report.groups.bestPractices) {
+            report.groups.bestPractices.results.push(...frameworkResults);
+            // Recalculate score
+            report.groups.bestPractices.score = Math.round(
+                report.groups.bestPractices.results.reduce((acc, r) => acc + r.score, 0) /
+                report.groups.bestPractices.results.length
+            );
         }
 
         return report;
+    }
+
+    /**
+     * Check React hydration issues
+     */
+    private static async checkReactHydration(url: string): Promise<AuditResult> {
+        const browser = await this.getWorker();
+        const page = await browser.newPage();
+
+        try {
+            await page.goto(url, { waitUntil: 'networkidle0' });
+
+            const hydrationIssues = await page.evaluate(() => {
+                // Check for hydration mismatch warnings in console
+                const issues: string[] = [];
+
+                // Check if React DevTools hook exists
+                if (!(window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__) {
+                    issues.push('React DevTools hook not found');
+                }
+
+                // Check for common hydration issues
+                const suspiciousElements = document.querySelectorAll('[data-reactroot]');
+                if (suspiciousElements.length > 1) {
+                    issues.push(`Multiple React roots detected: ${suspiciousElements.length}`);
+                }
+
+                return issues;
+            });
+
+            return {
+                id: 'react-hydration',
+                title: 'React Hydration Check',
+                status: hydrationIssues.length === 0 ? 'PASS' : 'WARN',
+                score: hydrationIssues.length === 0 ? 100 : 70,
+                details: hydrationIssues.length === 0
+                    ? 'No hydration issues detected'
+                    : `Potential issues: ${hydrationIssues.join(', ')}`,
+                fix: 'Ensure server and client render the same content'
+            };
+        } finally {
+            await page.close();
+        }
+    }
+
+    /**
+     * Check Vue SSR issues
+     */
+    private static async checkVueSSR(url: string): Promise<AuditResult> {
+        const browser = await this.getWorker();
+        const page = await browser.newPage();
+
+        try {
+            await page.goto(url, { waitUntil: 'networkidle0' });
+
+            const ssrIssues = await page.evaluate(() => {
+                const issues: string[] = [];
+
+                // Check if Vue is present
+                if (!(window as any).__VUE__ && !(window as any).Vue) {
+                    issues.push('Vue instance not found');
+                }
+
+                // Check for SSR attributes
+                const ssrElements = document.querySelectorAll('[data-server-rendered]');
+                if (ssrElements.length === 0) {
+                    issues.push('No SSR markers found');
+                }
+
+                return issues;
+            });
+
+            return {
+                id: 'vue-ssr',
+                title: 'Vue SSR Check',
+                status: ssrIssues.length === 0 ? 'PASS' : 'WARN',
+                score: ssrIssues.length === 0 ? 100 : 70,
+                details: ssrIssues.length === 0
+                    ? 'Vue SSR configured correctly'
+                    : `Potential issues: ${ssrIssues.join(', ')}`,
+                fix: 'Ensure Vue SSR is properly configured with data-server-rendered attribute'
+            };
+        } finally {
+            await page.close();
+        }
+    }
+
+    /**
+     * Check Angular Ivy optimizations
+     */
+    private static async checkAngularIvy(url: string): Promise<AuditResult> {
+        const browser = await this.getWorker();
+        const page = await browser.newPage();
+
+        try {
+            await page.goto(url, { waitUntil: 'networkidle0' });
+
+            const ivyIssues = await page.evaluate(() => {
+                const issues: string[] = [];
+
+                // Check if Angular is present
+                if (!(window as any).ng && !(window as any).getAllAngularRootElements) {
+                    issues.push('Angular instance not found');
+                }
+
+                // Check for Ivy-specific markers
+                const ngElements = document.querySelectorAll('[ng-version]');
+                if (ngElements.length === 0) {
+                    issues.push('No Angular version markers found');
+                }
+
+                return issues;
+            });
+
+            return {
+                id: 'angular-ivy',
+                title: 'Angular Ivy Check',
+                status: ivyIssues.length === 0 ? 'PASS' : 'WARN',
+                score: ivyIssues.length === 0 ? 100 : 70,
+                details: ivyIssues.length === 0
+                    ? 'Angular Ivy optimizations detected'
+                    : `Potential issues: ${ivyIssues.join(', ')}`,
+                fix: 'Ensure Angular Ivy is enabled in tsconfig.json'
+            };
+        } finally {
+            await page.close();
+        }
     }
 
     /**

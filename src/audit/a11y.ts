@@ -1,9 +1,48 @@
 import { Page } from 'puppeteer';
 import { AuditGroup, AuditResult, AuditContext } from './types.js';
+import axe from 'axe-core';
+import fs from 'fs';
+import path from 'path';
 
 export class AccessibilityAudit {
     static async run(page: Page, context?: AuditContext): Promise<AuditGroup> {
         const results: AuditResult[] = [];
+
+        // Inject axe-core into the page
+        try {
+            await page.addScriptTag({
+                path: path.join(process.cwd(), 'node_modules/axe-core/axe.min.js')
+            });
+
+            // Run axe-core automated tests
+            const axeResults = await page.evaluate(async () => {
+                // @ts-ignore - axe is injected
+                return await axe.run({
+                    runOnly: {
+                        type: 'tag',
+                        values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice']
+                    }
+                });
+            });
+
+            // Process axe-core violations
+            for (const violation of axeResults.violations) {
+                const severity = violation.impact === 'critical' || violation.impact === 'serious' ? 'FAIL' : 'WARN';
+                const score = severity === 'FAIL' ? 0 : 50;
+
+                results.push({
+                    id: `axe-${violation.id}`,
+                    title: violation.help,
+                    status: severity,
+                    score,
+                    details: `${violation.description}\nAffected elements: ${violation.nodes.length}\n${violation.nodes.slice(0, 3).map((n: any) => n.html).join('\n')}`,
+                    fix: violation.helpUrl
+                });
+            }
+        } catch (error: any) {
+            // If axe-core fails, continue with basic checks
+            console.warn('axe-core integration failed:', error.message);
+        }
 
         // 1. HTML Lang Attribute
         const lang = await page.$eval('html', el => el.getAttribute('lang')).catch(() => null);
@@ -12,11 +51,11 @@ export class AccessibilityAudit {
             title: 'HTML has lang attribute',
             status: lang ? 'PASS' : 'FAIL',
             score: lang ? 100 : 0,
-            details: lang ? `Lang attribute found: "${lang}"` : 'Missing lang attribute on <html>'
+            details: lang ? `Lang attribute found: "${lang}"` : 'Missing lang attribute on <html>',
+            fix: 'Add lang="en" (or appropriate language code) to <html> tag'
         });
 
         // 2. Images have alt text
-        // Get details of failing images
         const failingImages = await page.$$eval('img', els => {
             return els
                 .filter(el => !el.hasAttribute('alt') || el.getAttribute('alt') === '')
@@ -35,7 +74,8 @@ export class AccessibilityAudit {
             score: failingImages.length === 0 ? 100 : 50,
             details: failingImages.length === 0
                 ? 'All images have alt text'
-                : `Found images missing alt text:\n      ` + failingImages.join('\n      ')
+                : `Found images missing alt text:\n      ` + failingImages.join('\n      '),
+            fix: 'Add descriptive alt="" attributes to all <img> tags'
         });
 
         // 3. Buttons have name/label
@@ -59,7 +99,8 @@ export class AccessibilityAudit {
             score: failingButtons.length === 0 ? 100 : 0,
             details: failingButtons.length === 0
                 ? 'All buttons have text or aria-labels'
-                : `Found buttons missing text/label:\n      ` + failingButtons.join('\n      ')
+                : `Found buttons missing text/label:\n      ` + failingButtons.join('\n      '),
+            fix: 'Add text content or aria-label to all <button> elements'
         });
 
         // 4. Form inputs have labels
@@ -83,7 +124,8 @@ export class AccessibilityAudit {
             score: failingInputs.length === 0 ? 100 : 50,
             details: failingInputs.length === 0
                 ? 'All inputs have associated labels'
-                : `Found inputs missing labels:\n      ` + failingInputs.join('\n      ')
+                : `Found inputs missing labels:\n      ` + failingInputs.join('\n      '),
+            fix: 'Add <label for="input-id"> or aria-label to all form inputs'
         });
 
         const score = Math.round(results.reduce((acc, r) => acc + r.score, 0) / results.length);
