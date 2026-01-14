@@ -21,7 +21,7 @@ interface BunTranspilerOptions {
 
 interface BunTranspiler {
     transform(code: string, options?: BunTranspilerOptions): Promise<string>;
-    transformSync(code: string, options?: BunTranspilerOptions): string;
+    transformSync(code: string, loader?: 'js' | 'jsx' | 'ts' | 'tsx'): string;
     scan(code: string): { exports: string[]; imports: any[] };
     scanImports(code: string): any[];
 }
@@ -66,8 +66,9 @@ export class BunParser {
         if (this.isBunRuntime && this.transpiler) {
             try {
                 // Use native Bun.transpiler (Ultra fast)
-                // log.info(`Debug: loader=${loader} code_len=${code.length}`);
-                const result = await this.transpiler.transform(code, { loader });
+                // Use transformSync for synchronous, faster execution
+                // Bun's transpiler.transform() expects (code, loader) not (code, {loader})
+                const result = this.transpiler.transformSync(code, loader);
 
                 // Bun transpiler doesn't return source maps directly in transform() yet in all versions
                 // newer versions do. Assuming string output for now.
@@ -77,12 +78,25 @@ export class BunParser {
                 throw err;
             }
         } else {
-            // Not running in Bun, but maybe 'bun' binary is available?
-            // Spawning bun for every file is slow. 
-            // Strategy: Check if we have SWC, otherwise Esbuild.
-            // But the plan says "Parser/Transform: Bun.js".
-            // We could try to spawn `bun build` for single file?
-            return this.transformWithSpawn(code, filePath, loader);
+            // Not running in Bun runtime
+            // Per MODULE 1 plan: "Keep SWC as fallback for edge cases"
+            // Spawning Bun subprocess is too slow (~10ms per file)
+            // Use esbuild directly instead (same as v1.0 fallback)
+            const esbuild = await import('esbuild');
+            try {
+                const result = await esbuild.transform(code, {
+                    loader: loader as any,
+                    target: 'es2020',
+                    format: 'esm'
+                });
+                return {
+                    code: result.code,
+                    map: result.map
+                };
+            } catch (err: any) {
+                log.error(`esbuild fallback failed for ${filePath}: ${err.message}`);
+                throw err;
+            }
         }
     }
 
@@ -95,43 +109,7 @@ export class BunParser {
         }
     }
 
-    /**
-     * Fallback: Spawn 'bun' process
-     * Note: This is significantly slower than running IN Bun.
-     */
-    private async transformWithSpawn(code: string, filePath: string, loader: string): Promise<{ code: string; map?: string }> {
-        try {
-            const { exec } = await import('child_process');
-            const { promisify } = await import('util');
-            const execAsync = promisify(exec);
-            const fs = await import('fs/promises');
-            const os = await import('os');
 
-            // Create temp file
-            const tempDir = os.tmpdir();
-            const tempIn = path.join(tempDir, `nexxo_in_${Math.random().toString(36).slice(2)}${path.extname(filePath)}`);
-            const tempOut = path.join(tempDir, `nexxo_out_${Math.random().toString(36).slice(2)}.js`); // Bun emits .js
-
-            await fs.writeFile(tempIn, code);
-
-            // Run bun build
-            // bun build <file> --no-bundle --outfile <out>
-            await execAsync(`bun build "${tempIn}" --no-bundle --outfile "${tempOut}" --target browser --format esm`);
-
-            const result = await fs.readFile(tempOut, 'utf-8');
-
-            // Cleanup
-            await Promise.all([
-                fs.unlink(tempIn).catch(() => { }),
-                fs.unlink(tempOut).catch(() => { })
-            ]);
-
-            return { code: result };
-        } catch (error: any) {
-            // If Bun binary missing, this fails.
-            throw new Error(`Bun binary execution failed: ${error.message}`);
-        }
-    }
 
     /**
      * Check if we are running in Bun
