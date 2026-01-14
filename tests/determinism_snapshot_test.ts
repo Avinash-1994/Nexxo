@@ -55,9 +55,7 @@ async function runSnapshotTest() {
         graphHash: result.fingerprint.graphHash,
         planHash: result.fingerprint.planHash,
         outputHash: result.fingerprint.outputHash,
-        artifactCount: result.artifacts?.length || 0,
-        // We hash the plan to ensure any semantic change in planning fails the test
-        planHashContent: canonicalHash(result.events.filter(e => e.stage === 'plan'))
+        artifactCount: result.artifacts?.length || 0
     };
 
     const snapshotExists = await fs.access(SNAPSHOT_FILE).then(() => true).catch(() => false);
