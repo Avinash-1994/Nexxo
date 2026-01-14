@@ -60,39 +60,30 @@ async function runTest() {
 
         console.log('✅ Build completed');
 
-        // Verify ESM Output (Splitting enabled)
-        const esmDir = path.join(testDir, 'dist/esm');
-        const esmFiles = await fs.readdir(esmDir);
-        console.log('ESM Files:', esmFiles);
+        // Verify Output
+        const distDir = path.join(testDir, 'dist');
+        const distFiles = await fs.readdir(distDir);
+        console.log('Dist Files:', distFiles);
 
-        // Should have main.js and a chunk for lazy.js
-        if (esmFiles.some(f => f.startsWith('chunk-'))) {
-            console.log('✅ ESM Code splitting verified (chunk found)');
+        // Should have main.bundle.js
+        if (distFiles.includes('main.bundle.js')) {
+            console.log('✅ Main bundle created');
         } else {
-            // Esbuild might name it lazy.js if it's a direct import, but usually adds hash/chunk name
-            // If splitting is on, dynamic imports usually become chunks.
-            // Let's check if there are at least 2 js files.
-            if (esmFiles.filter(f => f.endsWith('.js')).length >= 2) {
-                console.log('✅ ESM Code splitting verified (multiple files)');
-            } else {
-                throw new Error('ESM Code splitting failed');
-            }
+            throw new Error('Main bundle not found');
         }
 
-        // Verify CJS Output (No splitting usually, or different structure)
-        const cjsDir = path.join(testDir, 'dist/cjs');
-        const cjsFiles = await fs.readdir(cjsDir);
-        console.log('CJS Files:', cjsFiles);
-
-        // CJS usually bundles everything into entry points unless splitting is supported (esbuild supports splitting for cjs now? No, only esm)
-        // So we expect main.js. Lazy import might be inline or require.
-        // Actually esbuild throws error if splitting=true with format=cjs.
-        // Our code disables splitting for cjs.
-        // So we expect main.js.
-        if (cjsFiles.includes('main.js')) {
-            console.log('✅ CJS build verified');
+        // Should have manifest
+        if (distFiles.includes('build-manifest.json')) {
+            console.log('✅ Build manifest created');
         } else {
-            throw new Error('CJS build failed');
+            throw new Error('Build manifest not found');
+        }
+
+        // Should have compressed versions
+        if (distFiles.some(f => f.endsWith('.gz')) && distFiles.some(f => f.endsWith('.br'))) {
+            console.log('✅ Compression verified (gzip + brotli)');
+        } else {
+            console.log('⚠️  Compression files not found (optional)');
         }
 
         console.log('\n✨ All tests passed!');

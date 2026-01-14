@@ -55,9 +55,16 @@ async function runTest() {
         try {
             await step.run(context);
 
-            // Verification
-            const jsPath = path.join(outDir, 'index.js');
-            const mapPath = path.join(outDir, 'index.js.map');
+            // Verification - find the actual bundle file
+            const distFiles = await fs.readdir(outDir);
+            const bundleFile = distFiles.find(f => f.endsWith('.bundle.js') || f.endsWith('.js'));
+
+            if (!bundleFile) {
+                throw new Error(`No bundle file found in ${outDir}`);
+            }
+
+            const jsPath = path.join(outDir, bundleFile);
+            const mapPath = path.join(outDir, bundleFile + '.map');
 
             const jsContent = await fs.readFile(jsPath, 'utf-8');
             const mapExists = await fs.access(mapPath).then(() => true).catch(() => false);
