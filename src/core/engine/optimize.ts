@@ -37,7 +37,10 @@ export async function optimizeArtifacts(artifacts: BuildArtifact[], ctx: BuildCo
         }
 
         // 2. Metadata Stripping
-        content = content.replace(/\/\/# sourceMappingURL=.*/g, '');
+        // Only strip source mapping URL if source maps are explicitly disabled
+        if (ctx.config.sourceMaps === false) {
+            content = content.replace(/\/\/# sourceMappingURL=.*/g, '');
+        }
 
         const optimizedArtifact = {
             ...artifact,

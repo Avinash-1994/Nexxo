@@ -65,6 +65,7 @@ export async function initBuild(
 }
 
 function resolveConfig(userConfig: BuildConfig, rootDir: string, mode: BuildMode): ResolvedConfig {
+    const sourcemap = userConfig.build?.sourcemap;
     return {
         entryPoints: userConfig.entry,
         outputDir: path.isAbsolute(userConfig.outDir || 'dist')
@@ -73,7 +74,7 @@ function resolveConfig(userConfig: BuildConfig, rootDir: string, mode: BuildMode
         publicPath: '/',
         splittingStrategy: userConfig.build?.splitting ? 'module' : 'route',
         hashing: 'content',
-        sourceMaps: userConfig.build?.sourcemap !== 'none',
+        sourceMaps: sourcemap === 'none' ? false : (sourcemap === true || sourcemap === undefined ? 'external' : sourcemap),
         minify: userConfig.build?.minify ?? (mode === 'production' || mode === 'build'),
     };
 }

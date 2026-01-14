@@ -110,7 +110,7 @@ export interface ResolvedConfig {
     publicPath: string;
     splittingStrategy: 'route' | 'module';
     hashing: 'content';
-    sourceMaps: boolean;
+    sourceMaps: boolean | 'inline' | 'external' | 'hidden';
     minify?: boolean;
 }
 

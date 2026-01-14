@@ -34,7 +34,8 @@ async function runTest() {
             platform: 'browser',
             preset: 'spa',
             build: {
-                sourcemap: mode
+                sourcemap: mode,
+                minify: false
             }
         };
 
