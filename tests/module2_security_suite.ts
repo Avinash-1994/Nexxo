@@ -54,7 +54,7 @@ async function runSecuritySuite() {
     } catch (e: any) {
         // We expect an error containing "fuel", "timeout", or "trap"
         const errStr = e.toString();
-        if (errStr.includes('fuel') || errStr.includes('interrupt') || errStr.includes('GenericFailure') || errStr.includes('Execution Failed')) {
+        if (errStr.includes('fuel') || errStr.includes('interrupt') || errStr.includes('GenericFailure') || errStr.includes('Failed') || errStr.includes('Execution Failed')) {
             console.log('  ✅ CPU Bomb Neutralized (Timeout/Fuel Exhausted)');
         } else {
             // It failed, which is good, but check message

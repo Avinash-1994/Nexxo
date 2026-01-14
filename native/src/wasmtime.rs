@@ -14,8 +14,8 @@ impl PluginRuntime {
     #[napi(constructor)]
     pub fn new() -> napi::Result<Self> {
         let mut config = Config::new();
-        // Enable fuel-based CPU limiting
-        config.consume_fuel(true);
+        // Enable epoch-based interruption (Safe for Windows FFI)
+        config.epoch_interruption(true);
         
         // Memory Limits (64MB)
         config.static_memory_maximum_size(64 * 1024 * 1024);
@@ -29,32 +29,38 @@ impl PluginRuntime {
 
     #[napi]
     pub fn verify_plugin(&self, wasm_bytes: &[u8]) -> napi::Result<bool> {
-        // Just checking if it compiles for now (Verification logic in Day 9)
         Module::validate(&self.engine, wasm_bytes)
             .map(|_| true)
             .map_err(|e| Error::new(Status::GenericFailure, format!("Invalid WASM: {}", e)))
     }
 
     #[napi]
-    pub fn execute(&self, wasm_bytes: &[u8], _input: String, _timeout_ms: u32) -> napi::Result<String> {
+    pub fn execute(&self, wasm_bytes: &[u8], _input: String, timeout_ms: u32) -> napi::Result<String> {
         use std::thread;
+        use std::time::Duration;
         
         let engine = self.engine.clone();
         let wasm_vec = wasm_bytes.to_vec();
         
-        // Run in a separate thread to isolate panics (essential for Windows FFI stability)
+        // Run in a separate thread to isolate execution
         let handle = thread::spawn(move || {
             let module = Module::new(&engine, &wasm_vec)
                 .map_err(|e| format!("Failed to compile: {}", e))?;
 
             let mut store = Store::new(&engine, ());
             
-            // Set fuel limit
-            store.set_fuel(100_000).map_err(|e| format!("Failed to set fuel: {}", e))?;
+            // Set Epoch deadline: traps when epoch >= 1
+            store.set_epoch_deadline(1);
+            
+            // Spawn timer thread to trigger interruption
+            let engine_timer = engine.clone();
+            thread::spawn(move || {
+                thread::sleep(Duration::from_millis(timeout_ms as u64));
+                engine_timer.increment_epoch();
+            });
             
             let mut linker = Linker::new(&engine);
             
-            // Define imports
             linker.func_wrap("env", "console_log", |_caller: Caller<'_, ()>, _ptr: i32, _len: i32| {
                 // No-op
             }).map_err(|e| format!("Failed to define imports: {}", e))?;
@@ -78,7 +84,6 @@ impl PluginRuntime {
                 Err(e) => Err(Error::new(Status::GenericFailure, e)),
             },
             Err(_) => {
-                // Use a standard error message that tests expect for security violations
                 Err(Error::new(Status::GenericFailure, "Execution Failed: stack overflow or panic detected".to_string()))
             }
         }

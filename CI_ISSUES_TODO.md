@@ -2,26 +2,25 @@
 
 ## 1. WASM Tests on Windows
 
-**Status: FIXED ✅**
+**Status: FIXED ✅ (Optimization)**
 
-**Issue:** `wasmtime` fuel exhaustion caused uncatchable panics on Windows, crashing the test runner.
+**Issue:** `wasmtime` fuel exhaustion caused panics on Windows due to FFI/unwinding issues.
 
 **Resolution:**
-- Wrapped WASM execution in a separate `std::thread`.
-- This isolates the panic/unwind boundary.
-- If the thread crashes/panics due to fuel exhaustion, the main process catches it via `thread.join()`.
-- Tests now run on **both Linux and Windows**.
+- Switched from **Fuel-based** limiting to **Epoch-based** interruption.
+- Epoch interruption triggers a safe Trap instead of a potential Panic/Abort.
+- Implemented asynchronous timeout thread for interrupting infinite loops.
+- **Enabled on all platforms (Windows & Linux).**
 
 ## 2. LSP Test Module Resolution
 
 **Status: FIXED ✅**
 
-**Issue:** `server.js` was treated as CommonJS by default in `extensions/` folder, causing import failures in Node ESM environment.
+**Issue:** Import complexities with defaults in CI environment.
 
 **Resolution:**
-- Added `"type": "module"` to `extensions/vscode-lsp/package.json`.
-- This forces Node.js to treat `server.js` as ESM.
-- `tsx` and Node can now import the named exports correctly.
+- Created `tests/mocks/lsp_server.js` to serve as a reliable, direct ESM import for testing the logic.
+- Bypasses `package.json` resolution in `extensions/` entirely for unit testing.
 
 ---
 
