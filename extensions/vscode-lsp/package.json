@@ -1,5 +1,6 @@
 {
     "name": "nexxo-vscode",
+    "type": "module",
     "displayName": "Nexxo v2.0 Elite DX",
     "description": "Language Server and Developer Tools for Nexxo",
     "version": "2.0.0",

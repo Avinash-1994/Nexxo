@@ -2,26 +2,27 @@
 
 ## 1. WASM Tests on Windows
 
-**Status: Skipped on Windows**
+**Status: FIXED ✅**
 
-**Issue:** `tests/module2_wasm_test.ts` causes a panic on Windows CI runners due to `wasmtime` fuel exhaustion implementation details crossing FFI boundaries.
+**Issue:** `wasmtime` fuel exhaustion caused uncatchable panics on Windows, crashing the test runner.
 
 **Resolution:**
-- Tests are configured to run ONLY on Linux runners in GitHub Actions.
-- Security validation is fully covered on Linux.
-- Windows builds are still verified for compilation and other tests.
+- Wrapped WASM execution in a separate `std::thread`.
+- This isolates the panic/unwind boundary.
+- If the thread crashes/panics due to fuel exhaustion, the main process catches it via `thread.join()`.
+- Tests now run on **both Linux and Windows**.
 
 ## 2. LSP Test Module Resolution
 
-**Status: Fixed**
+**Status: FIXED ✅**
 
-**Issue:** `tsx` failed to resolve `.ts` imports in `tests/module3_lsp_test.ts` when running in Node.js ESM mode in CI.
+**Issue:** `server.js` was treated as CommonJS by default in `extensions/` folder, causing import failures in Node ESM environment.
 
 **Resolution:**
-- Implemented a pure `server.js` wrapper for the LSP logic used in tests.
-- This bypasses the TypeScript resolution ambiguity in the test runner.
-- Validated to work on both local and CI environments.
+- Added `"type": "module"` to `extensions/vscode-lsp/package.json`.
+- This forces Node.js to treat `server.js` as ESM.
+- `tsx` and Node can now import the named exports correctly.
 
 ---
 
-**Production Status:** READY ✅
+**Production Status:** READY TO DEPLOY 🚀

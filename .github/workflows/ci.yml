@@ -55,7 +55,6 @@ jobs:
           cache: 'npm'
       
       - name: 🦀 Install Rust Toolchain
-        if: runner.os != 'Windows'
         uses: dtolnay/rust-toolchain@stable
       
       - name: 📦 Install Dependencies
@@ -88,17 +87,10 @@ jobs:
           NODE_OPTIONS: --experimental-vm-modules
         run: |
           echo "Testing Module 2: Zero-Trust Ecosystem"
+          npx tsx tests/module2_wasm_test.ts
           npx tsx tests/module2_compat_test.ts
           npx tsx tests/module2_marketplace_test.ts
           npx tsx tests/module2_signer_test.ts
-      
-      - name: 🧪 Run Module 2 WASM Tests (Linux only)
-        if: runner.os == 'Linux'
-        env:
-          NODE_OPTIONS: --experimental-vm-modules
-        run: |
-          echo "Testing WASM Security (Linux only - Windows has panic issues)"
-          npx tsx tests/module2_wasm_test.ts
           npx tsx tests/module2_security_suite.ts
 
       - name: 🧪 Run Module 3 Tests (DX/UI)
