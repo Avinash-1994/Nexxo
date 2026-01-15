@@ -1,3 +1,4 @@
+/* global HTMLCanvasElement, CanvasRenderingContext2D, MouseEvent */
 /**
  * WebGPU Graph Visualizer
  * Interactive dependency graph visualization with drill-down
