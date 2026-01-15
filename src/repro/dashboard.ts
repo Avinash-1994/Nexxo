@@ -275,26 +275,27 @@ export class ReproDashboard {
      */
     generateTemplate(framework: string = 'react'): string {
         const templates: Record<string, string> = {
-            react: `import React from 'react';
+            // Tier 1: Core Frameworks
+            react: `import React from 'react';\nexport default function App() { return <div>Repro</div>; }`,
+            vue: `<template><div>Repro</div></template>\n<script>export default { name: 'App' }</script>`,
+            svelte: `<script>let name = 'Repro';</script>\n<div>{name}</div>`,
 
-export default function App() {
-  // Your code here
-  return <div>Hello World</div>;
-}`,
-            vue: `<template>
-  <div>Hello World</div>
-</template>
+            // Tier 2: Performance
+            solid: `import { createSignal } from 'solid-js';\nexport default function App() { return <div>Repro</div>; }`,
+            preact: `import { h } from 'preact';\nexport default function App() { return <div>Repro</div>; }`,
+            qwik: `import { component$ } from '@builder.io/qwik';\nexport default component$(() => <div>Repro</div>);`,
 
-<script>
-export default {
-  name: 'App'
-}
-</script>`,
-            svelte: `<script>
-  // Your code here
-</script>
+            // Tier 3: Enterprise
+            angular: `@Component({ selector: 'app-root', template: '<div>Repro</div>' }) export class AppComponent {}`,
 
-<div>Hello World</div>`
+            // Tier 4: Native/Lightweight
+            lit: `import { html, LitElement } from 'lit';\n@customElement('my-repro') class MyRepro extends LitElement { render() { return html\`<div>Repro</div>\`; } }`,
+            alpine: `<div x-data="{ count: 0 }">Repro</div>`,
+            astro: `--- \nconst name = "Repro"; \n---\n<div>{name}</div>`,
+            stencil: `@Component({ tag: 'my-repro' }) export class MyRepro { render() { return <div>Repro</div>; } }`,
+
+            // Fallback
+            vanilla: `document.body.innerHTML = '<div>Repro</div>';`
         };
 
         return templates[framework] || templates.react;
