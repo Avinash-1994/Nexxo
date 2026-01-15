@@ -208,38 +208,50 @@ export class RootCauseAnalyzer {
      */
     private detectCircularDependencies(): RootCauseIssue[] {
         const issues: RootCauseIssue[] = [];
-        const visiting = new Set<string>();
-        const visited = new Set<string>();
+        // Iterative DFS for cycle detection (Safe for 10k+ nodes)
+        const visiting = new Set<string>(); // Nodes currently in the recursion stack (current path)
+        const visited = new Set<string>();  // Nodes completely processed (no cycles found from them)
 
-        const detectCycle = (nodeId: string, path: string[]): string[] | null => {
-            if (visiting.has(nodeId)) {
-                // Found cycle
-                const cycleStart = path.indexOf(nodeId);
-                return path.slice(cycleStart);
-            }
+        // Stack holds [nodeId, edgeIndex] to simulate recursion
+        const stack: Array<{ id: string; edgeIndex: number }> = [];
+        const path: string[] = []; // Current path from startNodeId to current node
 
-            if (visited.has(nodeId)) return null;
+        for (const [startNodeId] of this.graph.nodes) {
+            if (visited.has(startNodeId)) continue;
 
-            visiting.add(nodeId);
-            path.push(nodeId);
+            // Start a new DFS traversal from startNodeId
+            stack.length = 0;
+            path.length = 0;
+            visiting.clear(); // Clear visiting for each new DFS tree traversal
 
-            const node = this.graph.nodes.get(nodeId);
-            if (node && node.edges) {
-                for (const edge of node.edges) {
-                    const cycle = detectCycle(edge.to, [...path]);
-                    if (cycle) return cycle;
+            stack.push({ id: startNodeId, edgeIndex: 0 });
+            visiting.add(startNodeId);
+            path.push(startNodeId);
+
+            while (stack.length > 0) {
+                const current = stack[stack.length - 1];
+                const node = this.graph.nodes.get(current.id);
+
+                // If no edges or all edges visited, backtrack
+                if (!node || !node.edges || current.edgeIndex >= node.edges.length) {
+                    visiting.delete(current.id);
+                    visited.add(current.id); // Mark as fully visited
+                    path.pop();
+                    stack.pop();
+                    continue;
                 }
-            }
 
-            visiting.delete(nodeId);
-            visited.add(nodeId);
-            return null;
-        };
+                // Process next edge
+                const edge = node.edges[current.edgeIndex];
+                current.edgeIndex++; // Advance for next time we see this node
 
-        for (const [nodeId] of this.graph.nodes) {
-            if (!visited.has(nodeId)) {
-                const cycle = detectCycle(nodeId, []);
-                if (cycle) {
+                const neighborId = edge.to;
+
+                if (visiting.has(neighborId)) {
+                    // Found cycle! neighborId is an ancestor in the current path
+                    const cycleStart = path.indexOf(neighborId);
+                    const cycle = path.slice(cycleStart);
+
                     issues.push({
                         type: 'circular-dep',
                         severity: 'warning',
@@ -250,6 +262,13 @@ export class RootCauseAnalyzer {
                         fix: 'Refactor to remove circular dependency',
                         affectedNodes: cycle
                     });
+                    continue;
+                }
+
+                if (!visited.has(neighborId)) {
+                    stack.push({ id: neighborId, edgeIndex: 0 });
+                    visiting.add(neighborId);
+                    path.push(neighborId);
                 }
             }
         }

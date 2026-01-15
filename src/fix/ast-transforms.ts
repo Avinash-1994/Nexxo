@@ -14,12 +14,63 @@ export interface FixResult {
 }
 
 export interface FixChange {
-    type: 'remove-unused-import' | 'add-dynamic-import' | 'add-aria' | 'remove-unused-export';
+    type: 'remove-unused-import' | 'add-dynamic-import' | 'add-aria' | 'remove-unused-export' | 'tree-shake';
     location: { line: number; column: number };
     description: string;
 }
 
+export interface ModuleInfo {
+    path: string;
+    exports: Set<string>;
+    imports: Map<string, string[]>; // module -> imported names
+}
+
 export class AutoFixEngine {
+    private transformHistory: Map<string, string[]> = new Map(); // file -> [original, transform1, transform2, ...]
+
+    /**
+     * Save original code for potential rollback
+     */
+    saveSnapshot(filePath: string, code: string): void {
+        if (!this.transformHistory.has(filePath)) {
+            this.transformHistory.set(filePath, [code]);
+        } else {
+            this.transformHistory.get(filePath)!.push(code);
+        }
+    }
+
+    /**
+     * Rollback to previous version
+     */
+    rollback(filePath: string, steps: number = 1): string | null {
+        const history = this.transformHistory.get(filePath);
+        if (!history || history.length <= steps) {
+            return null;
+        }
+
+        // Remove the last 'steps' versions
+        for (let i = 0; i < steps; i++) {
+            history.pop();
+        }
+
+        // Return the current version
+        return history[history.length - 1];
+    }
+
+    /**
+     * Get rollback history for a file
+     */
+    getHistory(filePath: string): string[] {
+        return this.transformHistory.get(filePath) || [];
+    }
+
+    /**
+     * Clear history for a file
+     */
+    clearHistory(filePath: string): void {
+        this.transformHistory.delete(filePath);
+    }
+
     /**
      * Remove unused imports from code
      */
@@ -144,6 +195,47 @@ export class AutoFixEngine {
                     return `<img${attrs} alt="Image">`;
                 }
                 return match;
+            });
+
+            // Convert non-semantic divs to semantic HTML
+            // Convert <div class="header"> to <header>
+            newHtml = newHtml.replace(/<div([^>]*class=["'].*?header.*?["'][^>]*)>/gi, (match, attrs) => {
+                changes.push({
+                    type: 'add-aria',
+                    location: { line: 0, column: 0 },
+                    description: 'Converted div to semantic <header>'
+                });
+                return `<header${attrs.replace(/class=["'].*?header.*?["']/, '')}>`;
+            });
+
+            // Convert <div class="nav"> to <nav>
+            newHtml = newHtml.replace(/<div([^>]*class=["'].*?nav.*?["'][^>]*)>/gi, (match, attrs) => {
+                changes.push({
+                    type: 'add-aria',
+                    location: { line: 0, column: 0 },
+                    description: 'Converted div to semantic <nav>'
+                });
+                return `<nav${attrs.replace(/class=["'].*?nav.*?["']/, '')}>`;
+            });
+
+            // Convert <div class="main"> to <main>
+            newHtml = newHtml.replace(/<div([^>]*class=["'].*?main.*?["'][^>]*)>/gi, (match, attrs) => {
+                changes.push({
+                    type: 'add-aria',
+                    location: { line: 0, column: 0 },
+                    description: 'Converted div to semantic <main>'
+                });
+                return `<main${attrs.replace(/class=["'].*?main.*?["']/, '')}>`;
+            });
+
+            // Convert <div class="footer"> to <footer>
+            newHtml = newHtml.replace(/<div([^>]*class=["'].*?footer.*?["'][^>]*)>/gi, (match, attrs) => {
+                changes.push({
+                    type: 'add-aria',
+                    location: { line: 0, column: 0 },
+                    description: 'Converted div to semantic <footer>'
+                });
+                return `<footer${attrs.replace(/class=["'].*?footer.*?["']/, '')}>`;
             });
 
             return {
@@ -288,6 +380,131 @@ export class AutoFixEngine {
             code: currentCode,
             changes: allChanges
         };
+    }
+
+    /**
+     * Tree-shaking: Analyze module graph and remove unused exports
+     */
+    treeShake(modules: Map<string, string>): Map<string, FixResult> {
+        const results = new Map<string, FixResult>();
+        const moduleInfo = new Map<string, ModuleInfo>();
+
+        // Step 1: Analyze all modules to find exports and imports
+        for (const [path, code] of modules) {
+            try {
+                const ast = acorn.parse(code, { sourceType: 'module', ecmaVersion: 'latest' });
+                const exports = new Set<string>();
+                const imports = new Map<string, string[]>();
+
+                walk.simple(ast, {
+                    ExportNamedDeclaration(node: any) {
+                        if (node.declaration) {
+                            if (node.declaration.type === 'VariableDeclaration') {
+                                node.declaration.declarations.forEach((decl: any) => {
+                                    if (decl.id.name) exports.add(decl.id.name);
+                                });
+                            } else if (node.declaration.id) {
+                                exports.add(node.declaration.id.name);
+                            }
+                        }
+                        if (node.specifiers) {
+                            node.specifiers.forEach((spec: any) => {
+                                exports.add(spec.exported.name);
+                            });
+                        }
+                    },
+                    ImportDeclaration(node: any) {
+                        const source = node.source.value;
+                        const importedNames: string[] = [];
+                        node.specifiers.forEach((spec: any) => {
+                            if (spec.imported) {
+                                importedNames.push(spec.imported.name);
+                            } else if (spec.local) {
+                                importedNames.push(spec.local.name);
+                            }
+                        });
+                        imports.set(source, importedNames);
+                    }
+                });
+
+                moduleInfo.set(path, { path, exports, imports });
+            } catch (error) {
+                // Skip modules that can't be parsed
+            }
+        }
+
+        // Step 2: Find which exports are actually used
+        const usedExports = new Map<string, Set<string>>();
+
+        // Helper to normalize paths
+        const normalizePath = (importPath: string, fromPath: string): string => {
+            // Remove ./ prefix
+            if (importPath.startsWith('./')) {
+                importPath = importPath.substring(2);
+            }
+            // Remove ../ (simplified - just use basename)
+            if (importPath.includes('../')) {
+                const parts = importPath.split('/');
+                importPath = parts[parts.length - 1];
+            }
+            return importPath;
+        };
+
+        for (const [path, info] of moduleInfo) {
+            for (const [importSource, importedNames] of info.imports) {
+                const normalizedSource = normalizePath(importSource, path);
+                if (!usedExports.has(normalizedSource)) {
+                    usedExports.set(normalizedSource, new Set());
+                }
+                importedNames.forEach(name => {
+                    usedExports.get(normalizedSource)!.add(name);
+                });
+            }
+        }
+
+        // Step 3: Remove unused exports from each module
+        for (const [path, code] of modules) {
+            const info = moduleInfo.get(path);
+            if (!info) {
+                results.set(path, {
+                    success: true,
+                    code,
+                    changes: []
+                });
+                continue;
+            }
+
+            const used = usedExports.get(path) || new Set();
+            const unusedExports = Array.from(info.exports).filter(exp => !used.has(exp));
+
+            if (unusedExports.length > 0) {
+                const result = this.removeUnusedExports(code, unusedExports);
+                if (result.success && result.code) {
+                    // Mark changes as tree-shake type
+                    const treeShakeChanges = result.changes.map(change => ({
+                        ...change,
+                        type: 'tree-shake' as const,
+                        description: `Tree-shaking: ${change.description}`
+                    }));
+
+                    results.set(path, {
+                        success: true,
+                        code: result.code,
+                        changes: treeShakeChanges
+                    });
+                } else {
+                    results.set(path, result);
+                }
+            } else {
+                results.set(path, {
+                    success: true,
+                    code,
+                    changes: []
+                });
+            }
+        }
+
+        return results;
     }
 
     /**

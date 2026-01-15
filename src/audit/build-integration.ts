@@ -13,6 +13,13 @@ export interface BuildIntegrationConfig {
     enableAutoFix: boolean;
     enableIncrementalAudit: boolean;
     autoFixThreshold: number; // 0-1, confidence threshold for auto-applying fixes
+    ciThresholds?: {
+        criticalMax: number; // Max critical issues before failing CI
+        warningMax: number; // Max warnings before failing CI
+        failOnCritical: boolean; // Fail CI on any critical issue
+    };
+    skipAudit?: boolean; // Skip audit entirely
+    forceAudit?: boolean; // Force full audit even if cached
 }
 
 export interface AuditResult {
@@ -50,8 +57,18 @@ export class BuildIntegration {
         let fixesApplied = 0;
         let cacheHits = 0;
 
-        // Check cache for incremental audit
-        if (this.config.enableIncrementalAudit) {
+        // Check if audit should be skipped
+        if (this.config.skipAudit) {
+            return {
+                warnings: [],
+                fixesApplied: 0,
+                buildTime: 0,
+                cacheHits: 0
+            };
+        }
+
+        // Check cache for incremental audit (unless forced)
+        if (this.config.enableIncrementalAudit && !this.config.forceAudit) {
             const cacheKey = this.generateCacheKey(ctx);
             const cached = this.auditCache.get(cacheKey);
 
@@ -92,13 +109,42 @@ export class BuildIntegration {
             cacheHits
         };
 
-        // Cache result
-        if (this.config.enableIncrementalAudit) {
+        // Check CI thresholds
+        if (this.config.ciThresholds) {
+            this.checkCIThresholds(warnings);
+        }
+
+        // Cache result (unless forced)
+        if (this.config.enableIncrementalAudit && !this.config.forceAudit) {
             const cacheKey = this.generateCacheKey(ctx);
             this.auditCache.set(cacheKey, result);
         }
 
         return result;
+    }
+
+    /**
+     * Check if warnings exceed CI thresholds
+     */
+    private checkCIThresholds(warnings: Warning[]): void {
+        if (!this.config.ciThresholds) return;
+
+        const criticalCount = warnings.filter(w => w.severity === 'critical').length;
+        const warningCount = warnings.filter(w => w.severity === 'warning').length;
+
+        const { criticalMax, warningMax, failOnCritical } = this.config.ciThresholds;
+
+        if (failOnCritical && criticalCount > 0) {
+            throw new Error(`CI FAILED: Found ${criticalCount} critical issue(s)`);
+        }
+
+        if (criticalCount > criticalMax) {
+            throw new Error(`CI FAILED: Critical issues (${criticalCount}) exceed threshold (${criticalMax})`);
+        }
+
+        if (warningCount > warningMax) {
+            throw new Error(`CI FAILED: Warnings (${warningCount}) exceed threshold (${warningMax})`);
+        }
     }
 
     /**

@@ -190,6 +190,45 @@ const x = 1;`;
         failed++;
     }
 
+    // Test 8.5: Tree-Shaking
+    console.log('\n[Test 8.5] Tree-Shaking');
+    try {
+        const modules = new Map([
+            ['moduleA.js', `
+export const used = 1;
+export const unused = 2;
+export function alsoUnused() {}
+`],
+            ['moduleB.js', `
+import { used } from './moduleA.js';
+console.log(used);
+`]
+        ]);
+
+        const results = engine.treeShake(modules);
+        const moduleAResult = results.get('moduleA.js');
+
+        if (moduleAResult && moduleAResult.success && moduleAResult.code) {
+            const hasUnused = moduleAResult.code.includes('unused');
+            const hasUsed = moduleAResult.code.includes('used');
+
+            if (!hasUnused && hasUsed) {
+                console.log('  ✓ Tree-shaking removed unused exports');
+                console.log(`    - Changes: ${moduleAResult.changes.length}`);
+                passed++;
+            } else {
+                console.error('  ✗ Tree-shaking failed to remove unused code');
+                failed++;
+            }
+        } else {
+            console.error('  ✗ Tree-shaking failed');
+            failed++;
+        }
+    } catch (e) {
+        console.error('  ✗ Tree-shaking test failed:', e);
+        failed++;
+    }
+
     // Test 9: Safe Transform Validation
     console.log('\n[Test 9] Safe Transform Validation');
     try {
@@ -246,6 +285,7 @@ console.log(a);`;
         console.log('  - Dynamic import conversion working');
         console.log('  - ARIA attribute addition working');
         console.log('  - Unused export removal working');
+        console.log('  - Tree-shaking functional (cross-module)');
         console.log('  - Transform validation working');
         console.log('  - Batch fixes functional');
         console.log('  - Success rate tracking accurate');

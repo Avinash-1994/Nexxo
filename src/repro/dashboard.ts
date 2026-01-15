@@ -2,6 +2,7 @@ import Database from 'better-sqlite3';
 import { createHash } from 'crypto';
 import type { BuildContext } from '../core/engine/types.js';
 import type { RootCauseIssue } from '../visual/root-cause.js';
+import { GitHubIntegration, type GitHubConfig } from './github.js';
 
 /**
  * Repro Dashboard
@@ -19,6 +20,7 @@ export interface ReproCase {
     analysis?: ReproAnalysis;
     createdAt: number;
     shareableLink?: string;
+    githubIssueUrl?: string;
 }
 
 export interface ReproAnalysis {
@@ -31,9 +33,13 @@ export interface ReproAnalysis {
 export class ReproDashboard {
     private db: Database.Database | null = null;
     private dbPath: string;
+    private github: GitHubIntegration | null = null;
 
-    constructor(dbPath: string = ':memory:') {
+    constructor(dbPath: string = ':memory:', githubConfig?: GitHubConfig) {
         this.dbPath = dbPath;
+        if (githubConfig) {
+            this.github = new GitHubIntegration(githubConfig);
+        }
     }
 
     /**
@@ -53,9 +59,42 @@ export class ReproDashboard {
                 build_config TEXT,
                 analysis TEXT,
                 created_at INTEGER NOT NULL,
-                shareable_link TEXT
+                shareable_link TEXT,
+                github_issue_url TEXT
             )
         `);
+    }
+
+    /**
+     * Submit a bug repro to GitHub
+     */
+    async submitToGitHub(reproId: string): Promise<string> {
+        if (!this.github) {
+            throw new Error('GitHub integration not configured');
+        }
+
+        const repro = this.getRepro(reproId);
+        if (!repro) {
+            throw new Error('Repro not found');
+        }
+
+        const body = this.github.formatIssueBody(
+            repro.description,
+            repro.code,
+            { os: process.platform, node: process.version }
+        );
+
+        const result = await this.github.createIssue(repro.title, body);
+
+        if (!result.success || !result.url) {
+            throw new Error(result.error || 'Failed to create GitHub issue');
+        }
+
+        // Update database with issue URL
+        const stmt = this.db!.prepare('UPDATE repros SET github_issue_url = ? WHERE id = ?');
+        stmt.run(result.url, reproId);
+
+        return result.url;
     }
 
     /**
@@ -177,7 +216,8 @@ export class ReproDashboard {
             buildConfig: row.build_config ? JSON.parse(row.build_config) : undefined,
             analysis: row.analysis ? JSON.parse(row.analysis) : undefined,
             createdAt: row.created_at,
-            shareableLink: row.shareable_link
+            shareableLink: row.shareable_link,
+            githubIssueUrl: row.github_issue_url
         };
     }
 
@@ -200,7 +240,8 @@ export class ReproDashboard {
             buildConfig: row.build_config ? JSON.parse(row.build_config) : undefined,
             analysis: row.analysis ? JSON.parse(row.analysis) : undefined,
             createdAt: row.created_at,
-            shareableLink: row.shareable_link
+            shareableLink: row.shareable_link,
+            githubIssueUrl: row.github_issue_url
         }));
     }
 
