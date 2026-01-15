@@ -123,6 +123,11 @@ jobs:
           
           echo "Testing Module 5: Adaptive Observability"
           npx tsx tests/module5_day29_audit_engine_test.ts
+          npx tsx tests/module5_day30_terminal_warnings_test.ts
+          npx tsx tests/module5_day31_root_cause_test.ts
+          npx tsx tests/module5_day32_auto_fix_test.ts
+          npx tsx tests/module5_day33_repro_dashboard_test.ts
+          npx tsx tests/module5_day34_35_integration_test.ts
           
           echo "Testing Framework Support"
           npx tsx tests/framework_detection_test.ts
@@ -158,6 +163,7 @@ jobs:
         run: |
           echo "Running Performance Benchmarks"
           npx tsx benchmarks/ux-score.ts
+          npx tsx benchmarks/module5-ux-suite.ts
           npx tsx benchmarks/ssr-perf.ts
 
       - name: 📤 Upload Build Artifacts
