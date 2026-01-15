@@ -90,6 +90,40 @@ class Expectation<T> {
         this.assert(pass, `Expected ${this.actual} to contain ${item}`);
     }
 
+    toBeDefined() {
+        const pass = this.actual !== undefined;
+        this.assert(pass, `Expected ${this.actual} to be defined`);
+    }
+
+    toBeNull() {
+        const pass = this.actual === null;
+        this.assert(pass, `Expected ${this.actual} to be null`);
+    }
+
+    toBeGreaterThan(expected: number) {
+        const pass = (this.actual as number) > expected;
+        this.assert(pass, `Expected ${this.actual} to be greater than ${expected}`);
+    }
+
+    toBeLessThan(expected: number) {
+        const pass = (this.actual as number) < expected;
+        this.assert(pass, `Expected ${this.actual} to be less than ${expected}`);
+    }
+
+    async toThrow() {
+        let pass = false;
+        try {
+            if (typeof this.actual === 'function') {
+                await (this.actual as Function)();
+            } else if (this.actual instanceof Promise) {
+                await this.actual;
+            }
+        } catch (e) {
+            pass = true;
+        }
+        this.assert(pass, `Expected function to throw`);
+    }
+
     private assert(pass: boolean, message: string) {
         if (this.isNot) pass = !pass;
         if (!pass) {

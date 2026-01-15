@@ -1,14 +1,14 @@
 # Coverage Gap Analysis Report
-**Generated**: 2026-01-15T16:31:56.028Z
+**Generated**: 2026-01-15T16:35:51.514Z
 **Source Files**: 226
-**Test Files**: 83
+**Test Files**: 85
 
 ## Summary
 | Status | Files | Percentage |
 | :--- | :--- | :--- |
-| 🟢 COVERED | 222 | 100% |
+| 🟢 COVERED | 223 | 100% |
 | 🟡 PARTIAL | 0 | 0% |
-| 🔴 MISSING | 1 | 0% |
+| 🔴 MISSING | 0 | 0% |
 
 ## Detailed Breakdown
 
@@ -46,9 +46,9 @@
 | 🟢 `ai/telemetry.ts` | **COVERED** | 0 | None |
 | 🟢 `audit/a11y.ts` | **COVERED** | 0 | None |
 | 🟢 `audit/best-practices.ts` | **COVERED** | 0 | None |
-| 🟢 `audit/build-integration.ts` | **COVERED** | 0 | css_optimization_integration_test.ts<br>integration_phase5_test.ts<br>integration_test.ts<br>module1_integration.ts<br>module1_integration_extended.ts<br>module4_build_test.ts<br>module5_day34_35_integration_test.ts<br>phase_3_1_hmr_integration_test.ts<br>production_build_test.ts |
+| 🟢 `audit/build-integration.ts` | **COVERED** | 0 | css_optimization_integration_test.ts<br>integration_phase5_test.ts<br>integration_test.ts<br>module1_integration.ts<br>module1_integration_extended.ts<br>module4_build_test.ts<br>module5_day34_35_integration_test.ts<br>module6_integration_runner_test.ts<br>phase_3_1_hmr_integration_test.ts<br>production_build_test.ts |
 | 🟢 `audit/core.ts` | **COVERED** | 0 | core_engine_test.ts<br>federation_core_test.ts |
-| 🟢 `audit/index.ts` | **COVERED** | 0 | None |
+| 🟢 `audit/index.ts` | **COVERED** | 0 | native_index_test.ts |
 | 🟢 `audit/perf.ts` | **COVERED** | 0 | None |
 | 🟢 `audit/seo.ts` | **COVERED** | 0 | None |
 | 🟢 `audit/types.ts` | **COVERED** | 0 | None |
@@ -56,22 +56,22 @@
 | 🟢 `build/pipeline.ts` | **COVERED** | 0 | pipeline_test.ts |
 | 🟢 `builder/server.ts` | **COVERED** | 0 | None |
 | 🟢 `cache/incremental.ts` | **COVERED** | 0 | None |
-| 🟢 `cache/index.ts` | **COVERED** | 0 | None |
+| 🟢 `cache/index.ts` | **COVERED** | 0 | native_index_test.ts |
 | 🟢 `cli/css-cli.ts` | **COVERED** | 0 | None |
 | 🟢 `cli/inspect.ts` | **COVERED** | 0 | None |
 | 🟢 `cli.ts` | **COVERED** | 0 | None |
 | 🟢 `commands/analyze.ts` | **COVERED** | 0 | None |
 | 🟢 `commands/ssr.ts` | **COVERED** | 0 | None |
 | 🟢 `commands/verify.ts` | **COVERED** | 0 | None |
-| 🟢 `config/index.ts` | **COVERED** | 0 | None |
+| 🟢 `config/index.ts` | **COVERED** | 0 | native_index_test.ts |
 | 🟢 `config/live-config.ts` | **COVERED** | 0 | advanced_config_test.ts<br>config_test.ts |
-| 🟢 `core/__tests__/universal-transformer.test.ts` | **COVERED** | 0 | advanced_ai_test.ts<br>advanced_config_test.ts<br>ai_test.ts<br>angular_compat_test.ts<br>asset_test.ts<br>bootstrap_test.ts<br>bulma_material_test.ts<br>config_test.ts<br>core_engine_test.ts<br>css_cli_test.ts<br>css_detection_test.ts<br>css_in_js_test.ts<br>css_optimization_integration_test.ts<br>css_optimization_test.ts<br>css_precedence_test.ts<br>determinism_snapshot_test.ts<br>dx_test.ts<br>error_overlay_test.ts<br>federation_core_test.ts<br>federation_dev_test.ts<br>federation_editor_test.ts<br>federation_runtime_test.ts<br>final_css_test.ts<br>framework_detection_test.ts<br>framework_hmr_test.ts<br>framework_verification_test.ts<br>healer_test.ts<br>integration_phase5_test.ts<br>integration_test.ts<br>interop_ast_test.ts<br>interop_test.ts<br>meta-framework-routers.test.ts<br>ml_test.ts<br>module2_compat_test.ts<br>module2_marketplace_test.ts<br>module2_signer_test.ts<br>module2_wasm_test.ts<br>module3_create_nexxo_test.ts<br>module3_dashboard_test.ts<br>module3_hmr_logic_test.ts<br>module3_lsp_test.ts<br>module3_overlay_test.ts<br>module3_visualizer_test.ts<br>module4_adapters_test.ts<br>module4_build_test.ts<br>module4_edge_test.ts<br>module4_env_test.ts<br>module4_legacy_test.ts<br>module4_ssr_runtime_test.ts<br>module5_day29_audit_engine_test.ts<br>module5_day30_terminal_warnings_test.ts<br>module5_day31_root_cause_test.ts<br>module5_day32_auto_fix_test.ts<br>module5_day33_repro_dashboard_test.ts<br>module5_day34_35_integration_test.ts<br>module5_test.ts<br>optimizer_test.ts<br>phase1_test.ts<br>phase2_test.ts<br>phase3_test.ts<br>phase_2_1_plugin_compat_test.ts<br>phase_2_2_framework_plugins_test.ts<br>phase_2_2_framework_tier2_test.ts<br>phase_2_2_tier2_frameworks_test.ts<br>phase_2_3_governance_test.ts<br>phase_3_1_browser_visual_test.ts<br>phase_3_1_hmr_classification_test.ts<br>phase_3_1_hmr_integration_test.ts<br>pipeline_test.ts<br>plugin_system_test.ts<br>preprocessor_verification_test.ts<br>production_build_test.ts<br>reporter_test.ts<br>runner_verification_test.ts<br>sandbox_test.ts<br>solid_hmr_test.ts<br>sourcemap_test.ts |
+| 🟢 `core/__tests__/universal-transformer.test.ts` | **COVERED** | 0 | advanced_ai_test.ts<br>advanced_config_test.ts<br>ai_test.ts<br>angular_compat_test.ts<br>asset_test.ts<br>bootstrap_test.ts<br>bulma_material_test.ts<br>config_test.ts<br>core_engine_test.ts<br>css_cli_test.ts<br>css_detection_test.ts<br>css_in_js_test.ts<br>css_optimization_integration_test.ts<br>css_optimization_test.ts<br>css_precedence_test.ts<br>determinism_snapshot_test.ts<br>dx_test.ts<br>error_overlay_test.ts<br>federation_core_test.ts<br>federation_dev_test.ts<br>federation_editor_test.ts<br>federation_runtime_test.ts<br>final_css_test.ts<br>framework_detection_test.ts<br>framework_hmr_test.ts<br>framework_verification_test.ts<br>healer_test.ts<br>integration_phase5_test.ts<br>integration_test.ts<br>interop_ast_test.ts<br>interop_test.ts<br>meta-framework-routers.test.ts<br>ml_test.ts<br>module2_compat_test.ts<br>module2_marketplace_test.ts<br>module2_signer_test.ts<br>module2_wasm_test.ts<br>module3_create_nexxo_test.ts<br>module3_dashboard_test.ts<br>module3_hmr_logic_test.ts<br>module3_lsp_test.ts<br>module3_overlay_test.ts<br>module3_visualizer_test.ts<br>module4_adapters_test.ts<br>module4_build_test.ts<br>module4_edge_test.ts<br>module4_env_test.ts<br>module4_legacy_test.ts<br>module4_ssr_runtime_test.ts<br>module5_day29_audit_engine_test.ts<br>module5_day30_terminal_warnings_test.ts<br>module5_day31_root_cause_test.ts<br>module5_day32_auto_fix_test.ts<br>module5_day33_repro_dashboard_test.ts<br>module5_day34_35_integration_test.ts<br>module5_test.ts<br>module6_integration_runner_test.ts<br>native_index_test.ts<br>optimizer_test.ts<br>phase1_test.ts<br>phase2_test.ts<br>phase3_test.ts<br>phase_2_1_plugin_compat_test.ts<br>phase_2_2_framework_plugins_test.ts<br>phase_2_2_framework_tier2_test.ts<br>phase_2_2_tier2_frameworks_test.ts<br>phase_2_3_governance_test.ts<br>phase_3_1_browser_visual_test.ts<br>phase_3_1_hmr_classification_test.ts<br>phase_3_1_hmr_integration_test.ts<br>pipeline_test.ts<br>plugin_system_test.ts<br>preprocessor_verification_test.ts<br>production_build_test.ts<br>reporter_test.ts<br>runner_verification_test.ts<br>sandbox_test.ts<br>solid_hmr_test.ts<br>sourcemap_test.ts |
 | 🟢 `core/bundler-rolldown.ts` | **COVERED** | 0 | None |
 | 🟢 `core/cache-manager.ts` | **COVERED** | 0 | None |
 | 🟢 `core/css/engine.ts` | **COVERED** | 0 | core_engine_test.ts<br>module5_day29_audit_engine_test.ts |
 | 🟢 `core/css-framework-detector.ts` | **COVERED** | 0 | framework_detection_test.ts<br>framework_hmr_test.ts<br>framework_verification_test.ts<br>meta-framework-routers.test.ts<br>phase_2_2_framework_plugins_test.ts<br>phase_2_2_framework_tier2_test.ts<br>phase_2_2_tier2_frameworks_test.ts |
 | 🟢 `core/detection/files.ts` | **COVERED** | 0 | None |
-| 🟢 `core/detection/index.ts` | **COVERED** | 0 | None |
+| 🟢 `core/detection/index.ts` | **COVERED** | 0 | native_index_test.ts |
 | 🟢 `core/detection/resolver.ts` | **COVERED** | 0 | None |
 | 🟢 `core/detection/scanner.ts` | **COVERED** | 0 | None |
 | 🟢 `core/detection/types.ts` | **COVERED** | 0 | None |
@@ -81,7 +81,7 @@
 | 🟢 `core/engine/events.ts` | **COVERED** | 0 | None |
 | 🟢 `core/engine/execute.ts` | **COVERED** | 0 | None |
 | 🟢 `core/engine/hash.ts` | **COVERED** | 0 | None |
-| 🟢 `core/engine/index.ts` | **COVERED** | 0 | None |
+| 🟢 `core/engine/index.ts` | **COVERED** | 0 | native_index_test.ts |
 | 🟢 `core/engine/optimize.ts` | **COVERED** | 0 | optimizer_test.ts |
 | 🟢 `core/engine/plan.ts` | **COVERED** | 0 | None |
 | 🟢 `core/engine/types.ts` | **COVERED** | 0 | None |
@@ -90,14 +90,14 @@
 | 🟢 `core/graph/js-graph-analyzer.ts` | **COVERED** | 0 | None |
 | 🟢 `core/interop/analyze.ts` | **COVERED** | 0 | None |
 | 🟢 `core/interop/analyze_ast.ts` | **COVERED** | 0 | None |
-| 🟢 `core/interop/index.ts` | **COVERED** | 0 | None |
+| 🟢 `core/interop/index.ts` | **COVERED** | 0 | native_index_test.ts |
 | 🟢 `core/interop/resolve.ts` | **COVERED** | 0 | None |
 | 🟢 `core/interop/types.ts` | **COVERED** | 0 | None |
 | 🟢 `core/interop/wrapper.ts` | **COVERED** | 0 | None |
 | 🟢 `core/parser-bun.ts` | **COVERED** | 0 | None |
 | 🟢 `core/permissions.ts` | **COVERED** | 0 | None |
 | 🟢 `core/pipeline/framework-pipeline.ts` | **COVERED** | 0 | framework_detection_test.ts<br>framework_hmr_test.ts<br>framework_verification_test.ts<br>meta-framework-routers.test.ts<br>phase_2_2_framework_plugins_test.ts<br>phase_2_2_framework_tier2_test.ts<br>phase_2_2_tier2_frameworks_test.ts<br>pipeline_test.ts |
-| 🟢 `core/plugins/index.ts` | **COVERED** | 0 | None |
+| 🟢 `core/plugins/index.ts` | **COVERED** | 0 | native_index_test.ts |
 | 🟢 `core/plugins/manager.ts` | **COVERED** | 0 | None |
 | 🟢 `core/plugins/sandbox_js.ts` | **COVERED** | 0 | None |
 | 🟢 `core/plugins/sandbox_wasm.ts` | **COVERED** | 0 | None |
@@ -107,14 +107,14 @@
 | 🟢 `core/steps/css-optimization.ts` | **COVERED** | 0 | css_optimization_integration_test.ts<br>css_optimization_test.ts |
 | 🟢 `core/steps.ts` | **COVERED** | 0 | None |
 | 🟢 `core/universal-transformer.ts` | **COVERED** | 0 | None |
-| 🟢 `create/index.ts` | **COVERED** | 0 | None |
+| 🟢 `create/index.ts` | **COVERED** | 0 | native_index_test.ts |
 | 🟢 `create/ui.ts` | **COVERED** | 0 | None |
 | 🟢 `create-nexxo/cli.ts` | **COVERED** | 0 | None |
 | 🟢 `create-nexxo/templates.ts` | **COVERED** | 0 | None |
 | 🟢 `create-nexxo.ts` | **COVERED** | 0 | module3_create_nexxo_test.ts |
 | 🟢 `dashboard/metrics.ts` | **COVERED** | 0 | None |
 | 🟢 `dashboard/server/router.ts` | **COVERED** | 0 | meta-framework-routers.test.ts |
-| 🟢 `dev/__tests__/preBundler.test.ts` | **COVERED** | 0 | advanced_ai_test.ts<br>advanced_config_test.ts<br>ai_test.ts<br>angular_compat_test.ts<br>asset_test.ts<br>bootstrap_test.ts<br>bulma_material_test.ts<br>config_test.ts<br>core_engine_test.ts<br>css_cli_test.ts<br>css_detection_test.ts<br>css_in_js_test.ts<br>css_optimization_integration_test.ts<br>css_optimization_test.ts<br>css_precedence_test.ts<br>determinism_snapshot_test.ts<br>dx_test.ts<br>error_overlay_test.ts<br>federation_core_test.ts<br>federation_dev_test.ts<br>federation_editor_test.ts<br>federation_runtime_test.ts<br>final_css_test.ts<br>framework_detection_test.ts<br>framework_hmr_test.ts<br>framework_verification_test.ts<br>healer_test.ts<br>integration_phase5_test.ts<br>integration_test.ts<br>interop_ast_test.ts<br>interop_test.ts<br>meta-framework-routers.test.ts<br>ml_test.ts<br>module2_compat_test.ts<br>module2_marketplace_test.ts<br>module2_signer_test.ts<br>module2_wasm_test.ts<br>module3_create_nexxo_test.ts<br>module3_dashboard_test.ts<br>module3_hmr_logic_test.ts<br>module3_lsp_test.ts<br>module3_overlay_test.ts<br>module3_visualizer_test.ts<br>module4_adapters_test.ts<br>module4_build_test.ts<br>module4_edge_test.ts<br>module4_env_test.ts<br>module4_legacy_test.ts<br>module4_ssr_runtime_test.ts<br>module5_day29_audit_engine_test.ts<br>module5_day30_terminal_warnings_test.ts<br>module5_day31_root_cause_test.ts<br>module5_day32_auto_fix_test.ts<br>module5_day33_repro_dashboard_test.ts<br>module5_day34_35_integration_test.ts<br>module5_test.ts<br>optimizer_test.ts<br>phase1_test.ts<br>phase2_test.ts<br>phase3_test.ts<br>phase_2_1_plugin_compat_test.ts<br>phase_2_2_framework_plugins_test.ts<br>phase_2_2_framework_tier2_test.ts<br>phase_2_2_tier2_frameworks_test.ts<br>phase_2_3_governance_test.ts<br>phase_3_1_browser_visual_test.ts<br>phase_3_1_hmr_classification_test.ts<br>phase_3_1_hmr_integration_test.ts<br>pipeline_test.ts<br>plugin_system_test.ts<br>preprocessor_verification_test.ts<br>production_build_test.ts<br>reporter_test.ts<br>runner_verification_test.ts<br>sandbox_test.ts<br>solid_hmr_test.ts<br>sourcemap_test.ts |
+| 🟢 `dev/__tests__/preBundler.test.ts` | **COVERED** | 0 | advanced_ai_test.ts<br>advanced_config_test.ts<br>ai_test.ts<br>angular_compat_test.ts<br>asset_test.ts<br>bootstrap_test.ts<br>bulma_material_test.ts<br>config_test.ts<br>core_engine_test.ts<br>css_cli_test.ts<br>css_detection_test.ts<br>css_in_js_test.ts<br>css_optimization_integration_test.ts<br>css_optimization_test.ts<br>css_precedence_test.ts<br>determinism_snapshot_test.ts<br>dx_test.ts<br>error_overlay_test.ts<br>federation_core_test.ts<br>federation_dev_test.ts<br>federation_editor_test.ts<br>federation_runtime_test.ts<br>final_css_test.ts<br>framework_detection_test.ts<br>framework_hmr_test.ts<br>framework_verification_test.ts<br>healer_test.ts<br>integration_phase5_test.ts<br>integration_test.ts<br>interop_ast_test.ts<br>interop_test.ts<br>meta-framework-routers.test.ts<br>ml_test.ts<br>module2_compat_test.ts<br>module2_marketplace_test.ts<br>module2_signer_test.ts<br>module2_wasm_test.ts<br>module3_create_nexxo_test.ts<br>module3_dashboard_test.ts<br>module3_hmr_logic_test.ts<br>module3_lsp_test.ts<br>module3_overlay_test.ts<br>module3_visualizer_test.ts<br>module4_adapters_test.ts<br>module4_build_test.ts<br>module4_edge_test.ts<br>module4_env_test.ts<br>module4_legacy_test.ts<br>module4_ssr_runtime_test.ts<br>module5_day29_audit_engine_test.ts<br>module5_day30_terminal_warnings_test.ts<br>module5_day31_root_cause_test.ts<br>module5_day32_auto_fix_test.ts<br>module5_day33_repro_dashboard_test.ts<br>module5_day34_35_integration_test.ts<br>module5_test.ts<br>module6_integration_runner_test.ts<br>native_index_test.ts<br>optimizer_test.ts<br>phase1_test.ts<br>phase2_test.ts<br>phase3_test.ts<br>phase_2_1_plugin_compat_test.ts<br>phase_2_2_framework_plugins_test.ts<br>phase_2_2_framework_tier2_test.ts<br>phase_2_2_tier2_frameworks_test.ts<br>phase_2_3_governance_test.ts<br>phase_3_1_browser_visual_test.ts<br>phase_3_1_hmr_classification_test.ts<br>phase_3_1_hmr_integration_test.ts<br>pipeline_test.ts<br>plugin_system_test.ts<br>preprocessor_verification_test.ts<br>production_build_test.ts<br>reporter_test.ts<br>runner_verification_test.ts<br>sandbox_test.ts<br>solid_hmr_test.ts<br>sourcemap_test.ts |
 | 🟢 `dev/configWatcher.ts` | **COVERED** | 0 | None |
 | 🟢 `dev/devServer.ts` | **COVERED** | 0 | None |
 | 🟢 `dev/federation-dev.ts` | **COVERED** | 0 | federation_core_test.ts<br>federation_dev_test.ts<br>federation_editor_test.ts<br>federation_runtime_test.ts |
@@ -132,17 +132,17 @@
 | 🟢 `env/api.ts` | **COVERED** | 0 | None |
 | 🟢 `fix/ast-transforms.ts` | **COVERED** | 0 | None |
 | 🟢 `hmr/classifier.ts` | **COVERED** | 0 | None |
-| 🟢 `hmr/index.ts` | **COVERED** | 0 | None |
+| 🟢 `hmr/index.ts` | **COVERED** | 0 | native_index_test.ts |
 | 🟢 `hmr/overlay.ts` | **COVERED** | 0 | error_overlay_test.ts<br>module3_overlay_test.ts |
-| 🟢 `index.ts` | **COVERED** | 0 | None |
+| 🟢 `index.ts` | **COVERED** | 0 | native_index_test.ts |
 | 🟢 `init/bootstrap.ts` | **COVERED** | 0 | bootstrap_test.ts |
-| 🟢 `init/index.ts` | **COVERED** | 0 | None |
+| 🟢 `init/index.ts` | **COVERED** | 0 | native_index_test.ts |
 | 🟢 `init/templates.ts` | **COVERED** | 0 | None |
 | 🟢 `marketplace/client.ts` | **COVERED** | 0 | None |
 | 🟢 `marketplace/db.ts` | **COVERED** | 0 | None |
 | 🟢 `marketplace/server.ts` | **COVERED** | 0 | None |
 | 🟢 `meta-frameworks/base-router.ts` | **COVERED** | 0 | meta-framework-routers.test.ts |
-| 🟢 `meta-frameworks/index.ts` | **COVERED** | 0 | None |
+| 🟢 `meta-frameworks/index.ts` | **COVERED** | 0 | native_index_test.ts |
 | 🟢 `meta-frameworks/nextjs/router.ts` | **COVERED** | 0 | meta-framework-routers.test.ts |
 | 🟢 `meta-frameworks/nuxt/router.ts` | **COVERED** | 0 | meta-framework-routers.test.ts |
 | 🟢 `meta-frameworks/remix/router.ts` | **COVERED** | 0 | meta-framework-routers.test.ts |
@@ -151,12 +151,13 @@
 | 🟢 `meta-frameworks/ssr/vue-renderer.ts` | **COVERED** | 0 | None |
 | 🟢 `meta-frameworks/types.ts` | **COVERED** | 0 | None |
 | 🟢 `native/cache.ts` | **COVERED** | 0 | None |
+| 🟢 `native/index.ts` | **COVERED** | 2 | native_index_test.ts |
 | 🟢 `native/orchestrator.ts` | **COVERED** | 0 | None |
 | 🟢 `native/wasm.ts` | **COVERED** | 0 | module2_wasm_test.ts |
 | 🟢 `plugins/assets.ts` | **COVERED** | 0 | None |
 | 🟢 `plugins/compat/adapter.ts` | **COVERED** | 0 | module4_adapters_test.ts |
 | 🟢 `plugins/compat/deferred.ts` | **COVERED** | 0 | None |
-| 🟢 `plugins/compat/index.ts` | **COVERED** | 0 | None |
+| 🟢 `plugins/compat/index.ts` | **COVERED** | 0 | native_index_test.ts |
 | 🟢 `plugins/compat/rollup.ts` | **COVERED** | 0 | None |
 | 🟢 `plugins/compat/tier-a.ts` | **COVERED** | 0 | phase_2_2_framework_tier2_test.ts<br>phase_2_2_tier2_frameworks_test.ts |
 | 🟢 `plugins/compat/tier-b.ts` | **COVERED** | 0 | phase_2_2_framework_tier2_test.ts<br>phase_2_2_tier2_frameworks_test.ts |
@@ -181,14 +182,14 @@
 | 🟢 `plugins/federation.ts` | **COVERED** | 0 | federation_core_test.ts<br>federation_dev_test.ts<br>federation_editor_test.ts<br>federation_runtime_test.ts |
 | 🟢 `plugins/federation_next.ts` | **COVERED** | 0 | None |
 | 🟢 `plugins/framework-plugins.ts` | **COVERED** | 0 | framework_detection_test.ts<br>framework_hmr_test.ts<br>framework_verification_test.ts<br>meta-framework-routers.test.ts<br>phase_2_2_framework_plugins_test.ts<br>phase_2_2_framework_tier2_test.ts<br>phase_2_2_tier2_frameworks_test.ts |
-| 🟢 `plugins/frameworks/index.ts` | **COVERED** | 0 | None |
+| 🟢 `plugins/frameworks/index.ts` | **COVERED** | 0 | native_index_test.ts |
 | 🟢 `plugins/frameworks/lit.ts` | **COVERED** | 0 | None |
 | 🟢 `plugins/frameworks/react.ts` | **COVERED** | 0 | None |
 | 🟢 `plugins/frameworks/solid.ts` | **COVERED** | 0 | solid_hmr_test.ts |
 | 🟢 `plugins/frameworks/svelte.ts` | **COVERED** | 0 | None |
 | 🟢 `plugins/frameworks/vue.ts` | **COVERED** | 0 | None |
 | 🟢 `plugins/governance.ts` | **COVERED** | 0 | phase_2_3_governance_test.ts |
-| 🟢 `plugins/index.ts` | **COVERED** | 0 | None |
+| 🟢 `plugins/index.ts` | **COVERED** | 0 | native_index_test.ts |
 | 🟢 `plugins/js-transform.ts` | **COVERED** | 0 | None |
 | 🟢 `plugins/reporter.ts` | **COVERED** | 0 | reporter_test.ts |
 | 🟢 `plugins/sandbox.ts` | **COVERED** | 0 | sandbox_test.ts |
@@ -202,7 +203,7 @@
 | 🟢 `polyfills/corejs.ts` | **COVERED** | 0 | None |
 | 🟢 `presets/core.ts` | **COVERED** | 0 | core_engine_test.ts<br>federation_core_test.ts |
 | 🟢 `presets/frameworks.ts` | **COVERED** | 0 | phase_2_2_tier2_frameworks_test.ts |
-| 🟢 `presets/index.ts` | **COVERED** | 0 | None |
+| 🟢 `presets/index.ts` | **COVERED** | 0 | native_index_test.ts |
 | 🟢 `presets/infrastructure.ts` | **COVERED** | 0 | None |
 | 🟢 `presets/spa.ts` | **COVERED** | 0 | None |
 | 🟢 `presets/ssg.ts` | **COVERED** | 0 | None |
@@ -218,11 +219,11 @@
 | 🟢 `runtime/federation.ts` | **COVERED** | 0 | federation_core_test.ts<br>federation_dev_test.ts<br>federation_editor_test.ts<br>federation_runtime_test.ts |
 | 🟢 `runtime/hmr-client.ts` | **COVERED** | 0 | None |
 | 🟢 `server/security-headers.ts` | **COVERED** | 0 | module2_security_suite.ts |
-| 🟢 `ssr/adapters/index.ts` | **COVERED** | 0 | None |
+| 🟢 `ssr/adapters/index.ts` | **COVERED** | 0 | native_index_test.ts |
 | 🟢 `ssr/edge/handlers.ts` | **COVERED** | 0 | None |
 | 🟢 `ssr/isr.ts` | **COVERED** | 0 | None |
 | 🟢 `ssr/universal-engine.ts` | **COVERED** | 0 | core_engine_test.ts<br>module5_day29_audit_engine_test.ts |
-| 🟢 `test-server.ts` | **COVERED** | 0 | advanced_ai_test.ts<br>advanced_config_test.ts<br>ai_test.ts<br>angular_compat_test.ts<br>asset_test.ts<br>bootstrap_test.ts<br>bulma_material_test.ts<br>config_test.ts<br>core_engine_test.ts<br>css_cli_test.ts<br>css_detection_test.ts<br>css_in_js_test.ts<br>css_optimization_integration_test.ts<br>css_optimization_test.ts<br>css_precedence_test.ts<br>determinism_snapshot_test.ts<br>dx_test.ts<br>error_overlay_test.ts<br>federation_core_test.ts<br>federation_dev_test.ts<br>federation_editor_test.ts<br>federation_runtime_test.ts<br>final_css_test.ts<br>framework_detection_test.ts<br>framework_hmr_test.ts<br>framework_verification_test.ts<br>healer_test.ts<br>integration_phase5_test.ts<br>integration_test.ts<br>interop_ast_test.ts<br>interop_test.ts<br>meta-framework-routers.test.ts<br>ml_test.ts<br>module2_compat_test.ts<br>module2_marketplace_test.ts<br>module2_signer_test.ts<br>module2_wasm_test.ts<br>module3_create_nexxo_test.ts<br>module3_dashboard_test.ts<br>module3_hmr_logic_test.ts<br>module3_lsp_test.ts<br>module3_overlay_test.ts<br>module3_visualizer_test.ts<br>module4_adapters_test.ts<br>module4_build_test.ts<br>module4_edge_test.ts<br>module4_env_test.ts<br>module4_legacy_test.ts<br>module4_ssr_runtime_test.ts<br>module5_day29_audit_engine_test.ts<br>module5_day30_terminal_warnings_test.ts<br>module5_day31_root_cause_test.ts<br>module5_day32_auto_fix_test.ts<br>module5_day33_repro_dashboard_test.ts<br>module5_day34_35_integration_test.ts<br>module5_test.ts<br>optimizer_test.ts<br>phase1_test.ts<br>phase2_test.ts<br>phase3_test.ts<br>phase_2_1_plugin_compat_test.ts<br>phase_2_2_framework_plugins_test.ts<br>phase_2_2_framework_tier2_test.ts<br>phase_2_2_tier2_frameworks_test.ts<br>phase_2_3_governance_test.ts<br>phase_3_1_browser_visual_test.ts<br>phase_3_1_hmr_classification_test.ts<br>phase_3_1_hmr_integration_test.ts<br>pipeline_test.ts<br>plugin_system_test.ts<br>preprocessor_verification_test.ts<br>production_build_test.ts<br>reporter_test.ts<br>runner_verification_test.ts<br>sandbox_test.ts<br>solid_hmr_test.ts<br>sourcemap_test.ts |
+| 🟢 `test-server.ts` | **COVERED** | 0 | advanced_ai_test.ts<br>advanced_config_test.ts<br>ai_test.ts<br>angular_compat_test.ts<br>asset_test.ts<br>bootstrap_test.ts<br>bulma_material_test.ts<br>config_test.ts<br>core_engine_test.ts<br>css_cli_test.ts<br>css_detection_test.ts<br>css_in_js_test.ts<br>css_optimization_integration_test.ts<br>css_optimization_test.ts<br>css_precedence_test.ts<br>determinism_snapshot_test.ts<br>dx_test.ts<br>error_overlay_test.ts<br>federation_core_test.ts<br>federation_dev_test.ts<br>federation_editor_test.ts<br>federation_runtime_test.ts<br>final_css_test.ts<br>framework_detection_test.ts<br>framework_hmr_test.ts<br>framework_verification_test.ts<br>healer_test.ts<br>integration_phase5_test.ts<br>integration_test.ts<br>interop_ast_test.ts<br>interop_test.ts<br>meta-framework-routers.test.ts<br>ml_test.ts<br>module2_compat_test.ts<br>module2_marketplace_test.ts<br>module2_signer_test.ts<br>module2_wasm_test.ts<br>module3_create_nexxo_test.ts<br>module3_dashboard_test.ts<br>module3_hmr_logic_test.ts<br>module3_lsp_test.ts<br>module3_overlay_test.ts<br>module3_visualizer_test.ts<br>module4_adapters_test.ts<br>module4_build_test.ts<br>module4_edge_test.ts<br>module4_env_test.ts<br>module4_legacy_test.ts<br>module4_ssr_runtime_test.ts<br>module5_day29_audit_engine_test.ts<br>module5_day30_terminal_warnings_test.ts<br>module5_day31_root_cause_test.ts<br>module5_day32_auto_fix_test.ts<br>module5_day33_repro_dashboard_test.ts<br>module5_day34_35_integration_test.ts<br>module5_test.ts<br>module6_integration_runner_test.ts<br>native_index_test.ts<br>optimizer_test.ts<br>phase1_test.ts<br>phase2_test.ts<br>phase3_test.ts<br>phase_2_1_plugin_compat_test.ts<br>phase_2_2_framework_plugins_test.ts<br>phase_2_2_framework_tier2_test.ts<br>phase_2_2_tier2_frameworks_test.ts<br>phase_2_3_governance_test.ts<br>phase_3_1_browser_visual_test.ts<br>phase_3_1_hmr_classification_test.ts<br>phase_3_1_hmr_integration_test.ts<br>pipeline_test.ts<br>plugin_system_test.ts<br>preprocessor_verification_test.ts<br>production_build_test.ts<br>reporter_test.ts<br>runner_verification_test.ts<br>sandbox_test.ts<br>solid_hmr_test.ts<br>sourcemap_test.ts |
 | 🟢 `ui/types.ts` | **COVERED** | 0 | None |
 | 🟢 `ui/warning-detector.ts` | **COVERED** | 0 | module5_day30_terminal_warnings_test.ts |
 | 🟢 `ui/warning-library.ts` | **COVERED** | 0 | module5_day30_terminal_warnings_test.ts |
@@ -236,4 +237,3 @@
 | 🟢 `visual/graph-ui.ts` | **COVERED** | 0 | None |
 | 🟢 `visual/graph-visualizer.ts` | **COVERED** | 0 | module3_visualizer_test.ts |
 | 🟢 `visual/root-cause.ts` | **COVERED** | 0 | module5_day31_root_cause_test.ts |
-| 🔴 `native/index.ts` | **MISSING** | 2 | None |
