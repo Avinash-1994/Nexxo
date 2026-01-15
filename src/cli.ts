@@ -453,6 +453,24 @@ async function main() {
         });
       }
     )
+    .command(
+      'test',
+      'Run tests using Nexxo Custom Runner',
+      (yargs: any) => {
+        return yargs
+          .option('watch', {
+            type: 'boolean',
+            description: 'Watch mode',
+            default: false
+          });
+      },
+      async (args: any) => {
+        const { run } = await import('./test/runner.js');
+        // Pass everything after 'test'
+        const rawArgs = process.argv.slice(process.argv.indexOf('test') + 1);
+        await run(rawArgs);
+      }
+    )
     /*
     .command(
       'ai',
