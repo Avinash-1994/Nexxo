@@ -91,7 +91,7 @@ export default [
         },
     },
     {
-        // Allow internal core/resolve/plugins/presets/dev/build/ai/cli/builder files to import from each other
+        // Allow internal core/resolve/plugins/presets/dev/build/ai/cli/builder/ui/audit/repro/fix files to import from each other
         files: [
             'src/core/**/*.ts',
             'src/resolve/**/*.ts',
@@ -102,7 +102,12 @@ export default [
             'src/build/**/*.ts',
             'src/ai/**/*.ts',
             'src/cli/**/*.ts',
-            'src/builder/**/*.ts'
+            'src/builder/**/*.ts',
+            'src/ui/**/*.ts',
+            'src/ui/**/*.tsx',
+            'src/audit/**/*.ts',
+            'src/repro/**/*.ts',
+            'src/fix/**/*.ts'
         ],
         rules: {
             'nexxo-governance/no-internal-imports': 'off',
