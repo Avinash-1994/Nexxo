@@ -55,10 +55,13 @@ async function runDeterminismCheck() {
                 root: FIXTURE_DIR,
                 entry: ['src/index.ts'],
                 mode: 'production',
+                outDir: path.join(FIXTURE_DIR, 'dist'),
+                port: 3000,
+                platform: 'browser',
+                preset: 'spa',
                 cache: false,
-                logLevel: 'error',
                 build: {
-                    sourceMaps: true,
+                    sourcemap: 'external',
                     minify: true
                 }
             };

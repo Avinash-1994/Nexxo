@@ -25,7 +25,7 @@
     "test:bun": "bun test",
     "test:repro": "node ./scripts/repro_test.mjs",
     "prepublishOnly": "npm run build",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.typecheck.json --noEmit",
     "test:all": "tsc -p tsconfig.build.json && npx tsx tests/config_test.ts && npx tsx tests/bootstrap_test.ts && npx tsx tests/integration_test.ts && npx tsx tests/asset_test.ts && npx tsx tests/federation_core_test.ts && npx tsx tests/core_engine_test.ts && npx tsx tests/framework_verification_test.ts && npx tsx tests/phase_3_1_hmr_classification_test.ts && npx tsx tests/phase_3_1_hmr_integration_test.ts",
     "test:regression": "npx tsx src/test/regression.ts",
     "audit:api-surface": "npx tsx scripts/audit/api-surface.ts",

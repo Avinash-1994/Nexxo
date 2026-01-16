@@ -116,6 +116,7 @@ export type BuildConfig = {
     include?: string[];
     exclude?: string[];
   };
+  cache?: boolean;
 };
 
 export async function loadConfig(cwd: string): Promise<BuildConfig> {
