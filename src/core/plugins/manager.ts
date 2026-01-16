@@ -16,20 +16,43 @@ export class PluginManager {
     private plugins: Map<string, NexxoPlugin> = new Map();
 
     /** @public */
-    async register(plugin: NexxoPlugin) {
-        const { name, version } = plugin.manifest;
+    async register(plugin: NexxoPlugin | any) {
+        let activePlugin = plugin;
+
+        // Auto-adapt ported plugins (missing manifest)
+        if (!plugin.manifest && plugin.name) {
+            activePlugin = {
+                id: canonicalHash(plugin.name),
+                manifest: {
+                    name: plugin.name,
+                    version: '0.0.0',
+                    type: 'js',
+                    hooks: Object.keys(plugin).filter(k => typeof plugin[k] === 'function') as any[],
+                    permissions: { fs: 'read' },
+                    engineVersion: '^1.0.0'
+                },
+                runHook: async (hook: string, ...args: any[]) => {
+                    if (typeof plugin[hook] === 'function') {
+                        return plugin[hook](...args);
+                    }
+                    return null;
+                }
+            } as NexxoPlugin;
+        }
+
+        const { name, version } = activePlugin.manifest;
         const pluginId = canonicalHash(`${name}@${version}`);
 
         // Verify engine version (simplified check for now)
-        if (!plugin.manifest.engineVersion) {
+        if (!activePlugin.manifest.engineVersion) {
             throw new Error(`Plugin ${name} missing engineVersion`);
         }
 
         // 6.2 Deterministic Registration
         // In practice, we'd sort these before registering if they come from a list
-        this.plugins.set(pluginId, plugin);
+        this.plugins.set(pluginId, activePlugin);
 
-        explainReporter.report('plugins', 'load', `Loaded plugin: ${name}@${version} (${plugin.manifest.type})`);
+        explainReporter.report('plugins', 'load', `Loaded plugin: ${name}@${version} (${activePlugin.manifest.type})`);
     }
 
     /** @internal */

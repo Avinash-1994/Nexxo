@@ -10,7 +10,7 @@ export function createReactPlugin(): PluginAdapter {
     return {
         name: '@nexxo/plugin-react',
         originalPlugin: '@vitejs/plugin-react',
-        
+
         async transform(code: string, id: string) {
             // react transformation
             if (id.endsWith('.jsx')) {
@@ -30,7 +30,7 @@ ${code}
 
         async resolveId(source: string) {
             // Resolve react imports
-            if (source.startsWith('react')) {
+            if (typeof source === 'string' && source.startsWith('react')) {
                 return { id: source, external: false };
             }
             return null;
