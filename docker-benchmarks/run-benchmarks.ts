@@ -154,6 +154,9 @@ function generateTable(results: Result[]) {
     const md = `| Tool | Scenario | Build | Cold | HMR | Mem |\n|---|---|---|---|---|---|\n` +
         results.map(r => `| ${r.tool} | ${r.scenario} | ${r.build.toFixed(0)} | ${r.coldStart} | ${r.hmr} | ${r.memory.toFixed(1)} |`).join('\n');
     fs.writeFileSync('BENCHMARKS.md', md);
+    console.log('\n--- REPORT START ---');
+    console.log(md);
+    console.log('--- REPORT END ---');
 }
 
 runMatrix();
