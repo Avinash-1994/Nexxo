@@ -54,11 +54,42 @@ export class PersistentBuildCache implements BuildCache {
 
     private init() {
         if (!this.db) return;
+
+        // Apply PRAGMA optimizations for faster startup and better performance
+        try {
+            // WAL mode for better concurrency
+            this.db.pragma('journal_mode = WAL');
+
+            // NORMAL synchronous for faster writes (acceptable for cache)
+            this.db.pragma('synchronous = NORMAL');
+
+            // Memory-mapped I/O for faster reads
+            this.db.pragma('mmap_size = 30000000000'); // 30GB
+
+            // Larger page size
+            this.db.pragma('page_size = 4096');
+
+            // Larger cache size (64MB)
+            this.db.pragma('cache_size = -64000');
+
+            // Temp store in memory
+            this.db.pragma('temp_store = MEMORY');
+
+            // Exclusive locking for single-process use
+            this.db.pragma('locking_mode = EXCLUSIVE');
+        } catch (e) {
+            // Ignore PRAGMA errors on older SQLite versions
+        }
+
+        // Create tables with indexes
         this.db.exec(`
             CREATE TABLE IF NOT EXISTS cache (
                 key TEXT PRIMARY KEY,
-                value TEXT
-            )
+                value TEXT,
+                timestamp INTEGER DEFAULT (strftime('%s', 'now'))
+            );
+            
+            CREATE INDEX IF NOT EXISTS idx_timestamp ON cache(timestamp);
         `);
     }
 

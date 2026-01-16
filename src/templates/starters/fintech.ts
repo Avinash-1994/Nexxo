@@ -6,27 +6,27 @@
 import { TemplateConfig } from '../manager.js';
 
 export const fintechTemplate: TemplateConfig = {
-    id: 'fintech-app',
-    name: 'Fintech App (Secure)',
-    description: 'Secure Payment Application with UPI & QR Code support',
-    framework: 'react',
-    type: 'fintech',
-    dependencies: {
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
-        "qrcode.react": "^3.1.0",
-        "lucide-react": "^0.294.0"
-    },
-    devDependencies: {
-        "@types/react": "^18.2.0",
-        "@types/react-dom": "^18.2.0",
-        "@nexxo/plugin-react": "^1.0.0",
-        "@nexxo/plugin-upi-payment": "^1.0.0",
-        "@nexxo/plugin-qr-code": "^1.0.0",
-        "@nexxo/plugin-security": "^1.0.0"
-    },
-    files: {
-        'nexxo.config.ts': `
+  id: 'fintech-app',
+  name: 'Fintech App (Secure)',
+  description: 'Secure Payment Application with UPI & QR Code support',
+  framework: 'react',
+  type: 'fintech',
+  dependencies: {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "qrcode.react": "^3.1.0",
+    "lucide-react": "^0.294.0"
+  },
+  devDependencies: {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@nexxo/plugin-react": "^1.0.0",
+    "@nexxo/plugin-upi-payment": "^1.0.0",
+    "@nexxo/plugin-qr-code": "^1.0.0",
+    "@nexxo/plugin-security": "^1.0.0"
+  },
+  files: {
+    'nexxo.config.ts': `    
 import { defineConfig } from 'nexxo';
 import react from '@nexxo/plugin-react';
 import upi from '@nexxo/plugin-upi-payment';
@@ -46,7 +46,7 @@ export default defineConfig({
     }
 });
 `,
-        'src/main.tsx': `
+    'src/main.tsx': `
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -58,7 +58,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   </React.StrictMode>
 );
 `,
-        'src/App.tsx': `
+    'src/App.tsx': `
 import React, { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { ShieldCheck, IndianRupee } from 'lucide-react';
@@ -106,7 +106,7 @@ export default function App() {
   );
 }
 `,
-        'src/index.css': `
+    'src/index.css': `
 :root {
   --primary: #2563eb;
   --bg: #f8fafc;
@@ -195,8 +195,8 @@ button {
   margin-top: 2rem;
 }
 `,
-        'src/vite-env.d.ts': `/// <reference types="vite/client" />`,
-        'index.html': `
+    'src/vite-env.d.ts': `/// <reference types="vite/client" />`,
+    'index.html': `
 <!doctype html>
 <html lang="en">
   <head>
@@ -210,5 +210,5 @@ button {
   </body>
 </html>
 `
-    }
+  }
 };
