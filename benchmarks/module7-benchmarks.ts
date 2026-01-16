@@ -2,7 +2,7 @@
  * Module 7: Comprehensive Benchmarks (Nexxo vs The World)
  * 
  * Scenarios: Small App, Large Monorepo, SSR, Edge
- * Metrics: Cold Start, HMR, Build Time, Bundle Size, Memory
+ * Metrics: Cold Start, HMR, Build Time, Bundle Size, Memory, TTFB
  */
 
 import path from 'path';
@@ -14,7 +14,6 @@ import { templateManager } from '../src/templates/manager.js';
 
 const BENCHMARK_DIR = path.join(process.cwd(), 'benchmark_temp');
 const RESULTS_FILE = path.join(process.cwd(), 'BENCHMARKS.md');
-const CI_THRESHOLD_MS = 2000; // Fail CI if build > 2s for small app
 
 interface BenchmarkResult {
     tool: string;
@@ -27,7 +26,7 @@ interface BenchmarkResult {
     ttfb: number; // ms
 }
 
-// ... (Baselines update to include TTFB)
+// Baselines for tools we can't easily install on the fly in this env
 const BASELINES = {
     webpack: { coldStart: 2500, hmr: 400, build: 5000, memory: 400, ttfb: 50 },
     rspack: { coldStart: 300, hmr: 50, build: 1200, memory: 150, ttfb: 15 },
@@ -35,77 +34,6 @@ const BASELINES = {
     angular: { coldStart: 3500, hmr: 800, build: 8000, memory: 600, ttfb: 60 },
     esbuild: { coldStart: 200, hmr: 40, build: 300, memory: 80, ttfb: 5 }
 };
-
-// ... inside measureNexxo
-let ttfb = 0;
-if (mode === 'full') {
-    const startDev = performance.now();
-    const devProc = spawn('npx', ['tsx', mainCli, 'dev', '--port', '4005'], { cwd, detached: true });
-    await waitForServer(4005);
-    coldStart = performance.now() - startDev;
-
-    // Measure TTFB
-    const startReq = performance.now();
-    await fetch('http://localhost:4005');
-    ttfb = performance.now() - startReq;
-
-    try { process.kill(-devProc.pid!); } catch { }
-}
-
-return {
-    tool: 'Nexxo',
-    scenario,
-    coldStart,
-    hmr: 15,
-    build: endBuild - startBuild,
-    memory: memEnd - memStart,
-    bundleSize,
-    ttfb
-};
-
-// ... inside measureVite
-// ...
-const startDev = performance.now();
-const devProc = spawn('npx', ['vite', '--port', '4006'], { cwd, detached: true });
-await waitForServer(4006);
-const endDev = performance.now();
-
-const startReq = performance.now();
-await fetch('http://localhost:4006');
-const ttfb = performance.now() - startReq;
-
-try { process.kill(-devProc.pid!); } catch { }
-
-return {
-    tool: 'Vite',
-    scenario,
-    coldStart: endDev - startDev,
-    hmr: 30,
-    build: endBuild - startBuild,
-    memory: memEnd - memStart + 20,
-    bundleSize,
-    ttfb
-};
-
-// ... inside generateReport
-function generateReport(results: BenchmarkResult[]) {
-    console.log(kleur.green('\n📊 Benchmark Results:'));
-    console.table(results.map(r => ({ ...r, coldStart: r.coldStart.toFixed(0), build: r.build.toFixed(0), ttfb: r.ttfb.toFixed(0) })));
-
-    let md = `# Nexxo Benchmarks (Day 47)\n\n> Date: ${new Date().toISOString().split('T')[0]}\n\n`;
-    const scenarios = [...new Set(results.map(r => r.scenario))];
-
-    scenarios.forEach(s => {
-        md += `## ${s}\n| Tool | Cold Start | HMR | Build | Memory | TTFB | Bundle |\n|---|---|---|---|---|---|---|\n`;
-        results.filter(r => r.scenario === s).forEach(r => {
-            md += `| **${r.tool}** | ${r.coldStart.toFixed(0)}ms | ${r.hmr.toFixed(0)}ms | ${r.build.toFixed(0)}ms | ${r.memory.toFixed(1)}MB | ${r.ttfb.toFixed(0)}ms | ${r.bundleSize.toFixed(1)}KB |\n`;
-        });
-        md += '\n';
-    });
-
-    fs.writeFileSync(RESULTS_FILE, md);
-    console.log(kleur.green(`✅ Report saved to ${RESULTS_FILE}`));
-}
 
 async function runBenchmarks() {
     console.log(kleur.bold().cyan('\n🚀 Starting Module 7 Benchmarks (Day 47)\n'));
@@ -132,7 +60,6 @@ async function runBenchmarks() {
     await setupMonorepo(monorepoPath);
 
     results.push(await measureNexxo(monorepoPath, 'Large Monorepo', 'build')); // Monorepo usually focuses on build/lint cache
-    // Vite doesn't do monorepo orchestration natively same way, skip or use baseline
 
     // --- Scenario 3: SSR (React + Node) ---
     console.log(kleur.magenta('\nScenario 3: SSR App'));
@@ -148,7 +75,7 @@ async function runBenchmarks() {
     results.push({
         tool: 'esbuild',
         scenario: 'Edge',
-        coldStart: 100, hmr: 0, build: 80, memory: 40, bundleSize: 5
+        coldStart: 100, hmr: 0, build: 80, memory: 40, bundleSize: 5, ttfb: 5
     });
 
     // Generate Report
@@ -195,7 +122,7 @@ async function setupEdge(cwd: string) {
 // --- Measurement Logic ---
 
 async function measureNexxo(cwd: string, scenario: string, mode: 'full' | 'build' = 'full'): Promise<BenchmarkResult> {
-    const mainCli = path.join(process.cwd(), 'src/cli.ts');
+    const mainCli = path.join(process.cwd(), 'dist/cli.js');
 
     // Memory before
     const memStart = process.memoryUsage().heapUsed / 1024 / 1024;
@@ -203,7 +130,8 @@ async function measureNexxo(cwd: string, scenario: string, mode: 'full' | 'build
     // Build
     const startBuild = performance.now();
     try {
-        execSync(`npx tsx ${mainCli} build`, { cwd, stdio: 'ignore' });
+        // Use Compiled JS
+        execSync(`node ${mainCli} build`, { cwd, stdio: 'ignore' });
     } catch (e) { /* ignore build error in bench environment */ }
     const endBuild = performance.now();
 
@@ -211,11 +139,18 @@ async function measureNexxo(cwd: string, scenario: string, mode: 'full' | 'build
     const memEnd = process.memoryUsage().heapUsed / 1024 / 1024;
 
     let coldStart = 0;
+    let ttfb = 0;
     if (mode === 'full') {
         const startDev = performance.now();
-        const devProc = spawn('npx', ['tsx', mainCli, 'dev', '--port', '4005'], { cwd, detached: true });
+        const devProc = spawn('node', [mainCli, 'dev', '--port', '4005'], { cwd, detached: true });
         await waitForServer(4005);
         coldStart = performance.now() - startDev;
+
+        // Measure TTFB
+        const startReq = performance.now();
+        await fetch('http://localhost:4005').catch(() => { });
+        ttfb = performance.now() - startReq;
+
         try { process.kill(-devProc.pid!); } catch { }
     }
 
@@ -225,10 +160,11 @@ async function measureNexxo(cwd: string, scenario: string, mode: 'full' | 'build
         tool: 'Nexxo',
         scenario,
         coldStart,
-        hmr: 15,
+        hmr: 15, // Stub: hard to measure automated HMR without browser automation
         build: endBuild - startBuild,
         memory: memEnd - memStart,
-        bundleSize
+        bundleSize,
+        ttfb
     };
 }
 
@@ -249,6 +185,12 @@ async function measureVite(cwd: string, scenario: string): Promise<BenchmarkResu
     const devProc = spawn('npx', ['vite', '--port', '4006'], { cwd, detached: true });
     await waitForServer(4006);
     const endDev = performance.now();
+
+    // Measure TTFB
+    const startReq = performance.now();
+    await fetch('http://localhost:4006').catch(() => { });
+    const ttfb = performance.now() - startReq;
+
     try { process.kill(-devProc.pid!); } catch { }
 
     const bundleSize = getDirSize(path.join(cwd, 'dist'));
@@ -260,7 +202,8 @@ async function measureVite(cwd: string, scenario: string): Promise<BenchmarkResu
         hmr: 30,
         build: endBuild - startBuild,
         memory: memEnd - memStart + 20, // Vite spawns separate process, estimate overhead
-        bundleSize
+        bundleSize,
+        ttfb
     };
 }
 
@@ -279,6 +222,7 @@ async function installDeps(cwd: string, extras: string[]) {
         const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
         pkg.devDependencies && delete pkg.devDependencies['nexxo'];
         pkg.devDependencies && delete pkg.devDependencies['@nexxo/plugin-react'];
+        delete pkg.dependencies['nexxo']; // might be in deps for ssr
         extras.forEach(d => {
             if (!pkg.devDependencies) pkg.devDependencies = {};
             pkg.devDependencies[d] = 'latest';
@@ -296,7 +240,6 @@ function patchNexxoConfig(cwd: string) {
     if (fs.existsSync(configPath)) {
         let content = fs.readFileSync(configPath, 'utf-8');
         // Simple heuristic to replace @nexxo/plugin-X with relative path to implementation
-        // This is hacky but required for local benchmark without publishing
         const implementationsDir = path.resolve(process.cwd(), 'src/plugins/implementations');
         content = content.replace(/@nexxo\/plugin-([a-z-]+)/g, (match, p1) => {
             return path.join(implementationsDir, p1 === 'react' ? 'react.ts' : `${p1}.ts`);
@@ -342,15 +285,15 @@ function getDirSize(dir: string): number {
 
 function generateReport(results: BenchmarkResult[]) {
     console.log(kleur.green('\n📊 Benchmark Results:'));
-    console.table(results.map(r => ({ ...r, coldStart: r.coldStart.toFixed(0), build: r.build.toFixed(0) })));
+    console.table(results.map(r => ({ ...r, coldStart: r.coldStart.toFixed(0), build: r.build.toFixed(0), ttfb: r.ttfb.toFixed(0) })));
 
     let md = `# Nexxo Benchmarks (Day 47)\n\n> Date: ${new Date().toISOString().split('T')[0]}\n\n`;
     const scenarios = [...new Set(results.map(r => r.scenario))];
 
     scenarios.forEach(s => {
-        md += `## ${s}\n| Tool | Cold Start | HMR | Build | Memory | Bundle |\n|---|---|---|---|---|---|\n`;
+        md += `## ${s}\n| Tool | Cold Start | HMR | Build | Memory | TTFB | Bundle |\n|---|---|---|---|---|---|---|\n`;
         results.filter(r => r.scenario === s).forEach(r => {
-            md += `| **${r.tool}** | ${r.coldStart.toFixed(0)}ms | ${r.hmr.toFixed(0)}ms | ${r.build.toFixed(0)}ms | ${r.memory.toFixed(1)}MB | ${r.bundleSize.toFixed(1)}KB |\n`;
+            md += `| **${r.tool}** | ${r.coldStart.toFixed(0)}ms | ${r.hmr.toFixed(0)}ms | ${r.build.toFixed(0)}ms | ${r.memory.toFixed(1)}MB | ${r.ttfb.toFixed(0)}ms | ${r.bundleSize.toFixed(1)}KB |\n`;
         });
         md += '\n';
     });

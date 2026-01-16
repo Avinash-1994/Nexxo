@@ -1,0 +1,30 @@
+name: Nexxo Benchmarks
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'src/**'
+      - 'benchmarks/**'
+      - 'docker-benchmarks/**'
+  schedule:
+    - cron: '0 0 * * *' # Midnight daily
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker Benchmark Image
+        run: docker build -t nexxo-bench -f docker-benchmarks/Dockerfile .
+
+      - name: Run Benchmarks
+        run: docker run --rm nexxo-bench
+
+      - name: Archive Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: benchmark-results
+          path: BENCHMARKS.md

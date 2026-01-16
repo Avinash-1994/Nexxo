@@ -1,0 +1,26 @@
+{
+  "name": "small-app",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nexxo dev",
+    "build": "nexxo build",
+    "preview": "nexxo preview",
+    "test": "nexxo test",
+    "lint": "eslint src --ext .ts,.tsx,.js,.jsx",
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0",
+    "vite": "latest",
+    "@vitejs/plugin-react": "latest"
+  }
+}

@@ -1,0 +1,6 @@
+node_modules
+dist
+.nexxo
+.env
+.DS_Store
+coverage

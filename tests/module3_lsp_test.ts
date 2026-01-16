@@ -22,8 +22,8 @@ export default {
     // Position inside plugins: [
     const compl = server.onCompletion(docText, { line: 3, character: 10 });
 
-    const hasReact = compl.some(c => c.label === '@nexxo/plugin-react');
-    const hasVue = compl.some(c => c.label === '@nexxo/plugin-vue');
+    const hasReact = compl.some((c: any) => c.label === '@nexxo/plugin-react');
+    const hasVue = compl.some((c: any) => c.label === '@nexxo/plugin-vue');
 
     if (!hasReact || !hasVue) {
         throw new Error('Failed to suggest plugins');
@@ -34,7 +34,7 @@ export default {
     // Test 2: Mode Completion
     console.log('  Test 2: Mode Suggestions...');
     const complMode = server.onCompletion("    mode:", { line: 0, character: 10 });
-    if (!complMode.some(c => c.label === "'development'")) {
+    if (!complMode.some((c: any) => c.label === "'development'")) {
         throw new Error('Failed to suggest mode');
     }
     console.log('  ✅ Mode Suggestions Verified');
@@ -52,12 +52,12 @@ import * as _ from 'lodash';
     const diags = server.validate(badDoc);
 
     // Check for 'prod' warning
-    const warnMode = diags.find(d => d.message.includes("Did you mean 'production'?"));
+    const warnMode = diags.find((d: any) => d.message.includes("Did you mean 'production'?"));
     if (!warnMode) throw new Error("Failed to detect 'prod' typo");
     console.log('  ✅ Config Validation Verified');
 
     // Check for 'lodash' info
-    const infoPerf = diags.find(d => d.message.includes("tree-shaking")); // "better tree-shaking"
+    const infoPerf = diags.find((d: any) => d.message.includes("tree-shaking")); // "better tree-shaking"
     if (!infoPerf) throw new Error("Failed to detect perf hint");
     console.log('  ✅ Performance Hints Verified');
 
