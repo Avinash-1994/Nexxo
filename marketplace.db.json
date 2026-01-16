@@ -1,0 +1,2056 @@
+{
+  "version": "2.0.0",
+  "lastUpdated": "2026-01-16T04:52:31.551Z",
+  "totalPlugins": 116,
+  "manifestVersion": "2.0",
+  "securityLevel": "sandboxed",
+  "plugins": [
+    {
+      "name": "@nexxo/plugin-react",
+      "version": "1.0.0",
+      "category": "framework",
+      "description": "React support with Fast Refresh",
+      "author": "Nexxo Team",
+      "source": "vite-port",
+      "originalPlugin": "@vitejs/plugin-react",
+      "verified": true,
+      "signature": "nexxo-sig-38761349cd7f6b30",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-react.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-vue",
+      "version": "1.0.0",
+      "category": "framework",
+      "description": "Vue 3 SFC support",
+      "author": "Nexxo Team",
+      "source": "vite-port",
+      "originalPlugin": "@vitejs/plugin-vue",
+      "verified": true,
+      "signature": "nexxo-sig-608a84d8cac5604f",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-vue.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-svelte",
+      "version": "1.0.0",
+      "category": "framework",
+      "description": "Svelte component support",
+      "author": "Nexxo Team",
+      "source": "vite-port",
+      "originalPlugin": "vite-plugin-svelte",
+      "verified": true,
+      "signature": "nexxo-sig-e52986cb7444fd5b",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-svelte.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-solid",
+      "version": "1.0.0",
+      "category": "framework",
+      "description": "SolidJS support",
+      "author": "Nexxo Team",
+      "source": "vite-port",
+      "originalPlugin": "vite-plugin-solid",
+      "verified": true,
+      "signature": "nexxo-sig-05bcaae6e60a131b",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-solid.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-legacy",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Legacy browser support",
+      "author": "Nexxo Team",
+      "source": "vite-port",
+      "originalPlugin": "@vitejs/plugin-legacy",
+      "verified": true,
+      "signature": "nexxo-sig-b7a77155685d8bd6",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-legacy.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-pwa",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Progressive Web App support",
+      "author": "Nexxo Team",
+      "source": "vite-port",
+      "originalPlugin": "vite-plugin-pwa",
+      "verified": true,
+      "signature": "nexxo-sig-10a9413154fc3fc9",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-pwa.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-compression",
+      "version": "1.0.0",
+      "category": "perf",
+      "description": "Gzip/Brotli compression",
+      "author": "Nexxo Team",
+      "source": "vite-port",
+      "originalPlugin": "vite-plugin-compression",
+      "verified": true,
+      "signature": "nexxo-sig-655e18e96a648bce",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-compression.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-imagemin",
+      "version": "1.0.0",
+      "category": "assets",
+      "description": "Image optimization",
+      "author": "Nexxo Team",
+      "source": "vite-port",
+      "originalPlugin": "vite-plugin-imagemin",
+      "verified": true,
+      "signature": "nexxo-sig-ff5a283c213b84c0",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform",
+        "fs:read",
+        "fs:write"
+      ],
+      "entryPoint": "dist/plugin-imagemin.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "vite-svg-loader",
+      "version": "1.0.0",
+      "category": "assets",
+      "description": "SVG as React components",
+      "author": "Nexxo Team",
+      "source": "vite-port",
+      "originalPlugin": "vite-svg-loader",
+      "verified": true,
+      "signature": "nexxo-sig-127b343d352bbd55",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform",
+        "fs:read",
+        "fs:write"
+      ],
+      "entryPoint": "dist/vite-svg-loader.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-html",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "HTML template processing",
+      "author": "Nexxo Team",
+      "source": "vite-port",
+      "originalPlugin": "vite-plugin-html",
+      "verified": true,
+      "signature": "nexxo-sig-b0743b1ecbe7c872",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-html.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-inspect",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Plugin inspection tool",
+      "author": "Nexxo Team",
+      "source": "vite-port",
+      "originalPlugin": "vite-plugin-inspect",
+      "verified": true,
+      "signature": "nexxo-sig-084d2aa24ac44c7a",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-inspect.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-pages",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "File-based routing",
+      "author": "Nexxo Team",
+      "source": "vite-port",
+      "originalPlugin": "vite-plugin-pages",
+      "verified": true,
+      "signature": "nexxo-sig-aece68af6e7a5e9a",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-pages.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-vue-layouts",
+      "version": "1.0.0",
+      "category": "framework",
+      "description": "Vue layout system",
+      "author": "Nexxo Team",
+      "source": "vite-port",
+      "originalPlugin": "vite-plugin-vue-layouts",
+      "verified": true,
+      "signature": "nexxo-sig-d8862a0e79b34f0f",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-vue-layouts.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-md",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Markdown as components",
+      "author": "Nexxo Team",
+      "source": "vite-port",
+      "originalPlugin": "vite-plugin-md",
+      "verified": true,
+      "signature": "nexxo-sig-03e53f7102b3807c",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-md.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-windicss",
+      "version": "1.0.0",
+      "category": "css",
+      "description": "WindiCSS integration",
+      "author": "Nexxo Team",
+      "source": "vite-port",
+      "originalPlugin": "vite-plugin-windicss",
+      "verified": true,
+      "signature": "nexxo-sig-e6370706093a9b2c",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-windicss.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-fonts",
+      "version": "1.0.0",
+      "category": "assets",
+      "description": "Web font optimization",
+      "author": "Nexxo Team",
+      "source": "vite-port",
+      "originalPlugin": "vite-plugin-fonts",
+      "verified": true,
+      "signature": "nexxo-sig-0a63df09024166a6",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform",
+        "fs:read",
+        "fs:write"
+      ],
+      "entryPoint": "dist/plugin-fonts.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-checker",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "TypeScript/ESLint checker",
+      "author": "Nexxo Team",
+      "source": "vite-port",
+      "originalPlugin": "vite-plugin-checker",
+      "verified": true,
+      "signature": "nexxo-sig-04bab73c4f2e7cdc",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-checker.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-mock",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "API mocking",
+      "author": "Nexxo Team",
+      "source": "vite-port",
+      "originalPlugin": "vite-plugin-mock",
+      "verified": true,
+      "signature": "nexxo-sig-43bcc12727ef7a14",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-mock.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-vue-i18n",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Vue i18n integration",
+      "author": "Nexxo Team",
+      "source": "vite-port",
+      "originalPlugin": "vite-plugin-vue-i18n",
+      "verified": true,
+      "signature": "nexxo-sig-fa7952b3f227edea",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-vue-i18n.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-eslint",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "ESLint integration",
+      "author": "Nexxo Team",
+      "source": "vite-port",
+      "originalPlugin": "vite-plugin-eslint",
+      "verified": true,
+      "signature": "nexxo-sig-f5d3af8e5e459bd3",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-eslint.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-babel",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Babel transpilation",
+      "author": "Nexxo Team",
+      "source": "webpack-port",
+      "originalPlugin": "babel-loader",
+      "verified": true,
+      "signature": "nexxo-sig-6c7273bac2d77afb",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-babel.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-typescript",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "TypeScript compilation",
+      "author": "Nexxo Team",
+      "source": "webpack-port",
+      "originalPlugin": "ts-loader",
+      "verified": true,
+      "signature": "nexxo-sig-69de4a5049e60c8c",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-typescript.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-css",
+      "version": "1.0.0",
+      "category": "css",
+      "description": "CSS module resolution",
+      "author": "Nexxo Team",
+      "source": "webpack-port",
+      "originalPlugin": "css-loader",
+      "verified": true,
+      "signature": "nexxo-sig-802abbf037995de7",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-css.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-style",
+      "version": "1.0.0",
+      "category": "css",
+      "description": "CSS injection",
+      "author": "Nexxo Team",
+      "source": "webpack-port",
+      "originalPlugin": "style-loader",
+      "verified": true,
+      "signature": "nexxo-sig-cd823a135e23ba91",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-style.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-sass",
+      "version": "1.0.0",
+      "category": "css",
+      "description": "Sass/SCSS compilation",
+      "author": "Nexxo Team",
+      "source": "webpack-port",
+      "originalPlugin": "sass-loader",
+      "verified": true,
+      "signature": "nexxo-sig-01465922a0c996ac",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-sass.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-postcss",
+      "version": "1.0.0",
+      "category": "css",
+      "description": "PostCSS processing",
+      "author": "Nexxo Team",
+      "source": "webpack-port",
+      "originalPlugin": "postcss-loader",
+      "verified": true,
+      "signature": "nexxo-sig-408b79f58dd66b08",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-postcss.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-file",
+      "version": "1.0.0",
+      "category": "assets",
+      "description": "File asset handling",
+      "author": "Nexxo Team",
+      "source": "webpack-port",
+      "originalPlugin": "file-loader",
+      "verified": true,
+      "signature": "nexxo-sig-a87f314e8e386835",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform",
+        "fs:read",
+        "fs:write"
+      ],
+      "entryPoint": "dist/plugin-file.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-url",
+      "version": "1.0.0",
+      "category": "assets",
+      "description": "URL/data URI assets",
+      "author": "Nexxo Team",
+      "source": "webpack-port",
+      "originalPlugin": "url-loader",
+      "verified": true,
+      "signature": "nexxo-sig-60cbf642e535feab",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform",
+        "fs:read",
+        "fs:write"
+      ],
+      "entryPoint": "dist/plugin-url.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-html",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "HTML generation",
+      "author": "Nexxo Team",
+      "source": "webpack-port",
+      "originalPlugin": "html-webpack-plugin",
+      "verified": true,
+      "signature": "nexxo-sig-b0743b1ecbe7c872",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-html.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-mini-css-extract-plugin",
+      "version": "1.0.0",
+      "category": "css",
+      "description": "CSS extraction",
+      "author": "Nexxo Team",
+      "source": "webpack-port",
+      "originalPlugin": "mini-css-extract-plugin",
+      "verified": true,
+      "signature": "nexxo-sig-35ac26c225208769",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-mini-css-extract-plugin.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-terser",
+      "version": "1.0.0",
+      "category": "perf",
+      "description": "JS minification",
+      "author": "Nexxo Team",
+      "source": "webpack-port",
+      "originalPlugin": "terser-webpack-plugin",
+      "verified": true,
+      "signature": "nexxo-sig-d8d869e545b2f9a4",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-terser.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-compression",
+      "version": "1.0.0",
+      "category": "perf",
+      "description": "Asset compression",
+      "author": "Nexxo Team",
+      "source": "webpack-port",
+      "originalPlugin": "compression-webpack-plugin",
+      "verified": true,
+      "signature": "nexxo-sig-655e18e96a648bce",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-compression.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-copy",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Static file copying",
+      "author": "Nexxo Team",
+      "source": "webpack-port",
+      "originalPlugin": "copy-webpack-plugin",
+      "verified": true,
+      "signature": "nexxo-sig-61d95051c720c9e6",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-copy.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-bundle-analyzer",
+      "version": "1.0.0",
+      "category": "perf",
+      "description": "Bundle analysis",
+      "author": "Nexxo Team",
+      "source": "webpack-port",
+      "originalPlugin": "webpack-bundle-analyzer",
+      "verified": true,
+      "signature": "nexxo-sig-e2e3ed3c0f1b962a",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-bundle-analyzer.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-workbox",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Service worker generation",
+      "author": "Nexxo Team",
+      "source": "webpack-port",
+      "originalPlugin": "workbox-webpack-plugin",
+      "verified": true,
+      "signature": "nexxo-sig-6805600e01dc656f",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-workbox.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-audit",
+      "version": "1.0.0",
+      "category": "security",
+      "description": "Real-time security auditing",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-cb6fb1f95a5883e4",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform",
+        "network",
+        "crypto"
+      ],
+      "entryPoint": "dist/plugin-audit.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-determinism",
+      "version": "1.0.0",
+      "category": "perf",
+      "description": "Build determinism checker",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-350d226ffd005811",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-determinism.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-federation",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Module federation",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-d0ba3c47249c56cb",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-federation.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-ssr",
+      "version": "1.0.0",
+      "category": "framework",
+      "description": "Universal SSR support",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-0cdd2b22ff6a6987",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-ssr.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-edge",
+      "version": "1.0.0",
+      "category": "framework",
+      "description": "Edge runtime adapter",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-2a60f8f88e2e805a",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-edge.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-wasm-sandbox",
+      "version": "1.0.0",
+      "category": "security",
+      "description": "WASM plugin sandbox",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-9b9982acfe2ab221",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform",
+        "network",
+        "crypto"
+      ],
+      "entryPoint": "dist/plugin-wasm-sandbox.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-crypto-sign",
+      "version": "1.0.0",
+      "category": "security",
+      "description": "Plugin signature verification",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-fad428a10565fa25",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform",
+        "network",
+        "crypto"
+      ],
+      "entryPoint": "dist/plugin-crypto-sign.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-observability",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Build observability",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-18314a5060524c51",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-observability.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-root-cause",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Error root cause analysis",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-05c7ec5db5d31ade",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-root-cause.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-auto-fix",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Automatic error fixing",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-3faabdd7cf014244",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-auto-fix.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-repro",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Reproduction case generator",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-990d5343e7f32e14",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-repro.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-visualizer",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "WebGPU dependency visualizer",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-07642c6f9d45556a",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-visualizer.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-hmr-classify",
+      "version": "1.0.0",
+      "category": "perf",
+      "description": "HMR classification",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-f360d5880fbedea6",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-hmr-classify.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-prebundle",
+      "version": "1.0.0",
+      "category": "perf",
+      "description": "Dependency pre-bundling",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-955c51833117bea1",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-prebundle.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-css-framework",
+      "version": "1.0.0",
+      "category": "css",
+      "description": "CSS framework detection",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-569770c722e28d62",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-css-framework.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-tailwind",
+      "version": "1.0.0",
+      "category": "css",
+      "description": "Tailwind CSS integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-9a2fdfe941ff2d11",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-tailwind.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-unocss",
+      "version": "1.0.0",
+      "category": "css",
+      "description": "UnoCSS integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-b4545ee2ffcd1020",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-unocss.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-critical-css",
+      "version": "1.0.0",
+      "category": "css",
+      "description": "Critical CSS extraction",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-00eaf02845ed18dc",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-critical-css.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-upi-payment",
+      "version": "1.0.0",
+      "category": "fintech",
+      "description": "UPI payment integration (India)",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-6b7118722e059514",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform",
+        "network",
+        "crypto",
+        "storage"
+      ],
+      "entryPoint": "dist/plugin-upi-payment.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-qr-code",
+      "version": "1.0.0",
+      "category": "fintech",
+      "description": "QR code generation",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-d736b68abb25bd8f",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform",
+        "network",
+        "crypto",
+        "storage"
+      ],
+      "entryPoint": "dist/plugin-qr-code.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-razorpay",
+      "version": "1.0.0",
+      "category": "fintech",
+      "description": "Razorpay integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-7c00fef2b0069ffc",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform",
+        "network",
+        "crypto",
+        "storage"
+      ],
+      "entryPoint": "dist/plugin-razorpay.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-stripe",
+      "version": "1.0.0",
+      "category": "fintech",
+      "description": "Stripe integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-668fc6eba91c61f8",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform",
+        "network",
+        "crypto",
+        "storage"
+      ],
+      "entryPoint": "dist/plugin-stripe.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-analytics",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Build analytics",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-8235c8ba46f07902",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-analytics.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-lighthouse",
+      "version": "1.0.0",
+      "category": "perf",
+      "description": "Lighthouse CI integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-97605420a7fc420d",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-lighthouse.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-sentry",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Sentry error tracking",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-2006bbe381b17780",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-sentry.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-env-validation",
+      "version": "1.0.0",
+      "category": "security",
+      "description": "Environment variable validation",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-0a125e8f70cd2ee9",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform",
+        "network",
+        "crypto"
+      ],
+      "entryPoint": "dist/plugin-env-validation.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-bundle-size",
+      "version": "1.0.0",
+      "category": "perf",
+      "description": "Bundle size tracking",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-bbddc0270e9ff717",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-bundle-size.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-tree-shake",
+      "version": "1.0.0",
+      "category": "perf",
+      "description": "Advanced tree-shaking",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-0c8336d3b7ec3cbd",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-tree-shake.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-code-split",
+      "version": "1.0.0",
+      "category": "perf",
+      "description": "Smart code splitting",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-c98d5fc1f62062c1",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-code-split.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-lazy-load",
+      "version": "1.0.0",
+      "category": "perf",
+      "description": "Component lazy loading",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-a3c5e7be3ac746a2",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-lazy-load.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-preload",
+      "version": "1.0.0",
+      "category": "perf",
+      "description": "Resource preloading",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-ee99794f2d15e5ee",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-preload.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-prefetch",
+      "version": "1.0.0",
+      "category": "perf",
+      "description": "Route prefetching",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-b56b4315bee64126",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-prefetch.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-webp",
+      "version": "1.0.0",
+      "category": "assets",
+      "description": "WebP image conversion",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-6d5b246eb74fd731",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform",
+        "fs:read",
+        "fs:write"
+      ],
+      "entryPoint": "dist/plugin-webp.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-avif",
+      "version": "1.0.0",
+      "category": "assets",
+      "description": "AVIF image support",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-8d1f4b0e19a77bf6",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform",
+        "fs:read",
+        "fs:write"
+      ],
+      "entryPoint": "dist/plugin-avif.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-sprite",
+      "version": "1.0.0",
+      "category": "assets",
+      "description": "SVG sprite generation",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-b3b90afa8636dd81",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform",
+        "fs:read",
+        "fs:write"
+      ],
+      "entryPoint": "dist/plugin-sprite.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-icon",
+      "version": "1.0.0",
+      "category": "assets",
+      "description": "Icon component generation",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-01a119dfb9660198",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform",
+        "fs:read",
+        "fs:write"
+      ],
+      "entryPoint": "dist/plugin-icon.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-font-subset",
+      "version": "1.0.0",
+      "category": "assets",
+      "description": "Font subsetting",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-5a5af59b5bd10410",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform",
+        "fs:read",
+        "fs:write"
+      ],
+      "entryPoint": "dist/plugin-font-subset.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-i18n",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Internationalization",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-825925ea7e59eae1",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-i18n.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-sitemap",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Sitemap generation",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-4a1947a92fdbf6dc",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-sitemap.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-robots",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Robots.txt generation",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-30b5bdc918b2ebe2",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-robots.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-manifest",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Web manifest generation",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-d65d528132703736",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-manifest.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-meta-tags",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "SEO meta tags",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-5307ddb0db8488db",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-meta-tags.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-og-image",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Open Graph image generation",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-4ebb565277a9de84",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-og-image.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-rss",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "RSS feed generation",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-85a84631dfbc87f9",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-rss.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-markdown",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Markdown processing",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-90f97dbb886c1623",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-markdown.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-mdx",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "MDX support",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-163a3e506abafa58",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-mdx.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-graphql",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "GraphQL integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-24b8699d4b343f9b",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-graphql.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-apollo",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Apollo Client integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-e1110f0775349e1d",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-apollo.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-relay",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Relay integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-038d32d0757ddc91",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-relay.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-prisma",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Prisma integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-a7f13ac6b6d29789",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-prisma.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-trpc",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "tRPC integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-61436f4efe08771a",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-trpc.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-zod",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Zod validation",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-8205e8b2f225c44a",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-zod.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-react-query",
+      "version": "1.0.0",
+      "category": "framework",
+      "description": "React Query integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-67dc773656e539e8",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-react-query.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-zustand",
+      "version": "1.0.0",
+      "category": "framework",
+      "description": "Zustand state management",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-7d7310eaf0fbe49b",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-zustand.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-jotai",
+      "version": "1.0.0",
+      "category": "framework",
+      "description": "Jotai state management",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-89d69fbbca42d376",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-jotai.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-recoil",
+      "version": "1.0.0",
+      "category": "framework",
+      "description": "Recoil state management",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-10663c3332d637bf",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-recoil.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-redux",
+      "version": "1.0.0",
+      "category": "framework",
+      "description": "Redux integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-024c3bedef3c0d6c",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-redux.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-mobx",
+      "version": "1.0.0",
+      "category": "framework",
+      "description": "MobX integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-bf49a6fc75d78f24",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-mobx.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-pinia",
+      "version": "1.0.0",
+      "category": "framework",
+      "description": "Pinia (Vue) integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-90ee607f9652e515",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-pinia.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-vuex",
+      "version": "1.0.0",
+      "category": "framework",
+      "description": "Vuex integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-4c5dfbf6900b18de",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-vuex.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-testing-library",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Testing Library integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-4c78bfe92de5d1ae",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-testing-library.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-vitest",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Vitest integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-0e9a409251ff7744",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-vitest.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-playwright",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Playwright E2E",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-9cd40c8d118cb8d3",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-playwright.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-cypress",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Cypress integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-a54ddbbbde524f3d",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-cypress.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-storybook",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Storybook integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-635e51b9e87ac224",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-storybook.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-chromatic",
+      "version": "1.0.0",
+      "category": "utility",
+      "description": "Chromatic visual testing",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-ead09294f05294fd",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-chromatic.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-react-i18next",
+      "version": "1.0.0",
+      "category": "i18n",
+      "description": "React i18next integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-578c3b9ad48df7ae",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-react-i18next.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-vue-i18n-next",
+      "version": "1.0.0",
+      "category": "i18n",
+      "description": "Vue I18n integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-673bffdbfb566f02",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-vue-i18n-next.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-formatjs",
+      "version": "1.0.0",
+      "category": "i18n",
+      "description": "FormatJS (react-intl) integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-2a3f6894f89d12ae",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-formatjs.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-jest",
+      "version": "1.0.0",
+      "category": "testing",
+      "description": "Jest testing framework",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-3ec9a536feb7de56",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-jest.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-testing-library-react",
+      "version": "1.0.0",
+      "category": "testing",
+      "description": "React Testing Library",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-0068c6399855fea1",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-testing-library-react.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-msw",
+      "version": "1.0.0",
+      "category": "testing",
+      "description": "Mock Service Worker integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-7be53bc0b1c2145a",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-msw.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-zustand-devtools",
+      "version": "1.0.0",
+      "category": "state",
+      "description": "Zustand DevTools integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-ff817094e097f127",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-zustand-devtools.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-tanstack-query",
+      "version": "1.0.0",
+      "category": "state",
+      "description": "TanStack Query (React Query)",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-a91291e1e4279692",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-tanstack-query.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-xstate",
+      "version": "1.0.0",
+      "category": "state",
+      "description": "XState state machines",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-ced2baae09ca4aeb",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-xstate.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-nanostores",
+      "version": "1.0.0",
+      "category": "state",
+      "description": "Nano Stores integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-85a18c5c4edb1a6f",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-nanostores.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-vercel",
+      "version": "1.0.0",
+      "category": "deployment",
+      "description": "Vercel deployment adapter",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-60bc6a0bb856ee8e",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-vercel.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-netlify",
+      "version": "1.0.0",
+      "category": "deployment",
+      "description": "Netlify deployment adapter",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-e7948c27e3235701",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-netlify.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-cloudflare",
+      "version": "1.0.0",
+      "category": "deployment",
+      "description": "Cloudflare Pages adapter",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-be4c4a0fd08ad72a",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-cloudflare.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-plausible",
+      "version": "1.0.0",
+      "category": "analytics",
+      "description": "Plausible Analytics integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-16739f7e04ea24d0",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-plausible.js",
+      "manifestVersion": "2.0"
+    },
+    {
+      "name": "@nexxo/plugin-posthog",
+      "version": "1.0.0",
+      "category": "analytics",
+      "description": "PostHog analytics integration",
+      "author": "Nexxo Team",
+      "source": "nexxo-native",
+      "verified": true,
+      "signature": "nexxo-sig-572f77cd8c3a24b8",
+      "wasmCompatible": true,
+      "sandboxed": true,
+      "permissions": [
+        "transform"
+      ],
+      "entryPoint": "dist/plugin-posthog.js",
+      "manifestVersion": "2.0"
+    }
+  ]
+}
