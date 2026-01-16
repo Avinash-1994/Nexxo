@@ -3,6 +3,7 @@ import readline from 'readline';
 import { z } from 'zod';
 import { log } from '../utils/logger.js';
 import kleur from 'kleur';
+import { templateManager } from '../templates/manager.js';
 
 // Types
 export type Framework = 'React' | 'Preact' | 'Vue' | 'Svelte' | 'Lit' | 'Alpine' | 'Mithril' | 'Vanilla';
@@ -53,6 +54,38 @@ export async function createNexxoProject(initialName?: string) {
     if (!result.success) {
         log.error(result.error.issues[0].message);
         process.exit(1);
+    }
+
+    // 0. Mode Selection
+    const mode = await select<'Custom' | 'Template'>('How would you like to start?', [
+        'Template', 'Custom'
+    ]);
+
+    if (mode === 'Template') {
+        const templates = templateManager.getAll();
+        const templateId = await select('Select a template:', templates.map(t => t.id)); // Should map to names for better UI but IDs are unique
+
+        const selectedTemplate = templateManager.get(templateId);
+        if (!selectedTemplate) {
+            log.error('Invalid template selected');
+            process.exit(1);
+        }
+
+        const cwd = process.cwd();
+        const projectPath = path.join(cwd, name);
+
+        // Scaffold using Template Manager
+        try {
+            await templateManager.scaffold(templateId, projectPath, name);
+            log.success(`\nProject ${name} created successfully from template ${selectedTemplate.name}! 🚀`);
+            console.log(`\nNext steps:`);
+            console.log(`  cd ${name}`);
+            console.log(`  npm install`);
+            console.log(`  npm run dev`);
+        } catch (e) {
+            log.error(`Failed to scaffold template: ${e}`);
+        }
+        return;
     }
 
     // 1. Framework Selection

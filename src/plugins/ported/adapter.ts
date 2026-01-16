@@ -8,11 +8,12 @@
 export interface PluginAdapter {
     name: string;
     originalPlugin: string;
-    transform?: (code: string, id: string) => Promise<{ code: string; map?: any }>;
-    resolveId?: (source: string, importer?: string) => Promise<string | null>;
-    load?: (id: string) => Promise<string | null>;
+    transform?: (code: string, id: string) => Promise<{ code: string; map?: any } | null>;
+    resolveId?: (source: string, importer?: string) => Promise<string | { id: string; external?: boolean } | null>;
+    load?: (id: string) => Promise<string | { code: string; map?: any } | null>;
     buildStart?: () => Promise<void>;
     buildEnd?: () => Promise<void>;
+    [key: string]: any; // Allow internal helper methods
 }
 
 /**
