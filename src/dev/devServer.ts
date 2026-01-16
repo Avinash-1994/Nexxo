@@ -1141,7 +1141,13 @@ ${raw}
       res.writeHead(200, { 'Content-Type': mime });
       res.end(data);
     } catch (e: any) {
-      log.error('Request error', { category: 'server', error: e });
+      log.error(`Request error: ${e.message}`, { category: 'server' });
+      if (process.env.DEBUG || process.env.NODE_ENV === 'test') {
+        console.error(e.stack);
+      } else {
+        // Always show stack for request errors in dev mode for visibility
+        console.error(e);
+      }
 
       const isJS = url.match(/\.(js|ts|tsx|jsx|mjs|vue|svelte|astro)/);
 
