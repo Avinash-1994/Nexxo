@@ -1,6 +1,7 @@
 import http from 'http';
 import path from 'path';
 import fs from 'fs/promises';
+import { anomalyDetector } from '../security/anomaly.js';
 import { fileURLToPath } from 'url';
 import WebSocket, { WebSocketServer } from 'ws';
 import chokidar from 'chokidar';
@@ -515,9 +516,23 @@ export async function startDevServer(cfg: BuildConfig) {
   };
 
   const requestHandler = async (req: http.IncomingMessage, res: http.ServerResponse) => {
+    console.log(`[DevServer] Request: ${req.url} Preset: ${cfg.preset}`);
     statusHandler.trackRequest();
     if (await statusHandler.handleRequest(req, res)) return;
     if (federationDev.handleRequest(req, res)) return;
+
+    // Security Scan (Day 41)
+    if (!anomalyDetector.scanRequest({ url: req.url || '', headers: req.headers, method: req.method || 'GET' })) {
+      res.writeHead(403, { 'Content-Type': 'text/plain' });
+      res.end('Request Blocked by Nexxo Security Shield');
+      return;
+    }
+
+    if (req.url === '/__nexxo/security') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(anomalyDetector.getDashboard(), null, 2));
+      return;
+    }
 
     // Apply security headers
     securityHeaders.apply(req, res);
@@ -583,18 +598,25 @@ export async function startDevServer(cfg: BuildConfig) {
       let data = '';
 
       try {
+        console.log(`[DevServer] Reading index from ${p}`);
         data = await fs.readFile(p, 'utf-8');
-      } catch (e) {
+      } catch (e: any) {
+        console.log(`[DevServer] Failed to read ${p}: ${e.code} - ${e.message}`);
+        if (e.code === 'EISDIR') {
+          // It's a directory, ignore and try next
+        }
         // Fallback to src/index.html (common in Angular/Vue CLI)
         try {
           p = path.join(cfg.root, 'src', 'index.html');
           data = await fs.readFile(p, 'utf-8');
-        } catch (e2) {
+        } catch (e2: any) {
+          if (e2.code === 'EISDIR') { /* ignore */ }
           // Fallback to root index.html (Vite standard)
           try {
             p = path.join(cfg.root, 'index.html');
             data = await fs.readFile(p, 'utf-8');
-          } catch (e3) {
+          } catch (e3: any) {
+            if (e3.code === 'EISDIR') { /* ignore */ }
             res.writeHead(404);
             res.end('index.html not found');
             return;
@@ -752,27 +774,48 @@ export async function startDevServer(cfg: BuildConfig) {
 
 
     if (url === '/@nexxo/client') {
-      const clientPath = path.resolve(__dirname, '../runtime/client.js');
+      const clientPath = path.resolve(__dirname, '../runtime/client.ts');
       try {
-        const client = await fs.readFile(clientPath, 'utf-8');
+        const raw = await fs.readFile(clientPath, 'utf-8');
+        const { transform } = await import('esbuild');
+        const result = await transform(raw, { loader: 'ts' });
         res.writeHead(200, { 'Content-Type': 'application/javascript' });
-        res.end(client);
+        res.end(result.code);
       } catch (e) {
-        res.writeHead(404);
-        res.end('Nexxo client runtime not found');
+        // Fallback to JS if TS missing
+        const jsPath = path.resolve(__dirname, '../runtime/client.js');
+        try {
+          const client = await fs.readFile(jsPath, 'utf-8');
+          res.writeHead(200, { 'Content-Type': 'application/javascript' });
+          res.end(client);
+        } catch (e2) {
+          res.writeHead(404);
+          res.end('Nexxo client runtime not found');
+        }
       }
       return;
     }
 
     if (url === '/@nexxo/error-overlay.js') {
-      const overlayPath = path.resolve(__dirname, '../runtime/error-overlay.js');
+      // Also transform error-overlay if ts
+      const overlayPath = path.resolve(__dirname, '../runtime/error-overlay.ts');
       try {
-        const overlay = await fs.readFile(overlayPath, 'utf-8');
+        const raw = await fs.readFile(overlayPath, 'utf-8');
+        const { transform } = await import('esbuild');
+        const result = await transform(raw, { loader: 'ts' });
         res.writeHead(200, { 'Content-Type': 'application/javascript' });
-        res.end(overlay);
+        res.end(result.code);
       } catch (e) {
-        res.writeHead(404);
-        res.end('Nexxo error overlay not found');
+        // Fallback
+        const jsPath = path.resolve(__dirname, '../runtime/error-overlay.js');
+        try {
+          const overlay = await fs.readFile(jsPath, 'utf-8');
+          res.writeHead(200, { 'Content-Type': 'application/javascript' });
+          res.end(overlay);
+        } catch (e2) {
+          res.writeHead(404);
+          res.end('Nexxo error overlay not found');
+        }
       }
       return;
     }
@@ -950,7 +993,12 @@ export async function startDevServer(cfg: BuildConfig) {
     }
 
     try {
-      await fs.access(filePath);
+      const stats = await fs.stat(filePath);
+      if (stats.isDirectory()) {
+        // If trying to read a directory (like root '/'), default to index.html
+        filePath = path.join(filePath, 'index.html');
+      }
+
       const ext = path.extname(filePath);
 
       if (ext === '.ts' || ext === '.tsx' || ext === '.jsx' || ext === '.js' || ext === '.mjs' || ext === '.vue' || ext === '.svelte' || ext === '.astro') {
@@ -1085,7 +1133,11 @@ ${raw}
 
       // Serve other files raw
       const data = await fs.readFile(filePath);
-      const mime = ext === '.map' ? 'application/json' : 'application/octet-stream';
+      let mime = 'application/octet-stream';
+      if (ext === '.map') mime = 'application/json';
+      if (ext === '.html') mime = 'text/html';
+      if (ext === '.svg') mime = 'image/svg+xml';
+
       res.writeHead(200, { 'Content-Type': mime });
       res.end(data);
     } catch (e: any) {
@@ -1274,11 +1326,8 @@ ${raw}
           statusHandler.trackHMR();
         });
       } catch (nativeError: any) {
-        log.error(`Native worker failed for ${file}, falling back to full reload`, { category: 'hmr', error: nativeError });
-        broadcast(JSON.stringify({
-          type: 'error',
-          error: { message: `Build optimization failed: ${nativeError.message}. Recovering via full reload...` }
-        }));
+        log.warn(`Native HMR unavailable for ${file}, falling back to full reload`, { category: 'hmr' });
+        // Don't broadcast 'error' here, just restart
         broadcast(JSON.stringify({ type: 'restarting' }));
       }
     } catch (e: any) {
@@ -1300,6 +1349,7 @@ ${raw}
       'HTTPS': httpsOptions ? 'Enabled' : 'Disabled',
       'Proxy': cfg.server?.proxy ? Object.keys(cfg.server.proxy).join(', ') : 'None',
       'Status': `${url}/__nexxo/status`,
+      'Security': `${url}/__nexxo/security`,
       'Federation': `${url}/__federation`
     });
 
@@ -1316,4 +1366,6 @@ ${raw}
       })();
     }
   });
+
+  return server;
 }

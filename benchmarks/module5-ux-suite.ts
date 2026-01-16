@@ -47,19 +47,21 @@ async function runBenchmarks() {
 
     // 3. Root Cause Analysis Performance
     console.log('\n🔍 Benchmarking Root Cause Analysis...');
-    const analyzer = new RootCauseAnalyzer();
+    const mockGraph = {
+        nodes: new Map()
+    };
     // Simulate 10k node graph
-    const nodes = new Map();
     for (let i = 0; i < 10000; i++) {
-        nodes.set(`node-${i}`, {
+        mockGraph.nodes.set(`node-${i}`, {
             id: `node-${i}`,
+            path: `/path/to/node-${i}.js`,
             edges: i < 9999 ? [{ to: `node-${i + 1}` }] : []
         });
     }
-    (analyzer as any).graph = { nodes };
+    const analyzer = new RootCauseAnalyzer(mockGraph as any, mockContext);
 
     const analyzeStart = performance.now();
-    analyzer.detectCircularDependencies();
+    analyzer.analyze(); // Use public API which includes circular dependency detection
     const analyzeEnd = performance.now();
     results['Graph Analysis (10k nodes)'] = analyzeEnd - analyzeStart;
     console.log(`  ✓ Analysis Time: ${results['Graph Analysis (10k nodes)'].toFixed(2)}ms`);
@@ -69,6 +71,7 @@ async function runBenchmarks() {
     const dashboard = new ReproDashboard(':memory:');
     const reproId = dashboard.submitRepro({
         title: 'Benchmark',
+        description: 'Benchmark test for repro analysis performance',
         code: 'import missing from "missing"',
         error: 'Cannot find module "missing"'
     });

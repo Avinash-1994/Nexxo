@@ -68,6 +68,7 @@ export default [
                 beforeEach: 'readonly',
                 afterEach: 'readonly',
                 jest: 'readonly',
+                vi: 'readonly',
             }
         },
         plugins: {
@@ -117,7 +118,7 @@ export default [
     },
     {
         // Allow tests to be more permissive during stabilization
-        files: ['tests/**/*.ts', 'examples/**/*.ts'],
+        files: ['tests/**/*.ts', 'examples/**/*.ts', 'benchmarks/**/*.ts', 'src/test/**/*.ts'],
         rules: {
             'nexxo-governance/no-internal-imports': 'off',
             '@typescript-eslint/no-explicit-any': 'off',

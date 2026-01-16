@@ -32,7 +32,8 @@ export async function initBuild(
     };
 
     const config: ResolvedConfig = resolveConfig(userConfig, rootDir, mode);
-    const cache = new PersistentBuildCache(rootDir);
+    const useCache = userConfig.cache !== false;
+    const cache = useCache ? new PersistentBuildCache(rootDir) : new InMemoryBuildCache();
     const pluginManager = new PluginManager();
 
     // 1. Register Infrastructure (Phase B2)

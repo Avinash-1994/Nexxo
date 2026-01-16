@@ -85,6 +85,10 @@ async function runTests(pattern: string, isWatch: boolean) {
         (globalThis as any).test = it;
         (globalThis as any).expect = expect;
         (globalThis as any).vi = vi;
+        (globalThis as any).beforeAll = (await import('./api.js')).beforeAll;
+        (globalThis as any).afterAll = (await import('./api.js')).afterAll;
+        (globalThis as any).beforeEach = (await import('./api.js')).beforeEach;
+        (globalThis as any).afterEach = (await import('./api.js')).afterEach;
 
         try {
             // "Sandboxed" Execution via dynamic import
@@ -123,11 +127,26 @@ async function executeSuites(suites: SuiteContext[]): Promise<{ passed: number, 
     let failed = 0;
 
     for (const suite of suites) {
+        // Run beforeAll
+        if (suite.suiteHooks) {
+            for (const hook of suite.suiteHooks.beforeAll) await hook();
+        }
+
         for (const test of suite.tests) {
             try {
+                // Run beforeEach
+                if (suite.suiteHooks) {
+                    for (const hook of suite.suiteHooks.beforeEach) await hook();
+                }
+
                 await test.fn();
                 test.status = 'passed';
                 passed++;
+
+                // Run afterEach
+                if (suite.suiteHooks) {
+                    for (const hook of suite.suiteHooks.afterEach) await hook();
+                }
             } catch (e) {
                 test.status = 'failed';
                 test.error = e as Error;
@@ -141,6 +160,11 @@ async function executeSuites(suites: SuiteContext[]): Promise<{ passed: number, 
         const subResult = await executeSuites(suite.suites);
         passed += subResult.passed;
         failed += subResult.failed;
+
+        // Run afterAll
+        if (suite.suiteHooks) {
+            for (const hook of suite.suiteHooks.afterAll) await hook();
+        }
     }
 
     return { passed, failed };

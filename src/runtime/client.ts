@@ -80,7 +80,7 @@ function connect() {
                 showError({ type: 'build', ...message.error });
             }
 
-            if (message.type === 'reload') {
+            if (message.type === 'reload' || message.type === 'restarting') {
                 console.log('[nexxo] Reloading page...');
                 window.location.reload();
             }

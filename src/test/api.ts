@@ -17,14 +17,30 @@ export interface SuiteContext {
     name: string;
     tests: TestContext[];
     suites: SuiteContext[];
+    suiteHooks?: {
+        beforeAll: TestFn[];
+        afterAll: TestFn[];
+        beforeEach: TestFn[];
+        afterEach: TestFn[];
+    };
 }
 
-let currentSuite: SuiteContext = { name: 'root', tests: [], suites: [] };
+let currentSuite: SuiteContext = {
+    name: 'root',
+    tests: [],
+    suites: [],
+    suiteHooks: { beforeAll: [], afterAll: [], beforeEach: [], afterEach: [] }
+};
 let rootSuites: SuiteContext[] = [];
 
 export function describe(name: string, fn: () => void) {
     const parent = currentSuite;
-    const newSuite: SuiteContext = { name, tests: [], suites: [] };
+    const newSuite: SuiteContext = {
+        name,
+        tests: [],
+        suites: [],
+        suiteHooks: { beforeAll: [], afterAll: [], beforeEach: [], afterEach: [] }
+    };
 
     // If we are at root (and not inside another suite), push to rootSuites
     if (parent.name === 'root') {
@@ -47,6 +63,22 @@ export function it(name: string, fn: TestFn) {
         fn,
         status: 'pending'
     });
+}
+
+export function beforeAll(fn: TestFn) {
+    currentSuite.suiteHooks?.beforeAll.push(fn);
+}
+
+export function afterAll(fn: TestFn) {
+    currentSuite.suiteHooks?.afterAll.push(fn);
+}
+
+export function beforeEach(fn: TestFn) {
+    currentSuite.suiteHooks?.beforeEach.push(fn);
+}
+
+export function afterEach(fn: TestFn) {
+    currentSuite.suiteHooks?.afterEach.push(fn);
 }
 
 export const test = it;
