@@ -594,28 +594,28 @@ export async function startDevServer(cfg: BuildConfig) {
     const acceptsHtml = req.headers.accept?.includes('text/html');
 
     if ((url === '/' || (!hasExtension && !isInternal && acceptsHtml)) && cfg.preset === 'spa') {
-      let p = path.join(cfg.root, 'public', 'index.html');
+      let p = path.join(cfg.root, 'index.html');
       let data = '';
 
+      // 1. Try Root (Vite standard)
       try {
-        console.log(`[DevServer] Reading index from ${p}`);
+        log.debug(`Reading index from ${p}`);
         data = await fs.readFile(p, 'utf-8');
       } catch (e: any) {
-        console.log(`[DevServer] Failed to read ${p}: ${e.code} - ${e.message}`);
-        if (e.code === 'EISDIR') {
-          // It's a directory, ignore and try next
-        }
-        // Fallback to src/index.html (common in Angular/Vue CLI)
+        // 2. Fallback to public/index.html
         try {
-          p = path.join(cfg.root, 'src', 'index.html');
+          p = path.join(cfg.root, 'public', 'index.html');
+          log.debug(`Reading index from ${p}`);
           data = await fs.readFile(p, 'utf-8');
         } catch (e2: any) {
-          if (e2.code === 'EISDIR') { /* ignore */ }
-          // Fallback to root index.html (Vite standard)
+          // 3. Fallback to src/index.html
           try {
-            p = path.join(cfg.root, 'index.html');
+            p = path.join(cfg.root, 'src', 'index.html');
+            log.debug(`Reading index from ${p}`);
             data = await fs.readFile(p, 'utf-8');
           } catch (e3: any) {
+            // Final failure
+            log.debug(`Failed to find index.html in root, public, or src`);
             if (e3.code === 'EISDIR') { /* ignore */ }
             res.writeHead(404);
             res.end('index.html not found');
