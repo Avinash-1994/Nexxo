@@ -28,14 +28,18 @@ describe('Template Generation - Production Ready', () => {
 
     it('should have all templates registered', () => {
         const templates = templateManager.getAll();
-        expect(templates.length).toBeGreaterThan(5);
+        expect(templates.length).toBeGreaterThan(9);
 
         expect(templateManager.get('react-spa')).toBeDefined();
         expect(templateManager.get('vue-spa')).toBeDefined();
         expect(templateManager.get('svelte-spa')).toBeDefined();
         expect(templateManager.get('solid-spa')).toBeDefined();
+        expect(templateManager.get('angular-spa')).toBeDefined();
+        expect(templateManager.get('preact-spa')).toBeDefined();
         expect(templateManager.get('react-ssr')).toBeDefined();
         expect(templateManager.get('edge-function')).toBeDefined();
+        expect(templateManager.get('fintech-app')).toBeDefined();
+        expect(templateManager.get('monorepo')).toBeDefined();
     });
 
     it('should scaffold React SPA template correctly', async () => {

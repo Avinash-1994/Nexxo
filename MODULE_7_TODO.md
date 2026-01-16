@@ -46,13 +46,15 @@
 - [x] Target: 100+ working plugins in marketplace (✅ 116 plugins)
 
 ## Day 46: Starter Templates & Real Apps (✅ COMPLETE)
-- [x] Create SPA templates (React/Vue/Svelte/Solid)
+- [x] Create SPA templates (React/Vue/Svelte/Solid/Angular/Preact)
 - [x] Create SSR templates (React SSR with Express)
 - [x] Create Edge template (Cloudflare/Netlify/Vercel)
+- [x] Create Fintech template (UPI/QR payments)
+- [x] Create Monorepo template (PNPM via Nexxo)
 - [x] Create `TemplateManager` registry
 - [x] Update `create-nexxo` CLI with template selection
 - [x] Create tests: `tests/module7_templates_smoke.test.ts`
-- [x] Target: 6+ templates, production-ready config (✅ 6 templates)
+- [x] Target: 10+ templates, production-ready config (✅ 10 templates)
 
 ## Day 47: Benchmarks & Comparison Site
 - [ ] Create `benchmarks/module7-benchmarks.ts`

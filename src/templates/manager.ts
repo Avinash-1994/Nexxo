@@ -23,8 +23,12 @@ import { reactSpaTemplate } from './starters/react-spa.js';
 import { vueSpaTemplate } from './starters/vue-spa.js';
 import { svelteSpaTemplate } from './starters/svelte-spa.js';
 import { solidSpaTemplate } from './starters/solid-spa.js';
+import { angularSpaTemplate } from './starters/angular-spa.js';
+import { preactSpaTemplate } from './starters/preact-spa.js';
 import { reactSsrTemplate } from './starters/react-ssr.js';
 import { edgeTemplate } from './starters/edge.js';
+import { fintechTemplate } from './starters/fintech.js';
+import { monorepoTemplate } from './starters/monorepo.js';
 
 export class TemplateManager {
     private templates: Map<string, TemplateConfig> = new Map();
@@ -34,8 +38,12 @@ export class TemplateManager {
         this.register(vueSpaTemplate);
         this.register(svelteSpaTemplate);
         this.register(solidSpaTemplate);
+        this.register(angularSpaTemplate);
+        this.register(preactSpaTemplate);
         this.register(reactSsrTemplate);
         this.register(edgeTemplate);
+        this.register(fintechTemplate);
+        this.register(monorepoTemplate);
     }
 
     register(template: TemplateConfig): void {
