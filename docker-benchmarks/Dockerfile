@@ -23,4 +23,6 @@ COPY docker-benchmarks/ .
 # Link Nexxo
 RUN npm link nexxo
 
+ENV NEXXO_CLI=/nexxo-source/dist/cli.js
+
 CMD ["npm", "run", "bench"]
