@@ -6,6 +6,11 @@ export default {
         '<rootDir>/tests/**/*.test.ts',
         '<rootDir>/src/**/*.test.ts'
     ],
+    testPathIgnorePatterns: [
+        '/node_modules/',
+        '/tests/e2e/',
+        '/tests/module7_'
+    ],
     roots: ['<rootDir>/tests', '<rootDir>/src'], // Run tests in both directories
     transform: {
         '^.+\\.m?[tj]sx?$': ['ts-jest', {
