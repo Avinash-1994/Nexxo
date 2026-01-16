@@ -32,10 +32,18 @@ async function runTest() {
 
         // 3. Audits
         console.log('\nTest 3: Terminal Audits');
-        const auditReport = await AuditEngine.runAll(process.cwd());
-        if (auditReport.groups.a11y) console.log('  ✅ A11y Audit ran');
-        if (auditReport.groups.perf) console.log('  ✅ Perf Audit ran');
-        if (auditReport.groups.seo) console.log('  ✅ SEO Audit ran');
+        const fs = await import('fs');
+        const tempHtmlPath = path.join(process.cwd(), 'temp_audit.html');
+        fs.writeFileSync(tempHtmlPath, '<html><head><title>Test</title></head><body><h1>Audit Me</h1></body></html>');
+
+        try {
+            const auditReport = await AuditEngine.runAll(tempHtmlPath);
+            if (auditReport.groups.a11y) console.log('  ✅ A11y Audit ran');
+            if (auditReport.groups.perf) console.log('  ✅ Perf Audit ran');
+            if (auditReport.groups.seo) console.log('  ✅ SEO Audit ran');
+        } finally {
+            if (fs.existsSync(tempHtmlPath)) fs.unlinkSync(tempHtmlPath);
+        }
 
         console.log('\n✨ All verification tests passed!');
         process.exit(0);
