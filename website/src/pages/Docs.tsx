@@ -151,7 +151,7 @@ export const Docs: React.FC = () => {
                     <h2 className="text-3xl font-black font-display tracking-tight">Initialize Project</h2>
                 </div>
                 <p className="text-[var(--text-secondary)] mb-4">You can manually create a configuration file or use the interactive init command:</p>
-                <CodeBlock code="nexxo init" />
+                <CodeBlock code="npx nexxo init" />
 
                 <h3 className="text-xl font-bold mt-8 mb-4">Basic Configuration</h3>
                 <p className="text-[var(--text-secondary)] mb-4">Create an <code>nexxo.config.js</code> file in your project root:</p>
@@ -177,17 +177,17 @@ export const Docs: React.FC = () => {
                 </div>
                 <div className="space-y-4">
                     {[
-                        { cmd: 'create-nexxo', desc: '🎨 Interactive project scaffolding with framework selection (React, Vue, Svelte, Solid, Lit, Alpine, Preact, Mithril).' },
-                        { cmd: 'nexxo dev', desc: 'Starts the high-performance development server with HMR.' },
-                        { cmd: 'nexxo build', desc: 'Triggers the production build pipeline with full optimizations.' },
-                        { cmd: 'nexxo init', desc: 'Interactive wizard to initialize nexxo.config.js in your project.' },
-                        { cmd: 'nexxo bootstrap', desc: 'Scaffold a new project from premium templates (React, Vue, Svelte, etc.).' },
-                        { cmd: 'nexxo ssr', desc: 'Starts the universal SSR runtime for meta-frameworks (Next.js, Nuxt, Remix).' },
-                        { cmd: 'nexxo audit', desc: '🛡️ Run comprehensive audits for Accessibility, Performance, SEO, and Best Practices.' },
+                        { cmd: 'npx create-nexxo', desc: '🎨 Interactive project scaffolding with framework selection (React, Vue, Svelte, Solid, Lit, Alpine, Preact, Mithril).' },
+                        { cmd: 'npx nexxo dev', desc: 'Starts the high-performance development server with HMR.' },
+                        { cmd: 'npx nexxo build', desc: 'Triggers the production build pipeline with full optimizations.' },
+                        { cmd: 'npx nexxo init', desc: 'Interactive wizard to initialize nexxo.config.js in your project.' },
+                        { cmd: 'npx nexxo bootstrap', desc: 'Scaffold a new project from premium templates (React, Vue, Svelte, etc.).' },
+                        { cmd: 'npx nexxo ssr', desc: 'Starts the universal SSR runtime for meta-frameworks (Next.js, Nuxt, Remix).' },
+                        { cmd: 'npx nexxo audit', desc: '🛡️ Run comprehensive audits for Accessibility, Performance, SEO, and Best Practices.' },
 
-                        { cmd: 'nexxo inspect', desc: 'Visualize and inspect the dependency graph with filtering options.' },
-                        { cmd: 'nexxo report', desc: 'Generates a detailed build analytics report from the latest session.' },
-                        { cmd: 'nexxo css purge', desc: 'Deep-cleans CSS by removing unused styles from your bundle.' },
+                        { cmd: 'npx nexxo inspect', desc: 'Visualize and inspect the dependency graph with filtering options.' },
+                        { cmd: 'npx nexxo report', desc: 'Generates a detailed build analytics report from the latest session.' },
+                        { cmd: 'npx nexxo css purge', desc: 'Deep-cleans CSS by removing unused styles from your bundle.' },
                     ].map(item => (
                         <div key={item.cmd} className="group flex flex-col md:flex-row md:items-center gap-2 md:gap-4 p-5 rounded-2xl bg-[var(--surface-color)] border border-[var(--border-color)] hover:border-blue-500/50 transition-all">
                             <div className="font-mono text-[13px] font-bold text-blue-500 bg-blue-500/5 px-3 py-1 rounded-lg w-fit transition-colors group-hover:bg-blue-500 group-hover:text-white">{item.cmd}</div>

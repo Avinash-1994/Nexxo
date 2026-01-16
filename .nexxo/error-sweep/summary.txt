@@ -1,4 +1,0 @@
-Starting Nexxo error sweep
-INITIAL_BUILD: ERROR_DETECTED
-(see /home/avinash/Desktop/framework_practis/build/.nexxo/error-sweep/dev-initial.log)
-HMR_ERROR: NO_ERROR_DETECTED

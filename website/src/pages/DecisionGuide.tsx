@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import {
     CheckCircle2,
     XCircle,
@@ -97,7 +98,7 @@ export const DecisionGuide: React.FC = () => {
                     Nexxo is a commitment to architectural discipline. By choosing Nexxo, you are choosing to trade experimental flexibility for long-term stability and predictable maintenance.
                 </p>
                 <div className="flex justify-center gap-4">
-                    <a href="#/docs/core-concepts" className="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-500 transition-colors">Learn Core Concepts</a>
+                    <Link to="/docs/core-concepts" className="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-500 transition-colors">Learn Core Concepts</Link>
                 </div>
             </div>
         </div>

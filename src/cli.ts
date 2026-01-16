@@ -133,7 +133,7 @@ async function main() {
         return yargs.option('prod', {
           type: 'boolean',
           description: 'Force production mode',
-          default: false
+          default: true  // Default to production mode
         }).option('profile', {
           type: 'boolean',
           description: 'Show detailed build profile',
@@ -150,9 +150,9 @@ async function main() {
 
         try {
           const config = await loadConfig(process.cwd());
-          if (args.prod) {
-            config.mode = 'production';
-          }
+          // Build command always uses production mode unless explicitly disabled
+          config.mode = args.prod !== false ? 'production' : config.mode || 'development';
+
           const result = await build(config);
 
           if (args.profile) {
@@ -469,6 +469,15 @@ async function main() {
         // Pass everything after 'test'
         const rawArgs = process.argv.slice(process.argv.indexOf('test') + 1);
         await run(rawArgs);
+      }
+    )
+    .command(
+      'doctor',
+      'Run project health diagnostics',
+      () => { },
+      async () => {
+        const { runDoctor } = await import('./commands/doctor.js');
+        await runDoctor(process.cwd());
       }
     )
     /*

@@ -24,11 +24,18 @@ export class InMemoryBuildCache implements BuildCache {
 }
 
 export class PersistentBuildCache implements BuildCache {
-    private db: any;
+    private db: any = null;
     private cacheDir: string;
+    private initialized = false;
 
     constructor(rootDir: string) {
         this.cacheDir = path.join(rootDir, '.nexxo_cache');
+        // Don't initialize DB here - lazy init on first use for faster cold start
+    }
+
+    private ensureInitialized() {
+        if (this.initialized) return;
+
         if (!fs.existsSync(this.cacheDir)) {
             fs.mkdirSync(this.cacheDir, { recursive: true });
         }
@@ -37,9 +44,11 @@ export class PersistentBuildCache implements BuildCache {
             const Database = require('better-sqlite3');
             this.db = new Database(path.join(this.cacheDir, 'cache.db'));
             this.init();
+            this.initialized = true;
         } catch (e) {
             console.warn('Could not initialize persistent cache (better-sqlite3 missing or incompatible). Falling back to memory.');
             this.db = null;
+            this.initialized = true; // Mark as initialized to avoid retrying
         }
     }
 
@@ -54,6 +63,7 @@ export class PersistentBuildCache implements BuildCache {
     }
 
     get(key: string): CachedResult | null {
+        this.ensureInitialized(); // Lazy init
         if (!this.db) return null;
         const row = this.db.prepare('SELECT value FROM cache WHERE key = ?').get(key);
         if (row) {
@@ -63,6 +73,7 @@ export class PersistentBuildCache implements BuildCache {
     }
 
     set(key: string, value: CachedResult): void {
+        this.ensureInitialized(); // Lazy init
         if (!this.db) return;
         this.db.prepare('INSERT OR REPLACE INTO cache (key, value) VALUES (?, ?)').run(
             key,
@@ -71,6 +82,7 @@ export class PersistentBuildCache implements BuildCache {
     }
 
     clear() {
+        this.ensureInitialized(); // Lazy init
         if (!this.db) return;
         this.db.prepare('DELETE FROM cache').run();
     }
@@ -80,5 +92,6 @@ export class PersistentBuildCache implements BuildCache {
             this.db.close();
             this.db = null;
         }
+        this.initialized = false;
     }
 }

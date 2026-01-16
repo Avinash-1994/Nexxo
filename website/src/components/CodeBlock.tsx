@@ -27,6 +27,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ code, language }) => {
                     onClick={copyToClipboard}
                     className="p-2 hover:bg-slate-700 rounded-lg text-slate-400 transition-colors"
                     title="Copy to clipboard"
+                    aria-label={copied ? "Copied" : "Copy code"}
                 >
                     {copied ? <CheckCircle2 size={16} className="text-emerald-500" /> : <Copy size={16} />}
                 </button>

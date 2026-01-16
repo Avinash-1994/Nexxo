@@ -70,11 +70,10 @@ export const log = {
   },
   projectError: (error: { file?: string; message: string; line?: number; column?: number; type?: string }) => {
     console.error('');
-    console.error(kleur.red('❌ PROJECT ERROR'));
-    if (error.file) console.error(kleur.gray(`   File: ${error.file}`));
-    if (error.line) console.error(kleur.gray(`   Line: ${error.line}${error.column ? `:${error.column}` : ''}`));
-    if (error.type) console.error(kleur.gray(`   Type: ${error.type}`));
-    console.error(kleur.red(`   ${error.message}`));
+    console.error(`${time()} ${kleur.cyan('[nexxo]')} ${kleur.red(error.type || 'Error')}: ${error.message}`);
+    if (error.file) {
+      console.error(kleur.dim(`- ${error.file}:${error.line || 1}:${error.column || 1}`));
+    }
 
     // Try to show a small code snippet around the error line
     try {
@@ -82,17 +81,27 @@ export const log = {
         let fp = error.file;
         if (!path.isAbsolute(fp)) fp = path.resolve(process.cwd(), fp);
         if (fs.existsSync(fp)) {
+          console.error('');
           const content = fs.readFileSync(fp, 'utf-8');
           const lines = content.split(/\r?\n/);
           const idx = Math.max(0, (error.line || 1) - 1);
           const start = Math.max(0, idx - 2);
-          const end = Math.min(lines.length - 1, idx + 1);
-          console.error('');
+          const end = Math.min(lines.length - 1, idx + 2);
+
           for (let i = start; i <= end; i++) {
-            const num = String(i + 1).padStart(String(end + 1).length, ' ');
-            const prefix = i === idx ? kleur.red(' >') : '  ';
+            const num = String(i + 1).padStart(String(end + 1).length + 1, ' ');
+            const isErrorLine = i === idx;
             const lineText = lines[i] ?? '';
-            console.error(`${prefix} ${num} | ${i === idx ? kleur.red(lineText) : lineText}`);
+
+            // Format:  32 | const filterData = ...
+            console.error(`${kleur.dim(num)} ${kleur.dim('|')} ${lineText}`);
+
+            if (isErrorLine) {
+              // Add caret pointing to error
+              const indent = num.length + 3 + (error.column ? error.column - 1 : 0);
+              // Limit caret length to avoid wrapping mess if column is huge
+              console.error(' '.repeat(indent) + kleur.red('^'));
+            }
           }
           console.error('');
         }
@@ -100,9 +109,6 @@ export const log = {
     } catch (e) {
       // ignore snippet failures
     }
-
-    console.error(kleur.gray('  Fix the error and save. Server will reload automatically.'));
-    console.error('');
   },
   table: (rows: Record<string, string>) => {
     console.log('');

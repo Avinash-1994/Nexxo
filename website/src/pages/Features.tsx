@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import {
     Zap,
     ShieldCheck,
@@ -422,12 +423,12 @@ export const Features: React.FC = () => {
                     Get started in seconds with zero configuration and production-grade features out of the box
                 </p>
                 <div className="flex justify-center gap-4">
-                    <a
-                        href="#/docs/getting-started"
+                    <Link
+                        to="/docs/getting-started"
                         className="inline-flex h-14 items-center justify-center px-12 rounded-2xl bg-blue-600 text-white font-bold hover:bg-blue-500 hover:-translate-y-1 transition-all shadow-xl shadow-blue-500/25 active:scale-95"
                     >
                         Get Started →
-                    </a>
+                    </Link>
                     <a
                         href="https://github.com/Avinash-1994/nexxo"
                         className="inline-flex h-14 items-center justify-center px-12 rounded-2xl border border-[var(--border-color)] font-bold hover:bg-white dark:hover:bg-slate-800 transition-all active:scale-95"

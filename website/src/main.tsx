@@ -1,101 +1,92 @@
-import React, { useState, useEffect } from 'react';
+import React, { Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { ThemeProvider } from './components/ThemeContext';
-import { Home } from './pages/Home';
-import { Docs } from './pages/Docs';
-import { CoreConcepts } from './pages/CoreConcepts';
-import { TechSpecs } from './pages/TechSpecs';
-import { FrameworkGuides } from './pages/FrameworkGuides';
-import { InfrastructureGuides } from './pages/InfrastructureGuides';
-import { MicroFrontends } from './pages/MicroFrontends';
-import { DecisionGuide } from './pages/DecisionGuide';
-import { GovernanceHub } from './pages/GovernanceHub';
-import { Glossary } from './pages/Glossary';
-import { MfeFrameworkConstraint } from './pages/MfeFrameworkConstraint';
-import { Play } from './pages/Play';
-import { QualityGuide } from './pages/QualityGuide';
-import Features from './pages/Features';
 import { I18nProvider } from './components/I18nContext';
-import { TestError } from './components/TestError';
+
+// Lazy load pages for performance
+const Home = React.lazy(() => import('./pages/Home').then(module => ({ default: module.Home })));
+const Docs = React.lazy(() => import('./pages/Docs').then(module => ({ default: module.Docs })));
+const CoreConcepts = React.lazy(() => import('./pages/CoreConcepts').then(module => ({ default: module.CoreConcepts })));
+const TechSpecs = React.lazy(() => import('./pages/TechSpecs').then(module => ({ default: module.TechSpecs })));
+const FrameworkGuides = React.lazy(() => import('./pages/FrameworkGuides').then(module => ({ default: module.FrameworkGuides })));
+const InfrastructureGuides = React.lazy(() => import('./pages/InfrastructureGuides').then(module => ({ default: module.InfrastructureGuides })));
+const MicroFrontends = React.lazy(() => import('./pages/MicroFrontends').then(module => ({ default: module.MicroFrontends })));
+const DecisionGuide = React.lazy(() => import('./pages/DecisionGuide').then(module => ({ default: module.DecisionGuide })));
+const GovernanceHub = React.lazy(() => import('./pages/GovernanceHub').then(module => ({ default: module.GovernanceHub })));
+const Glossary = React.lazy(() => import('./pages/Glossary').then(module => ({ default: module.Glossary })));
+const MfeFrameworkConstraint = React.lazy(() => import('./pages/MfeFrameworkConstraint').then(module => ({ default: module.MfeFrameworkConstraint })));
+const Play = React.lazy(() => import('./pages/Play').then(module => ({ default: module.Play })));
+const QualityGuide = React.lazy(() => import('./pages/QualityGuide').then(module => ({ default: module.QualityGuide })));
+const Features = React.lazy(() => import('./pages/Features')); // This was default export
+const Benchmarks = React.lazy(() => import('./pages/Benchmarks').then(module => ({ default: module.Benchmarks })));
+const Migration = React.lazy(() => import('./pages/Migration').then(module => ({ default: module.Migration })));
+const Security = React.lazy(() => import('./pages/Security').then(module => ({ default: module.Security })));
+const Plugins = React.lazy(() => import('./pages/Plugins').then(module => ({ default: module.Plugins })));
+const TemplateStarters = React.lazy(() => import('./pages/TemplateStarters').then(module => ({ default: module.TemplateStarters })));
+
 import './styles/theme.css';
 
+const LoadingFallback = () => (
+    <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+);
+
 const App = () => {
-    const [currentPath, setCurrentPath] = useState(window.location.hash || '#/');
-
-    useEffect(() => {
-        const handleHashChange = () => {
-            setCurrentPath(window.location.hash || '#/');
-            window.scrollTo(0, 0);
-        };
-        window.addEventListener('hashchange', handleHashChange);
-
-        // Register Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js').catch(err => {
-                    console.error('SW registration failed:', err);
-                });
-            });
-        }
-
-        return () => window.removeEventListener('hashchange', handleHashChange);
-    }, []);
-
-    const renderContent = () => {
-        if (currentPath.startsWith('#/guides/')) {
-            const framework = currentPath.replace('#/guides/', '');
-            return <FrameworkGuides framework={framework} />;
-        }
-
-        if (currentPath.startsWith('#/infra/')) {
-            const type = currentPath.replace('#/infra/', '');
-            return <InfrastructureGuides type={type} />;
-        }
-
-        switch (currentPath) {
-            case '#/docs/getting-started':
-                return <Docs />;
-            case '#/docs/quality':
-                return <QualityGuide />;
-            case '#/docs/core-concepts':
-                return <CoreConcepts />;
-            case '#/docs/tech-specs':
-                return <TechSpecs />;
-            case '#/mfe/overview':
-                return <MicroFrontends section="overview" />;
-            case '#/mfe/architecture':
-                return <MicroFrontends section="architecture" />;
-            case '#/mfe/getting-started':
-                return <MicroFrontends section="getting-started" />;
-            case '#/mfe/patterns':
-                return <MicroFrontends section="patterns" />;
-            case '#/mfe/risks':
-                return <MicroFrontends section="risks" />;
-            case '#/mfe/framework-policy':
-                return <MfeFrameworkConstraint />;
-            case '#/docs/glossary':
-                return <Glossary />;
-            case '#/docs/decision-guide':
-                return <DecisionGuide />;
-            case '#/docs/governance':
-                return <GovernanceHub />;
-            case '#/play':
-                return <Play />;
-            case '#/features':
-                return <Features />;
-            case '#/':
-            default:
-                return <Home />;
-        }
-    };
-
     return (
         <ThemeProvider>
             <I18nProvider>
-                <Layout>
-                    {renderContent()}
-                </Layout>
+                <BrowserRouter>
+                    <Layout>
+                        <Suspense fallback={<LoadingFallback />}>
+                            <Routes>
+                                {/* Home */}
+                                <Route path="/" element={<Home />} />
+
+                                {/* Features & Benchmarks */}
+                                <Route path="/features" element={<Features />} />
+                                <Route path="/benchmarks" element={<Benchmarks />} />
+
+                                {/* Ecosystem */}
+                                <Route path="/migration" element={<Migration />} />
+                                <Route path="/security" element={<Security />} />
+                                <Route path="/plugins" element={<Plugins />} />
+                                <Route path="/templates" element={<TemplateStarters />} />
+
+                                {/* Documentation */}
+                                <Route path="/docs/getting-started" element={<Docs />} />
+                                <Route path="/docs/quality" element={<QualityGuide />} />
+                                <Route path="/docs/core-concepts" element={<CoreConcepts />} />
+                                <Route path="/docs/tech-specs" element={<TechSpecs />} />
+                                <Route path="/docs/glossary" element={<Glossary />} />
+                                <Route path="/docs/decision-guide" element={<DecisionGuide />} />
+                                <Route path="/docs/governance" element={<GovernanceHub />} />
+
+                                {/* Framework Guides */}
+                                <Route path="/guides/:framework" element={<FrameworkGuides />} />
+
+                                {/* Infrastructure Guides */}
+                                <Route path="/infra/:type" element={<InfrastructureGuides />} />
+
+                                {/* Micro-Frontends */}
+                                <Route path="/mfe/overview" element={<MicroFrontends section="overview" />} />
+                                <Route path="/mfe/architecture" element={<MicroFrontends section="architecture" />} />
+                                <Route path="/mfe/getting-started" element={<MicroFrontends section="getting-started" />} />
+                                <Route path="/mfe/patterns" element={<MicroFrontends section="patterns" />} />
+                                <Route path="/mfe/risks" element={<MicroFrontends section="risks" />} />
+                                <Route path="/mfe/framework-policy" element={<MfeFrameworkConstraint />} />
+
+                                {/* Play/Experimental */}
+                                <Route path="/play" element={<Play />} />
+
+                                {/* Catch-all redirect to home */}
+                                <Route path="*" element={<Navigate to="/" replace />} />
+                            </Routes>
+                        </Suspense>
+                    </Layout>
+                </BrowserRouter>
             </I18nProvider>
         </ThemeProvider>
     );

@@ -516,7 +516,9 @@ export async function startDevServer(cfg: BuildConfig) {
   };
 
   const requestHandler = async (req: http.IncomingMessage, res: http.ServerResponse) => {
-    console.log(`[DevServer] Request: ${req.url} Preset: ${cfg.preset}`);
+    if (process.env.DEBUG) {
+      console.log(`[DevServer] Request: ${req.url} Preset: ${cfg.preset}`);
+    }
     statusHandler.trackRequest();
     if (await statusHandler.handleRequest(req, res)) return;
     if (federationDev.handleRequest(req, res)) return;
@@ -655,7 +657,9 @@ export async function startDevServer(cfg: BuildConfig) {
           (cfg.adapter && cfg.adapter.includes('react'));
 
         if (isReact) {
-          log.info('[Nexxo] Injecting React Refresh Preamble', { category: 'server' });
+          if (process.env.DEBUG) {
+            log.info('[Nexxo] Injecting React Refresh Preamble', { category: 'server' });
+          }
           preamble += `
     <script type="module">
       import RefreshRuntime from "/@react-refresh";
@@ -1332,7 +1336,7 @@ ${raw}
           statusHandler.trackHMR();
         });
       } catch (nativeError: any) {
-        log.warn(`Native HMR unavailable for ${file}, falling back to full reload`, { category: 'hmr' });
+        log.warn(`Native HMR unavailable for ${path.relative(cfg.root, file)}: ${nativeError.message || 'Unknown error'}. Falling back to full reload`, { category: 'hmr' });
         // Don't broadcast 'error' here, just restart
         broadcast(JSON.stringify({ type: 'restarting' }));
       }

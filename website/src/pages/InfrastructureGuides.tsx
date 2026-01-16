@@ -1,10 +1,13 @@
 import React from 'react';
+import { useParams, Navigate } from 'react-router-dom';
 import { useTheme } from '../components/ThemeContext';
 import { Layers, CheckCircle2, Copy } from 'lucide-react';
 
 import { CodeBlock } from '../components/CodeBlock';
 
-export const InfrastructureGuides = ({ type }: { type: string }) => {
+export const InfrastructureGuides = () => {
+    const { type } = useParams<{ type: string }>();
+    if (!type) return <Navigate to="/docs/getting-started" />;
     const config = {
         tailwind: {
             name: 'Tailwind CSS',

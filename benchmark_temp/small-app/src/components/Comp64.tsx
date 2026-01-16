@@ -1,1 +1,0 @@
-import React from 'react'; export const Comp64 = () => <div>64</div>;

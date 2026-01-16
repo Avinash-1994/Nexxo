@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
     Share2,
     ShieldAlert,
@@ -50,41 +51,103 @@ export const MicroFrontends = ({ section }: { section: string }) => {
                 );
             case 'getting-started':
                 return (
+                    // ... (imports remain)
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-                        <h1 className="text-4xl font-black font-display mb-6 tracking-tight">Getting Started (Host + Remote)</h1>
+                        <h1 className="text-4xl font-black font-display mb-6 tracking-tight">Getting Started</h1>
+
+                        <div className="mb-10 p-6 rounded-2xl bg-blue-500/10 border border-blue-500/20">
+                            <h3 className="text-blue-400 font-bold mb-2 flex items-center gap-2">
+                                <CheckCircle2 size={18} /> Production Readiness
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mt-4">
+                                <div className="p-3 bg-slate-900 rounded-lg border border-slate-800">
+                                    <div className="font-bold text-emerald-400 mb-1">CSR (Client-Side)</div>
+                                    <div className="text-slate-400">✅ Stable v1.0</div>
+                                </div>
+                                <div className="p-3 bg-slate-900 rounded-lg border border-slate-800">
+                                    <div className="font-bold text-amber-400 mb-1">SSR (Server-Side)</div>
+                                    <div className="text-slate-400">⚠️ Experimental</div>
+                                    <div className="text-[10px] text-slate-500 mt-1">Target: Q3 2026</div>
+                                </div>
+                                <div className="p-3 bg-slate-900 rounded-lg border border-slate-800">
+                                    <div className="font-bold text-red-400 mb-1">Cross-Framework</div>
+                                    <div className="text-slate-400">❌ Not Supported</div>
+                                    <div className="text-[10px] text-slate-500 mt-1">Target: Q4 2026</div>
+                                </div>
+                            </div>
+                        </div>
 
                         <h2 className="text-2xl font-bold mb-4">1. The Remote Setup</h2>
-                        <p className="mb-4 text-[var(--text-secondary)]">Expose modules in your <code>nexxo.config.js</code>:</p>
-                        <CodeBlock code={`// remote/nexxo.config.js
-module.exports = {
-  adapter: 'react-adapter',
+                        <p className="mb-4 text-[var(--text-secondary)]">Expose your components in the remote application's config:</p>
+                        <CodeBlock code={`// remote/nexxo.config.ts
+import { defineConfig } from 'nexxo';
+import { federation } from '@nexxo/plugin-federation';
+
+export default defineConfig({
   plugins: [
-    new FederationPlugin({
-      name: 'app_remote',
+    federation({
+      name: 'shop_remote',
       filename: 'remoteEntry.js',
       exposes: {
-        './Button': './src/components/Button'
+        './Cart': './src/components/Cart.tsx',
+        './ProductList': './src/components/ProductList.tsx'
       },
-      shared: ['react', 'react-dom']
+      shared: ['react', 'react-dom', 'zustand']
     })
   ]
-};`} />
+});`} language="typescript" />
 
                         <h2 className="text-2xl font-bold mt-10 mb-4">2. The Host Setup</h2>
-                        <p className="mb-4 text-[var(--text-secondary)]">Consume the remote in the host configuration:</p>
-                        <CodeBlock code={`// host/nexxo.config.js
-module.exports = {
-  adapter: 'react-adapter',
+                        <p className="mb-4 text-[var(--text-secondary)]">Register the remote in your host application:</p>
+                        <CodeBlock code={`// host/nexxo.config.ts
+import { defineConfig } from 'nexxo';
+import { federation } from '@nexxo/plugin-federation';
+
+export default defineConfig({
   plugins: [
-    new FederationPlugin({
-      name: 'app_host',
+    federation({
+      name: 'main_app',
       remotes: {
-        'app_remote': 'http://localhost:3001/remoteEntry.js'
+        shop: 'http://localhost:3001/remoteEntry.js' // Direct URL
+        // OR
+        // shop: 'shop@http://localhost:3001/remoteEntry.js'
       },
-      shared: ['react', 'react-dom']
+      shared: ['react', 'react-dom', 'zustand']
     })
   ]
-};`} />
+});`} language="typescript" />
+
+                        <h2 className="text-2xl font-bold mt-10 mb-4">3. Usage in React</h2>
+                        <p className="mb-4 text-[var(--text-secondary)]">Import components lazily using <code>React.lazy</code>:</p>
+                        <CodeBlock code={`// host/src/App.tsx
+import React, { Suspense } from 'react';
+
+// Lazy load the remote component
+const Cart = React.lazy(() => import('shop/Cart'));
+
+export default function App() {
+  return (
+    <div>
+      <h1>Main Application</h1>
+      <Suspense fallback={<div>Loading Cart...</div>}>
+        <Cart />
+      </Suspense>
+    </div>
+  );
+}`} language="tsx" />
+
+                        <h2 className="text-2xl font-bold mt-10 mb-4">4. Type Safety (TypeScript)</h2>
+                        <p className="mb-4 text-[var(--text-secondary)]">Create a declaration file to silence TypeScript errors:</p>
+                        <CodeBlock code={`// host/src/remotes.d.ts
+declare module 'shop/Cart' {
+  const Cart: React.ComponentType;
+  export default Cart;
+}
+
+declare module 'shop/ProductList' {
+  const ProductList: React.ComponentType<{ limit?: number }>;
+  export default ProductList;
+}`} language="typescript" />
                     </div>
                 );
             case 'patterns':
@@ -200,8 +263,8 @@ module.exports = {
                                     Unlike other tools that rely on magical runtime injections, Nexxo requires all federated boundaries to be declared in the Build Graph. This ensures that every remote module is linkable and verifiable.
                                 </p>
                                 <div className="flex gap-4">
-                                    <a href="#/mfe/architecture" className="px-6 py-3 bg-blue-600 rounded-xl font-bold hover:bg-blue-500 transition-colors">Internal Mechanics</a>
-                                    <a href="#/mfe/risks" className="px-6 py-3 border border-slate-700 rounded-xl font-bold hover:bg-slate-800 transition-colors">View Risks</a>
+                                    <Link to="/mfe/architecture" className="px-6 py-3 bg-blue-600 rounded-xl font-bold hover:bg-blue-500 transition-colors">Internal Mechanics</Link>
+                                    <Link to="/mfe/risks" className="px-6 py-3 border border-slate-700 rounded-xl font-bold hover:bg-slate-800 transition-colors">View Risks</Link>
                                 </div>
                             </div>
                         </div>

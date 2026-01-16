@@ -1,1 +1,0 @@
-import React from 'react'; export const Comp74 = () => <div>74</div>;

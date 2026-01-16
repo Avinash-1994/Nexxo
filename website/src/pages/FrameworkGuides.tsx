@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useParams, Navigate, Link } from 'react-router-dom';
 import { useTheme } from '../components/ThemeContext';
 import {
     CheckCircle2,
@@ -13,7 +14,10 @@ import {
 
 import { CodeBlock } from '../components/CodeBlock';
 
-export const FrameworkGuides = ({ framework }: { framework: string }) => {
+export const FrameworkGuides = () => {
+    const { framework } = useParams<{ framework: string }>();
+    if (!framework) return <Navigate to="/docs/getting-started" />;
+
     const config = {
         react: {
             name: 'React',
@@ -295,9 +299,9 @@ module.exports = {
                     While Nexxo allows multiple frameworks in a single repository (e.g., a React Marketing site and a Vue Dashboard), it strictly enforces **one framework per runtime container**. You can mix frameworks across routes, but not within the same component tree.
                 </p>
                 <div className="mt-4">
-                    <a href="#/mfe/framework-policy" className="text-xs font-bold text-blue-500 hover:underline flex items-center gap-1">
+                    <Link to="/mfe/framework-policy" className="text-xs font-bold text-blue-500 hover:underline flex items-center gap-1">
                         Read our Framework Isolation Policy <ArrowRight size={12} />
-                    </a>
+                    </Link>
                 </div>
             </section>
         </div>

@@ -13,6 +13,7 @@ import {
     Rocket,
     Copy
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useI18n } from '../components/I18nContext';
 import { ErrorTest } from '../components/ErrorTest';
 
@@ -82,12 +83,12 @@ export const Home: React.FC = () => {
                     {t('hero.subtitle')}
                 </p>
                 <div className="flex flex-wrap justify-center lg:justify-start gap-4">
-                    <a
-                        href="#/docs/getting-started"
+                    <Link
+                        to="/docs/getting-started"
                         className="px-10 py-4 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-500 hover:-translate-y-1 transition-all shadow-xl shadow-blue-500/25 active:scale-95"
                     >
                         Deploy Project →
-                    </a>
+                    </Link>
                     <a
                         href="https://github.com"
                         className="px-8 py-4 border border-[var(--border-color)] font-bold rounded-2xl hover:bg-white dark:hover:bg-slate-800 transition-all active:scale-95"
@@ -174,9 +175,10 @@ export const Home: React.FC = () => {
                 <p className="text-[var(--text-secondary)] max-w-xl mx-auto mb-10 text-lg">
                     Join the architects building stable, long-term foundations without tool-dictated constraints.
                 </p>
-                <a href="#/docs/getting-started" className="inline-flex h-14 items-center justify-center px-12 rounded-2xl bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-bold hover:scale-105 transition-transform active:scale-95 shadow-2xl">
+                <Link to="/docs/getting-started" className="inline-flex h-14 items-center justify-center px-12 rounded-2xl bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-bold hover:scale-105 transition-transform active:scale-95 shadow-2xl">
                     Start Building Now
-                </a>
+                </Link>
+
             </section>
         </div>
     );
