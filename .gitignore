@@ -24,6 +24,9 @@ native/nexxo_native*.node
 .test_create_nexxo/
 test-project-*/
 my-react-app/
+test_output*/
+test_*/
+temp_*/
 
 # Marketplace/Plugin artifacts
 marketplace.db
@@ -49,3 +52,30 @@ tmp/
 temp/
 .cache/
 benchmark_temp/
+
+# Security - NEVER commit these
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.cer
+*.der
+*.csr
+*.priv
+**/certs/**
+**/.nexxo/certs/**
+.env
+.env.local
+.env.*.local
+secrets/
+*.secret
+*.private
+
+# Cache and local data
+.nexxo_cache/
+.nexxo/telemetry/
+**/.nexxo_cache/**
+**/.nexxo/telemetry/**
+*.db
+*.db-journal
