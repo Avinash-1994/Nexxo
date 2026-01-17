@@ -161,7 +161,8 @@ export class UniversalTransformer {
         }
 
         try {
-            const babel = await import('@babel/core');
+            const babelModule = await import('@babel/core');
+            const babel: any = (babelModule as any).default || babelModule;
 
             // Detect React version to use appropriate transform
             const reactVersion = await this.getPackageVersion('react');
@@ -552,7 +553,8 @@ if (import.meta.hot) {
         }
 
         try {
-            const babel = await import('@babel/core');
+            const babelModule = await import('@babel/core');
+            const babel: any = (babelModule as any).default || babelModule;
             const result = await babel.transformAsync(code, {
                 filename: filePath,
                 presets: [

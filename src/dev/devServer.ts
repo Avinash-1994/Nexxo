@@ -2,14 +2,12 @@ import http from 'http';
 import path from 'path';
 import fs from 'fs/promises';
 import { anomalyDetector } from '../security/anomaly.js';
+import type { WebSocketServer, WebSocket } from 'ws';
 import { fileURLToPath } from 'url';
-import WebSocket, { WebSocketServer } from 'ws';
-import chokidar from 'chokidar';
 import { BuildConfig } from '../config/index.js';
 import { log } from '../utils/logger.js';
 import { PluginManager } from '../plugins/index.js';
 import { PluginSandbox } from '../core/sandbox.js';
-import * as acorn from 'acorn';
 
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
@@ -22,16 +20,19 @@ try {
   const candidates = [
     path.resolve(__dirname, '../../nexxo_native.node'), // From src/dev/devServer.ts
     path.resolve(__dirname, '../nexxo_native.node'),    // From dist/dev/devServer.js
+    path.resolve(__dirname, './nexxo_native.node'),     // From dist/
     path.resolve(process.cwd(), 'nexxo_native.node'),   // Root fallback
     path.resolve(process.cwd(), 'dist/nexxo_native.node')
   ];
 
   let pathFound = '';
   for (const c of candidates) {
-    if (require('fs').existsSync(c)) {
-      pathFound = c;
-      break;
-    }
+    try {
+      if (require('fs').existsSync(c)) {
+        pathFound = c;
+        break;
+      }
+    } catch { }
   }
 
   if (!pathFound) throw new Error('Native binary not found');
@@ -64,8 +65,9 @@ import { LiveConfigManager } from '../config/live-config.js';
  * Rewrite bare module imports to node_modules paths
  * Production-grade AST-based rewriting (Phase C1 Honest)
  */
-function rewriteImports(code: string, rootDir: string, preBundledDeps?: Map<string, string>): string {
+async function rewriteImports(code: string, rootDir: string, preBundledDeps?: Map<string, string>): Promise<string> {
   try {
+    const acorn = await import('acorn');
     const ast = acorn.parse(code, {
       sourceType: 'module',
       ecmaVersion: 'latest'
@@ -162,11 +164,16 @@ async function findAvailablePort(startPort: number, host: string): Promise<numbe
   return port;
 }
 
-export async function startDevServer(cfg: BuildConfig) {
+export async function startDevServer(cfg: BuildConfig, existingServer?: any) {
   // 1. Load Environment Variables
-  const { config: loadEnv } = await import('dotenv');
-  loadEnv({ path: path.join(cfg.root, '.env') });
-  loadEnv({ path: path.join(cfg.root, '.env.local') });
+  try {
+    const dotenvModule = await import('dotenv');
+    const loadEnv = (dotenvModule as any).config || (dotenvModule as any).default?.config;
+    if (loadEnv) {
+      loadEnv({ path: path.join(cfg.root, '.env') });
+      loadEnv({ path: path.join(cfg.root, '.env.local') });
+    }
+  } catch (e) { }
 
   // Filter public env vars
   const publicEnv = Object.keys(process.env)
@@ -418,11 +425,12 @@ export async function startDevServer(cfg: BuildConfig) {
   // WebSocket Server setup (early init for HMRThrottle)
   // We need the server instance first, but we can setup the WSS later or pass a callback
   // Let's create the broadcast function first
-  let wss: WebSocketServer;
+  let wss: WebSocketServer | undefined;
   const broadcast = (msg: string) => {
     if (wss) {
-      wss.clients.forEach((c: WebSocket) => {
-        if (c.readyState === WebSocket.OPEN) c.send(msg);
+      wss.clients.forEach((c: any) => {
+        // WebSocket.OPEN is 1
+        if (c.readyState === 1) c.send(msg);
       });
     }
   };
@@ -517,7 +525,8 @@ export async function startDevServer(cfg: BuildConfig) {
 
   const requestHandler = async (req: http.IncomingMessage, res: http.ServerResponse) => {
     if (process.env.DEBUG) {
-      console.log(`[DevServer] Request: ${req.url} Preset: ${cfg.preset}`);
+      // Diagnostic log removed for cleaner production output
+      // log.debug(`[DevServer] Request: ${req.url} Preset: ${cfg.preset}`);
     }
     statusHandler.trackRequest();
     if (await statusHandler.handleRequest(req, res)) return;
@@ -1051,7 +1060,7 @@ ${raw}
           });
 
           // Rewrite imports after transformation
-          let code = rewriteImports(transformResult.code, cfg.root, preBundledDeps);
+          let code = await rewriteImports(transformResult.code, cfg.root, preBundledDeps);
 
           res.writeHead(200, {
             'Content-Type': 'application/javascript',
@@ -1192,14 +1201,20 @@ ${raw}
   };
 
   let server;
-  if (httpsOptions) {
-    const https = await import('https');
-    server = https.createServer(httpsOptions, requestHandler);
+  if (existingServer) {
+    server = existingServer;
+    (server as any).__nexxo_handler = requestHandler;
   } else {
-    server = http.createServer(requestHandler);
+    if (httpsOptions) {
+      const https = await import('https');
+      server = https.createServer(httpsOptions, requestHandler);
+    } else {
+      server = http.createServer(requestHandler);
+    }
   }
 
   // WebSocket Server setup
+  const { WebSocketServer } = await import('ws');
   wss = new WebSocketServer({ server });
 
   // Initialize Config Sync Handlers
@@ -1212,7 +1227,7 @@ ${raw}
   });
 
   // Upgrade handling for Proxy WebSockets
-  server.on('upgrade', (req, socket, head) => {
+  server.on('upgrade', (req: http.IncomingMessage, socket: any, head: Buffer) => {
     if (cfg.server?.proxy) {
       for (const [context, target] of Object.entries(cfg.server.proxy)) {
         if (req.url?.startsWith(context)) {
@@ -1250,7 +1265,7 @@ ${raw}
       broadcast(JSON.stringify({ type: 'restarting' }));
       await new Promise(r => setTimeout(r, 500)); // Give clients time to receive message
       server.close();
-      wss.close();
+      wss?.close();
       await configWatcher.close();
       federationDev.stop();
       // Re-run startDevServer (recursive)
@@ -1264,6 +1279,7 @@ ${raw}
   });
   configWatcher.start();
 
+  const { default: chokidar } = await import('chokidar');
   const watcher = chokidar.watch(cfg.root, { ignored: /node_modules|\.git/ });
   watcher.on('change', async (file: string) => {
     try {
@@ -1350,32 +1366,39 @@ ${raw}
     }
   });
 
-  server.listen(port, () => {
+  if (!existingServer) {
+    server.listen(port, () => {
+      const protocol = httpsOptions ? 'https' : 'http';
+      const url = `${protocol}://${host}:${port}`;
+
+      log.table({
+        'HTTP': url,
+        'HTTPS': httpsOptions ? 'Enabled' : 'Disabled',
+        'Proxy': cfg.server?.proxy ? Object.keys(cfg.server.proxy).join(', ') : 'None',
+        'Status': `${url}/__nexxo/status`,
+        'Security': `${url}/__nexxo/security`,
+        'Federation': `${url}/__federation`
+      });
+
+      if (cfg.server?.open) {
+        (async () => {
+          const { spawn } = await import('child_process');
+          const isWin = process.platform === 'win32';
+          const cmd = isWin ? 'cmd' : (process.platform === 'darwin' ? 'open' : 'xdg-open');
+          const args = isWin ? ['/c', 'start', '', url] : [url];
+          try {
+            const child = spawn(cmd, args, { stdio: 'ignore', detached: true });
+            child.unref();
+          } catch { }
+        })();
+      }
+    });
+  } else {
+    // Just log that full features are ready
     const protocol = httpsOptions ? 'https' : 'http';
     const url = `${protocol}://${host}:${port}`;
-
-    log.table({
-      'HTTP': url,
-      'HTTPS': httpsOptions ? 'Enabled' : 'Disabled',
-      'Proxy': cfg.server?.proxy ? Object.keys(cfg.server.proxy).join(', ') : 'None',
-      'Status': `${url}/__nexxo/status`,
-      'Security': `${url}/__nexxo/security`,
-      'Federation': `${url}/__federation`
-    });
-
-    if (cfg.server?.open) {
-      (async () => {
-        const { spawn } = await import('child_process');
-        const isWin = process.platform === 'win32';
-        const cmd = isWin ? 'cmd' : (process.platform === 'darwin' ? 'open' : 'xdg-open');
-        const args = isWin ? ['/c', 'start', '', url] : [url];
-        try {
-          const child = spawn(cmd, args, { stdio: 'ignore', detached: true });
-          child.unref();
-        } catch { }
-      })();
-    }
-  });
+    log.success(`Full production engine active at ${url}`, { category: 'server' });
+  }
 
   return server;
 }
