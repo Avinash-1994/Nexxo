@@ -489,15 +489,11 @@ module.exports = {
 
 ## 📖 Documentation
 
-Full documentation and framework guides are available on our website:
+Project documentation and guides are maintained in the repository:
 
-**[https://avinash-1994.github.io/Nuclie/](https://avinash-1994.github.io/Nuclie/)**
-
-- [Getting Started](https://avinash-1994.github.io/Nuclie/#/docs/getting-started)
-- [Framework Guides](https://avinash-1994.github.io/Nuclie/#/guides/react)
-- [Module Federation](https://avinash-1994.github.io/Nuclie/#/mfe/overview)
-- [Plugin Development](https://avinash-1994.github.io/Nuclie/#/plugins)
-- [Changelog](./CHANGELOG.md)
+- [docs/](./docs)
+- [CHANGELOG.md](./CHANGELOG.md)
+- [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ---
 
