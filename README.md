@@ -5,18 +5,15 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Tests](https://img.shields.io/badge/tests-109%2F109-brightgreen)](#test-status)
 [![Node >=20](https://img.shields.io/badge/node-%3E%3D20-blue)](https://nodejs.org)
-[![Website](https://img.shields.io/badge/website-live-brightgreen)](https://avinash-1994.github.io/Nuclie/)
 
-Nuclie is a blazing-fast JavaScript build tool powered by SWC (Rust) and LightningCSS. It delivers HMR in under 60ms, native module federation for micro-frontends, automatic tree shaking, and deep multi-framework support (React, Vue, Svelte, Solid, Preact, Qwik) — a modern Vite alternative with a Rust-native core.
-
-**[📖 Documentation Website →](https://avinash-1994.github.io/Nuclie/)**
+Nuclie is a modern JavaScript build tool powered by SWC (Rust) and LightningCSS. It delivers fast HMR, native module federation for micro-frontends, automatic tree shaking, and deep multi-framework support (React, Vue, Svelte, Solid, Preact, Qwik) — a modern alternative with a Rust-native core.
 
 ---
 
 ## ✨ Features
 
 - ⚡ **Fast Builds** — Parallel pipeline with Rust-native transforms (SWC)
-- 🔥 **Hot Module Replacement** — Framework-aware HMR, sub-60ms updates
+- 🔥 **Hot Module Replacement** — Framework-aware HMR with low-latency updates
 - 🗺️ **Source Maps** — `inline`, `external`, and `hidden` modes
 - 🌳 **Tree Shaking** — AST-based dead code elimination in production
 - 📦 **Module Federation** — Micro-frontend support built in
