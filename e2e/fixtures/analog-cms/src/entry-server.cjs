@@ -125,8 +125,26 @@ function renderApplication(url, opts) {
     mainContent = '<app-home-page _nghost-ng-c1234><h2 _ngcontent-ng-c1234>Latest Posts</h2><ul _ngcontent-ng-c1234><li><a _ngcontent-ng-c1234 href="/blog/hello-analog">Hello Analog</a></li><li><a _ngcontent-ng-c1234 href="/blog/lunx-build">Lunx Build Integration</a></li></ul></app-home-page>';
   } else if (isBlog) {
     var slug = params.slug || url.split('/blog/')[1] || 'unknown';
-    var postTitle = slug === 'hello-analog' ? 'Hello Analog' : slug === 'lunx-build' ? 'Lunx Build Integration' : 'Unknown';
-    mainContent = '<app-blog-post _nghost-ng-c5678><article _ngcontent-ng-c5678><h1 _ngcontent-ng-c5678>' + postTitle + '</h1><p _ngcontent-ng-c5678 class="content">This is the content for ' + slug + '</p></article></app-blog-post>';
+    slug = slug.replace(/\/+$/, '');
+    var known = { 'hello-analog': 'Hello Analog', 'lunx-build': 'Lunx Build Integration' };
+    var postTitle = known[slug] || slug
+      .split(/[-_]/)
+      .filter(Boolean)
+      .map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); })
+      .join(' ');
+    mainContent =
+      '<app-blog-post _nghost-ng-c5678>' +
+        '<article _ngcontent-ng-c5678 class="post">' +
+          '<header _ngcontent-ng-c5678 class="post-header">' +
+            '<h1 _ngcontent-ng-c5678 class="post-title">' + postTitle + '</h1>' +
+            '<p _ngcontent-ng-c5678 class="post-meta">By Jane Developer · Published July 15, 2026 · 4 min read</p>' +
+          '</header>' +
+          '<p _ngcontent-ng-c5678 class="content">Welcome to "' + postTitle + '", a deep dive published on the Analog CMS. In this article we explore how Analog combines Angular with a file-based routing layer to deliver fully server-rendered content out of the box.</p>' +
+          '<p _ngcontent-ng-c5678 class="content">Analog uses Vite under the hood, so the development experience stays fast while production builds are prerendered to static HTML for excellent performance and search engine visibility. Each page component is resolved from the pages directory at request time.</p>' +
+          '<p _ngcontent-ng-c5678 class="content">The renderApplication shim hydrates this markup on the client, attaching event listeners without discarding the server-generated DOM. That means readers see meaningful content immediately, long before the JavaScript bundle finishes downloading and executing.</p>' +
+          '<footer _ngcontent-ng-c5678 class="post-footer"><a _ngcontent-ng-c5678 href="/">Back to all posts</a></footer>' +
+        '</article>' +
+      '</app-blog-post>';
   } else {
     mainContent = '<h1>Page not found</h1>';
   }
@@ -142,7 +160,7 @@ function renderApplication(url, opts) {
     '  <link rel="stylesheet" href="/styles.css">',
     '</head>',
     '<body>',
-    '  <app-root _nghost-ng-c0000>',
+    '  <app-root ng-version="17.0.0" _nghost-ng-c0000>',
     '    <main _ngcontent-ng-c0000>',
     '      <h1 _ngcontent-ng-c0000>Analog CMS</h1>',
     '      <router-outlet _ngcontent-ng-c0000></router-outlet>',

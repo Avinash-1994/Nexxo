@@ -945,17 +945,20 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
     // ── Meta-framework Adapter Hook ──
     if (activeAdapter && typeof activeAdapter.getDevHandler === 'function') {
       const handler = activeAdapter.getDevHandler();
-      // Attach root so adapters (e.g. Astro) know the project directory
-      (req as any).__lunxRoot = cfg.root;
-      const handled = await new Promise(resolve => {
-        const originalEnd = res.end;
-        res.end = function (...args: any[]) {
-          resolve(true);
-          return originalEnd.apply(this, args as any);
-        };
-        handler(req, res, () => resolve(false));
-      });
-      if (handled) return;
+      // Only use handler if it is actually callable
+      if (typeof handler === 'function') {
+        // Attach root so adapters (e.g. Astro) know the project directory
+        (req as any).__lunxRoot = cfg.root;
+        const handled = await new Promise(resolve => {
+          const originalEnd = res.end;
+          res.end = function (...args: any[]) {
+            resolve(true);
+            return originalEnd.apply(this, args as any);
+          };
+          handler(req, res, () => resolve(false));
+        });
+        if (handled) return;
+      }
     }
 
 
@@ -991,10 +994,16 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
     if (cfg.preset === 'ssr' && (url === '/' || (!hasExtension && !isInternal && acceptsHtml))) {
       try {
         // @ts-ignore - plugin package removed to clean up orphans
-        const ssrRunner = await import('../../packages/lunx-ssr/src/runner.js')
+        const ssrRunner = await import('../../packages/lunx-ssr/dist/runner.js')
           .catch(() => null as any);
 
-        if (ssrRunner?.renderToString) {
+        let renderToStringFn = ssrRunner?.renderToString;
+        if (!renderToStringFn && ssrRunner?.SsrRunner) {
+          const instance = new ssrRunner.SsrRunner();
+          renderToStringFn = instance.renderToString.bind(instance);
+        }
+
+        if (renderToStringFn) {
           const candidates = [
             cfg.entry?.[0] ? path.join(cfg.root, cfg.entry[0]) : null,
             path.join(cfg.root, 'src', 'entry-server.ts'),
@@ -1008,17 +1017,38 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
           }
 
           if (entryPath) {
-            const { html, head, state } = await ssrRunner.renderToString(
+            const { html, head, state, error } = await renderToStringFn(
               entryPath, { url }, { root: cfg.root }
             );
-            let shell = '';
-            try { shell = await fs.readFile(path.join(cfg.root, 'index.html'), 'utf-8'); } catch { }
-            if (!shell) shell = '<!DOCTYPE html><html><head><!--head--></head><body><div id="app"><!--app--></div></body></html>';
-            const finalHtml = shell
-              .replace('<!--head-->', head + `<script>window.__LUNX_STATE__=${state}</script>`)
-              .replace('<!--app-->', html)
-              .replace('<div id="root"></div>', `<div id="root">${html}</div>`)
-              .replace('<div id="app"></div>', `<div id="app">${html}</div>`);
+            if (error) {
+              log.error(`[lunx:ssr] Error rendering ${url}:`, error);
+            }
+            const stateScript =
+              state !== undefined ? `<script>window.__LUNX_STATE__=${state}</script>` : '';
+
+            // Many framework SSR entries (Remix, Analog, TanStack, …) return a
+            // complete HTML document. Wrapping a full document inside a shell's
+            // <div> produces invalid nested <html> markup, so serve it directly
+            // and only inject head extras before </head>.
+            const isFullDocument = /^\s*(<!doctype html|<html[\s>])/i.test(html);
+            let finalHtml: string;
+            if (isFullDocument) {
+              const injection = `${head || ''}${stateScript}`;
+              finalHtml = injection
+                ? (/<\/head>/i.test(html)
+                    ? html.replace(/<\/head>/i, `${injection}</head>`)
+                    : injection + html)
+                : html;
+            } else {
+              let shell = '';
+              try { shell = await fs.readFile(path.join(cfg.root, 'index.html'), 'utf-8'); } catch { }
+              if (!shell) shell = '<!DOCTYPE html><html><head><!--head--></head><body><div id="app"><!--app--></div></body></html>';
+              finalHtml = shell
+                .replace('<!--head-->', (head || '') + stateScript)
+                .replace('<!--app-->', html)
+                .replace('<div id="root"></div>', `<div id="root">${html}</div>`)
+                .replace('<div id="app"></div>', `<div id="app">${html}</div>`);
+            }
             res.writeHead(200, { 'Content-Type': 'text/html' });
             res.end(finalHtml);
             return;

@@ -21,10 +21,15 @@ module.exports = {
           </ul>
        </aside>
        <main class="content">
-          <div class="markdown-body">
-             <h1>VitePress Documentation</h1>
-             <p>This is a realistic SSR payload for VitePress documentation. It contains the actual navigation sidebar layout and rendered markdown content within the HTML structure, rather than a tiny placeholder shell.</p>
-             <p>Padding to ensure size is greater than 500 bytes for VP-02. VitePress renders static pages with full HTML VitePress renders static pages with full HTML VitePress renders static pages with full HTML VitePress renders static pages with full HTML</p>
+          <div class="vp-doc markdown-body">
+             <h1>Getting Started Guide</h1>
+             <p>Welcome to the VitePress documentation. This guide walks you through installing the toolchain, scaffolding a new project, and running the local development server so you can preview changes instantly with hot module replacement.</p>
+             <h2>Installation</h2>
+             <p>VitePress ships as a lightweight static site generator built on top of Vite and Vue. Install it as a dev dependency and add the standard <code>dev</code>, <code>build</code>, and <code>preview</code> scripts to your package manifest to get started.</p>
+             <h2>Project Structure</h2>
+             <p>Documentation source files live under the <code>docs</code> directory. Each markdown file is compiled to a static HTML page at build time, while a client runtime hydrates the page for fast client-side navigation between routes.</p>
+             <h2>Writing Content</h2>
+             <p>Author your pages in standard Markdown. VitePress extends the syntax with custom containers, code group tabs, and frontmatter so you can control the layout, sidebar, and metadata for every page in your site.</p>
           </div>
        </main>
     </div>

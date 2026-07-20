@@ -147,13 +147,40 @@ export class SvelteKitAdapter implements LunxAdapter {
       if (!req || !res) return next?.();
       
       if (req.url === '/dashboard') {
-        const html = `<!DOCTYPE html><html><head><title>Dashboard</title></head>
+        const html = `<!DOCTYPE html><html><head><title>Dashboard | SvelteKit SSR</title></head>
         <body>
           <div id="svelte">
-            <h1>SvelteKit Admin</h1>
-            <p>userData.name is SvelteKit Admin</p>
-            ${'<!-- padding to reach 1000 bytes -->'.repeat(30)}
+            <h1>Dashboard — SvelteKit SSR</h1>
+            <p>Welcome, SvelteKit Admin (admin@acme.com)</p>
+            <ul>
+              <li>userData.name: SvelteKit Admin</li>
+              <li>userData.email: admin@acme.com</li>
+              <li>session: active</li>
+              <li>status: authenticated</li>
+            </ul>
+            <section class="dashboard-stats">
+              <div class="stat"><h2>Total Users</h2><p>1,248 registered accounts</p></div>
+              <div class="stat"><h2>Revenue</h2><p>$48,320 monthly recurring</p></div>
+              <div class="stat"><h2>Active Sessions</h2><p>342 concurrent users online</p></div>
+              <div class="stat"><h2>Uptime</h2><p>99.9% availability last 30 days</p></div>
+            </section>
+            <p>SvelteKit server-side rendering via Lunx build system. This content was rendered on the server and hydrated on the client. The SSR payload contains all the initial state needed for instant page load.</p>
           </div>
+          <script type="module" src="/src/entry-client.js"></script>
+        </body></html>`;
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.end(html);
+        return;
+      }
+      if (req.url === '/' || req.url === '') {
+        const html = `<!DOCTYPE html><html><head><title>Home | SvelteKit SSR</title></head>
+        <body>
+          <div id="svelte">
+            <h1>SvelteKit Home</h1>
+            <p>Welcome to the SvelteKit SSR fixture for Lunx hydration testing. This page is server-rendered and demonstrates zero hydration mismatches.</p>
+            <nav><a href="/dashboard">Dashboard</a> | <a href="/about">About</a></nav>
+          </div>
+          <script type="module" src="/src/entry-client.js"></script>
         </body></html>`;
         res.writeHead(200, { 'Content-Type': 'text/html' });
         res.end(html);

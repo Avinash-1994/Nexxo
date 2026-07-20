@@ -1,7 +1,5 @@
-import vm from 'vm';
 import { pathToFileURL } from 'url';
 import fs from 'fs';
-import path from 'path';
 
 export interface SsrRenderResult {
     html: string;
@@ -16,69 +14,66 @@ export interface SsrContext {
 }
 
 /**
- * Advanced SSR Runner using Node.js experimental 'vm.Module'
- * Isolates memory and avoids cross-request pollution.
+ * SSR Runner.
+ *
+ * The SSR entry (`entry-ssr.js`) is a real ESM module that exports an async
+ * `render(context)` function returning `{ html, head, state }`. Older versions
+ * of this runner tried to evaluate the entry inside a `vm.Script` wrapped in a
+ * CommonJS closure — that fails at parse time for any entry using ESM `import`
+ * syntax (which all of ours do), silently returning empty HTML.
+ *
+ * We now load the entry with a genuine dynamic `import()` so that
+ * `import.meta.url`, `createRequire`, and relative `require()` calls inside the
+ * entry all resolve against the fixture, exactly as they would at runtime.
  */
 export class SsrRunner {
-    private contexts: Map<string, vm.Context> = new Map();
-
-    async renderToString(entryPath: string, context: SsrContext): Promise<SsrRenderResult> {
+    async renderToString(
+        entryPath: string,
+        context: SsrContext,
+        options: Record<string, any> = {}
+    ): Promise<SsrRenderResult> {
         try {
-            const entryCode = await fs.promises.readFile(entryPath, 'utf-8');
-            
-            // Build an isolated context execution environment
-            const sandbox = {
-                console,
-                setTimeout,
-                clearTimeout,
-                Buffer,
-                process: { env: { NODE_ENV: 'production' } },
-                // Allow fetching polyfill and other browser mocks if needed
-                URL,
-                URLSearchParams,
-                globalThis: {} as any,
-            };
-            sandbox.globalThis = sandbox;
-            
-            const vmContext = vm.createContext(sandbox);
+            // Ensure the file exists before importing so we return a clean error
+            // rather than an opaque ERR_MODULE_NOT_FOUND.
+            await fs.promises.access(entryPath);
 
-            // Create synthetic module inside the VM context
-            // Note: Since experimental modules in VM are complex to set up without CLI flags,
-            // we will use robust context evaluation for the bundled SSR entry logic.
-            
-            // Expected SSR entry exposes `render(context)`
-            const script = new vm.Script(`
-                const module = { exports: {} };
-                const exports = module.exports;
-                (function(module, exports) {
-                    ${entryCode}
-                })(module, exports);
-                module.exports;
-            `);
+            const href = pathToFileURL(entryPath).href;
+            const mod: any = await import(href);
 
-            const exported = script.runInContext(vmContext);
-            
-            if (typeof exported.render !== 'function') {
-                if (exported.default && typeof exported.default.render === 'function') {
-                    exported.render = exported.default.render;
-                } else {
-                    throw new Error("SSR Entry module does not export a 'render' function. Ensure the bundle exports render().");
+            let render: unknown = mod?.render;
+            if (typeof render !== 'function') {
+                if (typeof mod?.default === 'function') {
+                    render = mod.default;
+                } else if (typeof mod?.default?.render === 'function') {
+                    render = mod.default.render;
                 }
             }
 
-            const { html, head, state } = await exported.render(context);
+            if (typeof render !== 'function') {
+                throw new Error(
+                    "SSR Entry module does not export a 'render' function. Ensure the entry exports render()."
+                );
+            }
 
-            return { html: html || '', head: head || '', state };
+            const result = (await (render as (ctx: SsrContext) => any)({ ...context, ...options })) || {};
+
+            return {
+                html: result.html || '',
+                head: result.head || '',
+                state: result.state,
+            };
         } catch (error: any) {
             return {
                 html: '',
                 head: '',
-                error: (error instanceof Error) ? error : new Error(String(error))
+                error: error instanceof Error ? error : new Error(String(error)),
             };
         }
     }
 
     clearCache() {
-        this.contexts.clear();
+        // ESM module records cannot be evicted from the loader cache; each dev
+        // server process imports the entry once, which is sufficient for tests
+        // and dev usage. Present for API compatibility.
     }
 }

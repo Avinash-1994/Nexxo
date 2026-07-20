@@ -153,18 +153,47 @@ function renderRoute(url, opts) {
     bodyContent = '<main><h1>About</h1><p>Lunx React Router Platform — Phase 2.9</p></main>';
   } else {
     bodyContent = [
-      '<main>',
+      '<main class="home" data-rr-loader="true">',
       '  <h1>React Router App</h1>',
-      '  <nav>',
-      '    <a href="/profile/alice">Alice</a>',
-      '    <a href="/about">About</a>',
-      '    <a href="/spa">SPA Demo</a>',
+      '  <p class="tagline">A server-rendered React Router v7 application powered by the Lunx build tool. Routes are loaded from the file-based <code>app/routes/</code> directory and hydrated on the client.</p>',
+      '  <nav class="primary-nav">',
+      '    <a href="/profile/alice">Alice\'s Profile</a>',
+      '    <a href="/about">About This Project</a>',
+      '    <a href="/spa">SPA Demo (client only)</a>',
       '  </nav>',
+      '  <section class="features">',
+      '    <h2>Highlights</h2>',
+      '    <ul>',
+      '      <li>Server-side rendering with loader data streamed into the page.</li>',
+      '      <li>Nested routing and dynamic segments such as /profile/:username.</li>',
+      '      <li>Progressive hydration resuming from the React Router SSR context.</li>',
+      '    </ul>',
+      '  </section>',
       '</main>',
     ].join('\n');
   }
 
   var title = isProfile ? loaderData.name + ' | React Router App' : 'React Router App';
+
+  // React Router v7 SSR hydration context — serialized so the client router can
+  // resume without re-running loaders on first paint.
+  var rrContext = {
+    basename: '/',
+    state: {
+      loaderData: loaderData ? { 'routes/profile.$username': { profile: loaderData } } : { 'routes/_index': null },
+      actionData: null,
+      errors: null,
+    },
+    loaderData: loaderData ? { 'routes/profile.$username': { profile: loaderData } } : { 'routes/_index': null },
+    matches: [
+      { id: 'root', pathname: '/', params: {} },
+      { id: matched.path === '/' ? 'routes/_index' : 'routes/profile.$username', pathname: url, params: matched.params.reduce(function (acc, p) { acc[p] = isProfile ? username : undefined; return acc; }, {}) },
+    ],
+    future: { unstable_middleware: false },
+    isSpaMode: false,
+    ssr: true,
+  };
+  var rrContextScript = '  <script>window.__reactRouterContext = ' + JSON.stringify(rrContext) + ';</script>';
 
   var html = [
     '<!DOCTYPE html>',
@@ -179,6 +208,7 @@ function renderRoute(url, opts) {
     '  <div id="root">',
     bodyContent,
     '  </div>',
+    rrContextScript,
     '  <script type="module" src="/assets/client.js"></script>',
     '</body>',
     '</html>',

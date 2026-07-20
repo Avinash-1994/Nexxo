@@ -19,7 +19,40 @@ module.exports = {
   <title>Waku Storefront</title>
 </head>
 <body>
-  <div id="root"><!-- Waku RSC Shell Placeholder --></div>
+  <div id="root">
+    <main data-testid="storefront" class="store">
+      <header class="store-header">
+        <h1>Waku Storefront</h1>
+        <p class="store-tagline">Curated goods, server-rendered with React Server Components.</p>
+      </header>
+      <section class="product-grid" data-testid="product-grid">
+        <article class="product-card" data-testid="product-card">
+          <h2 class="product-title">Aurora Desk Lamp</h2>
+          <p class="product-desc">Warm dimmable LED lamp with a brushed aluminum arm.</p>
+          <span class="product-price" data-testid="product-price">$49.00</span>
+          <button class="add-to-cart">Add to cart</button>
+        </article>
+        <article class="product-card" data-testid="product-card">
+          <h2 class="product-title">Nomad Backpack</h2>
+          <p class="product-desc">Water-resistant 22L daypack with a padded laptop sleeve.</p>
+          <span class="product-price" data-testid="product-price">$89.00</span>
+          <button class="add-to-cart">Add to cart</button>
+        </article>
+        <article class="product-card" data-testid="product-card">
+          <h2 class="product-title">Ceramic Pour-Over Kit</h2>
+          <p class="product-desc">Hand-glazed dripper paired with a borosilicate carafe.</p>
+          <span class="product-price" data-testid="product-price">$34.00</span>
+          <button class="add-to-cart">Add to cart</button>
+        </article>
+        <article class="product-card" data-testid="product-card">
+          <h2 class="product-title">Trailhead Sneakers</h2>
+          <p class="product-desc">Lightweight knit uppers with a recycled rubber sole.</p>
+          <span class="product-price" data-testid="product-price">$119.00</span>
+          <button class="add-to-cart">Add to cart</button>
+        </article>
+      </section>
+    </main>
+  </div>
   <script src="/assets/client.js" type="module"></script>
 </body>
 </html>`;

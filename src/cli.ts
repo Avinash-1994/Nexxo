@@ -95,11 +95,19 @@ async function main() {
     // FEAT-CLI-01: "Did you mean?" .fail() handler
     .fail((msg: string, err: Error, y: any) => {
       const typed = process.argv[2];
+      
+      // If it's a known command that failed due to validation, print the actual error
+      if (msg && !msg.includes('Unknown argument')) {
+        console.error(`\nError: ${msg}\n`);
+        y.showHelp();
+        process.exit(1);
+      }
+
       if (typed && !typed.startsWith('-')) {
         const closest = ALL_COMMANDS
           .map(c => ({ c, d: levenshtein(typed, c) }))
           .sort((a, b) => a.d - b.d)[0];
-        if (closest.d <= 3) {
+        if (closest.d <= 3 && closest.c !== typed) {
           console.error(`\nUnknown command: ${typed}`);
           console.error(`Did you mean: lunx ${closest.c} ?\n`);
           process.exit(1);
