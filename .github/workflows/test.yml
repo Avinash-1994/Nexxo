@@ -37,7 +37,7 @@ jobs:
         run: npm run build
 
       - name: 🧪 Run test suite
-        run: node e2e/run-all-phases.js
+        run: node e2e/test-all.mjs
         env:
           LUNX_SKIP_SECURITY: '1'
           CI: 'true'
