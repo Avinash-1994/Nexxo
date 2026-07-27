@@ -14,8 +14,8 @@ export class AdapterRegistry {
     { pkg: 'nuxt', adapter: 'nuxt' },
     { pkg: '@solidjs/start', adapter: 'solid-start' },
     { pkg: '@builder.io/qwik-city', adapter: 'qwik-city' },
-    { pkg: '@angular/core', adapter: 'angular' },
     { pkg: '@analogjs/platform', adapter: 'analog' },
+    { pkg: '@angular/core', adapter: 'angular' },
     { pkg: '@remix-run/dev', adapter: 'remix' },
     { pkg: '@tanstack/start', adapter: 'tanstack-start' },
     { pkg: 'react-router', adapter: 'react-router' }, // >= 7

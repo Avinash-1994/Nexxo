@@ -1,8 +1,8 @@
 
-import { NucliePlugin, PluginHookName, PluginManifest } from './types.js';
+import { LunxPlugin, PluginHookName, PluginManifest } from './types.js';
 import { canonicalHash } from '../engine/hash.js';
 
-export class WASMPluginSandbox implements NucliePlugin {
+export class WASMPluginSandbox implements LunxPlugin {
     manifest: PluginManifest;
     id: string;
     private instance: WebAssembly.Instance;

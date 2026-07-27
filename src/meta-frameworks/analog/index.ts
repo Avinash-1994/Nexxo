@@ -2,14 +2,17 @@ import type { LunxAdapter, Plugin, LunxConfig, PackageJson, Middleware } from '@
 import { detectDependencies, registry } from '@lunx/adapter-core';
 import { analogCompilerPlugin } from './analog-plugin.js';
 // @ts-ignore
-import * as ts from 'typescript';
+import type * as tsType from 'typescript';
 // @ts-ignore
-import * as ng from '@angular/compiler-cli';
+import type * as ngType from '@angular/compiler-cli';
 
 export async function compileAnalog(
   rootNames: string[],
-  options: ng.CompilerOptions
-): Promise<ts.Diagnostic[]> {
+  options: ngType.CompilerOptions
+): Promise<tsType.Diagnostic[]> {
+  // @ts-ignore
+  const ng = await import('@angular/compiler-cli');
+  
   const host = ng.createCompilerHost({ options });
   const program = ng.createProgram({
     rootNames,
@@ -30,7 +33,7 @@ export async function compileAnalog(
     program.emit();
   }
 
-  return allDiagnostics as ts.Diagnostic[];
+  return allDiagnostics as tsType.Diagnostic[];
 }
 export interface AnalogConfig {
   ssr?: boolean;           // default: true
@@ -71,13 +74,17 @@ export class AnalogAdapter implements LunxAdapter {
         const fs = await import('fs');
         
         const entryPath = path.join(process.cwd(), 'src/entry-server.cjs');
+        console.log('[LUNX Analog] Checking entryPath:', entryPath);
         if (fs.existsSync(entryPath)) {
+          console.log('[LUNX Analog] Found entryPath, importing...');
           const entry = await import(pathToFileURL(entryPath).href);
           const adapter = entry.default || entry;
+          console.log('[LUNX Analog] req.url:', req.url);
           
           if (req.url?.startsWith('/api/')) {
              const apiResult = await adapter.executeApi(req.url, { req });
              if (apiResult && apiResult.status) {
+                res.statusCode = apiResult.status;
                 res.setHeader('Content-Type', 'application/json');
                 res.end(apiResult.body || '{}');
                 return;
@@ -85,6 +92,7 @@ export class AnalogAdapter implements LunxAdapter {
           } else {
              const result = adapter.renderApplication(req.url, { root: process.cwd() });
              if (result && result.html) {
+                res.statusCode = result.status || 200;
                 res.setHeader('Content-Type', 'text/html');
                 res.end(result.html);
                 return;

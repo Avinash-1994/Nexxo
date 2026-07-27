@@ -47,8 +47,10 @@ export class RemixAdapter implements LunxAdapter {
              // Map req to Fetch API Request
              const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
              
+              
              const fetchReq = new Request(url.href, {
                 method: req.method,
+                // eslint-disable-next-line no-undef
                 headers: new Headers(req.headers as any),
                 // body mappings handled natively via Buffer / stream pipeline based on HTTP method
              });

@@ -97,7 +97,16 @@ describe('SEC-TEST-009: Symlink outside project root blocked', () => {
     fs.writeFileSync(externalFile, 'secret', 'utf8');
 
     const symlink = path.join(tmpProject, 'link.txt');
-    fs.symlinkSync(externalFile, symlink);
+    try {
+      fs.symlinkSync(externalFile, symlink);
+    } catch (e: any) {
+      if (e.code === 'EPERM' && process.platform === 'win32') {
+        // Windows requires admin privileges to create file symlinks without Developer Mode enabled.
+        console.warn('Skipping symlink test on Windows due to lack of privileges');
+        return;
+      }
+      throw e;
+    }
 
     const isValid = validateSymlink(symlink, tmpProject, 'project');
     expect(isValid).toBe(false);

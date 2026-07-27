@@ -317,10 +317,11 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
     
     const pkgPath = path.join(cfg.root || process.cwd(), 'package.json');
     const fsNode = await import('fs');
-    if (fsNode.existsSync(pkgPath)) {
-      const pkg = JSON.parse(fsNode.readFileSync(pkgPath, 'utf-8'));
-      activeAdapter = registry.detect(cfg.root || process.cwd(), pkg);
-    }
+      if (fsNode.existsSync(pkgPath)) {
+        const pkg = JSON.parse(fsNode.readFileSync(pkgPath, 'utf-8'));
+        activeAdapter = registry.detect(cfg.root || process.cwd(), pkg);
+        console.log('[LUNX DEV] activeAdapter:', activeAdapter ? activeAdapter.name : 'null');
+      }
   } catch (e) {
     // Ignore if not present
   }

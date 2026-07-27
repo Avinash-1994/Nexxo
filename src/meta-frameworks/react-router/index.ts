@@ -17,9 +17,9 @@ export class ReactRouterAdapter implements LunxAdapter {
 
   private _hasConfig(root: string): boolean {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
+       
       const fs = require('fs');
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
+       
       const path = require('path');
       return fs.existsSync(path.join(root, 'react-router.config.ts')) ||
              fs.existsSync(path.join(root, 'react-router.config.js'));

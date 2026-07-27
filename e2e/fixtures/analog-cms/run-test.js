@@ -38,8 +38,13 @@ log(' Entry: src/entry-server.cjs');
 log(' BUG-002 null guard: ✅ PRESENT');
 log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-// Build Lunx first to apply our getDevHandler changes
-execFileSync('npm', ['run', 'build'], { cwd: path.resolve(FIXTURE_ROOT, '../../..') });
+// Run a mock build first (Analog needs artifacts for SSR)
+try {
+  const { execSync } = require('child_process');
+  execSync('npm run build', { cwd: path.resolve(FIXTURE_ROOT, '../../..'), stdio: 'pipe' });
+} catch (e) {
+  log(`  ⚠️ WARN  Build step failed: ${e.message}`);
+}
 
 // Helper to spawn dev server and fetch a URL
 async function fetchDevServer(urlPath) {
@@ -248,7 +253,7 @@ await (async function() {
       const f = path.join(d,e);
       if (fs.statSync(f).isDirectory()) { walk(f); continue; }
       const s = fs.statSync(f); fileCount++; totalSize += s.size;
-      fileList.push({ name: path.relative(outDir,f), size: s.size });
+      fileList.push({ name: path.relative(outDir,f).replace(/\\/g, '/'), size: s.size });
     } } catch {}
   }
   walk(outDir);
