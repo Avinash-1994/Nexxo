@@ -1,0 +1,19 @@
+{
+  "name": "lunx-benchmarks",
+  "version": "1.0.0",
+  "description": "Reproducible benchmark suite for Lunx v1.0.0",
+  "type": "module",
+  "scripts": {
+    "bench": "node run-all.mjs",
+    "bench:hmr": "node bench-hmr.mjs",
+    "bench:cold": "node bench-cold-build.mjs",
+    "bench:warm": "node bench-warm-build.mjs",
+    "bench:cache": "node bench-cache.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "lunx": "^1.0.0"
+  }
+}
