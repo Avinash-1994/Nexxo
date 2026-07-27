@@ -14,12 +14,14 @@ concurrency:
 jobs:
   test:
     name: 🧪 Node ${{ matrix.node }} on ${{ matrix.os }}
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         node: [20, 22]
     runs-on: ${{ matrix.os }}
+
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v4
@@ -30,14 +32,34 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: 'npm'
 
+      - name: 🔍 Environment info
+        shell: bash
+        run: |
+          node --version
+          npm --version
+          echo "OS: ${{ matrix.os }}"
+
       - name: 📦 Install dependencies
+        shell: bash
         run: npm install --legacy-peer-deps
 
       - name: 🏗️ Build
+        shell: bash
         run: npm run build
 
       - name: 🧪 Run test suite
+        shell: bash
         run: npm test
         env:
           LUNX_SKIP_SECURITY: '1'
           CI: 'true'
+
+      - name: 📤 Upload test logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs-${{ matrix.os }}-node${{ matrix.node }}
+          path: |
+            *.log
+            test-results/
+          retention-days: 7
