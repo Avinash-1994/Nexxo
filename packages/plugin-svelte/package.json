@@ -1,7 +1,7 @@
 {
-  "name": "@nuclie/plugin-svelte",
+  "name": "@lunx/plugin-svelte",
   "version": "1.0.0",
-  "description": "Official Nuclie plugin for Svelte — .svelte file transform, Svelte 5 Runes, HMR",
+  "description": "Official Lunx plugin for Svelte — .svelte file transform, Svelte 5 Runes, HMR",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -16,11 +16,11 @@
     "build": "tsc",
     "test": "node --test src/__tests__/index.test.js"
   },
-  "keywords": ["nuclie", "plugin", "svelte", "svelte5", "runes", "hmr"],
+  "keywords": ["lunx", "plugin", "svelte", "svelte5", "runes", "hmr"],
   "author": "Avinash-1994",
   "license": "MIT",
   "peerDependencies": {
-    "nuclie": ">=1.0.0",
+    "lunx": ">=1.0.0",
     "svelte": ">=4.0.0"
   },
   "devDependencies": {

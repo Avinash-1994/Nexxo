@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-lazy-load
+ * @lunx/plugin-lazy-load
  * Component lazy loading
  */
 
@@ -7,11 +7,11 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createLazyLoadPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-lazy-load',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-lazy-load',
+        originalPlugin: 'lunx-native',
         
         async buildStart() {
-            console.log('[@nuclie/plugin-lazy-load] Starting performance optimization...');
+            console.log('[@lunx/plugin-lazy-load] Starting performance optimization...');
         },
 
         async transform(code: string, id: string) {
@@ -20,7 +20,7 @@ export function createLazyLoadPlugin(): PluginAdapter {
         },
 
         async buildEnd() {
-            console.log('[@nuclie/plugin-lazy-load] Performance optimization complete');
+            console.log('[@lunx/plugin-lazy-load] Performance optimization complete');
         }
     };
 }

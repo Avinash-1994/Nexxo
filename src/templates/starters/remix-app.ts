@@ -26,17 +26,17 @@ export default function App() {
 
 export const meta: MetaFunction = () => {
   return [
-    { title: 'Nuclie Remix App' },
-    { name: 'description', content: 'Welcome to Remix with Nuclie!' },
+    { title: 'Lunx Remix App' },
+    { name: 'description', content: 'Welcome to Remix with Lunx!' },
   ];
 };
 
 export default function Index() {
   return (
     <div className="container mx-auto p-8">
-      <h1 className="text-4xl font-bold">Welcome to Remix + Nuclie</h1>
+      <h1 className="text-4xl font-bold">Welcome to Remix + Lunx</h1>
       <p className="mt-4">
-        This is a Remix-style application built with Nuclie.
+        This is a Remix-style application built with Lunx.
       </p>
     </div>
   );
@@ -49,7 +49,7 @@ export default function Index() {
     </div>
   );
 }`,
-        'nuclie.config.js': `module.exports = {
+        'lunx.config.js': `module.exports = {
   entry: ['./src/root.tsx'],
   outDir: './dist',
   framework: 'react',
@@ -71,13 +71,13 @@ export default function Index() {
   },
 };`,
         'package.json': `{
-  "name": "nuclie-remix-app",
+  "name": "lunx-remix-app",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "nuclie dev",
-    "build": "nuclie build",
-    "start": "nuclie ssr"
+    "dev": "lunx dev",
+    "build": "lunx build",
+    "start": "lunx ssr"
   },
   "dependencies": {
     "@remix-run/react": "^2.0.0",

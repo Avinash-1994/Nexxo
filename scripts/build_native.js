@@ -50,10 +50,10 @@ function runNapiBuild() {
 async function copyBuiltBinary() {
   try {
     const entries = await fs.readdir(nativeDir);
-    const nodeFile = entries.find((e) => e.startsWith('nuclie_native') && e.endsWith('.node'));
+    const nodeFile = entries.find((e) => e.startsWith('lunx_native') && e.endsWith('.node'));
     if (!nodeFile) return false;
     const src = join(nativeDir, nodeFile);
-    const dest = join(rootDir, 'nuclie_native.node');
+    const dest = join(rootDir, 'lunx_native.node');
     await fs.copyFile(src, dest);
     if (process.env.DEBUG) {
       console.log(`Copied native binary to ${dest}`);

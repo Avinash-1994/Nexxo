@@ -7,6 +7,7 @@
 import { bunParser } from '../src/core/parser-bun.js';
 import { rolldownBundler } from '../src/core/bundler-rolldown.js';
 import { getCacheManager } from '../src/core/cache-manager.js';
+import { PersistentBuildCache } from '../src/core/engine/cache.js';
 import { HMREngine } from '../src/dev/hmr-v2.js';
 // Need to handle native orchestrator import carefully if not exposed
 // We'll import the bindings directly if needed, or rely on core engine
@@ -56,15 +57,34 @@ async function testCache() {
 
     mgr.set('transform', key, val);
 
-    // Immediate read might race if set is async fire-and-forget?
-    // CacheManager set is sync/native.
-    const read = mgr.get('transform', key);
+    // CacheManager.get is asynchronous because it may lazily initialize the native cache.
+    const read = await mgr.get('transform', key);
 
     if (read !== val) throw new Error(`Cache mismatch: Expected ${val}, got ${read}`);
 
     mgr.close();
     fs.rmSync(root, { recursive: true, force: true });
     console.log('✅ Cache Passed');
+}
+
+async function testPersistentBuildCache() {
+    console.log('🧪 Testing Persistent Build Cache...');
+    const root = path.resolve('.test_persistent_build_cache');
+    const buildCache = new PersistentBuildCache(root);
+
+    const key = 'artifact:test-entry';
+    const value = { hash: 'artifact-hash', artifact: { id: 'artifact-hash', type: 'js', fileName: 'assets/main.bundle.js', dependencies: [], source: 'console.log("ok")' } };
+
+    await buildCache.set(key, value);
+    const loaded = await buildCache.get(key);
+
+    if (!loaded || loaded.hash !== value.hash || loaded.artifact.fileName !== value.artifact.fileName) {
+        throw new Error(`Persistent cache lookup failed. Expected ${JSON.stringify(value)}, got ${JSON.stringify(loaded)}`);
+    }
+
+    await buildCache.close();
+    fs.rmSync(root, { recursive: true, force: true });
+    console.log('✅ Persistent Build Cache Passed');
 }
 
 async function testHMR() {
@@ -81,6 +101,23 @@ async function testHMR() {
     if (!update || update.type !== 'js-update' || update.acceptedPath !== '/app/B.js') {
         throw new Error(`HMR Propagation failed. Got: ${JSON.stringify(update)}`);
     }
+
+    // Nested bubble up: update should climb through non-accepting modules
+    engine.registerModule('/app/Leaf.ts', [], true);
+    engine.registerModule('/app/Mid.ts', ['/app/Leaf.ts'], false);
+    engine.registerModule('/app/App.ts', ['/app/Mid.ts'], true);
+
+    const nestedUpdate = engine.propagateUpdate('/app/Mid.ts');
+    if (!nestedUpdate || nestedUpdate.type !== 'js-update' || nestedUpdate.acceptedPath !== '/app/App.ts') {
+        throw new Error(`Nested bubble-up failed. Got: ${JSON.stringify(nestedUpdate)}`);
+    }
+
+    // CSS updates should be accepted even without explicit registration.
+    const cssUpdate = engine.propagateUpdate('/app/styles.css');
+    if (!cssUpdate || cssUpdate.type !== 'css-update' || cssUpdate.acceptedPath !== '/app/styles.css') {
+        throw new Error(`CSS HMR failed. Got: ${JSON.stringify(cssUpdate)}`);
+    }
+
     console.log('✅ HMR Passed');
 }
 
@@ -89,6 +126,7 @@ async function runTests() {
         await testParser();
         await testBundler();
         await testCache();
+        await testPersistentBuildCache();
         await testHMR();
         // Orchestrator manual test omitted for simplicity, covered by Day 2 verification
         console.log('---------------------------');

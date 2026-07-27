@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-style
+ * @lunx/plugin-style
  * CSS injection
  */
 
@@ -7,7 +7,7 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createStylePlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-style',
+        name: '@lunx/plugin-style',
         originalPlugin: 'style-loader',
         
         async transform(code: string, id: string) {

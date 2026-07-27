@@ -73,8 +73,7 @@ impl GraphAnalyzer {
         self.node_to_id.get(id).copied()
     }
 
-    /// Add a node with its dependencies
-    #[napi]
+    /// Add a node with its dependencies (Internal use only, not exposed to NAPI)
     pub fn add_node(&mut self, id: String, dependencies: Vec<String>) {
         let u_id = self.get_or_create_id(id);
         

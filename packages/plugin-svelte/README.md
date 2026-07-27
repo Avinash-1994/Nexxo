@@ -1,17 +1,17 @@
-# @nuclie/plugin-svelte
+# @lunx/plugin-svelte
 
-> Official Nuclie plugin for Svelte — .svelte file transform, Runes, HMR.
+> Official Lunx plugin for Svelte — .svelte file transform, Runes, HMR.
 
 ## Install
 
 ```bash
-npm install --save-dev @nuclie/plugin-svelte svelte
+npm install --save-dev @lunx/plugin-svelte svelte
 ```
 
 ## Usage
 
 ```js
-const svelte = require('@nuclie/plugin-svelte');
+const svelte = require('@lunx/plugin-svelte');
 module.exports = {
   entry: ['./src/main.ts'],
   plugins: [svelte()],

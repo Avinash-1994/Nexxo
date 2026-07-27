@@ -1,0 +1,14 @@
+{
+  "name": "react-router-app",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Lunx Phase 2.9 — React Router v7 fixture (SSR + SPA modes)",
+  "dependencies": {
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "react-router": "^7.5.0",
+    "@react-router/dev": "^7.5.0",
+    "@react-router/node": "^7.5.0",
+    "@tanstack/react-query": "^5.55.0"
+  }
+}

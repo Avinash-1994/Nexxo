@@ -1,4 +1,4 @@
-# 🚨 Nuclie Real Project Matrix - Issues Log
+# 🚨 Lunx Real Project Matrix - Issues Log
 
 This file tracks all technical issues, environment mismatches, and build failures encountered during the 8-project verification matrix.
 
@@ -15,7 +15,7 @@ This file tracks all technical issues, environment mismatches, and build failure
 *   **Status**: ✅ Resolved
 
 ### 2. Monorepo Subdirectory Detection
-*   **Issue**: High-profile projects like TanStack Table and SvelteKit are monorepos. Standard `nuclie build` at the root fails because the `package.json` for the specific package is in a subfolder.
+*   **Issue**: High-profile projects like TanStack Table and SvelteKit are monorepos. Standard `lunx build` at the root fails because the `package.json` for the specific package is in a subfolder.
 *   **Impact**: Build system cannot find entry points.
 *   **Resolution**: Added `targetDir` support to the `Project` interface in `runner.ts` to explicitly point to `packages/*` folders.
 *   **Status**: ✅ Resolved

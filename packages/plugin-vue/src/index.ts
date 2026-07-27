@@ -1,4 +1,5 @@
-import type { Plugin } from '../../src/types.js';
+// Plugin type compatible with both Lunx and Vite plugin API
+type Plugin = { name: string; [hook: string]: any };
 
 export interface VuePluginOptions {
   /** Enable Vue HMR via SFC hot-reload (default: true in dev) */
@@ -10,9 +11,9 @@ export interface VuePluginOptions {
 }
 
 /**
- * @nuclie/plugin-vue
+ * @lunx/plugin-vue
  *
- * Official Nuclie plugin for Vue 3:
+ * Official Lunx plugin for Vue 3:
  * - Full Vue SFC (.vue) parsing and compilation
  * - Vue 3 HMR — template hot-patching, script remount
  * - TypeScript via `lang="ts"` in script blocks
@@ -20,7 +21,7 @@ export interface VuePluginOptions {
  *
  * @example
  * ```js
- * const vue = require('@nuclie/plugin-vue');
+ * const vue = require('@lunx/plugin-vue');
  * module.exports = { plugins: [vue()] };
  * ```
  */
@@ -32,20 +33,20 @@ export function vuePlugin(options: VuePluginOptions = {}): Plugin {
   } = options;
 
   return {
-    name: '@nuclie/plugin-vue',
+    name: '@lunx/plugin-vue',
 
     /**
      * Load hook: handle .vue SFC files.
-     * The actual compilation is done by @vue/compiler-sfc (already in Nuclie core).
+     * The actual compilation is done by @vue/compiler-sfc (already in Lunx core).
      * This plugin configures and extends that behavior.
      */
     load(id: string): { code: string } | null {
       if (!id.endsWith('.vue')) return null;
 
-      // Vue SFC loading is handled natively by Nuclie's framework-detector.
+      // Vue SFC loading is handled natively by Lunx's framework-detector.
       // This plugin hook adds HMR metadata injection on top.
       if (hmr) {
-        // Signal to the Nuclie HMR system that this is a Vue SFC
+        // Signal to the Lunx HMR system that this is a Vue SFC
         // The actual hot.accept() logic is injected by the core bundler
         return null; // Let the core handle the actual load
       }

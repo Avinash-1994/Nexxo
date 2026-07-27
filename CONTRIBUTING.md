@@ -1,42 +1,39 @@
-# Contributing to Nuclie
+# Contributing to Lunx
 
-We welcome contributions! Please follow these guidelines to ensure a smooth process.
+## Setup
+```
+git clone https://github.com/Avinash-1994/lunx
+cd lunx
+npm install
+npm run build
+```
 
-## Development Setup
+## Run tests
+```
+node e2e/run-all-phases.js
+```
 
-1. **Install Dependencies**:
-   ```bash
-   npm install
-   ```
-2. **Build Core**:
-   ```bash
-   npm run build
-   ```
+## Run hydration tests
+```
+npx playwright test e2e/playwright/hydration.spec.ts
+```
 
-## Workflow
+## Before submitting a PR
+```
+tsc --noEmit          # 0 errors required
+lunx security audit   # clean required
+node e2e/run-all-phases.js  # 320 pass required
+```
 
-1. **Create a Branch**: Use descriptive names (e.g., `feature/async-optimizations`).
-2. **Implement Changes**.
-3. **Verify locally**: Run the Regression Suite.
-   ```bash
-   npx tsx src/test/runner.ts
-   npx tsx src/test/determinism.ts
-   ```
-4. **Submit PR**: Ensure CI passes.
-
-## Code Style
-
-- Use TypeScript for all source code.
-- Follow ESLint configuration (`npm run lint`).
-- Architecture: 
-  - `src/core`: Engine, Pipeline, Optimizer.
-  - `src/dev`: Dev Server, HMR.
-  - `src/security`: Anomaly Detection.
-
-## Security
-
-If you discover a security vulnerability, please report it privately or verify it using the Anomaly Detection suite (`src/e2e/security.test.ts`).
-
-## License
-
-MIT
+## Architecture
+```
+src/cli.ts            — CLI entry
+src/cli/commands/     — command handlers
+src/meta-frameworks/  — 16 framework adapters
+src/dev/             — uWS dev server + HMR
+src/build/           — bundler + chunker + DCE
+src/cache/           — SQLite WAL cache
+src/security/        — 8-command security suite
+src/transform/       — SWC + LightningCSS pipeline
+packages/            — official plugins
+```

@@ -1,15 +1,15 @@
 /**
- * @nuclie/plugin-redux
+ * @lunx/plugin-redux
  * Redux integration
- * Nuclie-native
+ * Lunx-native
  */
 
 import { PluginAdapter } from '../ported/adapter.js';
 
 export function createReduxPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-redux',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-redux',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // redux transformation

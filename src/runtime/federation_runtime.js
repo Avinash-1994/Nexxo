@@ -41,8 +41,8 @@ export async function loadRemote(url, scope, module) {
         if (!loadingMap[url]) {
             loadingMap[url] = new Promise((resolve, reject) => {
                 const script = document.createElement('script');
+                script.type = 'module';
                 script.src = url;
-                script.type = 'text/javascript';
                 script.async = true;
 
                 script.onload = () => {

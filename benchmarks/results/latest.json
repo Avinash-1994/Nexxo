@@ -12,7 +12,7 @@
   "methodology": "Each build was run 3 times; fastest result recorded. Cache cleared between runs. Node.js v20, npm v10.",
   "results": [
     {
-      "tool": "nuclie",
+      "tool": "lunx",
       "fixture": "small-app",
       "buildTimeMs": 1840,
       "gzipSizeBytes": 52400,
@@ -30,7 +30,7 @@
       "note": "Rollup-based production build."
     },
     {
-      "tool": "nuclie",
+      "tool": "lunx",
       "fixture": "medium-app",
       "buildTimeMs": 6800,
       "gzipSizeBytes": 284000,
@@ -47,7 +47,7 @@
       "components": 500
     },
     {
-      "tool": "nuclie",
+      "tool": "lunx",
       "fixture": "large-app",
       "buildTimeMs": 24500,
       "gzipSizeBytes": 1100000,

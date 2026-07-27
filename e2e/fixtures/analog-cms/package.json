@@ -1,0 +1,21 @@
+{
+  "name": "analog-cms",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Lunx Phase 2.8 — Analog CMS fixture",
+  "dependencies": {
+    "@analogjs/router": "^1.9.0",
+    "@angular/common": "^17.3.0",
+    "@angular/compiler": "^17.3.0",
+    "@angular/compiler-cli": "^17.3.0",
+    "@angular/core": "^17.3.0",
+    "@angular/platform-browser": "^17.3.0",
+    "@angular/platform-browser-dynamic": "^17.3.0",
+    "@angular/router": "^17.3.0",
+    "@trpc/server": "^10.45.2",
+    "rxjs": "^7.8.0",
+    "tslib": "^2.6.0",
+    "typescript": "~5.4.0",
+    "zone.js": "^0.14.0"
+  }
+}

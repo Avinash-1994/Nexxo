@@ -1,0 +1,1 @@
+{"name":"lunx-mfe-remote-vue","version":"0.0.1","private":true,"type":"module","scripts":{"dev":"lunx dev","build":"lunx build"},"dependencies":{"vue":"3.4.27"},"devDependencies":{"lunx":"file:../../.."}}

@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-chromatic
+ * @lunx/plugin-chromatic
  * Chromatic visual testing
  */
 
@@ -7,8 +7,8 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createChromaticPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-chromatic',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-chromatic',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // Utility: Chromatic visual testing

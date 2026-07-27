@@ -1,7 +1,7 @@
 /**
  * src/config-loader.ts
  *
- * Loads and merges nuclie.config.js / nuclie.config.ts,
+ * Loads and merges lunx.config.js / lunx.config.ts,
  * with support for `extends` (base config inheritance).
  *
  * Replace / augment your existing config loader with this.
@@ -12,8 +12,8 @@ import fs from 'fs'
 import { pathToFileURL } from 'url'
 import type { BuildConfig } from './config/index.js'
 
-// Use the existing BuildConfig type from config/index.ts as NuclieConfig alias
-export type NuclieConfig = BuildConfig
+// Use the existing BuildConfig type from config/index.ts as LunxConfig alias
+export type LunxConfig = BuildConfig
 
 // ─── Deep merge ───────────────────────────────────────────────────────────────
 
@@ -49,10 +49,10 @@ export function mergeConfig(
 // ─── Config file resolution ───────────────────────────────────────────────────
 
 const CONFIG_FILE_NAMES = [
-  'nuclie.config.ts',
-  'nuclie.config.js',
-  'nuclie.config.mjs',
-  'nuclie.config.cjs',
+  'lunx.config.ts',
+  'lunx.config.js',
+  'lunx.config.mjs',
+  'lunx.config.cjs',
 ]
 
 export async function findConfigFile(root: string): Promise<string | null> {
@@ -63,7 +63,7 @@ export async function findConfigFile(root: string): Promise<string | null> {
   return null
 }
 
-async function loadRawConfig(filePath: string): Promise<NuclieConfig & { extends?: string }> {
+async function loadRawConfig(filePath: string): Promise<LunxConfig & { extends?: string }> {
   const ext = path.extname(filePath)
   const fileUrl = pathToFileURL(filePath).href
 
@@ -91,7 +91,7 @@ async function loadRawConfig(filePath: string): Promise<NuclieConfig & { extends
     return config
   } catch (err) {
     throw new Error(
-      `[nuclie] Failed to load config from "${filePath}":\n  ${(err as Error).message}\n` +
+      `[lunx] Failed to load config from "${filePath}":\n  ${(err as Error).message}\n` +
       `  Make sure the file is valid JS/TS and exports a default config object.`
     )
   }
@@ -100,21 +100,21 @@ async function loadRawConfig(filePath: string): Promise<NuclieConfig & { extends
 // ─── Main loader ──────────────────────────────────────────────────────────────
 
 export interface LoadConfigResult {
-  config: NuclieConfig
+  config: LunxConfig
   configFile: string | null
 }
 
 /**
- * Load nuclie config from the given root directory.
+ * Load lunx config from the given root directory.
  * Supports:
- * - nuclie.config.ts / .js / .mjs / .cjs
+ * - lunx.config.ts / .js / .mjs / .cjs
  * - `extends` field for base config inheritance
  * - Deep merge of extended + local config
  *
  * @example
- * // nuclie.config.js in a monorepo package
+ * // lunx.config.js in a monorepo package
  * module.exports = {
- *   extends: '../../nuclie.base.config.js',
+ *   extends: '../../lunx.base.config.js',
  *   dev: { port: 3001 }  // override only what changes
  * }
  */
@@ -135,7 +135,7 @@ export async function loadConfigExtended(root = process.cwd()): Promise<LoadConf
 
     if (!fs.existsSync(baseConfigPath)) {
       throw new Error(
-        `[nuclie] Config "extends" path not found: "${baseConfigPath}"\n` +
+        `[lunx] Config "extends" path not found: "${baseConfigPath}"\n` +
         `  Resolved from: "${configFile}"`
       )
     }
@@ -143,7 +143,7 @@ export async function loadConfigExtended(root = process.cwd()): Promise<LoadConf
     const baseRaw = await loadRawConfig(baseConfigPath)
 
     // Recursively handle extends chain (base can also extend something)
-    let baseConfig: NuclieConfig = baseRaw
+    let baseConfig: LunxConfig = baseRaw
     if (baseRaw.extends) {
       const { config: resolvedBase } = await loadConfigExtended(path.dirname(baseConfigPath))
       baseConfig = resolvedBase
@@ -157,7 +157,7 @@ export async function loadConfigExtended(root = process.cwd()): Promise<LoadConf
     )
 
     return {
-      config: applyDefaults(merged as NuclieConfig),
+      config: applyDefaults(merged as LunxConfig),
       configFile,
     }
   }
@@ -170,7 +170,7 @@ export async function loadConfigExtended(root = process.cwd()): Promise<LoadConf
 
 // ─── Defaults ─────────────────────────────────────────────────────────────────
 
-function getDefaults(): NuclieConfig {
+function getDefaults(): LunxConfig {
   return {
     root: process.cwd(),
     entry: ['./src/main.ts'],
@@ -182,12 +182,12 @@ function getDefaults(): NuclieConfig {
   }
 }
 
-function applyDefaults(config: NuclieConfig): NuclieConfig {
+function applyDefaults(config: LunxConfig): LunxConfig {
   const defaults = getDefaults()
   return mergeConfig(
     defaults as unknown as Record<string, unknown>,
     config as unknown as Record<string, unknown>
-  ) as unknown as NuclieConfig
+  ) as unknown as LunxConfig
 }
 
 // ─── Config validator ─────────────────────────────────────────────────────────
@@ -198,7 +198,7 @@ export interface ConfigValidationResult {
   warnings: string[]
 }
 
-export function validateConfig(config: NuclieConfig): ConfigValidationResult {
+export function validateConfig(config: LunxConfig): ConfigValidationResult {
   const errors: string[] = []
   const warnings: string[] = []
 

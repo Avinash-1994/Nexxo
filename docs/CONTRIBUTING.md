@@ -1,8 +1,8 @@
-# Nuclie Contributor Guidelines & Deprecation Policy
+# Lunx Contributor Guidelines & Deprecation Policy
 
 ## 📋 1. Versioning Strategy
 
-Nuclie follows semantic versioning (**SemVer**). However, during the `1.0.0-freeze` phase, the core engine has special stability rules.
+Lunx follows semantic versioning (**SemVer**). However, during the `1.0.0-freeze` phase, the core engine has special stability rules.
 
 ### 1.1 Core Stability (The "Freeze")
 - **Phase 0-3** components in `src/core/engine` are considered **Frozen**.
@@ -40,7 +40,7 @@ npx tsx tests/determinism_snapshot_test.ts
 
 ## 🧩 3. Plugin Authoring Onboarding
 
-Nuclie plugins are more powerful than standard build tool plugins because they participate in the **Deterministic Execution Record**.
+Lunx plugins are more powerful than standard build tool plugins because they participate in the **Deterministic Execution Record**.
 
 ### 3.1 The Hook Contract
 Plugins MUST return deterministic output for the same input. Side effects (reading files outside the root, network calls) are strictly prohibited inside `transform` hooks unless declared in permissions.

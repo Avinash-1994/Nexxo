@@ -1,6 +1,6 @@
 
 /**
- * Nuclie Environment API
+ * Lunx Environment API
  * Unified Runtime for Browser, Node, and Edge
  * Day 26: Environment API Lock
  */
@@ -11,8 +11,8 @@ export interface EnvConfig {
     base: string;
 }
 
-export class NuclieEnv {
-    private static instance: NuclieEnv;
+export class LunxEnv {
+    private static instance: LunxEnv;
     public config: EnvConfig;
     private listeners: Function[] = [];
 
@@ -20,18 +20,18 @@ export class NuclieEnv {
         this.config = config;
     }
 
-    static init(config: EnvConfig): NuclieEnv {
-        if (!NuclieEnv.instance) {
-            NuclieEnv.instance = new NuclieEnv(config);
+    static init(config: EnvConfig): LunxEnv {
+        if (!LunxEnv.instance) {
+            LunxEnv.instance = new LunxEnv(config);
         }
-        return NuclieEnv.instance;
+        return LunxEnv.instance;
     }
 
-    static get(): NuclieEnv {
-        if (!NuclieEnv.instance) {
-            throw new Error('NuclieEnv not initialized');
+    static get(): LunxEnv {
+        if (!LunxEnv.instance) {
+            throw new Error('LunxEnv not initialized');
         }
-        return NuclieEnv.instance;
+        return LunxEnv.instance;
     }
 
     /**

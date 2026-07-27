@@ -1,5 +1,4 @@
-
-import { fastHash } from '../../native/index.js';
+import { xxh3 } from '@node-rs/xxhash';
 
 /**
  * Single Source of Truth for Hashing
@@ -10,7 +9,7 @@ import { fastHash } from '../../native/index.js';
  */
 export function canonicalHash(value: unknown): string {
     const canonicalString = stableStringify(value);
-    return fastHash(canonicalString);
+    return xxh3.xxh64(canonicalString).toString(16).padStart(16, '0');
 }
 
 function stableStringify(value: unknown): string {

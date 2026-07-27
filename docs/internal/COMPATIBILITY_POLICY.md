@@ -1,4 +1,4 @@
-# Nuclie Compatibility Policy — Ruled, Not Open
+# Lunx Compatibility Policy — Ruled, Not Open
 
 **Status**: 🔒 Locked (Phase H2.4)  
 **Version**: 1.0.0  
@@ -9,7 +9,7 @@
 
 ## 🎯 Purpose
 
-This document defines **WHEN** and **HOW** compatibility is added to Nuclie.
+This document defines **WHEN** and **HOW** compatibility is added to Lunx.
 
 **Core Principle**: Compatibility grows because it was **needed**, not because it was **possible**.
 
@@ -50,14 +50,14 @@ npm run test:snapshots -- --adapter=angular-aot
 ---
 
 ### Rule 3: Fail Loudly When Unsupported
-**If Nuclie cannot handle a framework feature, it MUST fail with a clear error.**
+**If Lunx cannot handle a framework feature, it MUST fail with a clear error.**
 
 ```typescript
 // ✅ GOOD
 if (isAngularAOT(config)) {
   throw new Error(
     'Angular AOT is not yet supported. ' +
-    'Use JIT mode or track: https://github.com/nuclie/issues/123'
+    'Use JIT mode or track: https://github.com/lunx/issues/123'
   );
 }
 
@@ -250,5 +250,5 @@ Demand first, implementation second.
 
 ---
 
-**Signed**: Nuclie Core Team  
+**Signed**: Lunx Core Team  
 **Effective**: Phase H2.4 Complete

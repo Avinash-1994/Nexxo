@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-md
+ * @lunx/plugin-md
  * Markdown as components
  */
 
@@ -7,7 +7,7 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createMdPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-md',
+        name: '@lunx/plugin-md',
         originalPlugin: 'vite-plugin-md',
         
         async transform(code: string, id: string) {

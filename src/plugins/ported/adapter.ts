@@ -2,7 +2,7 @@
  * Plugin Compatibility Layer (Day 45)
  * 
  * Provides compatibility adapters for ported Vite/Webpack plugins
- * to work seamlessly in Nuclie's WASM-sandboxed environment.
+ * to work seamlessly in Lunx's isolated plugin runtime.
  */
 
 export interface PluginAdapter {
@@ -18,7 +18,7 @@ export interface PluginAdapter {
 
 /**
  * Vite Plugin Adapter
- * Converts Vite plugin API to Nuclie plugin API
+ * Converts Vite plugin API to Lunx plugin API
  */
 export class VitePluginAdapter implements PluginAdapter {
     name: string;
@@ -59,7 +59,7 @@ export class VitePluginAdapter implements PluginAdapter {
 
 /**
  * Webpack Loader Adapter
- * Converts Webpack loader API to Nuclie plugin API
+ * Converts Webpack loader API to Lunx plugin API
  */
 export class WebpackLoaderAdapter implements PluginAdapter {
     name: string;
@@ -119,11 +119,11 @@ export class PluginRegistry {
 export const pluginRegistry = new PluginRegistry();
 
 /**
- * React Plugin Adapter (Vite → Nuclie)
+ * React Plugin Adapter (Vite → Lunx)
  */
 export function createReactAdapter(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-react',
+        name: '@lunx/plugin-react',
         originalPlugin: '@vitejs/plugin-react',
         async transform(code: string, id: string) {
             // React Fast Refresh transformation
@@ -143,11 +143,11 @@ ${code}
 }
 
 /**
- * Vue Plugin Adapter (Vite → Nuclie)
+ * Vue Plugin Adapter (Vite → Lunx)
  */
 export function createVueAdapter(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-vue',
+        name: '@lunx/plugin-vue',
         originalPlugin: '@vitejs/plugin-vue',
         async transform(code: string, id: string) {
             // Vue SFC transformation
@@ -170,16 +170,16 @@ export default {
 }
 
 /**
- * Sass Loader Adapter (Webpack → Nuclie)
+ * Sass Loader Adapter (Webpack → Lunx)
  */
 export function createSassAdapter(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-sass',
+        name: '@lunx/plugin-sass',
         originalPlugin: 'sass-loader',
         async transform(code: string, id: string) {
             if (id.endsWith('.scss') || id.endsWith('.sass')) {
                 // In production, would use 'sass' package
-                // For now, pass through (Nuclie has built-in Sass support)
+                // For now, pass through (Lunx has built-in Sass support)
                 return { code };
             }
             return { code };
@@ -188,15 +188,15 @@ export function createSassAdapter(): PluginAdapter {
 }
 
 /**
- * TypeScript Loader Adapter (Webpack → Nuclie)
+ * TypeScript Loader Adapter (Webpack → Lunx)
  */
 export function createTypeScriptAdapter(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-typescript',
+        name: '@lunx/plugin-typescript',
         originalPlugin: 'ts-loader',
         async transform(code: string, id: string) {
             if (id.endsWith('.ts') || id.endsWith('.tsx')) {
-                // Nuclie has built-in TypeScript support via universal-transformer
+                // Lunx has built-in TypeScript support via universal-transformer
                 return { code };
             }
             return { code };
@@ -209,7 +209,7 @@ export function createTypeScriptAdapter(): PluginAdapter {
  */
 export function createImageOptimizer(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-imagemin',
+        name: '@lunx/plugin-imagemin',
         originalPlugin: 'vite-plugin-imagemin',
         async transform(code: string, id: string) {
             if (/\.(png|jpg|jpeg|gif|webp|avif)$/.test(id)) {
@@ -227,7 +227,7 @@ export function createImageOptimizer(): PluginAdapter {
  */
 export function createPWAAdapter(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-pwa',
+        name: '@lunx/plugin-pwa',
         originalPlugin: 'vite-plugin-pwa',
         async buildEnd() {
             // Generate service worker and manifest
@@ -241,7 +241,7 @@ export function createPWAAdapter(): PluginAdapter {
  */
 export function createCompressionAdapter(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-compression',
+        name: '@lunx/plugin-compression',
         originalPlugin: 'vite-plugin-compression',
         async buildEnd() {
             // Generate gzip/brotli compressed assets

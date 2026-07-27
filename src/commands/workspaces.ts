@@ -4,7 +4,7 @@ import { loadConfig } from '../config/index.js';
 import { startDevServer } from '../dev/devServer.minimal.js';
 
 export async function startWorkspaceOrchestrator(rootDir: string) {
-    console.log('\n🚀 Starting Nuclie Monorepo Workspace Orchestrator...');
+    console.log('\n🚀 Starting Lunx Monorepo Workspace Orchestrator...');
     
     // 1. Auto-discover MFE projects in subdirectories
     async function findProjects(dir: string, depth = 0): Promise<string[]> {
@@ -16,7 +16,7 @@ export async function startWorkspaceOrchestrator(rootDir: string) {
                 if (entry.isDirectory() && entry.name !== 'node_modules' && !entry.name.startsWith('.')) {
                     const fullPath = path.join(dir, entry.name);
                     try {
-                        await fs.access(path.join(fullPath, 'nuclie.config.js'));
+                        await fs.access(path.join(fullPath, 'lunx.config.js'));
                         results.push(fullPath);
                     } catch {
                         // Recursively search
@@ -31,7 +31,7 @@ export async function startWorkspaceOrchestrator(rootDir: string) {
     const projectPaths = await findProjects(rootDir);
 
     if (projectPaths.length === 0) {
-        console.error('❌ No Nuclie projects (with nuclie.config.js) found in subdirectories!');
+        console.error('❌ No Lunx projects (with lunx.config.js) found in subdirectories!');
         process.exit(1);
     }
 
@@ -62,13 +62,13 @@ export async function startWorkspaceOrchestrator(rootDir: string) {
     // Sort to start Remotes first, then Host
     targets.sort((a, b) => (a.isHost === b.isHost) ? 0 : a.isHost ? 1 : -1);
 
-    // 3. Boot up the entire cluster concurrently
+    // 3. Boot up the entire cluster sequentially to avoid port allocation races
     for (const target of targets) {
         const role = target.isHost ? '🏠 HOST' : '🔗 REMOTE';
         console.log(`🌀 Booting ${role} [${target.name}] -> Port ${target.port}`);
         
         try {
-            startDevServer({ root: target.path, port: target.port, server: { host: '0.0.0.0' } } as any);
+            await startDevServer({ root: target.path, port: target.port, server: { host: '0.0.0.0' } } as any);
         } catch (e: any) {
             console.error(`❌ [${target.name}] Failed to start: ${e.message}`);
         }

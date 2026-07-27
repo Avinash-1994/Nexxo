@@ -1,4 +1,4 @@
-// @nuclie/plugin-react — Self-contained Unit Tests
+// @lunx/plugin-react — Self-contained Unit Tests
 // Run: node --test packages/plugin-react/src/__tests__/index.test.js
 // No compilation required.
 
@@ -10,16 +10,16 @@ function reactPlugin(options = {}) {
   const { fastRefresh = true, runtime = 'automatic', overlay = true } = options;
 
   return {
-    name: '@nuclie/plugin-react',
+    name: '@lunx/plugin-react',
 
     load(id) {
-      if (id === '/__nuclie_react_refresh__') {
+      if (id === '/__lunx_react_refresh__') {
         return {
           code: `import RefreshRuntime from 'react-refresh/runtime';
 RefreshRuntime.injectIntoGlobalHook(window);
 window.$RefreshReg$ = () => {};
 window.$RefreshSig$ = () => (type) => type;
-window.__nuclie_react_refresh_active__ = true;`,
+window.__lunx_react_refresh_active__ = true;`,
         };
       }
       return null;
@@ -45,10 +45,10 @@ window.__nuclie_react_refresh_active__ = true;`,
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
-describe('@nuclie/plugin-react — plugin structure', () => {
+describe('@lunx/plugin-react — plugin structure', () => {
   it('has correct name', () => {
     const p = reactPlugin();
-    assert.equal(p.name, '@nuclie/plugin-react');
+    assert.equal(p.name, '@lunx/plugin-react');
   });
 
   it('exposes load and transform hooks', () => {
@@ -62,10 +62,10 @@ describe('@nuclie/plugin-react — plugin structure', () => {
   });
 });
 
-describe('@nuclie/plugin-react — load hook', () => {
+describe('@lunx/plugin-react — load hook', () => {
   it('returns React Refresh preamble for the special ID', () => {
     const p = reactPlugin();
-    const result = p.load('/__nuclie_react_refresh__');
+    const result = p.load('/__lunx_react_refresh__');
     assert.ok(result, 'Should return something');
     assert.ok(result.code.includes('RefreshRuntime'), 'Should contain RefreshRuntime');
     assert.ok(result.code.includes('injectIntoGlobalHook'), 'Should call injectIntoGlobalHook');
@@ -84,7 +84,7 @@ describe('@nuclie/plugin-react — load hook', () => {
   });
 });
 
-describe('@nuclie/plugin-react — transform hook', () => {
+describe('@lunx/plugin-react — transform hook', () => {
   it('returns null for CSS files', () => {
     const p = reactPlugin();
     assert.equal(p.transform('body { color: red; }', '/src/App.css'), null);

@@ -1,4 +1,4 @@
-# Nuclie Governance Model — Operational Truth
+# Lunx Governance Model — Operational Truth
 
 **Status**: 🔒 Active (Phase H2.3)  
 **Version**: 1.0.0  
@@ -34,10 +34,10 @@ Every plugin has a category that determines:
 - ✅ Performance benchmarked
 
 **Examples**:
-- `nuclie:js-transform` (Universal transformer)
-- `nuclie:assets` (Hashed asset pipeline)
-- `nuclie:postcss` (CSS processing)
-- `nuclie:federation` (Module federation)
+- `lunx:js-transform` (Universal transformer)
+- `lunx:assets` (Hashed asset pipeline)
+- `lunx:postcss` (CSS processing)
+- `lunx:federation` (Module federation)
 
 **Guarantees**:
 - No breaking changes in minor versions
@@ -61,9 +61,9 @@ Every plugin has a category that determines:
 - ⚠️ Not in official docs (linked only)
 
 **Examples**:
-- `nuclie-plugin-graphql` (Community)
-- `nuclie-plugin-wasm` (Community)
-- `nuclie-plugin-mdx` (Community)
+- `lunx-plugin-graphql` (Community)
+- `lunx-plugin-wasm` (Community)
+- `lunx-plugin-mdx` (Community)
 
 **Guarantees**:
 - **NONE**
@@ -87,9 +87,9 @@ Every plugin has a category that determines:
 - 🧪 Not recommended for production
 
 **Examples**:
-- `nuclie:ai-optimizer` (Experimental)
-- `nuclie:edge-runtime` (Experimental)
-- `nuclie:ssr-streaming` (Experimental)
+- `lunx:ai-optimizer` (Experimental)
+- `lunx:edge-runtime` (Experimental)
+- `lunx:ssr-streaming` (Experimental)
 
 **Guarantees**:
 - **NONE**
@@ -105,19 +105,19 @@ Every plugin has a category that determines:
 
 | Plugin Name | Category | Owner | Risk Level | Snapshot Tested | Docs |
 |-------------|----------|-------|------------|-----------------|------|
-| `nuclie:js-transform` | Official | Core Team | Low | ✅ | ✅ |
-| `nuclie:assets` | Official | Core Team | Low | ✅ | ✅ |
-| `nuclie:postcss` | Official | Core Team | Low | ✅ | ✅ |
-| `nuclie:federation` | Official | Core Team | Medium | ✅ | ✅ |
-| `nuclie:react-preset` | Official | Core Team | Low | ✅ | ✅ |
-| `nuclie:vue-preset` | Official | Core Team | Low | ✅ | ✅ |
-| `nuclie:svelte-preset` | Official | Core Team | Low | ✅ | ✅ |
-| `nuclie:solid-preset` | Official | Core Team | Low | ✅ | ✅ |
-| `nuclie:angular-preset` | Official | Core Team | Medium | ✅ | ✅ |
-| `nuclie:ai-optimizer` | Experimental | Core Team | High | ❌ | ⚠️ |
-| `nuclie:edge-runtime` | Experimental | Core Team | High | ❌ | ⚠️ |
-| `nuclie-plugin-graphql` | Community | @community | Unknown | ❌ | ❌ |
-| `nuclie-plugin-wasm` | Community | @community | Unknown | ❌ | ❌ |
+| `lunx:js-transform` | Official | Core Team | Low | ✅ | ✅ |
+| `lunx:assets` | Official | Core Team | Low | ✅ | ✅ |
+| `lunx:postcss` | Official | Core Team | Low | ✅ | ✅ |
+| `lunx:federation` | Official | Core Team | Medium | ✅ | ✅ |
+| `lunx:react-preset` | Official | Core Team | Low | ✅ | ✅ |
+| `lunx:vue-preset` | Official | Core Team | Low | ✅ | ✅ |
+| `lunx:svelte-preset` | Official | Core Team | Low | ✅ | ✅ |
+| `lunx:solid-preset` | Official | Core Team | Low | ✅ | ✅ |
+| `lunx:angular-preset` | Official | Core Team | Medium | ✅ | ✅ |
+| `lunx:ai-optimizer` | Experimental | Core Team | High | ❌ | ⚠️ |
+| `lunx:edge-runtime` | Experimental | Core Team | High | ❌ | ⚠️ |
+| `lunx-plugin-graphql` | Community | @community | Unknown | ❌ | ❌ |
+| `lunx-plugin-wasm` | Community | @community | Unknown | ❌ | ❌ |
 
 ---
 
@@ -265,5 +265,5 @@ No exceptions.
 
 ---
 
-**Signed**: Nuclie Core Team  
+**Signed**: Lunx Core Team  
 **Effective**: Phase H2.3 Complete

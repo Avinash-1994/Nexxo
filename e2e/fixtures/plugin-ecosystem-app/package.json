@@ -1,0 +1,13 @@
+{
+  "name": "plugin-ecosystem-app",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Lunx Phase 4 — Plugin Ecosystem real-world fixture (11 plugins)",
+  "dependencies": {
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0"
+  },
+  "devDependencies": {
+    "lunx": "file:../../"
+  }
+}

@@ -6,11 +6,14 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "noEmit": false,
-    "allowImportingTsExtensions": false
+    "allowImportingTsExtensions": false,
+    "removeComments": true
   },
   "exclude": [
     "node_modules",
-    "tests"
+    "tests",
+    "src/**/__tests__/*",
+    "src/**/*.test.ts"
   ],
   "include": [
     "src/**/*"

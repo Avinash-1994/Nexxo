@@ -1,0 +1,1 @@
+export async function GET() { return new Response(JSON.stringify({ users: ["admin", "guest"] }), {status: 200}); }

@@ -1,15 +1,15 @@
 /**
- * @nuclie/plugin-ssr
+ * @lunx/plugin-ssr
  * Universal SSR support
- * Nuclie-native
+ * Lunx-native
  */
 
 import { PluginAdapter } from '../ported/adapter.js';
 
 export function createSsrPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-ssr',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-ssr',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // ssr transformation

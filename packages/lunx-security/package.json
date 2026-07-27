@@ -1,0 +1,40 @@
+{
+  "name": "@lunx/security",
+  "version": "1.4.0",
+  "description": "Lunx Security — SBOM, CVE scanning, SRI, CSP, secret scanning, and plugin permissions",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./supply-chain": {
+      "import": "./dist/supply-chain.js",
+      "types": "./dist/supply-chain.d.ts"
+    },
+    "./cve-scan": {
+      "import": "./dist/cve-scan.js",
+      "types": "./dist/cve-scan.d.ts"
+    },
+    "./csp": {
+      "import": "./dist/csp.js",
+      "types": "./dist/csp.d.ts"
+    },
+    "./headers": {
+      "import": "./dist/headers.js",
+      "types": "./dist/headers.d.ts"
+    },
+    "./plugin-permissions": {
+      "import": "./dist/plugin-permissions.js",
+      "types": "./dist/plugin-permissions.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "sideEffects": false,
+  "license": "MIT",
+  "author": "Avinash-1994"
+}

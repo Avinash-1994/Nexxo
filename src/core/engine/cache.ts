@@ -3,6 +3,7 @@ import { BuildCache, CachedResult } from './types.js';
 import path from 'path';
 import fs from 'fs';
 import { createRequire } from 'module';
+import { initCacheInBackground } from '../cache/lazy-init.js';
 const require = createRequire(import.meta.url);
 
 export class InMemoryBuildCache implements BuildCache {
@@ -25,42 +26,45 @@ export class InMemoryBuildCache implements BuildCache {
 
 export class PersistentBuildCache implements BuildCache {
     private cacheDir: string;
+    private dbPromise: Promise<any> | null = null;
 
     constructor(rootDir: string) {
-        this.cacheDir = path.join(rootDir, '.nuclie_cache');
+        this.cacheDir = path.join(rootDir, '.lunx_cache');
+        initCacheInBackground(this.cacheDir);
     }
 
     private async getDb() {
-        try {
-            const { getLazyCacheDatabase } = await import('../cache/lazy-init.js');
-            return await getLazyCacheDatabase(this.cacheDir);
-        } catch (e: any) {
-            // Fallback to Memory Cache on Lock Error (Robustness)
-            if (e.message?.includes('Lock') || e.message?.includes('IO error') || e.message?.includes('Resource temporarily unavailable')) {
-                const { log } = await import('../../utils/logger.js');
-                log.warn(`Cache locked, falling back to in-memory cache: ${e.message}`, { category: 'cache' });
-
-                // Return a mock DB interface that uses an in-memory map
-                const store = new Map<string, string>();
-                return {
-                    get: (k: string) => store.get(k),
-                    set: (k: string, v: string) => store.set(k, v),
-                    clearAll: () => store.clear(),
-                    close: () => { }
-                };
-            }
-            throw e;
+        if (this.dbPromise) {
+            return this.dbPromise;
         }
+
+        this.dbPromise = (async () => {
+            try {
+                const { getLazyCacheDatabase } = await import('../cache/lazy-init.js');
+                return await getLazyCacheDatabase(this.cacheDir);
+            } catch (e: any) {
+                // Fallback to Memory Cache on Lock Error (Robustness)
+                if (e.message?.includes('Lock') || e.message?.includes('IO error') || e.message?.includes('Resource temporarily unavailable')) {
+                    const { log } = await import('../../utils/logger.js');
+                    log.warn(`Cache locked, falling back to in-memory cache: ${e.message}`, { category: 'cache' });
+
+                    const store = new Map<string, string>();
+                    return {
+                        get: (k: string) => store.get(k),
+                        set: (k: string, v: string) => store.set(k, v),
+                        clearAll: () => store.clear(),
+                        close: () => { }
+                    };
+                }
+                throw e;
+            }
+        })();
+
+        return this.dbPromise;
     }
 
-    get(key: string): CachedResult | null {
-        // BuildCache.get is synchronous in type, but RocksDB is fast enough 
-        // that we can potentially use a sync bridge or just handle it.
-        // Actually, the BuildCache interface expects sync. 
-        // For Module 8, we will use the async version for better perf, 
-        // but for compatibility we'll use a trick if needed.
-        // Let's assume we can make the engine await cache results.
-        return null; // Will be handled by the async flow in engine
+    get(key: string): Promise<CachedResult | null> {
+        return this.getAsync(key);
     }
 
     async getAsync(key: string): Promise<CachedResult | null> {

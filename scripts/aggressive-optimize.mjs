@@ -52,7 +52,7 @@ const optimized = content.replace(
   loadEnv({ path: path.join(cfg.root, '.env.local') });
 
   const publicEnv = Object.keys(process.env)
-    .filter(key => key.startsWith('NUCLIE_') || key.startsWith('PUBLIC_') || key === 'NODE_ENV')
+    .filter(key => key.startsWith('LUNX_') || key.startsWith('PUBLIC_') || key === 'NODE_ENV')
     .reduce((acc, key) => ({ ...acc, [key]: process.env[key] }), {
       NODE_ENV: process.env.NODE_ENV || 'development'
     });

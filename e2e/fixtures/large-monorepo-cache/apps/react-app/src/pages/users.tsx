@@ -1,0 +1,1 @@
+export default function users() { return "View for users"; }

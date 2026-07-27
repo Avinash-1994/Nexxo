@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Nuclie v2.0 Module 1 - Day 1: Total Baseline Audit
+# Lunx v2.0 Module 1 - Day 1: Total Baseline Audit
 # This script establishes comprehensive performance baseline for all features
 
 set -e
 
-echo "📊 Nuclie v2.0 Module 1 - Day 1: Total Baseline Audit"
+echo "📊 Lunx v2.0 Module 1 - Day 1: Total Baseline Audit"
 echo "======================================================"
 echo ""
 
@@ -66,7 +66,7 @@ measure_cold_dev() {
   echo "  Measuring cold dev start for $project..."
   
   # Clear cache
-  rm -rf "$project/.nuclie_cache" 2>/dev/null || true
+  rm -rf "$project/.lunx_cache" 2>/dev/null || true
   
   # Measure startup time
   START=$(date +%s%N)
@@ -113,7 +113,7 @@ measure_prod_build() {
   echo "  Measuring production build for $project..."
   
   # Clear cache
-  rm -rf "$project/.nuclie_cache" 2>/dev/null || true
+  rm -rf "$project/.lunx_cache" 2>/dev/null || true
   
   # Measure build time
   START=$(date +%s%N)
@@ -155,14 +155,14 @@ echo "📝 Step 5: Generating Baseline Report"
 echo "-------------------------------------"
 
 cat > "$RESULTS_DIR/BASELINE_REPORT.md" << 'EOF'
-# Nuclie v1.0 Baseline Audit Report
+# Lunx v1.0 Baseline Audit Report
 
 **Date**: $(date +%Y-%m-%d)
 **Version**: 1.0.0-freeze
 
 ## Executive Summary
 
-This report establishes the performance baseline for Nuclie v1.0 before upgrading to v2.0 with the new stack (Bun.js, Rolldown, Tokio, RocksDB).
+This report establishes the performance baseline for Lunx v1.0 before upgrading to v2.0 with the new stack (Bun.js, Rolldown, Tokio, RocksDB).
 
 ## Metrics Collected
 

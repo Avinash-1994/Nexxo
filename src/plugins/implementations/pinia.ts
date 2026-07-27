@@ -1,15 +1,15 @@
 /**
- * @nuclie/plugin-pinia
+ * @lunx/plugin-pinia
  * Pinia (Vue) integration
- * Nuclie-native
+ * Lunx-native
  */
 
 import { PluginAdapter } from '../ported/adapter.js';
 
 export function createPiniaPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-pinia',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-pinia',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // pinia transformation

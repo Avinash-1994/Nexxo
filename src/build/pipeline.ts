@@ -1,6 +1,10 @@
 
+import * as fs from 'fs';
+import * as path from 'path';
+import { build } from 'esbuild';
+
 /**
- * Nuclie Multi-Target Build Pipeline
+ * Lunx Multi-Target Build Pipeline
  * Handles SPA, SSR, SSG, Edge, and Lib modes
  * Day 28: Multi-Target Pipeline & Production Lock
  */
@@ -13,6 +17,7 @@ export interface BuildOptions {
     minify: boolean;
     ssr: boolean;
     edge: boolean;
+    entry?: string;
 }
 
 export class BuildPipeline {
@@ -22,8 +27,10 @@ export class BuildPipeline {
      * Main Build Entry
      */
     async build() {
-        console.log(`🚀 Starting Nuclie Multi-Target Build...`);
+        console.log(`🚀 Starting Lunx Multi-Target Build...`);
         console.log(`Targets: ${this.options.target.join(', ')}`);
+
+        fs.mkdirSync(this.options.outDir, { recursive: true });
 
         for (const target of this.options.target) {
             await this.buildTarget(target);
@@ -54,36 +61,149 @@ export class BuildPipeline {
         }
     }
 
+    private async resolveEntry() {
+        const entry = this.options.entry;
+        if (entry && fs.existsSync(entry)) {
+            return path.resolve(entry);
+        }
+
+        const candidates = [
+            'src/main.ts',
+            'src/main.tsx',
+            'src/index.ts',
+            'src/index.tsx',
+            'src/main.js',
+            'src/index.js'
+        ];
+
+        for (const candidate of candidates) {
+            if (fs.existsSync(candidate)) {
+                return path.resolve(candidate);
+            }
+        }
+
+        return undefined;
+    }
+
+    private async resolveEntryOrThrow() {
+        const entry = await this.resolveEntry();
+        if (!entry) {
+            throw new Error(
+                'Build entry file not found. Create one of src/main.ts, src/main.tsx, src/index.ts, src/index.tsx, src/main.js, src/index.js, or set the entry option explicitly.'
+            );
+        }
+        return entry;
+    }
+
     private async buildSPA() {
-        // Logic for SPA bundling (Rolldown based)
-        console.log(`    ✅ SPA Bundle emitted to ${this.options.outDir}/browser`);
+        const outDir = path.join(this.options.outDir, 'browser');
+        fs.mkdirSync(outDir, { recursive: true });
+
+        const entry = await this.resolveEntryOrThrow();
+
+        const outfile = path.join(outDir, 'app.js');
+        await build({
+            entryPoints: [entry],
+            bundle: true,
+            minify: this.options.minify,
+            sourcemap: true,
+            platform: 'browser',
+            format: 'esm',
+            outfile,
+            write: true,
+        });
+
+        const html = `<!doctype html><html><head><meta charset="utf-8"><title>Lunx SPA</title></head><body><div id="app"></div><script type="module" src="./app.js"></script></body></html>`;
+        fs.writeFileSync(path.join(outDir, 'index.html'), html);
+        console.log(`    ✅ SPA Bundle and HTML emitted to ${outDir}`);
     }
 
     private async buildSSR() {
-        // Logic for Node.js SSR Bundle
-        console.log(`    ✅ SSR Server Bundle emitted to ${this.options.outDir}/server`);
+        const outDir = path.join(this.options.outDir, 'server');
+        fs.mkdirSync(outDir, { recursive: true });
+
+        const entry = await this.resolveEntryOrThrow();
+
+        await build({
+            entryPoints: [entry],
+            bundle: true,
+            minify: this.options.minify,
+            sourcemap: false,
+            platform: 'node',
+            target: 'node20',
+            format: 'cjs',
+            outfile: path.join(outDir, 'server.js'),
+            write: true,
+        });
+        console.log(`    ✅ SSR Server Bundle emitted to ${outDir}`);
     }
 
     private async buildEdge() {
-        // Logic for Edge-compatible Bundle (Web Standard only)
-        console.log(`    ✅ Edge Bundle emitted to ${this.options.outDir}/edge`);
+        const outDir = path.join(this.options.outDir, 'edge');
+        fs.mkdirSync(outDir, { recursive: true });
+
+        const entry = await this.resolveEntryOrThrow();
+
+        await build({
+            entryPoints: [entry],
+            bundle: true,
+            minify: this.options.minify,
+            sourcemap: false,
+            platform: 'neutral',
+            format: 'esm',
+            outfile: path.join(outDir, 'handler.js'),
+            write: true,
+        });
+        console.log(`    ✅ Edge Bundle emitted to ${outDir}`);
     }
 
     private async buildSSG() {
-        // Logic for Static Site Generation
-        console.log(`    ✅ Static pages emitted to ${this.options.outDir}/static`);
+        const outDir = path.join(this.options.outDir, 'static');
+        fs.mkdirSync(outDir, { recursive: true });
+
+        const entry = await this.resolveEntryOrThrow();
+
+        const jsOut = path.join(outDir, 'app.js');
+        await build({
+            entryPoints: [entry],
+            bundle: true,
+            minify: this.options.minify,
+            sourcemap: false,
+            platform: 'browser',
+            format: 'esm',
+            outfile: jsOut,
+            write: true,
+        });
+
+        const html = `<!doctype html><html><head><meta charset="utf-8"><title>Lunx SSG</title></head><body><div id="app"></div><script type="module" src="./app.js"></script></body></html>`;
+        fs.writeFileSync(path.join(outDir, 'index.html'), html);
+        console.log(`    ✅ Static site emitted to ${outDir}`);
     }
 
     private async buildLib() {
-        // Logic for Library bundling (CJS/ESM/DTS)
-        console.log(`    ✅ Library formats (ESM/CJS) emitted to ${this.options.outDir}/dist`);
+        const outDir = path.join(this.options.outDir, 'dist');
+        fs.mkdirSync(outDir, { recursive: true });
+
+        const entry = await this.resolveEntryOrThrow();
+
+        await build({
+            entryPoints: [entry],
+            bundle: true,
+            minify: this.options.minify,
+            sourcemap: false,
+            platform: 'neutral',
+            format: 'esm',
+            outfile: path.join(outDir, 'index.js'),
+            write: true,
+        });
+        fs.writeFileSync(path.join(outDir, 'index.d.ts'), `export * from './${path.basename(entry)}';`);
+        console.log(`    ✅ Library bundle emitted to ${outDir}`);
     }
 
     /**
      * Incremental Build Check
      */
     checkDelta(file: string): boolean {
-        // Logic to check if file change requires a specific target rebuild
         return true;
     }
 }

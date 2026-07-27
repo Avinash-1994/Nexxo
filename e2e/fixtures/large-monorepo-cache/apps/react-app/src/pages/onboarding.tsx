@@ -1,0 +1,1 @@
+export default function onboarding() { return "View for onboarding"; }

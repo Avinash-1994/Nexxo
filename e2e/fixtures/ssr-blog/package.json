@@ -1,0 +1,10 @@
+{
+  "name": "ssr-blog",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@lunx/ssr": "file:../../../packages/lunx-ssr"
+  }
+}

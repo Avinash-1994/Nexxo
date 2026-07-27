@@ -1,0 +1,19 @@
+{
+  "name": "@lunx/remote-cache",
+  "version": "1.12.0",
+  "description": "Lunx Remote Cache provider — S3 and Lunx Cloud sync",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "sideEffects": false,
+  "dependencies": {
+    "node-fetch": "^3.3.1"
+  }
+}

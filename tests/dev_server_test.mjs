@@ -45,7 +45,7 @@ async function test() {
         const res1 = await fetch(`http://localhost:${PORT}/`);
         assert.strictEqual(res1.status, 200);
         const html = await res1.text();
-        assert.ok(html.includes('<title>Nuclie Build Tool'), 'Index.html served');
+        assert.ok(html.includes('<title>Lunx Build Tool'), 'Index.html served');
 
         // Test main.tsx transformation
         // Use a temp file to avoid overwriting user's main.tsx

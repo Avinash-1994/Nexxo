@@ -1,0 +1,1 @@
+export default function dashboard() { return "View for dashboard"; }

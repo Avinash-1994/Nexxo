@@ -12,7 +12,7 @@ interface DoctorCheck {
     fix?: string;
 }
 
-export class NuclieDoctor {
+export class LunxDoctor {
     private cwd: string;
     private checks: DoctorCheck[] = [];
 
@@ -21,11 +21,11 @@ export class NuclieDoctor {
     }
 
     async diagnose(): Promise<void> {
-        console.log('\n🩺 Nuclie Doctor - Running Diagnostics...\n');
+        console.log('\n🩺 Lunx Doctor - Running Diagnostics...\n');
 
         await this.checkNodeVersion();
         await this.checkPackageJson();
-        await this.checkNuclieConfig();
+        await this.checkLunxConfig();
         await this.checkDependencies();
         await this.checkGitIgnore();
         await this.checkEnvironment();
@@ -61,30 +61,30 @@ export class NuclieDoctor {
         try {
             const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
 
-            // Check for nuclie in dependencies
-            const hasNuclie = pkg.dependencies?.nuclie || pkg.devDependencies?.nuclie;
-            if (hasNuclie) {
-                this.addCheck('package.json', 'pass', `Nuclie ${hasNuclie} configured`);
+            // Check for lunx in dependencies
+            const hasLunx = pkg.dependencies?.lunx || pkg.devDependencies?.lunx;
+            if (hasLunx) {
+                this.addCheck('package.json', 'pass', `Lunx ${hasLunx} configured`);
             } else {
-                this.addCheck('package.json', 'warn', 'Nuclie not in dependencies', 'Run `npm install nuclie`');
+                this.addCheck('package.json', 'warn', 'Lunx not in dependencies', 'Run `npm install lunx`');
             }
 
             // Check for scripts
             if (pkg.scripts?.dev || pkg.scripts?.build) {
                 this.addCheck('npm scripts', 'pass', 'Build scripts configured');
             } else {
-                this.addCheck('npm scripts', 'warn', 'No dev/build scripts', 'Add "dev": "nuclie dev" and "build": "nuclie build"');
+                this.addCheck('npm scripts', 'warn', 'No dev/build scripts', 'Add "dev": "lunx dev" and "build": "lunx build"');
             }
         } catch (e) {
             this.addCheck('package.json', 'fail', 'Invalid JSON', 'Fix JSON syntax errors');
         }
     }
 
-    private async checkNuclieConfig(): Promise<void> {
+    private async checkLunxConfig(): Promise<void> {
         const configPaths = [
-            'nuclie.config.ts',
-            'nuclie.config.js',
-            'nuclie.config.mjs'
+            'lunx.config.ts',
+            'lunx.config.js',
+            'lunx.config.mjs'
         ];
 
         const configFile = configPaths.find(p => fs.existsSync(path.join(this.cwd, p)));
@@ -92,7 +92,7 @@ export class NuclieDoctor {
         if (configFile) {
             try {
                 const config = await loadConfig(this.cwd);
-                this.addCheck('Nuclie Config', 'pass', `Found ${configFile}`);
+                this.addCheck('Lunx Config', 'pass', `Found ${configFile}`);
 
                 // Validate config
                 if (!config.entry || config.entry.length === 0) {
@@ -101,10 +101,10 @@ export class NuclieDoctor {
                     this.addCheck('Config Validation', 'pass', `${config.entry.length} entry point(s)`);
                 }
             } catch (e: any) {
-                this.addCheck('Nuclie Config', 'fail', `Error loading config: ${e.message}`, 'Check config syntax');
+                this.addCheck('Lunx Config', 'fail', `Error loading config: ${e.message}`, 'Check config syntax');
             }
         } else {
-            this.addCheck('Nuclie Config', 'warn', 'No config file found', 'Run `nuclie init` to create one');
+            this.addCheck('Lunx Config', 'warn', 'No config file found', 'Run `lunx init` to create one');
         }
     }
 
@@ -227,7 +227,7 @@ export class NuclieDoctor {
     }
 
     private async checkCacheHealth(): Promise<void> {
-        const cacheDir = path.join(this.cwd, 'node_modules', '.nuclie');
+        const cacheDir = path.join(this.cwd, 'node_modules', '.lunx');
 
         if (!fs.existsSync(cacheDir)) {
             this.addCheck('Build Cache', 'pass', 'No cache yet (will be created on first build)');
@@ -240,7 +240,7 @@ export class NuclieDoctor {
             const sizeMB = sizeBytes / (1024 ** 2);
 
             if (sizeMB > 1000) {
-                this.addCheck('Build Cache', 'warn', `${sizeMB.toFixed(0)} MB (large)`, 'Consider clearing cache with `rm -rf node_modules/.nuclie`');
+                this.addCheck('Build Cache', 'warn', `${sizeMB.toFixed(0)} MB (large)`, 'Consider clearing cache with `rm -rf node_modules/.lunx`');
             } else {
                 this.addCheck('Build Cache', 'pass', `${sizeMB.toFixed(0)} MB`);
             }
@@ -275,7 +275,7 @@ export class NuclieDoctor {
         const outputDir = fs.existsSync(buildDir) ? buildDir : fs.existsSync(distDir) ? distDir : null;
 
         if (!outputDir) {
-            this.addCheck('Performance', 'pass', 'No build output yet (run `nuclie build` first)');
+            this.addCheck('Performance', 'pass', 'No build output yet (run `lunx build` first)');
             return;
         }
 
@@ -367,12 +367,12 @@ export class NuclieDoctor {
         console.log(`   CPU: ${os.cpus()[0].model} (${os.cpus().length} cores)`);
         console.log(`   Memory: ${(os.totalmem() / (1024 ** 3)).toFixed(1)} GB total, ${(os.freemem() / (1024 ** 3)).toFixed(1)} GB free`);
 
-        // Try to get Nuclie version
+        // Try to get Lunx version
         try {
-            const pkgPath = path.join(this.cwd, 'node_modules', 'nuclie', 'package.json');
+            const pkgPath = path.join(this.cwd, 'node_modules', 'lunx', 'package.json');
             if (fs.existsSync(pkgPath)) {
                 const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
-                console.log(`   Nuclie: v${pkg.version}`);
+                console.log(`   Lunx: v${pkg.version}`);
             }
         } catch (e) {
             // Ignore
@@ -386,12 +386,12 @@ export class NuclieDoctor {
         } else if (warnings > 0) {
             console.log('⚠️  Some warnings detected. Consider addressing them for optimal performance.\n');
         } else {
-            console.log('✅ All checks passed! Your Nuclie project is healthy.\n');
+            console.log('✅ All checks passed! Your Lunx project is healthy.\n');
         }
     }
 }
 
 export async function runDoctor(cwd: string = process.cwd()): Promise<void> {
-    const doctor = new NuclieDoctor(cwd);
+    const doctor = new LunxDoctor(cwd);
     await doctor.diagnose();
 }

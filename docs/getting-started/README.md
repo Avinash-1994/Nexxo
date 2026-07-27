@@ -1,6 +1,6 @@
-# Getting Started with Nuclie
+# Getting Started with Lunx
 
-Welcome to Nuclie! This guide will help you get up and running in minutes.
+Welcome to Lunx! This guide will help you get up and running in minutes.
 
 ## Quick Start
 
@@ -8,23 +8,23 @@ Welcome to Nuclie! This guide will help you get up and running in minutes.
 
 ```bash
 # Using npm
-npm install -g nuclie
+npm install -g lunx
 
 # Using yarn
-yarn global add nuclie
+yarn global add lunx
 
 # Using pnpm
-pnpm add -g nuclie
+pnpm add -g lunx
 ```
 
 ### Create a New Project
 
 ```bash
 # Create a new project from template
-npx create-nuclie my-app
+npx create-lunx my-app
 
 # Choose from available templates
-npx create-nuclie my-app --template react-spa
+npx create-lunx my-app --template react-spa
 ```
 
 ### Available Templates
@@ -57,7 +57,7 @@ npm install
 ### 3. Start development server
 
 ```bash
-nuclie dev
+lunx dev
 ```
 
 Your app will be running at `http://localhost:3000` with Hot Module Replacement enabled!
@@ -65,7 +65,7 @@ Your app will be running at `http://localhost:3000` with Hot Module Replacement 
 ### 4. Build for production
 
 ```bash
-nuclie build
+lunx build
 ```
 
 Your optimized build will be in the `dist/` folder.
@@ -79,14 +79,14 @@ my-app/
 │   ├── App.tsx          # Main component
 │   └── ...
 ├── public/              # Static assets
-├── nuclie.config.js      # Nuclie configuration
+├── lunx.config.js      # Lunx configuration
 ├── package.json
 └── tsconfig.json
 ```
 
 ## Configuration
 
-Create a `nuclie.config.js` in your project root:
+Create a `lunx.config.js` in your project root:
 
 ```javascript
 module.exports = {
@@ -122,7 +122,7 @@ module.exports = {
 
 ## Need Help?
 
-- 📖 [Documentation](https://nuclie.dev/docs)
-- 💬 [GitHub Discussions](https://github.com/Avinash-1994/nuclie/discussions)
-- 🐛 [Report Issues](https://github.com/Avinash-1994/nuclie/issues)
-- 🌟 [Star on GitHub](https://github.com/Avinash-1994/nuclie)
+- 📖 [Documentation](https://lunx.dev/docs)
+- 💬 [GitHub Discussions](https://github.com/Avinash-1994/lunx/discussions)
+- 🐛 [Report Issues](https://github.com/Avinash-1994/lunx/issues)
+- 🌟 [Star on GitHub](https://github.com/Avinash-1994/lunx)

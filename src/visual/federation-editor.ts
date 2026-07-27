@@ -9,7 +9,7 @@ export function getEditorHtml(config: any) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuclie Federation Editor</title>
+    <title>Lunx Federation Editor</title>
     <style>
         :root {
             --bg: #0f172a;
@@ -223,7 +223,7 @@ export function getEditorHtml(config: any) {
 
         function saveConfig() {
             alert('Config saved! (Simulation)');
-            // In real app, POST to /__nuclie/api/federation/save
+            // In real app, POST to /__lunx/api/federation/save
         }
     </script>
 </body>

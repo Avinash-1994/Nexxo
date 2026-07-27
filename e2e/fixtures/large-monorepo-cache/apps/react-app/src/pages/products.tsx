@@ -1,0 +1,1 @@
+export default function products() { return "View for products"; }

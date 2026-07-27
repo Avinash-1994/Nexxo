@@ -30,7 +30,7 @@ export class PluginSandbox {
             },
             process: {
                 env: new Proxy({}, {
-                    get: (target, prop) => {
+                    get: (_target, prop) => {
                         const key = String(prop);
                         if (this.permissionManager.canAccessEnv(key)) {
                             return process.env[key];
@@ -47,14 +47,29 @@ export class PluginSandbox {
                 if (moduleName === 'path') {
                     return path;
                 }
-                // Block other modules for now
                 throw new Error(`Access to module '${moduleName}' is denied.`);
             },
             module: { exports: {} },
             exports: {},
+            Buffer,
+            URL,
+            TextEncoder,
+            TextDecoder,
+            setTimeout,
+            clearTimeout,
+            setInterval,
+            clearInterval,
+            // Explicitly remove network globals from plugin context
+            fetch: undefined,
+            XMLHttpRequest: undefined,
+            WebSocket: undefined,
+            EventSource: undefined,
+            WebAssembly,
         };
 
-        return vm.createContext(sandbox);
+        const context = vm.createContext(sandbox);
+        context.globalThis = context;
+        return context;
     }
 
     private createFsProxy() {
@@ -81,7 +96,11 @@ export class PluginSandbox {
 
     run(code: string, filename: string = 'plugin.js'): any {
         const script = new vm.Script(code, { filename });
-        script.runInContext(this.context);
+        try {
+            script.runInContext(this.context, { timeout: 1000 });
+        } catch (error) {
+            throw new Error(`Sandbox execution failed: ${error instanceof Error ? error.message : String(error)}`);
+        }
         return this.context.module.exports;
     }
 }

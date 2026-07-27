@@ -1,14 +1,15 @@
 
-// TypeScript bindings for Nuclie v2.0 native WASM runtime
+// TypeScript bindings for Lunx v2.0 native WASM runtime
 // Day 8: Zero-Trust Ecosystem
 
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
-const nativeModule = require('../../nuclie_native.node');
+const nativeModule = require('../../lunx_native.node');
 
 const { PluginRuntime: NativePluginRuntime } = nativeModule;
 
-import type { PluginRuntime as NativePluginRuntimeType } from '../../nuclie_native.node';
+// .node binaries do not have TypeScript declarations — use any
+type NativePluginRuntimeType = any;
 
 /**
  * Secure WASM Runtime wrapper

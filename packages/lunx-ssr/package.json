@@ -1,0 +1,21 @@
+{
+  "name": "@lunx/ssr",
+  "version": "1.0.10",
+  "description": "Lunx SSR VM Environment Runner",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Avinash-1994/Nexxo.git",
+    "directory": "packages/lunx-ssr"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}

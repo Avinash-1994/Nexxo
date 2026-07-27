@@ -1,18 +1,18 @@
-# @nuclie/plugin-legacy
+# @lunx/plugin-legacy
 
-> Official Nuclie plugin for legacy browser support — ES5 transpilation and core-js polyfills.
+> Official Lunx plugin for legacy browser support — ES5 transpilation and core-js polyfills.
 
 ## Install
 
 ```bash
-npm install --save-dev @nuclie/plugin-legacy
+npm install --save-dev @lunx/plugin-legacy
 npm install core-js regenerator-runtime
 ```
 
 ## Usage
 
 ```js
-const legacy = require('@nuclie/plugin-legacy');
+const legacy = require('@lunx/plugin-legacy');
 module.exports = {
   entry: ['./src/main.ts'],
   plugins: [

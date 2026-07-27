@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-graphql
+ * @lunx/plugin-graphql
  * GraphQL integration
  */
 
@@ -7,8 +7,8 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createGraphqlPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-graphql',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-graphql',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // Utility: GraphQL integration

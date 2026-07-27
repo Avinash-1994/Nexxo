@@ -1,6 +1,6 @@
 
 /**
- * Nuclie Error Overlay Client
+ * Lunx Error Overlay Client
  * Injected into the browser to capture Runtime & Build errors.
  * Day 15: Reliable Error Overlay Lock
  */
@@ -12,7 +12,7 @@ let overlayInstance: HTMLElement | null = null;
 
 function getOverlay() {
     if (!overlayInstance || !overlayInstance.isConnected) {
-        overlayInstance = document.createElement('nuclie-error-overlay');
+        overlayInstance = document.createElement('lunx-error-overlay');
         document.body.appendChild(overlayInstance);
     }
     return overlayInstance as any;
@@ -37,7 +37,7 @@ function handleRejection(event: PromiseRejectionEvent) {
 }
 
 // Global API for HMR Client
-(window as any).__NUCLIE_OVERLAY__ = {
+(window as any).__LUNX_OVERLAY__ = {
     reportBuildError(err: any) {
         const overlay = getOverlay();
         overlay.showError(err);
@@ -53,7 +53,7 @@ function handleRejection(event: PromiseRejectionEvent) {
 export function activateOverlay() {
     window.addEventListener('error', handleRuntimeError);
     window.addEventListener('unhandledrejection', handleRejection);
-    console.log('[Nuclie] Error Overlay Active');
+    console.log('[Lunx] Error Overlay Active');
 }
 
 // Auto-activate if running in browser

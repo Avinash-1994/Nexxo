@@ -22,7 +22,7 @@ export class Analyzer {
             packageManager: await this.detectPackageManager(),
             dependencies: pkg.dependencies || {},
             devDependencies: pkg.devDependencies || {},
-            configSummary: {} // TODO: Parse nuclie.config.ts
+            configSummary: {} // TODO: Parse lunx.config.ts
         };
     }
 

@@ -1,4 +1,4 @@
-# Nuclie Plugin Contract — Binding Internal Specification
+# Lunx Plugin Contract — Binding Internal Specification
 
 **Status**: 🔒 Binding Contract (Phase H2.2)  
 **Version**: 1.0.0  
@@ -81,7 +81,7 @@ load(id: string): LoadResult | null {
 
 **Allowed**:
 ```typescript
-const plugin: NucliePlugin = {
+const plugin: LunxPlugin = {
   name: 'my-plugin',
   version: '1.0.0',
   enforce: 'pre' | 'post', // Optional ordering
@@ -277,7 +277,7 @@ transform(code) {
 
 // ✅ GOOD
 transform(code) {
-  return { code: code + `\n// Built with Nuclie` };
+  return { code: code + `\n// Built with Lunx` };
 }
 ```
 
@@ -371,12 +371,12 @@ Before submitting a plugin for "official" status:
 
 ## 🧠 Governance Rule
 
-**"If extending Nuclie is easier than understanding it, the extension surface is wrong."**
+**"If extending Lunx is easier than understanding it, the extension surface is wrong."**
 
 This contract exists to make **correctness the easiest path**.
 
 ---
 
-**Signed**: Nuclie Core Team  
+**Signed**: Lunx Core Team  
 **Binding**: All plugins (official, community, experimental)  
 **Effective**: Phase H2.2 Complete

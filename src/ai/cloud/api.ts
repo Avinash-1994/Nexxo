@@ -1,6 +1,7 @@
 import { AnonymizedLearning } from './telemetry.js';
 import { AIConfig } from '../config.js';
 import { log } from '../../utils/logger.js';
+import { getFetch } from '../../utils/fetch.js';
 
 export interface CloudResponse {
     success: boolean;
@@ -26,8 +27,8 @@ export class CloudAPI {
 
     constructor(private config: AIConfig) {
         // Production API endpoint
-        this.baseUrl = process.env.NUCLIE_CLOUD_API || 'https://api.nuclie.build';
-        this.apiKey = config.apiKey || process.env.NUCLIE_API_KEY || '';
+        this.baseUrl = process.env.LUNX_CLOUD_API || 'https://api.lunx.build';
+        this.apiKey = config.apiKey || process.env.LUNX_API_KEY || '';
         this.userId = this.getOrCreateUserId();
     }
 
@@ -35,7 +36,7 @@ export class CloudAPI {
         // Generate anonymous user ID (stored locally)
         const fs = require('fs');
         const path = require('path');
-        const configPath = path.join(process.env.HOME || process.env.USERPROFILE || '', '.nuclie', 'user.json');
+        const configPath = path.join(process.env.HOME || process.env.USERPROFILE || '', '.lunx', 'user.json');
 
         try {
             if (fs.existsSync(configPath)) {
@@ -71,6 +72,7 @@ export class CloudAPI {
         }
 
         try {
+            const fetch = await getFetch();
             const response = await fetch(`${this.baseUrl}/api/v1/learnings`, {
                 method: 'POST',
                 headers: {
@@ -115,6 +117,7 @@ export class CloudAPI {
         }
 
         try {
+            const fetch = await getFetch();
             const response = await fetch(`${this.baseUrl}/api/v1/patterns?limit=${limit}`, {
                 method: 'GET',
                 headers: {
@@ -138,6 +141,7 @@ export class CloudAPI {
 
     async checkHealth(): Promise<boolean> {
         try {
+            const fetch = await getFetch();
             const response = await fetch(`${this.baseUrl}/health`, {
                 method: 'GET',
                 headers: { 'X-User-Id': this.userId }

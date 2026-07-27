@@ -70,13 +70,13 @@ function requireNative() {
   } else if (process.platform === 'android') {
     if (process.arch === 'arm64') {
       try {
-        return require('./nuclie_native.android-arm64.node')
+        return require('./lunx_native.android-arm64.node')
       } catch (e) {
         loadErrors.push(e)
       }
       try {
-        const binding = require('nuclie-native-android-arm64')
-        const bindingPackageVersion = require('nuclie-native-android-arm64/package.json').version
+        const binding = require('lunx-native-android-arm64')
+        const bindingPackageVersion = require('lunx-native-android-arm64/package.json').version
         if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
           throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
@@ -86,13 +86,13 @@ function requireNative() {
       }
     } else if (process.arch === 'arm') {
       try {
-        return require('./nuclie_native.android-arm-eabi.node')
+        return require('./lunx_native.android-arm-eabi.node')
       } catch (e) {
         loadErrors.push(e)
       }
       try {
-        const binding = require('nuclie-native-android-arm-eabi')
-        const bindingPackageVersion = require('nuclie-native-android-arm-eabi/package.json').version
+        const binding = require('lunx-native-android-arm-eabi')
+        const bindingPackageVersion = require('lunx-native-android-arm-eabi/package.json').version
         if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
           throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
@@ -107,13 +107,13 @@ function requireNative() {
     if (process.arch === 'x64') {
       if (process.config?.variables?.shlib_suffix === 'dll.a' || process.config?.variables?.node_target_type === 'shared_library') {
         try {
-        return require('./nuclie_native.win32-x64-gnu.node')
+        return require('./lunx_native.win32-x64-gnu.node')
       } catch (e) {
         loadErrors.push(e)
       }
       try {
-        const binding = require('nuclie-native-win32-x64-gnu')
-        const bindingPackageVersion = require('nuclie-native-win32-x64-gnu/package.json').version
+        const binding = require('lunx-native-win32-x64-gnu')
+        const bindingPackageVersion = require('lunx-native-win32-x64-gnu/package.json').version
         if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
           throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
@@ -123,13 +123,13 @@ function requireNative() {
       }
       } else {
         try {
-        return require('./nuclie_native.win32-x64-msvc.node')
+        return require('./lunx_native.win32-x64-msvc.node')
       } catch (e) {
         loadErrors.push(e)
       }
       try {
-        const binding = require('nuclie-native-win32-x64-msvc')
-        const bindingPackageVersion = require('nuclie-native-win32-x64-msvc/package.json').version
+        const binding = require('lunx-native-win32-x64-msvc')
+        const bindingPackageVersion = require('lunx-native-win32-x64-msvc/package.json').version
         if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
           throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
@@ -140,13 +140,13 @@ function requireNative() {
       }
     } else if (process.arch === 'ia32') {
       try {
-        return require('./nuclie_native.win32-ia32-msvc.node')
+        return require('./lunx_native.win32-ia32-msvc.node')
       } catch (e) {
         loadErrors.push(e)
       }
       try {
-        const binding = require('nuclie-native-win32-ia32-msvc')
-        const bindingPackageVersion = require('nuclie-native-win32-ia32-msvc/package.json').version
+        const binding = require('lunx-native-win32-ia32-msvc')
+        const bindingPackageVersion = require('lunx-native-win32-ia32-msvc/package.json').version
         if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
           throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
@@ -156,13 +156,13 @@ function requireNative() {
       }
     } else if (process.arch === 'arm64') {
       try {
-        return require('./nuclie_native.win32-arm64-msvc.node')
+        return require('./lunx_native.win32-arm64-msvc.node')
       } catch (e) {
         loadErrors.push(e)
       }
       try {
-        const binding = require('nuclie-native-win32-arm64-msvc')
-        const bindingPackageVersion = require('nuclie-native-win32-arm64-msvc/package.json').version
+        const binding = require('lunx-native-win32-arm64-msvc')
+        const bindingPackageVersion = require('lunx-native-win32-arm64-msvc/package.json').version
         if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
           throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
@@ -175,13 +175,13 @@ function requireNative() {
     }
   } else if (process.platform === 'darwin') {
     try {
-      return require('./nuclie_native.darwin-universal.node')
+      return require('./lunx_native.darwin-universal.node')
     } catch (e) {
       loadErrors.push(e)
     }
     try {
-      const binding = require('nuclie-native-darwin-universal')
-      const bindingPackageVersion = require('nuclie-native-darwin-universal/package.json').version
+      const binding = require('lunx-native-darwin-universal')
+      const bindingPackageVersion = require('lunx-native-darwin-universal/package.json').version
       if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
         throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
       }
@@ -191,13 +191,13 @@ function requireNative() {
     }
     if (process.arch === 'x64') {
       try {
-        return require('./nuclie_native.darwin-x64.node')
+        return require('./lunx_native.darwin-x64.node')
       } catch (e) {
         loadErrors.push(e)
       }
       try {
-        const binding = require('nuclie-native-darwin-x64')
-        const bindingPackageVersion = require('nuclie-native-darwin-x64/package.json').version
+        const binding = require('lunx-native-darwin-x64')
+        const bindingPackageVersion = require('lunx-native-darwin-x64/package.json').version
         if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
           throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
@@ -207,13 +207,13 @@ function requireNative() {
       }
     } else if (process.arch === 'arm64') {
       try {
-        return require('./nuclie_native.darwin-arm64.node')
+        return require('./lunx_native.darwin-arm64.node')
       } catch (e) {
         loadErrors.push(e)
       }
       try {
-        const binding = require('nuclie-native-darwin-arm64')
-        const bindingPackageVersion = require('nuclie-native-darwin-arm64/package.json').version
+        const binding = require('lunx-native-darwin-arm64')
+        const bindingPackageVersion = require('lunx-native-darwin-arm64/package.json').version
         if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
           throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
@@ -227,13 +227,13 @@ function requireNative() {
   } else if (process.platform === 'freebsd') {
     if (process.arch === 'x64') {
       try {
-        return require('./nuclie_native.freebsd-x64.node')
+        return require('./lunx_native.freebsd-x64.node')
       } catch (e) {
         loadErrors.push(e)
       }
       try {
-        const binding = require('nuclie-native-freebsd-x64')
-        const bindingPackageVersion = require('nuclie-native-freebsd-x64/package.json').version
+        const binding = require('lunx-native-freebsd-x64')
+        const bindingPackageVersion = require('lunx-native-freebsd-x64/package.json').version
         if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
           throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
@@ -243,13 +243,13 @@ function requireNative() {
       }
     } else if (process.arch === 'arm64') {
       try {
-        return require('./nuclie_native.freebsd-arm64.node')
+        return require('./lunx_native.freebsd-arm64.node')
       } catch (e) {
         loadErrors.push(e)
       }
       try {
-        const binding = require('nuclie-native-freebsd-arm64')
-        const bindingPackageVersion = require('nuclie-native-freebsd-arm64/package.json').version
+        const binding = require('lunx-native-freebsd-arm64')
+        const bindingPackageVersion = require('lunx-native-freebsd-arm64/package.json').version
         if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
           throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
@@ -264,13 +264,13 @@ function requireNative() {
     if (process.arch === 'x64') {
       if (isMusl()) {
         try {
-          return require('./nuclie_native.linux-x64-musl.node')
+          return require('./lunx_native.linux-x64-musl.node')
         } catch (e) {
           loadErrors.push(e)
         }
         try {
-          const binding = require('nuclie-native-linux-x64-musl')
-          const bindingPackageVersion = require('nuclie-native-linux-x64-musl/package.json').version
+          const binding = require('lunx-native-linux-x64-musl')
+          const bindingPackageVersion = require('lunx-native-linux-x64-musl/package.json').version
           if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
             throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
           }
@@ -280,13 +280,13 @@ function requireNative() {
         }
       } else {
         try {
-          return require('./nuclie_native.linux-x64-gnu.node')
+          return require('./lunx_native.linux-x64-gnu.node')
         } catch (e) {
           loadErrors.push(e)
         }
         try {
-          const binding = require('nuclie-native-linux-x64-gnu')
-          const bindingPackageVersion = require('nuclie-native-linux-x64-gnu/package.json').version
+          const binding = require('lunx-native-linux-x64-gnu')
+          const bindingPackageVersion = require('lunx-native-linux-x64-gnu/package.json').version
           if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
             throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
           }
@@ -298,13 +298,13 @@ function requireNative() {
     } else if (process.arch === 'arm64') {
       if (isMusl()) {
         try {
-          return require('./nuclie_native.linux-arm64-musl.node')
+          return require('./lunx_native.linux-arm64-musl.node')
         } catch (e) {
           loadErrors.push(e)
         }
         try {
-          const binding = require('nuclie-native-linux-arm64-musl')
-          const bindingPackageVersion = require('nuclie-native-linux-arm64-musl/package.json').version
+          const binding = require('lunx-native-linux-arm64-musl')
+          const bindingPackageVersion = require('lunx-native-linux-arm64-musl/package.json').version
           if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
             throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
           }
@@ -314,13 +314,13 @@ function requireNative() {
         }
       } else {
         try {
-          return require('./nuclie_native.linux-arm64-gnu.node')
+          return require('./lunx_native.linux-arm64-gnu.node')
         } catch (e) {
           loadErrors.push(e)
         }
         try {
-          const binding = require('nuclie-native-linux-arm64-gnu')
-          const bindingPackageVersion = require('nuclie-native-linux-arm64-gnu/package.json').version
+          const binding = require('lunx-native-linux-arm64-gnu')
+          const bindingPackageVersion = require('lunx-native-linux-arm64-gnu/package.json').version
           if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
             throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
           }
@@ -332,13 +332,13 @@ function requireNative() {
     } else if (process.arch === 'arm') {
       if (isMusl()) {
         try {
-          return require('./nuclie_native.linux-arm-musleabihf.node')
+          return require('./lunx_native.linux-arm-musleabihf.node')
         } catch (e) {
           loadErrors.push(e)
         }
         try {
-          const binding = require('nuclie-native-linux-arm-musleabihf')
-          const bindingPackageVersion = require('nuclie-native-linux-arm-musleabihf/package.json').version
+          const binding = require('lunx-native-linux-arm-musleabihf')
+          const bindingPackageVersion = require('lunx-native-linux-arm-musleabihf/package.json').version
           if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
             throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
           }
@@ -348,13 +348,13 @@ function requireNative() {
         }
       } else {
         try {
-          return require('./nuclie_native.linux-arm-gnueabihf.node')
+          return require('./lunx_native.linux-arm-gnueabihf.node')
         } catch (e) {
           loadErrors.push(e)
         }
         try {
-          const binding = require('nuclie-native-linux-arm-gnueabihf')
-          const bindingPackageVersion = require('nuclie-native-linux-arm-gnueabihf/package.json').version
+          const binding = require('lunx-native-linux-arm-gnueabihf')
+          const bindingPackageVersion = require('lunx-native-linux-arm-gnueabihf/package.json').version
           if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
             throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
           }
@@ -366,13 +366,13 @@ function requireNative() {
     } else if (process.arch === 'loong64') {
       if (isMusl()) {
         try {
-          return require('./nuclie_native.linux-loong64-musl.node')
+          return require('./lunx_native.linux-loong64-musl.node')
         } catch (e) {
           loadErrors.push(e)
         }
         try {
-          const binding = require('nuclie-native-linux-loong64-musl')
-          const bindingPackageVersion = require('nuclie-native-linux-loong64-musl/package.json').version
+          const binding = require('lunx-native-linux-loong64-musl')
+          const bindingPackageVersion = require('lunx-native-linux-loong64-musl/package.json').version
           if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
             throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
           }
@@ -382,13 +382,13 @@ function requireNative() {
         }
       } else {
         try {
-          return require('./nuclie_native.linux-loong64-gnu.node')
+          return require('./lunx_native.linux-loong64-gnu.node')
         } catch (e) {
           loadErrors.push(e)
         }
         try {
-          const binding = require('nuclie-native-linux-loong64-gnu')
-          const bindingPackageVersion = require('nuclie-native-linux-loong64-gnu/package.json').version
+          const binding = require('lunx-native-linux-loong64-gnu')
+          const bindingPackageVersion = require('lunx-native-linux-loong64-gnu/package.json').version
           if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
             throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
           }
@@ -400,13 +400,13 @@ function requireNative() {
     } else if (process.arch === 'riscv64') {
       if (isMusl()) {
         try {
-          return require('./nuclie_native.linux-riscv64-musl.node')
+          return require('./lunx_native.linux-riscv64-musl.node')
         } catch (e) {
           loadErrors.push(e)
         }
         try {
-          const binding = require('nuclie-native-linux-riscv64-musl')
-          const bindingPackageVersion = require('nuclie-native-linux-riscv64-musl/package.json').version
+          const binding = require('lunx-native-linux-riscv64-musl')
+          const bindingPackageVersion = require('lunx-native-linux-riscv64-musl/package.json').version
           if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
             throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
           }
@@ -416,13 +416,13 @@ function requireNative() {
         }
       } else {
         try {
-          return require('./nuclie_native.linux-riscv64-gnu.node')
+          return require('./lunx_native.linux-riscv64-gnu.node')
         } catch (e) {
           loadErrors.push(e)
         }
         try {
-          const binding = require('nuclie-native-linux-riscv64-gnu')
-          const bindingPackageVersion = require('nuclie-native-linux-riscv64-gnu/package.json').version
+          const binding = require('lunx-native-linux-riscv64-gnu')
+          const bindingPackageVersion = require('lunx-native-linux-riscv64-gnu/package.json').version
           if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
             throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
           }
@@ -433,13 +433,13 @@ function requireNative() {
       }
     } else if (process.arch === 'ppc64') {
       try {
-        return require('./nuclie_native.linux-ppc64-gnu.node')
+        return require('./lunx_native.linux-ppc64-gnu.node')
       } catch (e) {
         loadErrors.push(e)
       }
       try {
-        const binding = require('nuclie-native-linux-ppc64-gnu')
-        const bindingPackageVersion = require('nuclie-native-linux-ppc64-gnu/package.json').version
+        const binding = require('lunx-native-linux-ppc64-gnu')
+        const bindingPackageVersion = require('lunx-native-linux-ppc64-gnu/package.json').version
         if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
           throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
@@ -449,13 +449,13 @@ function requireNative() {
       }
     } else if (process.arch === 's390x') {
       try {
-        return require('./nuclie_native.linux-s390x-gnu.node')
+        return require('./lunx_native.linux-s390x-gnu.node')
       } catch (e) {
         loadErrors.push(e)
       }
       try {
-        const binding = require('nuclie-native-linux-s390x-gnu')
-        const bindingPackageVersion = require('nuclie-native-linux-s390x-gnu/package.json').version
+        const binding = require('lunx-native-linux-s390x-gnu')
+        const bindingPackageVersion = require('lunx-native-linux-s390x-gnu/package.json').version
         if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
           throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
@@ -469,13 +469,13 @@ function requireNative() {
   } else if (process.platform === 'openharmony') {
     if (process.arch === 'arm64') {
       try {
-        return require('./nuclie_native.openharmony-arm64.node')
+        return require('./lunx_native.openharmony-arm64.node')
       } catch (e) {
         loadErrors.push(e)
       }
       try {
-        const binding = require('nuclie-native-openharmony-arm64')
-        const bindingPackageVersion = require('nuclie-native-openharmony-arm64/package.json').version
+        const binding = require('lunx-native-openharmony-arm64')
+        const bindingPackageVersion = require('lunx-native-openharmony-arm64/package.json').version
         if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
           throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
@@ -485,13 +485,13 @@ function requireNative() {
       }
     } else if (process.arch === 'x64') {
       try {
-        return require('./nuclie_native.openharmony-x64.node')
+        return require('./lunx_native.openharmony-x64.node')
       } catch (e) {
         loadErrors.push(e)
       }
       try {
-        const binding = require('nuclie-native-openharmony-x64')
-        const bindingPackageVersion = require('nuclie-native-openharmony-x64/package.json').version
+        const binding = require('lunx-native-openharmony-x64')
+        const bindingPackageVersion = require('lunx-native-openharmony-x64/package.json').version
         if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
           throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
@@ -501,13 +501,13 @@ function requireNative() {
       }
     } else if (process.arch === 'arm') {
       try {
-        return require('./nuclie_native.openharmony-arm.node')
+        return require('./lunx_native.openharmony-arm.node')
       } catch (e) {
         loadErrors.push(e)
       }
       try {
-        const binding = require('nuclie-native-openharmony-arm')
-        const bindingPackageVersion = require('nuclie-native-openharmony-arm/package.json').version
+        const binding = require('lunx-native-openharmony-arm')
+        const bindingPackageVersion = require('lunx-native-openharmony-arm/package.json').version
         if (bindingPackageVersion !== '0.1.0' && process.env.NAPI_RS_ENFORCE_VERSION_CHECK && process.env.NAPI_RS_ENFORCE_VERSION_CHECK !== '0') {
           throw new Error(`Native binding package version mismatch, expected 0.1.0 but got ${bindingPackageVersion}. You can reinstall dependencies to fix this issue.`)
         }
@@ -529,7 +529,7 @@ if (!nativeBinding || process.env.NAPI_RS_FORCE_WASI) {
   let wasiBinding = null
   let wasiBindingError = null
   try {
-    wasiBinding = require('./nuclie_native.wasi.cjs')
+    wasiBinding = require('./lunx_native.wasi.cjs')
     nativeBinding = wasiBinding
   } catch (err) {
     if (process.env.NAPI_RS_FORCE_WASI) {
@@ -538,7 +538,7 @@ if (!nativeBinding || process.env.NAPI_RS_FORCE_WASI) {
   }
   if (!nativeBinding) {
     try {
-      wasiBinding = require('nuclie-native-wasm32-wasi')
+      wasiBinding = require('lunx-native-wasm32-wasi')
       nativeBinding = wasiBinding
     } catch (err) {
       if (process.env.NAPI_RS_FORCE_WASI) {
@@ -575,8 +575,8 @@ module.exports = nativeBinding
 module.exports.BuildCache = nativeBinding.BuildCache
 module.exports.BuildOrchestrator = nativeBinding.BuildOrchestrator
 module.exports.GraphAnalyzer = nativeBinding.GraphAnalyzer
+module.exports.NativeWatcher = nativeBinding.NativeWatcher
 module.exports.NativeWorker = nativeBinding.NativeWorker
-module.exports.PluginRuntime = nativeBinding.PluginRuntime
 module.exports.batchHash = nativeBinding.batchHash
 module.exports.benchmarkGraphAnalysis = nativeBinding.benchmarkGraphAnalysis
 module.exports.benchmarkParallelism = nativeBinding.benchmarkParallelism
@@ -589,6 +589,14 @@ module.exports.createPlanKey = nativeBinding.createPlanKey
 module.exports.fastHash = nativeBinding.fastHash
 module.exports.getOptimalParallelism = nativeBinding.getOptimalParallelism
 module.exports.helloRust = nativeBinding.helloRust
+module.exports.lunxChunk = nativeBinding.lunxChunk
+module.exports.mergeSourceMaps = nativeBinding.mergeSourceMaps
 module.exports.minifySync = nativeBinding.minifySync
 module.exports.normalizePath = nativeBinding.normalizePath
+module.exports.planBuild = nativeBinding.planBuild
+module.exports.prebundle = nativeBinding.prebundle
+module.exports.prebundlePut = nativeBinding.prebundlePut
 module.exports.scanImports = nativeBinding.scanImports
+module.exports.startWatcher = nativeBinding.startWatcher
+module.exports.transformCss = nativeBinding.transformCss
+module.exports.transformJs = nativeBinding.transformJs

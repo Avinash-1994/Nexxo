@@ -73,7 +73,7 @@ if (startIndex !== -1 && endIndex !== -1) {
       }));
     } else {
       await fs.writeFile(path.join(cwd, 'index.html'), templates.vanillaTemplateHtml);
-      await fs.writeFile(path.join(cwd, \`src/main.\${ext}\`), 'console.log("Hello from Nuclie Vanilla!");');
+      await fs.writeFile(path.join(cwd, \`src/main.\${ext}\`), 'console.log("Hello from Lunx Vanilla!");');
     }
 
     if (!template.includes('alpine') && !template.includes('vanilla')) {
@@ -92,7 +92,7 @@ if (startIndex !== -1 && endIndex !== -1) {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nuclie App</title>
+    <title>Lunx App</title>
   </head>
   <body>
     <div id="root"></div>

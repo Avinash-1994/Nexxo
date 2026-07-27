@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-auto-fix
+ * @lunx/plugin-auto-fix
  * Automatic error fixing
  */
 
@@ -7,8 +7,8 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createAutoFixPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-auto-fix',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-auto-fix',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // Utility: Automatic error fixing

@@ -39,7 +39,7 @@ const formatDuration = (ms: number) => {
 export const log = {
   info: (msg: string, ctx: LogContext = {}) => {
     // In quiet mode, allow essential server messages through
-    if (process.env.NUCLIE_QUIET === 'true' && ctx.category !== 'server') return;
+    if (process.env.LUNX_QUIET === 'true' && ctx.category !== 'server') return;
 
     // Aggressive Filtering: Filter out internal system logs to keep the banner clean
     const isSystemLog = msg.startsWith('Pipeline:') ||
@@ -74,7 +74,7 @@ export const log = {
   },
   warn: (msg: string, ctx: LogContext = {}) => {
     // In quiet mode, keep server warnings visible
-    if (process.env.NUCLIE_QUIET === 'true' && ctx.category !== 'server') return;
+    if (process.env.LUNX_QUIET === 'true' && ctx.category !== 'server') return;
     const cat = ctx.category ? `[${categoryColor(ctx.category)}]` : '';
     console.log(`${time()} ${kleur.yellow('⚠')} ${cat} ${msg}`);
   },
@@ -86,7 +86,7 @@ export const log = {
     }
   },
   debug: (msg: string, ctx: LogContext = {}) => {
-    if (process.env.DEBUG && process.env.NUCLIE_QUIET !== 'true') {
+    if (process.env.DEBUG && process.env.LUNX_QUIET !== 'true') {
       const cat = ctx.category ? `[${categoryColor(ctx.category)}]` : '';
       console.log(`${time()} ${kleur.magenta('⚙')} ${cat} ${msg}`);
     }
@@ -137,7 +137,7 @@ export const log = {
   },
   table: (rows: Record<string, string>) => {
     console.log('');
-    console.log(kleur.bold('🚀 Nuclie Dev Server Ready'));
+    console.log(kleur.bold('🚀 Lunx Dev Server Ready'));
     const keys = Object.keys(rows);
     const maxKeyLen = Math.max(...keys.map(k => k.length));
 

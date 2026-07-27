@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-postcss
+ * @lunx/plugin-postcss
  * PostCSS processing
  */
 
@@ -7,7 +7,7 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createPostcssPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-postcss',
+        name: '@lunx/plugin-postcss',
         originalPlugin: 'postcss-loader',
         
         async transform(code: string, id: string) {

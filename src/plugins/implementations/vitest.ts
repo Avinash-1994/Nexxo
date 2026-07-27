@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-vitest
+ * @lunx/plugin-vitest
  * Vitest integration
  */
 
@@ -7,8 +7,8 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createVitestPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-vitest',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-vitest',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // Utility: Vitest integration

@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-repro
+ * @lunx/plugin-repro
  * Reproduction case generator
  */
 
@@ -7,8 +7,8 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createReproPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-repro',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-repro',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // Utility: Reproduction case generator

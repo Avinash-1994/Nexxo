@@ -1,4 +1,4 @@
-# Nuclie Framework HMR Implementation Status
+# Lunx Framework HMR Implementation Status
 
 **Date**: 2026-01-06  
 **Status**: ✅ All frameworks have HMR support
@@ -19,7 +19,7 @@ All framework plugins include Hot Module Replacement (HMR) support that is:
 
 ### 🟢 Tier 1: Production-Ready
 
-#### React (`nuclieReact`)
+#### React (`lunxReact`)
 **HMR Status**: ✅ **Fast Refresh Enabled**
 
 **Features**:
@@ -39,7 +39,7 @@ if (import.meta.hot) {
 
 **Configuration**:
 ```typescript
-nuclieReact({
+lunxReact({
   fastRefresh: true,  // Enable Fast Refresh
   development: true,  // Enable HMR
   sourceMaps: true
@@ -48,7 +48,7 @@ nuclieReact({
 
 ---
 
-#### Vue (`nuclieVue`)
+#### Vue (`lunxVue`)
 **HMR Status**: ✅ **Vue HMR Runtime Enabled**
 
 **Features**:
@@ -67,7 +67,7 @@ if (import.meta.hot) {
 
 **Configuration**:
 ```typescript
-nuclieVue({
+lunxVue({
   hmr: true,         // Enable HMR
   development: true,
   sourceMaps: true
@@ -78,7 +78,7 @@ nuclieVue({
 
 ### 🟡 Tier 2: Stable
 
-#### Svelte (`nuclieSvelte`)
+#### Svelte (`lunxSvelte`)
 **HMR Status**: ✅ **Svelte HMR Enabled**
 
 **Features**:
@@ -101,7 +101,7 @@ if (import.meta.hot) {
 
 **Configuration**:
 ```typescript
-nuclieSvelte({
+lunxSvelte({
   hmr: true,         // Enable HMR
   development: true,
   compilerOptions: { dev: true }
@@ -110,7 +110,7 @@ nuclieSvelte({
 
 ---
 
-#### Solid (`nuclieSolid`)
+#### Solid (`lunxSolid`)
 **HMR Status**: ✅ **Solid HMR Enabled**
 
 **Features**:
@@ -133,7 +133,7 @@ if (import.meta.hot) {
 
 **Configuration**:
 ```typescript
-nuclieSolid({
+lunxSolid({
   hmr: true,         // Enable HMR
   development: true,
   sourceMaps: true
@@ -142,7 +142,7 @@ nuclieSolid({
 
 ---
 
-#### Lit (`nuclieLit`)
+#### Lit (`lunxLit`)
 **HMR Status**: ✅ **Lit HMR Enabled**
 
 **Features**:
@@ -168,7 +168,7 @@ if (import.meta.hot) {
 
 **Configuration**:
 ```typescript
-nuclieLit({
+lunxLit({
   hmr: true,         // Enable HMR
   development: true,
   typescript: { experimentalDecorators: true }
@@ -186,7 +186,7 @@ All plugins **automatically disable HMR** in production:
 const development = process.env.NODE_ENV !== 'production';
 
 // Or explicit configuration
-nuclieReact({ development: false, fastRefresh: false })
+lunxReact({ development: false, fastRefresh: false })
 ```
 
 **Production builds**:
@@ -204,11 +204,11 @@ nuclieReact({ development: false, fastRefresh: false })
 All plugins follow this pattern:
 
 ```typescript
-export function nuclieFramework(options = {}) {
+export function lunxFramework(options = {}) {
   const { hmr = true, development = true } = options;
   
   return {
-    name: 'nuclie-framework',
+    name: 'lunx-framework',
     
     async transform(code, id) {
       // 1. Transform framework code
@@ -331,4 +331,4 @@ No plugin wrapper needed ✅
 ✅ **Zero global state**  
 ✅ **Automatic production optimization**  
 
-Nuclie's HMR implementation is **complete and verified**.
+Lunx's HMR implementation is **complete and verified**.

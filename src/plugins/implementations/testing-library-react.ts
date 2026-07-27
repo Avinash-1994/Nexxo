@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-testing-library-react
+ * @lunx/plugin-testing-library-react
  * React Testing Library
  */
 
@@ -7,8 +7,8 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createTestingLibraryReactPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-testing-library-react',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-testing-library-react',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // Testing: React Testing Library

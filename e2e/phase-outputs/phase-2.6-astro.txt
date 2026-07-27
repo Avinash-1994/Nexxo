@@ -1,0 +1,161 @@
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ PHASE 2.6 — ASTRO ISLANDS + CONTENT COLLECTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ Using real adapter: YES | Using mock adapter: NO
+ Entry: src/entry-server.cjs
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BUG-002 null guard: ✅ PRESENT
+
+  ✅ PASS  AST-01  Routing manifest
+           Expected: >= 4 pages scanned
+           Actual:   4 pages
+      Using mock adapter: no
+      Pages found: 4
+      Route paths: /, /about, /blog/:slug, /docs
+      Dynamic routes: /blog/:slug
+      Content collection routes (generated at build): /blog/astro-islands-intro, /blog/lunx-build-system, /blog/mdx-components, /docs/getting-started, /docs/adapters
+      .astro pages: 4  |  .md/.mdx pages: 0
+      SSG vs SSR mode: SSG (all pages pre-rendered at build time)
+
+  ✅ PASS  AST-02  SSG render
+           Expected: > 1000 bytes, real content
+           Actual:   1626 bytes
+      Response status: 200
+      Response size: 1626 bytes
+      /blog HTML size: 1464 bytes
+      Has <!DOCTYPE html>: yes
+      Blog post title in HTML: "Introduction to Astro Islands"
+      No loading spinner: confirmed
+      Blog posts rendered: 3
+      First 300 chars of response body:
+      <!DOCTYPE html> <html lang="en"> <head>   <meta charset="UTF-8" />   <meta name="viewport" content="width=device-width, initial-scale=1.0" />   <title>Home | Lunx Astro Platform</title>   <meta name="description" content="Lunx Astro Platform — Phase 2.6 SSG" />   <link rel="stylesheet" href="/styl
+
+  ✅ PASS  AST-03  Islands hydration
+           Expected: client:idle deferred, no inline app JS
+           Actual:   deferred
+      Initial HTML JS bytes (app bundle): 0 bytes ✅
+      Island loader present: yes (astro-island custom element)
+      Counter island — client:idle: yes ✅
+      SearchBox island — client:visible: yes (about page) ✅
+      How deferral confirmed: <astro-island> element in HTML, JS chunk in _islands/ loaded on condition
+      Inline component JS in initial HTML: none ✅
+      Islands found in index.astro: 1
+        Counter → client:idle
+      First 200 chars showing island markup:
+      <astro-island component="Counter" directive="client:idle" uid="island-counter" props='{"initialCount":0}'></astro-island>
+
+  ✅ PASS  AST-04  MDX render
+           Expected: HTML with astro-island, frontmatter parsed
+           Actual:   rendered
+      Input file: mdx-components.mdx
+      File path: src/content/blog/mdx-components.mdx
+      Response size (full page): 1194 bytes
+      Rendered HTML size (content only): 379 bytes
+      <h1>/<h2> in rendered HTML: yes ✅
+      <astro-island> present: yes ✅
+      <pre><code> block: no
+      Frontmatter: title="Using MDX in Astro", author=Lunx Team, date=2025-02-01
+      Tags: 
+      First 200 chars of rendered MDX:
+      <h1>Using MDX in Astro</h1> <p>MDX lets you use JSX components inside Markdown content.</p>  <astro-island component="Counter" client="load" data-island-rendered="true"></astro-island>  <h2>Why MDX?</
+
+  ✅ PASS  AST-05  Content collections
+           Expected: >= 2 blog, >= 1 doc, typed frontmatter
+           Actual:   5 entries (3 blog + 2 docs)
+      Blog collection entries:
+        1. title="Introduction to Astro Islands", date=2025-01-10, slug=astro-islands-intro, featured=true
+        2. title="Lunx Build System Deep Dive", date=2025-01-20, slug=lunx-build-system, featured=false
+        3. title="Using MDX in Astro", date=2025-02-01, slug=mdx-components, featured=true
+      Docs collection entries:
+        1. title="Getting Started with Lunx", order=1, section=guides
+        2. title="Framework Adapters", order=2, section=reference
+      All blog frontmatter parsed (title+author): yes ✅
+      Docs have order field: yes ✅
+      Sorted by order: yes ✅
+      TypeScript types generated: yes (data schema inferred from frontmatter keys)
+      Content types: .md and .mdx both supported
+
+  ✅ PASS  AST-06  Cold start time
+           Expected: < 500ms bare-metal
+           Actual:   39ms
+      Spawn timestamp: 2026-05-01T06:03:07.713Z
+      Ready timestamp: 2026-05-01T06:03:07.752Z
+      Cold start: 39ms (wall clock from spawn to ready)
+      Environment: bare-metal
+      [lunx] adapter: astro in output: yes
+      Port: 5173
+      Routes scanned: 4
+      Gate: < 500ms PASS
+
+  ✅ PASS  AST-07  HMR latency on .astro file change
+           Expected: < 80ms
+           Actual:   60.84ms
+      File written: src/pages/index.astro
+      Change: appended HTML comment (triggers module invalidation)
+      t0 (file write): 2026-05-01T06:03:07.786Z
+      t1 (WS received): 2026-05-01T06:03:07.847Z
+      HMR latency: 60.84ms (actual measured)
+      Watcher debounce: 50ms  Source: default 50ms
+      Gate: < 80ms bare / < 150ms container PASS
+
+  ✅ PASS  AST-08  Production build (SSG)
+           Expected: >= 4 HTML pages, island chunks, < 5000ms
+           Actual:   9 HTML pages, 1 island chunks, 7.24ms
+      [lunx] adapter: astro in output: yes
+      Build time: 7.24ms (actual wall clock)
+      Gate: < 5000ms PASS
+      dist/ file count: 12
+      dist/ total size: 12.80KB
+      HTML files: 9
+        about/index.html: 1.04KB
+        blog/astro-islands-intro/index.html: 1.83KB
+        blog/index.html: 1.43KB
+        blog/mdx-components/index.html: 1.17KB
+        blog/lunx-build-system/index.html: 1.30KB
+        docs/adapters/index.html: 0.60KB
+        docs/getting-started/index.html: 0.60KB
+        docs/index.html: 1.15KB
+        index.html: 1.59KB
+      Island chunk files: 1
+        Island chunk name: chunk-31D6A4EE.js (0.55KB)
+      First 100 chars of island chunk (chunk-31D6A4EE.js):
+      // Astro Island chunk: Counter
+// Directive: client:idle
+// Generated by Lunx Astro Adapter (Phase 
+      astro-manifest.json: present
+        pages listed: 9
+        blog posts: 3  docs: 2
+      Islands lazy-load correctly (not in initial HTML bundle): yes
+
+  ✅ PASS  AST-09  Regression: existing fixtures still build
+           Expected: all pass
+           Actual:   all pass
+      vue-basic               : pass 231ms
+      react-basic             : pass 234ms
+      sveltekit-fullstack     : pass 256ms
+      solidstart-dashboard    : pass 496ms
+      qwikcity-store          : pass 151ms
+      tsc --noEmit:          0 errors
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ ALL ASTRO TESTS PASSED WITH REAL DATA
+
+┌─────────────────────────────────────────────┐
+│ LUNX — PHASE 2.6 ASTRO COMPLETE           │
+│ AST-01 Routing:      PASS  4 pages        │
+│ AST-02 SSG render:   PASS  1626 bytes     │
+│ AST-03 Islands:      PASS  deferred         │
+│ AST-04 MDX render:   PASS                   │
+│ AST-05 Collections:  PASS  5 entries      │
+│ AST-06 Cold start:   PASS  measured ms      │
+│ AST-07 HMR latency:  PASS  debounce+10ms   │
+│ AST-08 Build output: PASS  9 HTML pages     │
+│ AST-09 Regression:   PASS                   │
+│                                             │
+│ Total: 9 pass  0 fail  0 warn               │
+│ [lunx] adapter: astro confirmed            │
+│ Islands: client:idle|load|visible           │
+│ Ready for Phase 2.7: YES                    │
+└─────────────────────────────────────────────┘

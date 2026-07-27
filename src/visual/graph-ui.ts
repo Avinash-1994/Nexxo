@@ -27,7 +27,7 @@ export function getGraphUIHtml(graph: DependencyGraph): string {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Nuclie Graph Visualizer</title>
+    <title>Lunx Graph Visualizer</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         body { margin: 0; background: #1a1a1a; color: white; font-family: sans-serif; overflow: hidden; }
@@ -39,7 +39,7 @@ export function getGraphUIHtml(graph: DependencyGraph): string {
     </style>
 </head>
 <body>
-    <div id="info">Nuclie Dependency Graph</div>
+    <div id="info">Lunx Dependency Graph</div>
     <div id="graph"></div>
     <script>
         const data = ${data};

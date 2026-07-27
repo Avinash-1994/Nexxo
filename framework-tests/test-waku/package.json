@@ -1,0 +1,20 @@
+{
+  "name": "lunx-waku-template",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "lunx dev",
+    "build": "lunx build",
+    "preview": "lunx preview"
+  },
+  "lunx": {
+    "template": true,
+    "framework": "waku",
+    "description": "Lunx Shop — RSC-powered catalogue"
+  },
+  "devDependencies": {
+    "lunx": "file:../../",
+    "typescript": "5.4.5"
+  }
+}

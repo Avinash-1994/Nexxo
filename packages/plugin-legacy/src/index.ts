@@ -1,4 +1,5 @@
-import type { Plugin } from '../../src/types.js';
+// Plugin type compatible with both Lunx and Vite plugin API
+type Plugin = { name: string; [hook: string]: any };
 
 export interface LegacyPluginOptions {
   /** Browserslist targets (default: '> 0.5%, last 2 versions, IE 11') */
@@ -12,9 +13,9 @@ export interface LegacyPluginOptions {
 }
 
 /**
- * @nuclie/plugin-legacy
+ * @lunx/plugin-legacy
  *
- * Official Nuclie plugin for legacy browser support:
+ * Official Lunx plugin for legacy browser support:
  * - Transpiles modern JavaScript to ES5 for old browsers (IE11, etc.)
  * - Automatically injects core-js polyfills for missing features
  * - Adds regenerator-runtime for async/generator functions
@@ -26,7 +27,7 @@ export interface LegacyPluginOptions {
  *
  * @example
  * ```js
- * const legacy = require('@nuclie/plugin-legacy');
+ * const legacy = require('@lunx/plugin-legacy');
  * module.exports = {
  *   plugins: [legacy({ targets: ['IE 11', 'Chrome 49'] })],
  * };
@@ -43,7 +44,7 @@ export function legacyPlugin(options: LegacyPluginOptions = {}): Plugin {
   const legacyChunks = new Map<string, string>();
 
   return {
-    name: '@nuclie/plugin-legacy',
+    name: '@lunx/plugin-legacy',
 
     /**
      * Transform hook: detect if module needs ES5 transpilation.
@@ -57,7 +58,7 @@ export function legacyPlugin(options: LegacyPluginOptions = {}): Plugin {
       if (!isJS || id.includes('node_modules')) return null;
 
       // Mark this module for legacy transpilation
-      // (actual SWC ES5 transform happens in Nuclie's build pipeline)
+      // (actual SWC ES5 transform happens in Lunx's build pipeline)
       legacyChunks.set(id, code);
 
       // Return the original modern code unchanged
@@ -69,7 +70,7 @@ export function legacyPlugin(options: LegacyPluginOptions = {}): Plugin {
      * Load hook: inject polyfill entry point for legacy builds.
      */
     load(id: string): { code: string } | null {
-      if (id !== '/__nuclie_legacy_polyfills__') return null;
+      if (id !== '/__lunx_legacy_polyfills__') return null;
 
       const polyfillImports: string[] = [];
 

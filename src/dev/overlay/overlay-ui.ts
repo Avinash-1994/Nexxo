@@ -1,6 +1,6 @@
 
 /**
- * Nuclie Error Overlay UI
+ * Lunx Error Overlay UI
  * Implementation: Web Component with Shadow DOM
  * Day 15: Reliable Error Overlay Lock
  */
@@ -84,7 +84,7 @@ const STYLE = `
 }
 `;
 
-export class NuclieErrorOverlay extends HTMLElement {
+export class LunxErrorOverlay extends HTMLElement {
     root: ShadowRoot;
 
     constructor() {
@@ -146,6 +146,6 @@ export class NuclieErrorOverlay extends HTMLElement {
     }
 }
 
-if (!customElements.get('nuclie-error-overlay')) {
-    customElements.define('nuclie-error-overlay', NuclieErrorOverlay);
+if (!customElements.get('lunx-error-overlay')) {
+    customElements.define('lunx-error-overlay', LunxErrorOverlay);
 }

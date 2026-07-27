@@ -1,5 +1,5 @@
 /**
- * @nuclie/solid - Production-Grade Solid.js Plugin
+ * @lunx/solid - Production-Grade Solid.js Plugin
  * 
  * Features:
  * - JSX transformation with Solid preset
@@ -39,7 +39,7 @@ export interface SolidPluginOptions {
     };
 }
 
-export function nuclieSolid(options: SolidPluginOptions = {}): Plugin {
+export function lunxSolid(options: SolidPluginOptions = {}): Plugin {
     const {
         hmr = true,
         development = process.env.NODE_ENV !== 'production',
@@ -48,7 +48,7 @@ export function nuclieSolid(options: SolidPluginOptions = {}): Plugin {
     } = options;
 
     return {
-        name: 'nuclie-solid',
+        name: 'lunx-solid',
 
         async transform(code: string, id: string) {
             // Only process Solid files (.jsx, .tsx with Solid imports)
@@ -139,7 +139,7 @@ async function transformSolidJSX(
 
         return solidResult.code;
     } catch (error) {
-        console.warn('[nuclie-solid] Transform failed:', error);
+        console.warn('[lunx-solid] Transform failed:', error);
         return null;
     }
 }
@@ -157,6 +157,6 @@ function generateSourceMap(originalCode: string, transformedCode: string, id: st
 // Export helper for use in config
 export function solidPreset(options: SolidPluginOptions = {}): Plugin[] {
     return [
-        nuclieSolid(options)
+        lunxSolid(options)
     ];
 }

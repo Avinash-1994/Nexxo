@@ -67,13 +67,23 @@ export class HMRThrottle {
 
         if (updates.length > 10) {
             log.warn('Too many updates, triggering full reload', { category: 'hmr' });
-            this.broadcast(JSON.stringify({ type: 'reload' }));
+            this.broadcast(JSON.stringify({ type: 'full-reload' }));
             return;
         }
 
+        // Group regular updates into a single 'update' message
+        const jsModules = updates.filter(u => u.type === 'update').map(u => u.path);
+        if (jsModules.length > 0) {
+            this.broadcast(JSON.stringify({ type: 'update', modules: jsModules }));
+        }
+
+        // Handle CSS and full reloads
         updates.forEach(update => {
-            const msg = JSON.stringify({ type: update.type, path: update.path });
-            this.broadcast(msg);
+            if (update.type === 'css-update') {
+                this.broadcast(JSON.stringify({ type: 'css-update', href: update.path }));
+            } else if (update.type === 'full-reload') {
+                this.broadcast(JSON.stringify({ type: 'full-reload' }));
+            }
         });
     }
 }

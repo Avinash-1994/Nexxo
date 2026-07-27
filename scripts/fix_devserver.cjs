@@ -54,7 +54,7 @@ const newTopLogic = `
       httpsOptions = cfg.server.https;
     } else {
       // Generate self-signed cert
-      const certDir = path.join(cfg.root, '.nuclie', 'certs');
+      const certDir = path.join(cfg.root, '.lunx', 'certs');
       await fs.mkdir(certDir, { recursive: true });
       const keyPath = path.join(certDir, 'dev.key');
       const certPath = path.join(certDir, 'dev.crt');

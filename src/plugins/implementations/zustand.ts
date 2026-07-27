@@ -1,15 +1,15 @@
 /**
- * @nuclie/plugin-zustand
+ * @lunx/plugin-zustand
  * Zustand state management
- * Nuclie-native
+ * Lunx-native
  */
 
 import { PluginAdapter } from '../ported/adapter.js';
 
 export function createZustandPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-zustand',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-zustand',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // zustand transformation

@@ -1,0 +1,18 @@
+---
+export interface Props { title: string; }
+const { title } = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <link rel="stylesheet" href="/styles/app.css" />
+</head>
+<body>
+  <header><nav><a href="/">Home</a> <a href="/blog">Blog</a> <a href="/docs">Docs</a> <a href="/about">About</a></nav></header>
+  <main><slot /></main>
+  <footer><p>Powered by Lunx + Astro · Phase 2.6</p></footer>
+</body>
+</html>

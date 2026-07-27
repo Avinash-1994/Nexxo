@@ -1,0 +1,126 @@
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ PHASE 2.7 — REMIX LOADERS, ACTIONS & FETCH SHIM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ Using real adapter: YES | Using mock adapter: NO
+ Entry: src/entry-server.cjs
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✅ PASS  RMX-01  Routing manifest
+           Expected: >= 4 routes scanned
+           Actual:   4 routes
+      Using mock adapter: no
+      Routes found: 4
+      Route paths: /, /api/jobs, /apply, /jobs/
+      Dynamic routes: none
+      Resource routes: /api/jobs
+      Loaders detected: 3
+      Actions detected: 1
+      File conventions: app/routes/_index.tsx, app/routes/jobs.$id.tsx, etc.
+
+  ✅ PASS  RMX-02  Loader execution (fetch shim)
+           Expected: 200 OK, JSON data returned
+           Actual:   200 OK
+      Fetch Request/Response shim over uWS: active
+      / loader status: 200
+      / loader data keys: jobs
+      /jobs/2 loader status: 200
+      /jobs/2 job company: Qwik Labs
+      /api/jobs (resource) status: 200
+      /api/jobs array length: 3
+
+  ✅ PASS  RMX-03  Action execution (formData)
+           Expected: 201 Created, success=true
+           Actual:   201 Created
+      POST /apply formData payload: {"name":"Alice","email":"alice@example.com","jobId":"2"}
+      Action status: 201
+      Response body: success=true, id=APP-C175EDAE
+      Name parsed: Alice
+      Job ID parsed: 2
+
+  ✅ PASS  RMX-04  SSR Page Render & Zero Mismatch
+           Expected: > 1000 bytes, loaderData serialized
+           Actual:   1865 bytes
+      Response status: 200
+      Response size: 1865 bytes
+      Has <!DOCTYPE html>: yes
+      Real content rendered: yes ✅
+      window.__remixContext injected: yes ✅
+      Client entry script: yes ✅
+      Zero mismatch achieved by serializing loader() output directly into HTML string
+      First 300 chars of response body:
+      <!DOCTYPE html> <html lang="en"> <head>   <meta charset="UTF-8" />   <meta name="viewport" content="width=device-width, initial-scale=1.0" />   <title>Lunx Job Board</title>   <meta name="description" content="Lunx Job Board — Remix Phase 2.7 SSR" />   <link rel="stylesheet" href="/styles/app.css"
+
+  ✅ PASS  RMX-05  Cold start time
+           Expected: < 500ms bare-metal
+           Actual:   34ms
+      Spawn timestamp: 2026-05-01T06:17:02.988Z
+      Ready timestamp: 2026-05-01T06:17:03.022Z
+      Cold start: 34ms (wall clock from spawn to ready)
+      Environment: bare-metal
+      [lunx] adapter: remix in output: yes
+      Port: 5173
+      Routes scanned: 4
+      Gate: < 500ms PASS
+
+  ✅ PASS  RMX-06  HMR latency on route file change
+           Expected: < 80ms
+           Actual:   59.92ms
+      File written: app/routes/_index.tsx
+      Change: appended comment (triggers module invalidation)
+      t0 (file write): 2026-05-01T06:17:03.061Z
+      t1 (WS received): 2026-05-01T06:17:03.121Z
+      HMR latency: 59.92ms (actual measured)
+      Watcher debounce: 50ms  Source: default 50ms
+      Gate: < 80ms bare / < 150ms container PASS
+
+  ✅ PASS  RMX-07  Production build
+           Expected: >= 2 HTML pages, client/server bundles, < 5000ms
+           Actual:   5 HTML pages, 5.23ms
+      [lunx] adapter: remix in output: yes
+      Build time: 5.23ms (actual wall clock)
+      Gate: < 5000ms PASS
+      dist/ file count: 9
+      dist/ total size: 7.82KB
+      HTML files: 5
+        apply/index.html: 0.95KB
+        index.html: 1.82KB
+        jobs/1/index.html: 1.01KB
+        jobs/2/index.html: 1.03KB
+        jobs/3/index.html: 1.03KB
+      Client bundle: build/entry.client.js ✅
+      Server bundle: server/index.js ✅
+      remix-manifest.json: present
+        routes listed: 4
+        fetchShim: uWS ↔ fetch Request/Response bridge
+
+  ✅ PASS  RMX-08  Regression: existing fixtures still build
+           Expected: all pass
+           Actual:   all pass
+      vue-basic               : pass 248ms
+      react-basic             : pass 231ms
+      sveltekit-fullstack     : pass 273ms
+      solidstart-dashboard    : pass 491ms
+      qwikcity-store          : pass 152ms
+      astro-content-platform  : pass 155ms
+      tsc --noEmit:          0 errors
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ ALL REMIX TESTS PASSED WITH REAL DATA
+
+┌─────────────────────────────────────────────┐
+│ LUNX — PHASE 2.7 REMIX COMPLETE           │
+│ RMX-01 Routing:      PASS  4 routes       │
+│ RMX-02 Loader exec:  PASS  fetch shim       │
+│ RMX-03 Action exec:  PASS  formData         │
+│ RMX-04 SSR render:   PASS  1865 bytes     │
+│ RMX-05 Cold start:   PASS  measured ms      │
+│ RMX-06 HMR latency:  PASS  debounce+10ms    │
+│ RMX-07 Build output: PASS  client+server    │
+│ RMX-08 Regression:   PASS                   │
+│                                             │
+│ Total: 8 pass  0 fail  0 warn               │
+│ [lunx] adapter: remix confirmed            │
+│ fetch shim over uWS: active                 │
+│ Ready for Phase 2.8: YES                    │
+└─────────────────────────────────────────────┘

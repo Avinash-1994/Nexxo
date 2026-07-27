@@ -1,4 +1,4 @@
-# 🎨 Nuclie Premium Templates - Design Showcase
+# 🎨 Lunx Premium Templates - Design Showcase
 
 ## Template Comparison Guide
 
@@ -263,22 +263,22 @@ Here are **5 stunning, production-ready templates** with different design aesthe
 
 ```bash
 # Premium Dashboard
-npx create-nuclie my-app --template premium-dashboard
+npx create-lunx my-app --template premium-dashboard
 
 # Minimalist Portfolio
-npx create-nuclie my-app --template minimalist-portfolio
+npx create-lunx my-app --template minimalist-portfolio
 
 # E-Commerce
-npx create-nuclie my-app --template ecommerce-modern
+npx create-lunx my-app --template ecommerce-modern
 
 # SaaS Landing
-npx create-nuclie my-app --template saas-landing
+npx create-lunx my-app --template saas-landing
 
 # Crypto Dashboard
-npx create-nuclie my-app --template crypto-dashboard
+npx create-lunx my-app --template crypto-dashboard
 
 # Magazine Blog
-npx create-nuclie my-app --template blog-magazine
+npx create-lunx my-app --template blog-magazine
 ```
 
 ### 2. Customize
@@ -383,8 +383,8 @@ All templates include:
 ## 📞 Need Help?
 
 - 📖 [Full Documentation](../README.md)
-- 💬 [GitHub Discussions](https://github.com/Avinash-1994/nuclie/discussions)
-- 🐛 [Report Issues](https://github.com/Avinash-1994/nuclie/issues)
+- 💬 [GitHub Discussions](https://github.com/Avinash-1994/lunx/discussions)
+- 🐛 [Report Issues](https://github.com/Avinash-1994/lunx/issues)
 
 ---
 

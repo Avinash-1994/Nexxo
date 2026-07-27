@@ -1,0 +1,21 @@
+/* ── MARKER: SCSS source ── */
+/* Known anchor: .card starts at LINE 3 */
+.card {
+  background: #fff;         /* line 4 */
+  border-radius: 8px;       /* line 5 */
+  padding: 1rem;            /* line 6 */
+
+  /* ANCHOR: nested rule at LINE 9 */
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .15);  /* line 10 */
+  }
+
+  &__title {
+    font-size: 1.25rem;    /* line 14 — ANCHOR */
+    font-weight: 700;
+  }
+}
+
+.badge {
+  color: oklch(55% .18 250);   /* line 20 — CSS nesting test */
+}

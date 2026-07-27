@@ -77,7 +77,7 @@ The hook cache is built on-demand:
 To measure actual performance:
 
 ```typescript
-import { PluginManager } from 'nuclie/plugins';
+import { PluginManager } from 'lunx/plugins';
 
 const manager = new PluginManager();
 

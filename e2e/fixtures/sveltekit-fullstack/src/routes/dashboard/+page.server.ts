@@ -1,0 +1,1 @@
+export async function load({ cookies }) { if (!cookies.get("session")) { const e=new Error("Redir"); e.status=302; e.location="/login"; throw e; } return { userData: { name: "SvelteKit Admin", email: "admin@acme.com" } }; }

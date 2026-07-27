@@ -1,0 +1,23 @@
+{
+  "name": "lunx-solid-template",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "lunx dev",
+    "build": "lunx build",
+    "preview": "lunx preview"
+  },
+  "lunx": {
+    "template": true,
+    "framework": "solid",
+    "description": "Lunx Analytics — website analytics dashboard"
+  },
+  "devDependencies": {
+    "lunx": "file:../../",
+    "typescript": "5.4.5"
+  },
+  "dependencies": {
+    "solid-js": "^1.9.12"
+  }
+}

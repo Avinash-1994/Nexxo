@@ -57,7 +57,7 @@ async function runOverlayTest() {
     window.dispatchEvent(errEvent);
 
     // Verify UI
-    const overlay = document.querySelector('nuclie-error-overlay');
+    const overlay = document.querySelector('lunx-error-overlay');
     if (!overlay) throw new Error('Overlay did not appear');
 
     // Check Shadow DOM content
@@ -74,7 +74,7 @@ async function runOverlayTest() {
 
     // Test 2: Build Error (via API)
     console.log('  Test 2: Capturing Build Error...');
-    (window as any).__NUCLIE_OVERLAY__.reportBuildError({
+    (window as any).__LUNX_OVERLAY__.reportBuildError({
         message: 'Build Failed: Syntax Error',
         file: 'src/main.ts',
         stack: 'Syntax Error at line 1'
@@ -89,7 +89,7 @@ async function runOverlayTest() {
     // Test 3: Stress Test (Reliability)
     console.log('  Test 3: Stress Test (100 Errors)...');
     for (let i = 0; i < 100; i++) {
-        (window as any).__NUCLIE_OVERLAY__.reportBuildError({ message: `Err ${i}` });
+        (window as any).__LUNX_OVERLAY__.reportBuildError({ message: `Err ${i}` });
         const m = shadow.querySelector('.message');
         if (m?.textContent !== `Err ${i}`) throw new Error(`Stress test failed at ${i}`);
     }

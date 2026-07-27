@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
-const globalFetch: typeof fetch | undefined = (globalThis as any).fetch;
+import { getFetch } from '../utils/fetch.js';
 
 export interface CacheEntry {
   key: string;
@@ -14,7 +14,7 @@ export class DiskCache {
   dir: string;
 
   constructor(base: string) {
-    this.dir = path.resolve(base, '.nuclie_cache');
+    this.dir = path.resolve(base, '.lunx_cache');
   }
 
   async ensure() {
@@ -34,7 +34,7 @@ export class DiskCache {
     }
     // include config file if present
     try {
-      const cfg = await fs.readFile('nuclie.config.json');
+      const cfg = await fs.readFile('lunx.config.json');
       hash.update(cfg);
     } catch (e) {
       // ignore
@@ -71,11 +71,12 @@ export class DiskCache {
     } catch (e) {
       // try remote cache lookup
       const remote = process.env.REMOTE_CACHE_URL;
-      if (remote && globalFetch) {
+      if (remote) {
         try {
+          const fetch = await getFetch();
           const headers: any = {};
           if (process.env.REMOTE_CACHE_TOKEN) headers['authorization'] = `Bearer ${process.env.REMOTE_CACHE_TOKEN}`;
-          const res = await globalFetch(`${remote}/manifest/${key}`, { headers });
+          const res = await fetch(`${remote}/manifest/${key}`, { headers });
           return res.status === 200;
         } catch (e) {
           return false;
@@ -93,11 +94,12 @@ export class DiskCache {
     } catch (e) {
       // try remote fetch
       const remote = process.env.REMOTE_CACHE_URL;
-      if (!remote || !globalFetch) return null;
+      if (!remote) return null;
       try {
+        const fetch = await getFetch();
         const headers: any = {};
         if (process.env.REMOTE_CACHE_TOKEN) headers['authorization'] = `Bearer ${process.env.REMOTE_CACHE_TOKEN}`;
-        const res = await globalFetch(`${remote}/manifest/${key}`, { headers });
+        const res = await fetch(`${remote}/manifest/${key}`, { headers });
         if (res.status !== 200) return null;
         const data = await res.text();
         const entry = JSON.parse(data) as CacheEntry;
@@ -129,11 +131,12 @@ export class DiskCache {
         await fs.writeFile(path.join(outDir, rel), data);
         // push to remote cache if configured
         const remote = process.env.REMOTE_CACHE_URL;
-        if (remote && globalFetch) {
+        if (remote) {
           try {
+            const fetch = await getFetch();
             const headers: any = {};
             if (process.env.REMOTE_CACHE_TOKEN) headers['authorization'] = `Bearer ${process.env.REMOTE_CACHE_TOKEN}`;
-            await globalFetch(`${remote}/file/${key}/${rel}`, { method: 'PUT', body: data, headers });
+            await fetch(`${remote}/file/${key}/${rel}`, { method: 'PUT', body: data, headers });
           } catch (e) { }
         }
       } catch (e) {
@@ -158,17 +161,18 @@ export class DiskCache {
     } catch (e) {
       // if remote configured, attempt to download
       const remote = process.env.REMOTE_CACHE_URL;
-      if (!remote || !globalFetch) return false;
+      if (!remote) return false;
       try {
+        const fetch = await getFetch();
         await fs.mkdir(targetOutDir, { recursive: true });
         const headers: any = {};
         if (process.env.REMOTE_CACHE_TOKEN) headers['authorization'] = `Bearer ${process.env.REMOTE_CACHE_TOKEN}`;
-        const manifestRes = await globalFetch(`${remote}/manifest/${key}`, { headers });
+        const manifestRes = await fetch(`${remote}/manifest/${key}`, { headers });
         if (manifestRes.status !== 200) return false;
         const entry = await manifestRes.json();
         for (const f of entry.files) {
           const name = path.basename(f);
-          const fileRes = await globalFetch(`${remote}/file/${key}/${name}`, { headers });
+          const fileRes = await fetch(`${remote}/file/${key}/${name}`, { headers });
           if (fileRes.status === 200) {
             const buf = await fileRes.arrayBuffer();
             await fs.writeFile(path.join(targetOutDir, name), Buffer.from(buf));

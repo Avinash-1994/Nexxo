@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-cypress
+ * @lunx/plugin-cypress
  * Cypress integration
  */
 
@@ -7,8 +7,8 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createCypressPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-cypress',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-cypress',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // Utility: Cypress integration

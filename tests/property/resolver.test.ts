@@ -14,7 +14,7 @@ describe('Property-Based: Module Resolution', () => {
     let tempDir: string;
 
     beforeAll(() => {
-        tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nuclie-property-test-'));
+        tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lunx-property-test-'));
     });
 
     afterAll(() => {

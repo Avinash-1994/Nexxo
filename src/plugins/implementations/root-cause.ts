@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-root-cause
+ * @lunx/plugin-root-cause
  * Error root cause analysis
  */
 
@@ -7,8 +7,8 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createRootCausePlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-root-cause',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-root-cause',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // Utility: Error root cause analysis

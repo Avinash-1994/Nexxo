@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-analytics
+ * @lunx/plugin-analytics
  * Build analytics
  */
 
@@ -7,8 +7,8 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createAnalyticsPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-analytics',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-analytics',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // Utility: Build analytics

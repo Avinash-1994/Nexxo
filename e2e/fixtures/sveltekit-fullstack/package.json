@@ -1,0 +1,9 @@
+{
+  "name": "sveltekit-fullstack",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "svelte": "^4.0.0",
+    "@sveltejs/kit": "^1.0.0"
+  }
+}

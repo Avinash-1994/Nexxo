@@ -2,6 +2,8 @@ import { AIConfig } from '../config.js';
 import { FixAction } from '../healer/fixer.js';
 import { ParsedError } from '../healer/parser.js';
 
+import { getFetch } from '../../utils/fetch.js';
+
 export class OllamaProvider {
     private endpoint: string;
     private model: string;
@@ -15,6 +17,7 @@ export class OllamaProvider {
         const prompt = this.generatePrompt(error);
 
         try {
+            const fetch = await getFetch();
             const response = await fetch(this.endpoint, {
                 method: 'POST',
                 body: JSON.stringify({
@@ -44,7 +47,7 @@ export class OllamaProvider {
     }
 
     private generatePrompt(error: ParsedError): string {
-        return `You are an AI build engineer for the Nuclie build tool.
+        return `You are an AI build engineer for the Lunx build tool.
 Analyze the following build error and suggest a fix in JSON format.
 
 Error Message: ${error.message}

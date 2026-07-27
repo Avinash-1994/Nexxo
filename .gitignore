@@ -1,81 +1,35 @@
-node_modules
-dist
-build_output
-dist_ts
-dist_plugin_test
-temp_config_test
-temp_init_test
-temp_ts_config_test
+node_modules/
+dist/
+.lunx/
+*.local
+.env
+.env.*
+.env.local
+coverage/
+*.tsbuildinfo
 *.log
 .DS_Store
-nextgen.build.temp.mjs
-
-# Rust/Native build artifacts
-native/target/
-native/Cargo.lock
-native/*.node
-native/native.d.ts
-native/nuclie_native*.node
-native/nextgen_native*.node
-native/nuclie_native*.node
-*.node
-
-# Test artifacts
-.test_create_nuclie/
-test-project-*/
-my-react-app/
-test_output*/
-test_*/
-temp_*/
-
-# Marketplace/Plugin artifacts
-marketplace.db
-marketplace.db-journal
-
-# Build artifacts
-nuclie_native.node
-*.wasm
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
 Thumbs.db
+windows-results.txt
+*.pptx
 
-# Temporary files
+# Rust build artifacts
+native/target/
+*.node
+lunx_native.node
+
+# Build outputs and test artifacts
+build_output/
+dist-test/
 tmp/
-temp/
-.cache/
-benchmark_temp/
+tmp-fix/
+test_output_fed_core/
+.ng-out/
 
-# Security - NEVER commit these
-*.key
-*.pem
-*.p12
-*.pfx
-*.crt
-*.cer
-*.der
-*.csr
-*.priv
-**/certs/**
-**/.nuclie/certs/**
-.env
-.env.local
-.env.*.local
-secrets/
-*.secret
-*.private
+# Generated fixture lock files (not part of source)
+e2e/fixtures/**/package-lock.json
+framework-tests/**/package-lock.json
+benchmarks/**/package-lock.json
 
-# Cache and local data
-.nuclie_cache/
-.nuclie/telemetry/
-**/.nuclie_cache/**
-**/.nuclie/telemetry/**
-*.db
-*.db-journal
+# Test cache manifests
+tests/fixtures/cache/

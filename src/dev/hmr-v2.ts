@@ -40,11 +40,19 @@ export class HMREngine {
     registerModule(id: string, imported: string[], isSelfAccepting: boolean = false) {
         const existing = this.ensureNode(id);
 
-        // Update imports
+        // Remove stale reverse-import links from any previously imported modules.
+        for (const previousDep of existing.imported) {
+            if (!imported.includes(previousDep)) {
+                const previousDepNode = this.graph.get(previousDep);
+                previousDepNode?.importers.delete(id);
+            }
+        }
+
+        // Update imports and self-accepting state.
         existing.imported = new Set(imported);
         existing.isSelfAccepting = isSelfAccepting;
 
-        // Update importers (reverse graph)
+        // Update importers for the new dependency list.
         for (const dep of imported) {
             const depNode = this.ensureNode(dep);
             depNode.importers.add(id);
@@ -56,42 +64,61 @@ export class HMREngine {
      */
     propagateUpdate(file: string): HMRUpdate | null {
         const timestamp = Date.now();
-        const node = this.graph.get(file);
 
-        if (!node) {
-            return { type: 'full-reload', path: file, acceptedPath: file, timestamp };
-        }
-
-        // 1. If self-accepting, we stop here (e.g. Vue components, React fast refresh roots)
-        if (node.isSelfAccepting) {
-            return { type: 'js-update', path: file, acceptedPath: file, timestamp };
-        }
-
-        // 2. CSS is always self-accepting in our engine
+        // 1. CSS is always self-accepting in our engine, even if not registered.
         if (file.endsWith('.css')) {
             return { type: 'css-update', path: file, acceptedPath: file, timestamp };
         }
 
-        // 3. Walk up importers to find a boundary
-        // For simplicity in Day 5, we check immediate parents. 
-        // A full graph walk would be recursive.
-        const importers = Array.from(node.importers);
-        if (importers.length === 0) {
-            // Entry point changed? Full reload.
+        const node = this.graph.get(file);
+        if (!node) {
             return { type: 'full-reload', path: file, acceptedPath: file, timestamp };
         }
 
-        // Check if all importers can accept this update
-        // (Simplified: if any importer is self-accepting, we assume it handles the update for now)
-        for (const importerId of importers) {
+        // 2. If self-accepting, we stop here.
+        if (node.isSelfAccepting) {
+            node.lastHmrTimestamp = timestamp;
+            return { type: 'js-update', path: file, acceptedPath: file, timestamp };
+        }
+
+        // 3. Breadth-first search for the nearest accepting importer boundary.
+        const queue = Array.from(node.importers);
+        const visited = new Set<string>(queue);
+        let processed = 0;
+        const maxSteps = 2000;
+
+        while (queue.length > 0) {
+            if (++processed > maxSteps) {
+                log.warn(`[HMR] HMR graph traversal exceeded ${maxSteps} steps, falling back to full reload.`);
+                return { type: 'full-reload', path: file, acceptedPath: file, timestamp };
+            }
+
+            const importerId = queue.shift()!;
             const importer = this.graph.get(importerId);
-            if (importer && importer.isSelfAccepting) {
-                // The parent accepts the update (bubble up)
+
+            if (!importer) {
+                continue;
+            }
+
+            if (importer.isSelfAccepting) {
+                importer.lastHmrTimestamp = timestamp;
                 return { type: 'js-update', path: file, acceptedPath: importerId, timestamp };
+            }
+
+            if (importer.importers.has(file)) {
+                // Circular dependency detected; prefer safe full reload.
+                log.warn(`[HMR] Circular dependency detected for ${path.basename(file)}, triggering full reload.`);
+                return { type: 'full-reload', path: file, acceptedPath: file, timestamp };
+            }
+
+            for (const nextImporter of importer.importers) {
+                if (!visited.has(nextImporter)) {
+                    visited.add(nextImporter);
+                    queue.push(nextImporter);
+                }
             }
         }
 
-        // No accepted boundary found -> Full reload
         log.warn(`[HMR] No accepting boundary found for ${path.basename(file)}, triggering full reload.`);
         return { type: 'full-reload', path: file, acceptedPath: file, timestamp };
     }

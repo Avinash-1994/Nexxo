@@ -1,4 +1,5 @@
-import type { Plugin } from '../../src/types.js';
+// Plugin type compatible with both Lunx and Vite plugin API
+type Plugin = { name: string; [hook: string]: any };
 
 export interface ReactPluginOptions {
   /** Enable React Fast Refresh (default: true in dev mode) */
@@ -10,17 +11,17 @@ export interface ReactPluginOptions {
 }
 
 /**
- * @nuclie/plugin-react
+ * @lunx/plugin-react
  *
- * Official Nuclie plugin for React:
+ * Official Lunx plugin for React:
  * - JSX transform via SWC (no Babel required)
  * - React Fast Refresh integration for HMR
  * - Error overlay for runtime errors
  *
  * @example
  * ```js
- * // nuclie.config.js
- * const react = require('@nuclie/plugin-react');
+ * // lunx.config.js
+ * const react = require('@lunx/plugin-react');
  * module.exports = {
  *   plugins: [react()],
  * };
@@ -34,21 +35,21 @@ export function reactPlugin(options: ReactPluginOptions = {}): Plugin {
   } = options;
 
   return {
-    name: '@nuclie/plugin-react',
+    name: '@lunx/plugin-react',
 
     /**
      * Load hook: inject React Refresh runtime in dev mode for HMR.
      */
     load(id: string): { code: string } | null {
       // Inject React Refresh preamble for HMR
-      if (id === '/__nuclie_react_refresh__') {
+      if (id === '/__lunx_react_refresh__') {
         return {
           code: `
 import RefreshRuntime from 'react-refresh/runtime';
 RefreshRuntime.injectIntoGlobalHook(window);
 window.$RefreshReg$ = () => {};
 window.$RefreshSig$ = () => (type) => type;
-window.__nuclie_react_refresh_active__ = true;
+window.__lunx_react_refresh_active__ = true;
 `,
         };
       }
@@ -70,7 +71,7 @@ window.__nuclie_react_refresh_active__ = true;
 
       // In dev mode with Fast Refresh, wrap React components
       if (fastRefresh && isJSX) {
-        // The actual SWC transform happens in Nuclie's core pipeline.
+        // The actual SWC transform happens in Lunx's core pipeline.
         // This plugin adds the Fast Refresh wrapper around the module.
         const hasReactComponents = /export\s+(default\s+function|function\s+[A-Z]|const\s+[A-Z])/.test(code);
 
@@ -89,7 +90,7 @@ if (import.meta.hot) {
 
       // Add overlay error boundary in dev mode
       if (overlay && isJSX && process.env.NODE_ENV !== 'production') {
-        // Error overlay is injected by Nuclie's dev server automatically
+        // Error overlay is injected by Lunx's dev server automatically
         // This plugin only signals that overlay should be active
       }
 

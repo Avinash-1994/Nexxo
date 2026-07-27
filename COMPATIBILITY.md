@@ -1,7 +1,7 @@
 # COMPATIBILITY MATRIX
 
 > Honest status of what works, what has known issues, and what is not yet supported.
-> Updated: 2026-04-07 | Nuclie v1.0.9
+> Updated: 2026-04-07 | Lunx v1.0.9
 
 ---
 
@@ -137,7 +137,7 @@
 
 ### Issue 1: HMR breaks after circular imports
 **Severity:** Minor  
-**Workaround:** If HMR stops responding, run `nuclie dev --force` to restart. Break circular dependencies where possible.
+**Workaround:** If HMR stops responding, run `lunx dev --force` to restart. Break circular dependencies where possible.
 
 ### Issue 2: Windows path separator edge cases
 **Severity:** Minor  
@@ -176,10 +176,10 @@
 
 If you encounter behavior not listed here:
 
-1. Run `nuclie doctor` to self-diagnose
-2. Check [GitHub Issues](https://github.com/Avinash-1994/Nuclie/issues)
-3. File a bug with: Nuclie version, OS, Node version, config file, and error output
-4. Use `nuclie build --verbose` for detailed logs
+1. Run `lunx doctor` to self-diagnose
+2. Check [GitHub Issues](https://github.com/Avinash-1994/Lunx/issues)
+3. File a bug with: Lunx version, OS, Node version, config file, and error output
+4. Use `lunx build --verbose` for detailed logs
 
 ---
 

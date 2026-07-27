@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Counter from '../components/Counter.tsx';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog');
+const featuredPosts = posts.filter(p => p.data.featured);
+---
+<BaseLayout title="Home | Lunx Astro Platform">
+  <section class="hero">
+    <h1>⚡ Lunx Astro Platform</h1>
+    <p>Zero JS by default. Islands on demand.</p>
+    <Counter client:idle initialCount={0} />
+  </section>
+  <section class="featured-posts">
+    <h2>Featured Posts</h2>
+    {featuredPosts.map(post => (
+      <article>
+        <h3><a href={`/blog/${post.slug}`}>{post.data.title}</a></h3>
+        <p>{post.data.description}</p>
+      </article>
+    ))}
+  </section>
+</BaseLayout>

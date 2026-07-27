@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-upi-payment
+ * @lunx/plugin-upi-payment
  * UPI payment integration (India)
  */
 
@@ -7,8 +7,8 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createUpiPaymentPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-upi-payment',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-upi-payment',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // Fintech integration: UPI payment integration (India)
@@ -16,7 +16,7 @@ export function createUpiPaymentPlugin(): PluginAdapter {
         },
 
         async buildEnd() {
-            console.log('[@nuclie/plugin-upi-payment] Fintech integration ready');
+            console.log('[@lunx/plugin-upi-payment] Fintech integration ready');
             // Initialize payment gateway, generate QR codes, etc.
         }
     };

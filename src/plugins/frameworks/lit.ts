@@ -1,5 +1,5 @@
 /**
- * @nuclie/lit - Production-Grade Lit Plugin
+ * @lunx/lit - Production-Grade Lit Plugin
  * 
  * Features:
  * - TypeScript decorator support
@@ -39,7 +39,7 @@ export interface LitPluginOptions {
     };
 }
 
-export function nuclieLit(options: LitPluginOptions = {}): Plugin {
+export function lunxLit(options: LitPluginOptions = {}): Plugin {
     const {
         hmr = true,
         development = process.env.NODE_ENV !== 'production',
@@ -48,7 +48,7 @@ export function nuclieLit(options: LitPluginOptions = {}): Plugin {
     } = options;
 
     return {
-        name: 'nuclie-lit',
+        name: 'lunx-lit',
 
         async transform(code: string, id: string) {
             // Only process Lit files (.ts, .js with Lit imports)
@@ -144,7 +144,7 @@ async function transformLit(
 
         return result.code;
     } catch (error) {
-        console.warn('[nuclie-lit] Transform failed:', error);
+        console.warn('[lunx-lit] Transform failed:', error);
         return null;
     }
 }
@@ -162,6 +162,6 @@ function generateSourceMap(originalCode: string, transformedCode: string, id: st
 // Export helper for use in config
 export function litPreset(options: LitPluginOptions = {}): Plugin[] {
     return [
-        nuclieLit(options)
+        lunxLit(options)
     ];
 }

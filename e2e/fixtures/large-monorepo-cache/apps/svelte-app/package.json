@@ -1,0 +1,10 @@
+{
+  "name": "large-monorepo-cache/apps/svelte-app",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "lunx dev",
+    "build": "lunx build"
+  },
+  "dependencies": {}
+}

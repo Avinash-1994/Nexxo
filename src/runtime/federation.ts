@@ -1,3 +1,10 @@
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
+import { pathToFileURL } from 'url';
+import crypto from 'crypto';
+import { getFetch } from '../utils/fetch.js';
+
 export interface RemoteConfig {
     url: string;
     format?: 'esm' | 'systemjs' | 'var';
@@ -16,7 +23,7 @@ export interface SharedScope {
 
 declare global {
     interface Window {
-        __NUCLIE_FEDERATION__: {
+        __LUNX_FEDERATION__: {
             remotes: Record<string, RemoteConfig>;
             shared: SharedScope;
             initPromises: Record<string, Promise<any>>;
@@ -24,48 +31,131 @@ declare global {
     }
 }
 
-// Initialize Global Scope
-if (typeof window !== 'undefined') {
-    window.__NUCLIE_FEDERATION__ = window.__NUCLIE_FEDERATION__ || {
-        remotes: {},
-        shared: {},
-        initPromises: {}
-    };
+function isBrowserEnv() {
+    return typeof window !== 'undefined' || !!(globalThis as any).window;
+}
+
+function getFederationGlobal(): any {
+    if (typeof window !== 'undefined') {
+        return window as any;
+    }
+    if ((globalThis as any).window) {
+        return (globalThis as any).window;
+    }
+    return globalThis as any;
+}
+
+function ensureFederationGlobal() {
+    const root = getFederationGlobal();
+    if (!root.__LUNX_FEDERATION__) {
+        root.__LUNX_FEDERATION__ = {
+            remotes: {},
+            shared: {},
+            initPromises: {}
+        };
+    }
+    return root;
 }
 
 export async function initFederation(remotes: Record<string, string>) {
-    if (typeof window === 'undefined') return;
-
+    const root = ensureFederationGlobal();
     Object.entries(remotes).forEach(([name, url]) => {
-        window.__NUCLIE_FEDERATION__.remotes[name] = { url };
+        root.__LUNX_FEDERATION__.remotes[name] = { url };
     });
 }
 
-export async function loadRemote(remoteName: string, exposedModule: string) {
-    if (typeof window === 'undefined') return null;
+function isRemoteUrl(value: string) {
+    return /^https?:\/\//.test(value) || /^file:\/\//.test(value);
+}
 
-    const remote = window.__NUCLIE_FEDERATION__.remotes[remoteName];
+function isLocalPath(value: string) {
+    try {
+        const url = new URL(value);
+        return url.protocol !== 'http:' && url.protocol !== 'https:';
+    } catch {
+        return true;
+    }
+}
+
+async function importRemoteModule(moduleUrl: string) {
+    if (isBrowserEnv()) {
+        return import(/* @vite-ignore */ moduleUrl);
+    }
+
+    if (isLocalPath(moduleUrl)) {
+        const resolvedPath = path.isAbsolute(moduleUrl)
+            ? moduleUrl
+            : path.resolve(moduleUrl);
+
+        if (!fs.existsSync(resolvedPath)) {
+            throw new Error(`Local fallback module not found: ${resolvedPath}`);
+        }
+
+        return import(pathToFileURL(resolvedPath).href);
+    }
+
+    // Node.js server-side federation support for remote URLs.
+    // Use a deterministic temp path so repeated loads can reuse the same cache.
+    const digest = crypto.createHash('sha256').update(moduleUrl).digest('hex').slice(0, 16);
+    const tempDir = path.join(os.tmpdir(), 'lunx-mf', digest);
+    fs.mkdirSync(tempDir, { recursive: true });
+    const moduleFile = path.join(tempDir, 'remote-module.mjs');
+
+    const fetch = await getFetch();
+    const response = await fetch(moduleUrl);
+    if (!response.ok) {
+        throw new Error(`Failed to fetch remote module at ${moduleUrl}: ${response.status} ${response.statusText}`);
+    }
+
+    const source = await response.text();
+    fs.writeFileSync(moduleFile, source, 'utf8');
+    return import(pathToFileURL(moduleFile).href);
+}
+
+export async function loadRemote(remoteName: string, exposedModule: string) {
+    const root = ensureFederationGlobal();
+    const remote = root.__LUNX_FEDERATION__.remotes[remoteName];
     if (!remote) {
         throw new Error(`Remote ${remoteName} not configured`);
     }
 
     try {
-        // 1. Fetch Manifest
-        const manifestUrl = remote.url.endsWith('.json') ? remote.url : `${remote.url}/remoteEntry.json`;
-        const resp = await fetch(manifestUrl);
-        if (!resp.ok) throw new Error(`Failed to fetch manifest: ${resp.statusText}`);
+        // 1. Resolve Manifest
+        const manifestUrl = remote.url.endsWith('.json')
+            ? remote.url
+            : remote.url.endsWith('.js')
+                ? remote.url.replace(/\.js$/, '.json')
+                : `${remote.url.replace(/\/$/, '')}/remoteEntry.json`;
+        let manifest: any;
 
-        const manifest = await resp.json();
+        if (isLocalPath(manifestUrl)) {
+            const localManifestPath = path.isAbsolute(manifestUrl) ? manifestUrl : path.resolve(manifestUrl);
+            if (!fs.existsSync(localManifestPath)) {
+                throw new Error(`Failed to read local manifest: ${localManifestPath}`);
+            }
+            manifest = JSON.parse(fs.readFileSync(localManifestPath, 'utf8'));
+        } else {
+            const fetch = await getFetch();
+            const resp = await fetch(manifestUrl);
+            if (!resp.ok) throw new Error(`Failed to fetch manifest: ${resp.statusText}`);
+            manifest = await resp.json();
+        }
 
         // 2. Check Health (Optional)
         if (manifest.health) {
-            const healthUrl = new URL(manifest.health, manifestUrl).toString();
-            try {
+            const healthUrl = isLocalPath(manifest.health)
+                ? path.resolve(path.dirname(manifestUrl), manifest.health)
+                : new URL(manifest.health, manifestUrl).toString();
+
+            if (isLocalPath(healthUrl)) {
+                const resolvedHealthPath = path.isAbsolute(healthUrl) ? healthUrl : path.resolve(healthUrl);
+                if (!fs.existsSync(resolvedHealthPath)) {
+                    throw new Error('Remote unhealthy');
+                }
+            } else {
+                const fetch = await getFetch();
                 const healthResp = await fetch(healthUrl);
                 if (!healthResp.ok) throw new Error('Remote unhealthy');
-            } catch (e) {
-                console.warn(`Remote ${remoteName} is unhealthy, trying fallback...`);
-                throw e;
             }
         }
 
@@ -77,10 +167,8 @@ export async function loadRemote(remoteName: string, exposedModule: string) {
 
         const moduleUrl = new URL(moduleInfo.import, manifestUrl).toString();
 
-        // 4. Load Module (ESM)
-        // In production, this would be a dynamic import()
-        // We return the promise so the bundler/runtime can handle it
-        return import(/* @vite-ignore */ moduleUrl);
+        // 4. Load Module
+        return importRemoteModule(moduleUrl);
 
     } catch (e) {
         console.error(`Failed to load remote ${remoteName}:`, e);
@@ -88,9 +176,7 @@ export async function loadRemote(remoteName: string, exposedModule: string) {
         // 5. Fallback
         if (remote.fallback) {
             console.warn(`Using fallback for ${remoteName}`);
-            // If fallback is a URL, try loading it. If it's a local path, we can't easily dynamic import it here 
-            // without bundler support. For now, assume it's another remote URL.
-            return import(/* @vite-ignore */ remote.fallback);
+            return importRemoteModule(remote.fallback);
         }
 
         throw e;
@@ -98,9 +184,8 @@ export async function loadRemote(remoteName: string, exposedModule: string) {
 }
 
 export function registerShared(name: string, version: string, factory: () => Promise<any>) {
-    if (typeof window === 'undefined') return;
-
-    const scope = window.__NUCLIE_FEDERATION__.shared;
+    const root = ensureFederationGlobal();
+    const scope = root.__LUNX_FEDERATION__.shared;
     if (!scope[name]) scope[name] = {};
 
     if (!scope[name][version]) {
@@ -112,9 +197,8 @@ export function registerShared(name: string, version: string, factory: () => Pro
 }
 
 export async function loadShared(name: string, requiredVersion: string) {
-    if (typeof window === 'undefined') return null;
-
-    const scope = window.__NUCLIE_FEDERATION__.shared;
+    const root = ensureFederationGlobal();
+    const scope = root.__LUNX_FEDERATION__.shared;
     const versions = scope[name];
 
     if (!versions) {
@@ -122,15 +206,14 @@ export async function loadShared(name: string, requiredVersion: string) {
         return null;
     }
 
-    // Simple SemVer matching (highest version)
-    // In a real implementation, use semver library
     const sortedVersions = Object.keys(versions).sort().reverse();
-    const bestVersion = sortedVersions[0]; // Naive: just take highest
-
+    const bestVersion = sortedVersions[0];
     const lib = versions[bestVersion];
+
     if (!lib.loaded) {
         lib.loaded = true;
         return lib.get();
     }
-    return lib.get(); // Should be cached by factory
+    return lib.get();
 }
+

@@ -1,18 +1,18 @@
-# @nuclie/plugin-react
+# @lunx/plugin-react
 
-> Official Nuclie plugin for React — JSX transform, React Fast Refresh HMR, and error overlay.
+> Official Lunx plugin for React — JSX transform, React Fast Refresh HMR, and error overlay.
 
 ## Install
 
 ```bash
-npm install --save-dev @nuclie/plugin-react
+npm install --save-dev @lunx/plugin-react
 ```
 
 ## Usage
 
 ```js
-// nuclie.config.js
-const react = require('@nuclie/plugin-react');
+// lunx.config.js
+const react = require('@lunx/plugin-react');
 
 module.exports = {
   entry: ['./src/main.tsx'],
@@ -23,9 +23,9 @@ module.exports = {
 ```
 
 ```ts
-// nuclie.config.ts
-import { defineConfig } from 'nuclie';
-import react from '@nuclie/plugin-react';
+// lunx.config.ts
+import { defineConfig } from 'lunx';
+import react from '@lunx/plugin-react';
 
 export default defineConfig({
   entry: ['./src/main.tsx'],

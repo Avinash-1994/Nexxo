@@ -1,0 +1,19 @@
+{
+  "name": "angular-enterprise",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "run-test.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@angular/compiler": "^21.2.10",
+    "@angular/compiler-cli": "^21.2.10",
+    "@angular/core": "^21.2.10",
+    "rxjs": "^7.8.2"
+  }
+}

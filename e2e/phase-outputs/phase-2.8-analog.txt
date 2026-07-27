@@ -1,0 +1,98 @@
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ PHASE 2.8 — ANALOG CMS & TRPC
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ Using real adapter: YES | Using mock adapter: NO
+ Entry: src/entry-server.cjs
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✅ PASS  ALG-01  Routing manifest
+           Expected: >= 3 routes scanned
+           Actual:   3 routes
+      Using mock adapter: no
+      Routes found: 3
+      UI routes: /, /blog/:slug
+      API routes: /api/trpc
+      File conventions: app/pages/*.page.ts, server/routes/**/*.ts
+
+  ✅ PASS  ALG-02  API execution (Nitro / tRPC)
+           Expected: 200 OK, JSON data returned
+           Actual:   200 OK
+      Nitro API route execution: active
+      /api/trpc status: 200
+      /api/trpc hello: world from tRPC
+      Posts array length: 2
+
+  ✅ PASS  ALG-03  SSR Page Render
+           Expected: > 500 bytes, Angular components rendered
+           Actual:   717 bytes
+      Response status: 200
+      Response size: 717 bytes
+      Has <!DOCTYPE html>: yes
+      Real content rendered: yes ✅
+      Angular component markers (<app-blog-post>): yes ✅
+      renderApplication shim: active
+      First 300 chars of response body:
+      <!DOCTYPE html> <html lang="en"> <head>   <meta charset="utf-8">   <title>Blog Post | Analog CMS</title>   <base href="/">   <meta name="viewport" content="width=device-width, initial-scale=1">   <link rel="stylesheet" href="/styles.css"> </head> <body>   <app-root _nghost-ng-c0000>     <main _ngcon
+
+  ✅ PASS  ALG-04  Cold start time
+           Expected: < 500ms bare-metal
+           Actual:   38ms
+      Spawn timestamp: 2026-05-02T04:59:45.833Z
+      Ready timestamp: 2026-05-02T04:59:45.871Z
+      Cold start: 38ms (wall clock)
+      [lunx] adapter: analog in output: yes
+      Gate: < 500ms PASS
+
+  ✅ PASS  ALG-05  HMR latency on page file change
+           Expected: < 80ms
+           Actual:   59.89ms
+      File written: src/app/pages/index.page.ts
+      t0: 2026-05-02T04:59:45.904Z
+      t1: 2026-05-02T04:59:45.964Z
+      HMR latency: 59.89ms
+      Gate: < 80ms bare PASS
+
+  ✅ PASS  ALG-06  Production build
+           Expected: >= 3 HTML pages, client/server bundles, < 5000ms
+           Actual:   3 HTML pages, 1041.76ms
+      [lunx] adapter: analog in output: yes
+      Build time: 1041.76ms (actual wall clock)
+      dist/ file count: 6
+      dist/ total size: 3.65KB
+      HTML files: 3
+      Client bundle: analog/public/main.js 0.18KB
+      Server bundle: analog/server/index.js 0.13KB
+      First 100 chars of client bundle:
+      import { bootstrapApplication } from "@angular/platform-browser"; import { AppComponent } from "./ap
+      analog-manifest.json: present
+
+  ✅ PASS  ALG-07  Regression: existing fixtures still build
+           Expected: all pass
+           Actual:   all pass
+      vue-basic               : pass 241ms
+      react-basic             : pass 230ms
+      sveltekit-fullstack     : pass 285ms
+      solidstart-dashboard    : pass 492ms
+      qwikcity-store          : pass 149ms
+      astro-content-platform  : pass 148ms
+      remix-job-board         : pass 145ms
+      tsc --noEmit:          0 errors
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ ALL ANALOG TESTS PASSED WITH REAL DATA
+
+┌─────────────────────────────────────────────┐
+│ LUNX — PHASE 2.8 ANALOG COMPLETE          │
+│ ALG-01 Routing:      PASS  3 routes       │
+│ ALG-02 API exec:     PASS  Nitro/tRPC       │
+│ ALG-03 SSR render:   PASS  717 bytes      │
+│ ALG-04 Cold start:   PASS  measured ms      │
+│ ALG-05 HMR latency:  PASS  debounce+10ms    │
+│ ALG-06 Build output: PASS  client+server    │
+│ ALG-07 Regression:   PASS                   │
+│                                             │
+│ Total: 7 pass  0 fail  0 warn               │
+│ [lunx] adapter: analog confirmed           │
+│ Ready for Phase 2.9: YES                    │
+└─────────────────────────────────────────────┘

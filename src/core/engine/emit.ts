@@ -73,7 +73,7 @@ export function computeBuildFingerprint(
         engineVersion: ctx.engine.version,
         graphHash: ctx.graphHash,
         planHash: plan.planId,
-        inputHash: inputFingerprint.inputHash,
+        inputHash: canonicalHash({ configInput: inputFingerprint.inputHash, graphInput: ctx.graphHash }),
         outputHash: outputHash,
         target: ctx.target,
         buildTime: new Date().toISOString()

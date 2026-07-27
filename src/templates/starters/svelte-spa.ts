@@ -19,11 +19,11 @@ export const svelteSpaTemplate: TemplateConfig = {
         "svelte-check": "^3.5.0",
         "tslib": "^2.6.2",
         "typescript": "^5.2.2",
-        "@nuclie/plugin-svelte": "^1.0.0"
+        "@lunx/plugin-svelte": "^1.0.0"
     },
     files: {
-        'nuclie.config.ts': `
-import { defineConfig } from 'nuclie';
+        'lunx.config.ts': `
+import { defineConfig } from 'lunx';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 
 export default defineConfig({
@@ -47,11 +47,11 @@ export default app
 <script lang="ts">
   import Counter from './lib/Counter.svelte'
 
-  let nuclieLogo = '/nuclie.svg'
+  let lunxLogo = '/lunx.svg'
 </script>
 
 <main>
-  <h1>Nuclie + Svelte</h1>
+  <h1>Lunx + Svelte</h1>
 
   <div class="card">
     <Counter />
@@ -62,7 +62,7 @@ export default app
   </p>
 
   <p class="read-the-docs">
-    Click on the Nuclie and Svelte logos to learn more
+    Click on the Lunx and Svelte logos to learn more
   </p>
 </main>
 

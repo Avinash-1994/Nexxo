@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-react
+ * @lunx/plugin-react
  * React support with Fast Refresh
  * Ported from: @vitejs/plugin-react
  */
@@ -8,7 +8,7 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createReactPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-react',
+        name: '@lunx/plugin-react',
         originalPlugin: '@vitejs/plugin-react',
 
         async transform(code: string, id: string) {

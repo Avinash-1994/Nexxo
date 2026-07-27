@@ -1,9 +1,9 @@
 
 import vm from 'vm';
-import { NucliePlugin, PluginHookName, PluginManifest } from './types.js';
+import { LunxPlugin, PluginHookName, PluginManifest } from './types.js';
 import { canonicalHash } from '../engine/hash.js';
 
-export class JSPluginSandbox implements NucliePlugin {
+export class JSPluginSandbox implements LunxPlugin {
     manifest: PluginManifest;
     id: string;
     private context: vm.Context;

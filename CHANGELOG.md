@@ -16,9 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Validated stability with **10,000 inter-dependent modules**.
   - Verified consistent sub-second HMR even at industrial scales.
 - **Developer Experience (Hero Tools)**
-  - `nuclie verify`: Comprehensive project health diagnostics.
-  - `nuclie analyze`: Build profiling and bundle composition visualization.
-  - `nuclie report`: AI-augmented build session narration.
+  - `lunx verify`: Comprehensive project health diagnostics.
+  - `lunx analyze`: Build profiling and bundle composition visualization.
+  - `lunx report`: AI-augmented build session narration.
 - **Universal Transformer v2**
   - Stable support for React, Vue, Svelte, Solid, and Lit.
   - Transparent CJS/ESM compatibility mode for complex bundling.
@@ -85,7 +85,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Test: `init_test.mjs` ✅
 
 - **TypeScript Config Support**
-  - Load `nuclie.build.ts` configuration
+  - Load `lunx.build.ts` configuration
   - On-the-fly compilation with esbuild
   - Type checking and IntelliSense
   - Fallback to JSON config
@@ -173,7 +173,7 @@ node scripts/sign_plugin.mjs your-plugin.mjs \
 ```
 
 **TypeScript Config:**
-You can now use `nuclie.build.ts` instead of JSON:
+You can now use `lunx.build.ts` instead of JSON:
 ```typescript
 export default {
   entry: ['src/main.tsx'],

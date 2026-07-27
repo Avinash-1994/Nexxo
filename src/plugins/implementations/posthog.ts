@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-posthog
+ * @lunx/plugin-posthog
  * PostHog analytics integration
  */
 
@@ -7,8 +7,8 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createPosthogPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-posthog',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-posthog',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // Analytics: PostHog analytics integration
@@ -16,7 +16,7 @@ export function createPosthogPlugin(): PluginAdapter {
         },
 
         async buildEnd() {
-            console.log('[@nuclie/plugin-posthog] Analytics integration ready');
+            console.log('[@lunx/plugin-posthog] Analytics integration ready');
         }
     };
 }

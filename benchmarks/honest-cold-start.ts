@@ -26,7 +26,7 @@ async function testDevServerColdStart(): Promise<BenchmarkResult> {
     console.log('\n🔥 Testing REAL dev server cold start...');
 
     // Clean cache for true cold start
-    const cacheDir = path.join(process.cwd(), 'nuclie-web-app', 'node_modules', '.nuclie');
+    const cacheDir = path.join(process.cwd(), 'lunx-web-app', 'node_modules', '.lunx');
     if (fs.existsSync(cacheDir)) {
         fs.rmSync(cacheDir, { recursive: true, force: true });
     }
@@ -35,8 +35,8 @@ async function testDevServerColdStart(): Promise<BenchmarkResult> {
 
     return new Promise((resolve) => {
         // Start dev server in the web app directory
-        // We use npm run dev which calls 'nuclie dev'
-        const appDir = path.join(process.cwd(), 'nuclie-web-app');
+        // We use npm run dev which calls 'lunx dev'
+        const appDir = path.join(process.cwd(), 'lunx-web-app');
         const devServer = spawn('npm', ['run', 'dev', '--', '--port', '5557'], {
             cwd: appDir,
             stdio: 'pipe',
@@ -94,7 +94,7 @@ async function testDevServerWarmStart(): Promise<BenchmarkResult> {
     const start = performance.now();
 
     return new Promise((resolve) => {
-        const appDir = path.join(process.cwd(), 'nuclie-web-app');
+        const appDir = path.join(process.cwd(), 'lunx-web-app');
         const devServer = spawn('npm', ['run', 'dev', '--', '--port', '5558'], {
             cwd: appDir,
             stdio: 'pipe',
@@ -230,22 +230,22 @@ async function runHonestBenchmarks() {
 
     if (coldStartResult) {
         console.log('Dev Server Cold Start:');
-        console.log(`  Nuclie:     ${coldStartResult.duration}ms`);
+        console.log(`  Lunx:     ${coldStartResult.duration}ms`);
         console.log(`  Vite:      ~425ms (from Module 7 benchmarks)`);
         console.log(`  esbuild:   ~200ms (target)`);
         console.log(`  Turbopack: ~400ms (estimated)`);
         console.log(`  Rspack:    ~300ms (estimated)`);
 
         if (coldStartResult.duration < 425) {
-            console.log(`\n  ✅ Nuclie is ${Math.round((425 - coldStartResult.duration) / 425 * 100)}% faster than Vite!`);
+            console.log(`\n  ✅ Lunx is ${Math.round((425 - coldStartResult.duration) / 425 * 100)}% faster than Vite!`);
         } else {
-            console.log(`\n  ⚠️  Nuclie is ${Math.round((coldStartResult.duration - 425) / 425 * 100)}% slower than Vite`);
+            console.log(`\n  ⚠️  Lunx is ${Math.round((coldStartResult.duration - 425) / 425 * 100)}% slower than Vite`);
         }
 
         if (coldStartResult.duration < 200) {
-            console.log(`  🏆 Nuclie BEATS esbuild target!`);
+            console.log(`  🏆 Lunx BEATS esbuild target!`);
         } else {
-            console.log(`  📊 Nuclie is ${Math.round((coldStartResult.duration - 200) / 200 * 100)}% slower than esbuild target`);
+            console.log(`  📊 Lunx is ${Math.round((coldStartResult.duration - 200) / 200 * 100)}% slower than esbuild target`);
         }
     }
 

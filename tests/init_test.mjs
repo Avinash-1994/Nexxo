@@ -4,7 +4,7 @@ import path from 'path';
 import assert from 'assert';
 
 const testDir = 'temp_init_test';
-const configFile = path.join(testDir, 'nuclie.build.json');
+const configFile = path.join(testDir, 'lunx.build.json');
 
 function run(cmd) {
     try {

@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import http from 'http';
 import path from 'path';
 import fs from 'fs/promises';
@@ -18,11 +19,11 @@ let NativeWorker: any;
 
 try {
   const candidates = [
-    path.resolve(__dirname, '../../nuclie_native.node'), // From src/dev/devServer.ts
-    path.resolve(__dirname, '../nuclie_native.node'),    // From dist/dev/devServer.js
-    path.resolve(__dirname, './nuclie_native.node'),     // From dist/
-    path.resolve(process.cwd(), 'nuclie_native.node'),   // Root fallback
-    path.resolve(process.cwd(), 'dist/nuclie_native.node')
+    path.resolve(__dirname, '../../lunx_native.node'), // From src/dev/devServer.ts
+    path.resolve(__dirname, '../lunx_native.node'),    // From dist/dev/devServer.js
+    path.resolve(__dirname, './lunx_native.node'),     // From dist/
+    path.resolve(process.cwd(), 'lunx_native.node'),   // Root fallback
+    path.resolve(process.cwd(), 'dist/lunx_native.node')
   ];
 
   let pathFound = '';
@@ -65,7 +66,7 @@ import { LiveConfigManager } from '../config/live-config.js';
  * Rewrite bare module imports to node_modules paths
  * Production-grade AST-based rewriting (Phase C1 Honest)
  */
-async function rewriteImports(code: string, rootDir: string, preBundledDeps?: Map<string, string>): Promise<string> {
+async function rewriteImports(code: string, rootDir: string, preBundledDeps?: Map<string, string>, federationRemotes?: Set<string>, singletonRedirects?: Map<string, string>): Promise<string> {
   try {
     const acorn = await import('acorn');
     const ast = acorn.parse(code, {
@@ -90,6 +91,28 @@ async function rewriteImports(code: string, rootDir: string, preBundledDeps?: Ma
           return;
         }
 
+        if (federationRemotes) {
+          const [remoteName] = specifier.split('/');
+          if (remoteName && federationRemotes.has(remoteName) && specifier.includes('/')) {
+            return;
+          }
+        }
+
+        // Singleton redirect: if this is a singleton package managed by the shell host,
+        // point directly to the shell's pre-bundled copy to enforce one instance.
+        if (singletonRedirects && singletonRedirects.size > 0) {
+          const pkgRoot = specifier.startsWith('@')
+            ? specifier.split('/').slice(0, 2).join('/')
+            : specifier.split('/')[0];
+          if (singletonRedirects.has(pkgRoot)) {
+            const safeName = specifier.replace(/[/@]/g, '_');
+            const hostBase = singletonRedirects.get(pkgRoot)!;
+            const singletonUrl = `${hostBase}/@lunx-deps/${safeName}.js?v=${Date.now()}`;
+            replacements.push({ start: node.start, end: node.end, replacement: `'${singletonUrl}'` });
+            return;
+          }
+        }
+
         let replacement = `/node_modules/${specifier}`;
         if (preBundledDeps && preBundledDeps.has(specifier)) {
           // Exact match: this full specifier (e.g. 'solid-js/web') was pre-bundled
@@ -108,7 +131,7 @@ async function rewriteImports(code: string, rootDir: string, preBundledDeps?: Ma
             if (specifier.endsWith('.js') && !preBundledDeps.has(specifier)) {
               replacement = `/node_modules/${specifier}`;
             } else {
-              replacement = `/@nuclie-deps/${safeName}.js?v=${Date.now()}`;
+              replacement = `/@lunx-deps/${safeName}.js?v=${Date.now()}`;
             }
           }
         }
@@ -146,6 +169,7 @@ async function rewriteImports(code: string, rootDir: string, preBundledDeps?: Ma
   }
 }
 
+
 /**
  * Check if a port is available
  */
@@ -175,6 +199,25 @@ async function findAvailablePort(startPort: number, host: string): Promise<numbe
 }
 
 export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) {
+  // Phase 5.1 — Startup diagnostics timing
+  const _t0 = Date.now();
+  const _phases: Array<{ name: string; ms: number }> = [];
+  function _mark(name: string) { _phases.push({ name, ms: Date.now() - _t0 }); }
+  function _printStartupDiagnostics(port: number) {
+    const total = Date.now() - _t0;
+    process.stderr.write('\n┌─ Lunx startup diagnostics ─────────────────\n');
+    let prev = 0;
+    for (const p of _phases) {
+      const dur = p.ms - prev;
+      const slow = dur > 1000 ? ' [slow]' : '';
+      process.stderr.write(`│  ${p.name.padEnd(28)} ${dur}ms${slow}\n`);
+      prev = p.ms;
+    }
+    process.stderr.write(`├──────────────────────────────────────────────\n`);
+    process.stderr.write(`│  Total${' '.repeat(22)} ${total}ms\n`);
+    process.stderr.write(`└──────────────────────────────────────────────\n`);
+    process.stderr.write(`\n  ➜  Local:   http://localhost:${port}\n\n`);
+  }
 
   // 1. Load User Config (Phase S3 Correctness)
   // Ensure we have the full config from disk, even if CLI passed a skeletal one
@@ -196,6 +239,7 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
       prebundle: loaded.prebundle
     };
     log.debug('Merged User Config with CLI arguments');
+    _mark('config loaded');
   } catch (e) {
     log.warn('Failed to load user config, using defaults: ' + (e as any).message);
   }
@@ -218,7 +262,7 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
 
   // Filter public env vars — also loads .env / .env.development / .env.local files
   let publicEnv: Record<string, string | undefined> = Object.keys(process.env)
-    .filter(key => key.startsWith('NUCLIE_') || key.startsWith('PUBLIC_') || key === 'NODE_ENV')
+    .filter(key => key.startsWith('LUNX_') || key.startsWith('PUBLIC_') || key === 'NODE_ENV')
     .reduce((acc, key) => ({ ...acc, [key]: process.env[key] }), {
       NODE_ENV: process.env.NODE_ENV || 'development'
     });
@@ -239,6 +283,7 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
   // 1. Initialize Framework Pipeline (Phase B3)
   const { FrameworkPipeline } = await import('../core/pipeline/framework-pipeline.js');
   const pipeline = await FrameworkPipeline.auto(cfg);
+  _mark('framework pipeline init');
   let primaryFramework = pipeline.getFramework();
   // Honor explicit adapter config if pipeline auto-detection returned 'vanilla'
   if (cfg.adapter) {
@@ -249,6 +294,35 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
     else if (primaryFramework === 'vanilla' && cfg.adapter === 'preact') primaryFramework = 'preact';
     else if (primaryFramework === 'vanilla' && cfg.adapter === 'qwik') primaryFramework = 'qwik';
     else if (primaryFramework === 'vanilla' && cfg.adapter === 'lit') primaryFramework = 'lit';
+  }
+  
+  // ─── Initialize Adapter Registry for Meta-frameworks ───
+  let activeAdapter: any = null;
+  try {
+    const { registry } = await import('@lunx/adapter-core');
+    // Pre-register all meta-framework adapters so registry.detect works
+    await import('../meta-frameworks/nextjs/index.js').catch(() => {});
+    await import('../meta-frameworks/sveltekit/index.js').catch(() => {});
+    await import('../meta-frameworks/solidstart/index.js').catch(() => {});
+    await import('../meta-frameworks/nuxt/index.js').catch(() => {});
+    await import('../meta-frameworks/astro/index.js').catch(() => {});
+    await import('../meta-frameworks/remix/index.js').catch(() => {});
+    await import('../meta-frameworks/analog/index.js').catch(() => {});
+    await import('../meta-frameworks/react-router/index.js').catch(() => {});
+    await import('../meta-frameworks/tanstack-start/index.js').catch(() => {});
+    await import('../meta-frameworks/waku/index.js').catch(() => {});
+    await import('../meta-frameworks/vitepress/index.js').catch(() => {});
+    await import('../meta-frameworks/tauri/index.js').catch(() => {});
+    await import('../meta-frameworks/electron/index.js').catch(() => {});
+    
+    const pkgPath = path.join(cfg.root || process.cwd(), 'package.json');
+    const fsNode = await import('fs');
+    if (fsNode.existsSync(pkgPath)) {
+      const pkg = JSON.parse(fsNode.readFileSync(pkgPath, 'utf-8'));
+      activeAdapter = registry.detect(cfg.root || process.cwd(), pkg);
+    }
+  } catch (e) {
+    // Ignore if not present
   }
 
   // Determine a human-readable display name for the active framework.
@@ -270,9 +344,10 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
   // 3. Initialize Universal Transformer
   const { UniversalTransformer } = await import('../core/universal-transformer.js');
   const universalTransformer = new UniversalTransformer(cfg.root);
-
-  const nativeWorker = new NativeWorker(4); // 4 threads
+  const workerThreads = Math.max(2, require('os').cpus().length - 2); // Leave 2 for OS + watcher
+  const nativeWorker = new NativeWorker(workerThreads);
   const pluginManager = new PluginManager();
+  _mark('plugin manager ready');
   if (cfg.plugins) {
     cfg.plugins.forEach(p => pluginManager.register(p));
   }
@@ -302,11 +377,29 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
   const { StylusPlugin } = await import('../plugins/css/stylus.js');
   pluginManager.register(new StylusPlugin(cfg.root));
 
+  if (cfg.federation?.remotes && Object.keys(cfg.federation.remotes).length > 0) {
+    const remoteNames = Object.keys(cfg.federation.remotes).map(name => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+    pluginManager.register({
+      name: 'lunx-federation-dev',
+      transform(code, id) {
+        const regex = new RegExp('\\bimport\\s*\\(\\s*["\'](' + remoteNames + ')\\/([^"\']+)["\']\\s*\\)', 'g');
+        if (!regex.test(code)) return code;
+        return code.replace(regex, (_, remote, modulePath) => {
+          return `globalThis.__lunx_import__("${remote}/${modulePath}")`;
+        });
+      }
+    });
+  }
+
   // Svelte Support removed - Handled by UniversalTransformer
   // Vue Support removed - Handled by UniversalTransformer
 
   const { DependencyPreBundler } = await import('./preBundler.js');
-  const preBundler = new DependencyPreBundler(cfg.root);
+  // Phase 1.10: resolve cache dir from config. Default: '<root>/.lunx/cache'.
+  const resolvedCacheDir = cfg.cacheDir
+    ? path.join(cfg.root, cfg.cacheDir)
+    : path.join(cfg.root, '.lunx', 'cache');
+  const preBundler = new DependencyPreBundler(cfg.root, resolvedCacheDir);
 
   // Initialize Live Config Manager
   const liveConfig = new LiveConfigManager(cfg, cfg.root);
@@ -359,7 +452,7 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
       vue: ['vue'],
       nuxt: ['vue'],
       svelte: getSvelteDeps(),
-      solid: ['solid-js', 'solid-js/web', 'solid-js/store'],
+      solid: ['solid-js', 'solid-js/web', 'solid-js/store', 'solid-js/h/jsx-runtime', 'solid-js/h/jsx-dev-runtime'],
       angular: [
         '@angular/core',
         '@angular/common',
@@ -380,44 +473,73 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
 
     const defaultDeps = frameworkDeps[primaryFramework] || [];
 
+    // Auto-discover from package.json
+    let pkgDepsList: string[] = [];
+    try {
+      const pkgJsonRaw = await fs.readFile(path.join(cfg.root, 'package.json'), 'utf-8');
+      const pkgJson = JSON.parse(pkgJsonRaw);
+      pkgDepsList = Object.keys({ ...pkgJson.dependencies, ...pkgJson.peerDependencies });
+    } catch { }
+
     // 3. User Config (prebundle)
     const prebundleConfig = cfg.prebundle || { enabled: true, include: [], exclude: [] };
 
     if (prebundleConfig.enabled !== false) {
+      _mark('prebundle start');
       // Merge sources
       let depsToBundle = new Set([
         ...defaultDeps,
+        ...pkgDepsList,
         ...(prebundleConfig.include || [])
+      ]);
+
+      // ── Server-only packages that must NEVER be pre-bundled as browser ESM ──
+      // These packages use Node.js built-ins (node:fs, node:url, etc.) and are
+      // only used in the server/build pipeline, not in browser code.
+      // Lunx understands the SSR boundary better than any other build tool.
+      const SERVER_ONLY_PACKAGES = new Set([
+        // Meta-framework cores (all Node.js SSR engines)
+        'astro', '@astrojs/compiler', '@astrojs/prism',
+        '@sveltejs/kit', '@sveltejs/vite-plugin-svelte',
+        'nuxt', '@nuxt/kit', '@nuxt/schema', 'nitro', 'nitropack',
+        'next', '@next/env', '@next/swc',
+        'remix', '@remix-run/node', '@remix-run/server-runtime', '@remix-run/dev',
+        '@angular/core', '@angular/cli', '@angular/compiler-cli', '@angular/build',
+        '@analogjs/platform', '@analogjs/vite-plugin-angular',
+        '@builder.io/qwik', '@builder.io/qwik-city',
+        'waku', '@waku/dev-server',
+        'vitepress', 'vite',
+        '@solidjs/start',
+        '@tanstack/start', '@tanstack/router-vite-plugin',
+        'electron', 'electron-builder',
+        '@tauri-apps/cli', '@tauri-apps/api',
+        // Build tools (never browser code)
+        'esbuild', 'rollup', 'webpack', 'parcel',
+        'typescript', 'ts-node', 'tsx',
+        // Node-only utilities
+        'chokidar', 'better-sqlite3', 'ws',
+        'express', 'koa', 'fastify', 'hono',
       ]);
 
       // Filter 1: Must verify existence in node_modules (Avoid resolve errors)
       const validDeps = new Set<string>();
-      // Use require.resolve to check existence, but be careful with exports
       for (const dep of depsToBundle) {
-        // Exclude specific overrides
+        // Exclude user-specified overrides
         if (prebundleConfig.exclude?.includes(dep)) continue;
 
-        // Verify existence
+        // Exclude server-only / Node.js-only packages from browser bundling
+        const rootPkg = dep.startsWith('@') ? dep.split('/').slice(0, 2).join('/') : dep.split('/')[0];
+        if (SERVER_ONLY_PACKAGES.has(rootPkg) || SERVER_ONLY_PACKAGES.has(dep)) continue;
+
         try {
-          // Check if package.json or dependency exists in node_modules
-          // We can't always use require.resolve for sub-paths (like react/jsx-runtime) comfortably without conditions
-          // So we check if the ROOT package is installed
-          const rootPkg = dep.startsWith('@') ? dep.split('/').slice(0, 2).join('/') : dep.split('/')[0];
-
-          // Only strict check if it's NOT in package.json? 
-          // Ideally we pre-bundle only what IS available.
-          // Check if root package is in pkgDeps (direct dependency) OR we can resolve it
           const isDirectDep = pkgDeps.includes(rootPkg);
-
           if (isDirectDep) {
             validDeps.add(dep);
           } else {
-            // Try to resolve it to ensure it exists (transitive deps like @remix-run/router)
             try {
               require.resolve(dep, { paths: [cfg.root] });
               validDeps.add(dep);
             } catch (e) {
-              // Try resolving package.json of the dep
               try {
                 const pkgJsonPath = path.join(cfg.root, 'node_modules', rootPkg, 'package.json');
                 await fs.access(pkgJsonPath);
@@ -450,7 +572,7 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
         line: error?.loc?.line,
         column: error?.loc?.column,
         type: 'Build Error',
-        plugin: 'nuclie:pipeline'
+        plugin: 'lunx:pipeline'
       });
       log.error('→ Dev Server: Warmup build failed - Fix the errors above');
     } else {
@@ -495,7 +617,7 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
       httpsOptions = cfg.server.https;
     } else {
       // Generate self-signed cert
-      const certDir = path.join(cfg.root, '.nuclie', 'certs');
+      const certDir = path.join(cfg.root, '.lunx', 'certs');
       await fs.mkdir(certDir, { recursive: true });
       const keyPath = path.join(certDir, 'dev.key');
       const certPath = path.join(certDir, 'dev.crt');
@@ -539,7 +661,9 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
   const hmrThrottle = new HMRThrottle(broadcast);
 
   // Initialize Federation Dev
-  const { FederationDev } = await import('./federation-dev.js');
+  // Federation dev logic is isolated in a dedicated module so runtime
+  // functionality and helper generation remain separate from the main server.
+  const { FederationDev, createFederationDevManifest, createFederationDevRemoteEntry } = await import('./federation-dev.js');
   const federationDev = new FederationDev(cfg, broadcast);
   federationDev.start();
 
@@ -553,42 +677,55 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
     contentTypeNosniff: true
   });
 
-  // Detect network IP for WebSocket origin validation
+  // Detect ALL non-internal IPv4 addresses for WebSocket origin validation.
+  // This covers local network IPs (e.g. 192.168.x.x) as well as loopback.
   const os = await import('os');
   const networkInterfaces = os.networkInterfaces();
-  let networkIP = '';
-  for (const name of Object.keys(networkInterfaces)) {
-    const ifaces = networkInterfaces[name];
+  const allLocalIPs: string[] = ['127.0.0.1'];
+  for (const ifaces of Object.values(networkInterfaces)) {
     if (!ifaces) continue;
     for (const iface of ifaces) {
       if (iface.family === 'IPv4' && !iface.internal) {
-        networkIP = iface.address;
-        break;
+        allLocalIPs.push(iface.address);
       }
     }
-    if (networkIP) break;
   }
+  // Primary network IP used for display (first non-loopback)
+  const networkIP = allLocalIPs.find(ip => ip !== '127.0.0.1') ?? '';
+
+  // Build allowed WS hostnames from every local IP + configured host.
+  const buildAllowedHosts = (): Set<string> => {
+    const hosts = new Set<string>(['localhost', ...allLocalIPs]);
+    if (host !== 'localhost' && host !== '0.0.0.0') hosts.add(host);
+    const extra: string[] = (cfg.server as any)?.allowedHosts ?? [];
+    extra.forEach(h => hosts.add(h));
+    return hosts;
+  };
 
   // Setup WebSocket Handlers for Config Sync (Advanced & Secure)
   const setupWssHandlers = (server: WebSocketServer) => {
     server.on('connection', (ws, req) => {
-      // Security Gate: Origin Validation
+      // Security Gate: validate that the origin matches a known local host or configured host.
+      // We don't check ports strictly because dev proxies, Docker, or tools (Playwright) 
+      // often rewrite or use different ports.
       const origin = req.headers.origin;
-      const allowedOrigins = [
-        `http://${host}:${port}`,
-        `https://${host}:${port}`,
-        `http://localhost:${port}`,
-        `http://127.0.0.1:${port}`
-      ];
+      const allowedHosts = buildAllowedHosts();
+      let isAllowed = false;
 
-      // Add network IP if available
-      if (networkIP) {
-        allowedOrigins.push(`http://${networkIP}:${port}`);
-        allowedOrigins.push(`https://${networkIP}:${port}`);
+      if (!origin) {
+        // null/missing origin → allow (CLI tools, headless scripts)
+        isAllowed = true;
+      } else {
+        try {
+          const originUrl = new URL(origin);
+          isAllowed = allowedHosts.has(originUrl.hostname);
+        } catch {
+          isAllowed = false;
+        }
       }
 
-      if (origin && !allowedOrigins.some(o => origin.startsWith(o))) {
-        log.warn(`Blocked unauthorized WebSocket connection from origin: ${origin}`);
+      if (!isAllowed) {
+        log.warn(`Blocked unauthorized WebSocket connection from origin: ${origin}. Allowed hosts: ${Array.from(allowedHosts).join(', ')}`);
         ws.terminate();
         return;
       }
@@ -603,6 +740,8 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
         config: liveConfig.getConfig(),
         token: liveConfig.getSessionToken() // Only shared over this secure local WS
       }));
+      // HMR Client handshake
+      ws.send(JSON.stringify({ type: 'connected' }));
 
       // 2. Heartbeat to keep connection alive
       const heartbeat = setInterval(() => {
@@ -642,6 +781,15 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
               type: 'config:current',
               config: liveConfig.getConfig()
             }));
+            return;
+          }
+
+          if (message.type === 'client:error') {
+            log.error(`Client runtime error: ${message.error?.message || 'Unknown runtime error'}`, {
+              category: 'runtime',
+              error: message.error
+            });
+            return;
           }
         } catch (e) {
           log.error('Failed to handle WS message', e);
@@ -651,6 +799,16 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
   };
 
   const requestHandler = async (req: http.IncomingMessage, res: http.ServerResponse) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+    if (req.method === 'OPTIONS') {
+      res.writeHead(204);
+      res.end();
+      return;
+    }
+
     if (process.env.DEBUG) {
       // Diagnostic log removed for cleaner production output
       // log.debug(`[DevServer] Request: ${req.url} Preset: ${cfg.preset}`);
@@ -659,16 +817,96 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
     if (await statusHandler.handleRequest(req, res)) return;
     if (federationDev.handleRequest(req, res)) return;
 
+    // ── Bug Class B fix: Singleton dep proxy for remote apps ────────────────────
+    // When this app is a REMOTE (has `exposes`) with singleton shared deps,
+    // proxy pre-bundled dep requests (/@lunx-deps/react, etc.) to the shell
+    // so there is exactly one React instance across all federation boundaries.
+    if (cfg.federation?.exposes && cfg.federation.shared && req.url?.startsWith('/@lunx-deps/')) {
+      const singletonPkgs = Object.entries(cfg.federation.shared)
+        .filter(([, v]) => typeof v === 'object' && (v as any).singleton)
+        .map(([k]) => k);
+      // Strip query string then .js extension: "react.js?v=123" → "react", "react-dom_client.js" → "react-dom"
+      const rawDepPath = req.url.slice('/@lunx-deps/'.length).split('?')[0];
+      // Convert lunx safe-name back to pkg name: "react-dom_client.js" → check both "react-dom" and "react"
+      const withoutExt = rawDepPath.replace(/\.js$/, '');
+      // rootPkg: take portion before first underscore (for subpath like react_jsx-dev-runtime → react)
+      const rootPkgRaw = withoutExt.startsWith('@')
+        ? withoutExt.split('_').slice(0, 2).join('/')  // scoped pkg
+        : withoutExt.split('_')[0];                     // react-dom_client → react-dom
+      // Only proxy if this dep belongs to a singleton package
+      const matchedSingleton = singletonPkgs.find(pkg =>
+        pkg === rootPkgRaw || withoutExt === pkg.replace(/[/@]/g, '_') || withoutExt.startsWith(pkg.replace(/[/@]/g, '_'))
+      );
+      if (matchedSingleton) {
+        const singletonHost = (cfg.federation as any).singletonHost || 'http://localhost:5173';
+        const proxyUrl = `${singletonHost}/@lunx-deps/${rawDepPath}${req.url.includes('?') ? '?' + req.url.split('?')[1] : ''}`;
+        try {
+          const { getFetch } = await import('../utils/fetch.js');
+          const fetch = await getFetch();
+          const upstream = await fetch(proxyUrl);
+          const body = await upstream.text();
+          res.writeHead(upstream.status, {
+            'Content-Type': upstream.headers.get('content-type') || 'application/javascript',
+            'Access-Control-Allow-Origin': '*',
+            'Cache-Control': 'no-store',
+          });
+          res.end(body);
+          return;
+        } catch {
+          // proxy failed — fall through to serve own copy (graceful degradation)
+        }
+      }
+    }
+
+
     // Security Scan (Day 41)
     if (!anomalyDetector.scanRequest({ url: req.url || '', headers: req.headers, method: req.method || 'GET' })) {
       res.writeHead(403, { 'Content-Type': 'text/plain' });
-      res.end('Request Blocked by Nuclie Security Shield');
+      res.end('Request Blocked by Lunx Security Shield');
       return;
     }
 
-    if (req.url === '/__nuclie/security') {
+    if (req.url === '/__lunx/security') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(anomalyDetector.getDashboard(), null, 2));
+      return;
+    }
+
+    // Phase 1.11 — Module Registry status endpoint
+    if (req.url === '/__lunx/registry') {
+      const snapshot = (globalThis as any).__lunx_registry__?.getRegistry?.() ?? { scopes: {} };
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(snapshot, null, 2));
+      return;
+    }
+
+    // BUG-006 — Plugin Inspect UI at /__lunx_inspect__ (double underscores, not /lunx_inspect)
+    if (req.url === '/__lunx_inspect__' || req.url?.startsWith('/__lunx_inspect__/')) {
+      try {
+        const { inspect } = await import('../../packages/lunx-plugin-inspect/src/index.js');
+        // Serve the inspect UI by constructing a minimal server shim
+        const basePath = '/__lunx_inspect__';
+        const mockServer = {
+          middlewares: {
+            use(fn: Function) {
+              fn(req, res, () => {
+                res.writeHead(404);
+                res.end('Not found');
+              });
+            }
+          }
+        };
+        const plugin = inspect({ basePath });
+        if (plugin.configureServer) {
+          plugin.configureServer(mockServer);
+        } else {
+          res.writeHead(404);
+          res.end('Inspect plugin not available');
+        }
+      } catch {
+        res.writeHead(404);
+        res.end('Inspect plugin not available');
+      }
       return;
     }
 
@@ -704,6 +942,26 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
       return;
     }
 
+    // ── Meta-framework Adapter Hook ──
+    if (activeAdapter && typeof activeAdapter.getDevHandler === 'function') {
+      const handler = activeAdapter.getDevHandler();
+      // Only use handler if it is actually callable
+      if (typeof handler === 'function') {
+        // Attach root so adapters (e.g. Astro) know the project directory
+        (req as any).__lunxRoot = cfg.root;
+        const handled = await new Promise(resolve => {
+          const originalEnd = res.end;
+          res.end = function (...args: any[]) {
+            resolve(true);
+            return originalEnd.apply(this, args as any);
+          };
+          handler(req, res, () => resolve(false));
+        });
+        if (handled) return;
+      }
+    }
+
+
     const url = req.url || '/';
 
     // Headers
@@ -731,6 +989,76 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
     const hasExtension = path.extname(url.split('?')[0]) !== '';
     const acceptsHtml = req.headers.accept?.includes('text/html');
 
+    // Phase 3.6 — SSR route: when preset === 'ssr', pipe through renderToString.
+    // Default: preset !== 'ssr' → this block is skipped entirely. SPA path unchanged.
+    if (cfg.preset === 'ssr' && (url === '/' || (!hasExtension && !isInternal && acceptsHtml))) {
+      try {
+        // @ts-ignore - plugin package removed to clean up orphans
+        const ssrRunner = await import('../../packages/lunx-ssr/dist/runner.js')
+          .catch(() => null as any);
+
+        let renderToStringFn = ssrRunner?.renderToString;
+        if (!renderToStringFn && ssrRunner?.SsrRunner) {
+          const instance = new ssrRunner.SsrRunner();
+          renderToStringFn = instance.renderToString.bind(instance);
+        }
+
+        if (renderToStringFn) {
+          const candidates = [
+            cfg.entry?.[0] ? path.join(cfg.root, cfg.entry[0]) : null,
+            path.join(cfg.root, 'src', 'entry-server.ts'),
+            path.join(cfg.root, 'src', 'entry-server.js'),
+            path.join(cfg.root, 'src', 'entry-server.tsx'),
+          ].filter(Boolean) as string[];
+
+          let entryPath = '';
+          for (const c of candidates) {
+            try { await fs.access(c); entryPath = c; break; } catch { /* try next */ }
+          }
+
+          if (entryPath) {
+            const { html, head, state, error } = await renderToStringFn(
+              entryPath, { url }, { root: cfg.root }
+            );
+            if (error) {
+              log.error(`[lunx:ssr] Error rendering ${url}:`, error);
+            }
+            const stateScript =
+              state !== undefined ? `<script>window.__LUNX_STATE__=${state}</script>` : '';
+
+            // Many framework SSR entries (Remix, Analog, TanStack, …) return a
+            // complete HTML document. Wrapping a full document inside a shell's
+            // <div> produces invalid nested <html> markup, so serve it directly
+            // and only inject head extras before </head>.
+            const isFullDocument = /^\s*(<!doctype html|<html[\s>])/i.test(html);
+            let finalHtml: string;
+            if (isFullDocument) {
+              const injection = `${head || ''}${stateScript}`;
+              finalHtml = injection
+                ? (/<\/head>/i.test(html)
+                    ? html.replace(/<\/head>/i, `${injection}</head>`)
+                    : injection + html)
+                : html;
+            } else {
+              let shell = '';
+              try { shell = await fs.readFile(path.join(cfg.root, 'index.html'), 'utf-8'); } catch { }
+              if (!shell) shell = '<!DOCTYPE html><html><head><!--head--></head><body><div id="app"><!--app--></div></body></html>';
+              finalHtml = shell
+                .replace('<!--head-->', (head || '') + stateScript)
+                .replace('<!--app-->', html)
+                .replace('<div id="root"></div>', `<div id="root">${html}</div>`)
+                .replace('<div id="app"></div>', `<div id="app">${html}</div>`);
+            }
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.end(finalHtml);
+            return;
+          }
+        }
+      } catch (e: any) {
+        log.warn(`[lunx:ssr] renderToString failed for ${url}: ${e.message} — falling through`);
+      }
+    }
+
     if ((url === '/' || (!hasExtension && !isInternal && acceptsHtml)) && cfg.preset === 'spa') {
       let p = path.join(cfg.root, 'index.html');
       let data = '';
@@ -755,9 +1083,13 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
             // Final failure
             log.debug(`Failed to find index.html in root, public, or src`);
             if (e3.code === 'EISDIR') { /* ignore */ }
-            res.writeHead(404);
-            res.end('index.html not found');
-            return;
+            if (cfg.entry && cfg.entry.length > 0) {
+              data = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><div id="root"></div></body></html>`;
+            } else {
+              res.writeHead(404);
+              res.end('index.html not found');
+              return;
+            }
           }
         }
       }
@@ -765,20 +1097,55 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
       try {
         // Inject entry point if not present (simple heuristic)
         // Angular CLI projects often don't have the script tag in source index.html
-        if (!data.includes('src="main.ts"') && !data.includes('src="/src/main.ts"')) {
-          // Try to inject main entry point script at the end of body
-          // We need to guess the entry point or use config. 
-          // Config has cfg.entry which is an array.
-          if (cfg.entry && cfg.entry.length > 0) {
-            const entryScript = `<script type="module" src="/${cfg.entry[0]}"></script>`;
+        let needsInjection = true;
+        if (cfg.entry && cfg.entry.length > 0) {
+          const entryPath = cfg.entry[0].replace(/^\.\//, '');
+          if (!entryPath.endsWith('.html')) {
+            needsInjection = !data.includes(`src="${entryPath}"`) && !data.includes(`src="/${entryPath}"`);
+          } else {
+            needsInjection = false;
+          }
+        }
+
+        if (needsInjection && cfg.entry && cfg.entry.length > 0) {
+          const entryPath = cfg.entry[0].replace(/^\.\//, '');
+          if (!entryPath.endsWith('.html')) {
+            const entryScript = `<script type="module" src="/${entryPath}"></script>`;
             data = data.replace('</body>', `${entryScript}</body>`);
           }
         }
 
         // Inject only client runtime
         let clientScript = `
-    <script type="module" src="/@nuclie/client"></script>
+    <script type="module" src="/@lunx/hmr-client"></script>
         `;
+
+        // Federation runtime injection for host apps
+        let federationRuntime = '';
+        if (cfg.federation?.remotes && Object.keys(cfg.federation.remotes).length > 0) {
+          const { generateFederationRuntime } = await import('../federation/index.js');
+          federationRuntime = `<script>${generateFederationRuntime(cfg.federation.remotes)}</script>`;
+
+          // Bug Class B fix: inject an importmap that redirects shared singleton packages
+          // (react, react-dom, etc.) from any remote origin to the host's pre-bundled copy.
+          // This ensures only ONE React instance exists across all federation boundaries.
+          if (cfg.federation.shared) {
+            const singletonEntries: string[] = [];
+            for (const [pkg, sharedCfg] of Object.entries(cfg.federation.shared)) {
+              const isSingleton = typeof sharedCfg === 'object' && (sharedCfg as any).singleton;
+              if (isSingleton) {
+                // Map the bare specifier to the host's pre-bundled chunk
+                const hostOrigin = `http://localhost:${cfg.server?.port || cfg.port || 5173}`;
+                singletonEntries.push(`    "${pkg}": "${hostOrigin}/@lunx-deps/${pkg}"`);
+                // Also cover scoped variants (e.g. react-dom/client)
+                singletonEntries.push(`    "${pkg}/": "${hostOrigin}/@lunx-deps/${pkg}/"`);
+              }
+            }
+            if (singletonEntries.length > 0) {
+              federationRuntime = `<script type="importmap">{\n  "imports": {\n${singletonEntries.join(',\n')}\n  }\n}</script>\n` + federationRuntime;
+            }
+          }
+        }
 
         // Always inject basic shims in dev mode to prevent ReferenceErrors from any React-ish modules
         let preamble = `
@@ -794,7 +1161,7 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
 
         if (isReact) {
           if (process.env.DEBUG) {
-            log.info('[Nuclie] Injecting React Refresh Preamble', { category: 'server' });
+            log.info('[Lunx] Injecting React Refresh Preamble', { category: 'server' });
           }
           preamble += `
     <script type="module">
@@ -810,14 +1177,26 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
         }
         clientScript = preamble + clientScript;
 
+        // Phase 1.11 — inject registry bootstrap before federation runtime
+        let registryScript = '';
+        try {
+          const { generateRegistryInitTag } = await import('../../packages/lunx-module-registry/src/browser-runtime.js')
+            // @ts-ignore
+            .catch(() => import('../../../packages/lunx-module-registry/src/browser-runtime.js')
+            .catch(() => ({ generateRegistryInitTag: null })));
+          if (generateRegistryInitTag) {
+            registryScript = (generateRegistryInitTag as () => string)();
+          }
+        } catch { /* non-fatal — registry script is an enhancement */ }
+
         // Use a more robust injection that handles case-sensitivity and space variations
         if (data.includes('<head>')) {
-          data = data.replace('<head>', '<head>' + clientScript);
+          data = data.replace('<head>', '<head>' + registryScript + federationRuntime + clientScript);
         } else if (data.includes('<HEAD>')) {
-          data = data.replace('<HEAD>', '<HEAD>' + clientScript);
+          data = data.replace('<HEAD>', '<HEAD>' + registryScript + federationRuntime + clientScript);
         } else {
           // Fallback if no head tag found
-          data = clientScript + data;
+          data = registryScript + federationRuntime + clientScript + data;
         }
 
         res.writeHead(200, { 'Content-Type': 'text/html' });
@@ -845,11 +1224,11 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
     }
 
     // Serve pre-bundled dependencies
-    if (url.startsWith('/@nuclie-deps/')) {
+    if (url.startsWith('/@lunx-deps/')) {
       // Strip query parameters
       const cleanUrl = url.split('?')[0];
-      const depFile = cleanUrl.replace('/@nuclie-deps/', '');
-      const depPath = path.join(cfg.root, 'node_modules', '.nuclie', depFile);
+      const depFile = cleanUrl.replace('/@lunx-deps/', '');
+      const depPath = path.join(resolvedCacheDir, depFile);
       try {
         const content = await fs.readFile(depPath, 'utf-8');
         res.writeHead(200, {
@@ -860,12 +1239,12 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
       } catch (error) {
         // Dep file doesn't exist (e.g. Svelte 5 internal requested on Svelte 4 project).
         // Serve empty ESM module so the page loads gracefully instead of crashing with 404.
-        log.debug(`[NuclieDepS] Not found, serving empty module: ${depFile}`);
+        log.debug(`[LunxDepS] Not found, serving empty module: ${depFile}`);
         res.writeHead(200, {
           'Content-Type': 'application/javascript',
           'Cache-Control': 'no-cache, no-store, must-revalidate'
         });
-        res.end(`// nuclie: empty stub for missing dep: ${depFile}\nexport default {};\n`);
+        res.end(`// lunx: empty stub for missing dep: ${depFile}\nexport default {};\n`);
       }
       return;
     }
@@ -919,7 +1298,7 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
 
 
 
-    if (url === '/@nuclie/client') {
+    if (url === '/@lunx/client') {
       const clientPath = path.resolve(__dirname, '../runtime/client.ts');
       try {
         const raw = await fs.readFile(clientPath, 'utf-8');
@@ -936,13 +1315,13 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
           res.end(client);
         } catch (e2) {
           res.writeHead(404);
-          res.end('Nuclie client runtime not found');
+          res.end('Lunx client runtime not found');
         }
       }
       return;
     }
 
-    if (url === '/@nuclie/error-overlay.js') {
+    if (url === '/@lunx/error-overlay.js') {
       // Also transform error-overlay if ts
       const overlayPath = path.resolve(__dirname, '../runtime/error-overlay.ts');
       try {
@@ -960,15 +1339,50 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
           res.end(overlay);
         } catch (e2) {
           res.writeHead(404);
-          res.end('Nuclie error overlay not found');
+          res.end('Lunx error overlay not found');
         }
       }
       return;
     }
 
+    // Phase 3.4 — HMR client runtime route
+    if (url === '/@lunx/hmr-client' || url === '/@lunx/hmr-client.js') {
+      const srcPath = path.resolve(__dirname, '../../packages/lunx-hmr-client/src/index.ts');
+      try {
+        const raw = await fs.readFile(srcPath, 'utf-8');
+        const { transform } = await import('esbuild');
+        const result = await transform(raw, { loader: 'ts', format: 'esm', target: 'es2020' });
+        res.writeHead(200, { 'Content-Type': 'application/javascript' });
+        res.end(result.code);
+      } catch (e: any) {
+        log.warn(`[lunx] /@lunx/hmr-client: ${e.message}`);
+        res.writeHead(404); res.end('/* @lunx/hmr-client not built */');
+      }
+      return;
+    }
 
+    // Phase 3.5 — Module registry route
+    if (url === '/@lunx/module-registry' || url === '/@lunx/module-registry.js') {
+      const srcPath = path.resolve(__dirname, '../../packages/lunx-module-registry/src/index.ts');
+      try {
+        const raw = await fs.readFile(srcPath, 'utf-8');
+        const { transform } = await import('esbuild');
+        const result = await transform(raw, { loader: 'ts', format: 'esm', target: 'es2020' });
+        const remotes = (cfg as any).federation?.remotes ?? {};
+        const initCall = Object.keys(remotes).length
+          ? `\nimport{__lunx_registry_init__ as _ri}from '/@lunx/module-registry';_ri(${JSON.stringify(remotes)});\n`
+          : '';
+        res.writeHead(200, { 'Content-Type': 'application/javascript' });
+        res.end(result.code + initCall);
+      } catch (e: any) {
+        log.warn(`[lunx] /@lunx/module-registry: ${e.message}`);
+        res.writeHead(404); res.end('/* @lunx/module-registry not built */');
+      }
+      return;
+    }
 
     // Open in Editor
+
     if (url.startsWith('/__open-in-editor')) {
       const urlObj = new URL(req.url || '', `http://${req.headers.host}`);
       const file = urlObj.searchParams.get('file');
@@ -1005,7 +1419,7 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
         }
 
         // ── Step 2: Manual resolution via package.json exports field ──
-        if (!resolvedModulePath) {
+        {
           const pkgName = specifier.startsWith('@')
             ? specifier.split('/').slice(0, 2).join('/')
             : specifier.split('/')[0];
@@ -1063,7 +1477,8 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
 
         // ── Step 3: Naive filesystem path (original behaviour) ──
         if (!resolvedModulePath) {
-          let modulePath = path.join(cfg.root, cleanUrl);
+          const relativePath = cleanUrl.startsWith('/') ? cleanUrl.slice(1) : cleanUrl;
+          let modulePath = path.join(cfg.root, relativePath);
           try {
             const stats = await fs.stat(modulePath);
             if (stats.isDirectory()) {
@@ -1167,8 +1582,34 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
       }
     }
 
+    // Try to serve federation dev endpoints for remote apps before static file lookup.
+    if (cfg.federation?.exposes && cfg.federation.name) {
+      const filename = cfg.federation.filename || 'remoteEntry.js';
+      const manifestName = filename.endsWith('.js') ? filename.replace(/\.js$/, '.json') : `${filename}.json`;
+      const cleanUrl = url.split('?')[0];
+
+      if (cleanUrl === `/${filename}`) {
+        res.writeHead(200, {
+          'Content-Type': 'application/javascript',
+          'Access-Control-Allow-Origin': '*'
+        });
+        res.end(createFederationDevRemoteEntry(cfg.federation));
+        return;
+      }
+
+      if (cleanUrl === `/${manifestName}`) {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        });
+        res.end(JSON.stringify(createFederationDevManifest(cfg.federation), null, 2));
+        return;
+      }
+    }
+
     // Try to serve from public first
-    const publicPath = path.join(cfg.root, 'public', url);
+    const publicUrlPath = url.startsWith('/') ? url.slice(1) : url;
+    const publicPath = path.join(cfg.root, 'public', publicUrlPath);
     try {
       await fs.access(publicPath);
       const data = await fs.readFile(publicPath);
@@ -1183,7 +1624,8 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
     // Try to serve from root (src, node_modules, etc)
     // Remove query params
     const cleanUrl = url.split('?')[0];
-    let filePath = path.join(cfg.root, cleanUrl);
+    const relativePath = cleanUrl.startsWith('/') ? cleanUrl.slice(1) : cleanUrl;
+    let filePath = path.join(cfg.root, relativePath);
 
     // console.log('Serving:', { url, cleanUrl, filePath });
 
@@ -1241,22 +1683,6 @@ export async function startDevServer(cliCfg: BuildConfig, existingServer?: any) 
         // Plugin transform (JS plugins like Tailwind)
         raw = await pluginManager.transform(raw, filePath);
 
-        // Inject Env Vars and React Refresh Shims (only for JS/TS files)
-        // Aggressive In-Module Shim: Guarantee $RefreshSig$ existence
-        if (ext === '.ts' || ext === '.tsx' || ext === '.jsx' || ext === '.js' || ext === '.mjs') {
-          raw = `
-/** Nuclie Dev Preamble **/
-if (typeof window !== 'undefined') {
-  window.$RefreshReg$ = window.$RefreshReg$ || (() => {});
-  window.$RefreshSig$ = window.$RefreshSig$ || (() => (type) => type);
-}
-if (!window.process) window.process = { env: {} };
-Object.assign(window.process.env, ${JSON.stringify(publicEnv)});
-
-${raw}
-          `;
-        }
-
         // Use Universal Transformer (supports all frameworks)
         try {
           const transformResult = await universalTransformer.transform({
@@ -1268,7 +1694,23 @@ ${raw}
           });
 
           // Rewrite imports after transformation
-          let code = await rewriteImports(transformResult.code, cfg.root, preBundledDeps);
+          const federationRemotes = cfg.federation?.remotes ? new Set(Object.keys(cfg.federation.remotes)) : undefined;
+
+          // Build singleton redirect map for remote apps (Bug Class B fix).
+          // Maps each singleton pkg name → shell host base URL.
+          // rewriteImports will redirect bare 'react' imports to the shell's pre-bundled copy.
+          let singletonRedirects: Map<string, string> | undefined;
+          if (cfg.federation?.exposes && cfg.federation.shared) {
+            const hostBase = (cfg.federation as any).singletonHost || 'http://localhost:5173';
+            singletonRedirects = new Map<string, string>();
+            for (const [pkg, sharedCfg] of Object.entries(cfg.federation.shared)) {
+              if (typeof sharedCfg === 'object' && (sharedCfg as any).singleton) {
+                singletonRedirects.set(pkg, hostBase);
+              }
+            }
+          }
+
+          let code = await rewriteImports(transformResult.code, cfg.root, preBundledDeps, federationRemotes, singletonRedirects);
 
           res.writeHead(200, {
             'Content-Type': 'application/javascript',
@@ -1351,17 +1793,60 @@ ${raw}
         res.end(raw);
         return;
       }
-
       // Serve other files raw
-      const data = await fs.readFile(filePath);
+      if (url.includes('?url') || url.includes('?import')) {
+        const publicPath = url.split('?')[0];
+        res.writeHead(200, { 'Content-Type': 'application/javascript' });
+        res.end(`export default ${JSON.stringify(publicPath)};`);
+        return;
+      }
+
+      let data: Buffer | string = await fs.readFile(filePath);
       let mime = 'application/octet-stream';
       if (ext === '.map') mime = 'application/json';
-      if (ext === '.html') mime = 'text/html';
+      if (ext === '.html') {
+        mime = 'text/html';
+        let html = data.toString('utf-8');
+        let clientScript = `\n<script type="module" src="/@lunx/hmr-client"></script>\n`;
+        let preamble = `
+    <script>
+      window.$RefreshReg$ = () => {};
+      window.$RefreshSig$ = () => (type) => type;
+      if (!window.process) window.process = { env: {} };
+    </script>
+    <script type="module">
+      import RefreshRuntime from "/@react-refresh";
+      RefreshRuntime.injectIntoGlobalHook(window);
+      window.$RefreshReg$ = (type, id) => { RefreshRuntime.register(type, id); };
+      window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+      window.__vite_plugin_react_preamble_installed__ = true;
+    </script>
+        `;
+        const inject = preamble + clientScript;
+        if (html.includes('</head>')) {
+          html = html.replace('</head>', `${inject}</head>`);
+        } else if (html.includes('<body>')) {
+          html = html.replace('<body>', `<body>${inject}`);
+        } else {
+          html += inject;
+        }
+        data = html;
+      }
       if (ext === '.svg') mime = 'image/svg+xml';
+      if (ext === '.png') mime = 'image/png';
+      if (ext === '.jpg' || ext === '.jpeg') mime = 'image/jpeg';
+      if (ext === '.gif') mime = 'image/gif';
+      if (ext === '.webp') mime = 'image/webp';
+      if (ext === '.woff2') mime = 'font/woff2';
 
       res.writeHead(200, { 'Content-Type': mime });
       res.end(data);
     } catch (e: any) {
+      if (e.code === 'ENOENT') {
+        res.writeHead(404);
+        res.end(`Not found: ${url}`);
+        return;
+      }
       log.error(`Request error: ${e.message}`, { category: 'server' });
       if (process.env.DEBUG || process.env.NODE_ENV === 'test') {
         console.error(e.stack);
@@ -1390,12 +1875,12 @@ ${raw}
           // Serve a JS fallback that throws in console and triggers overlay
           res.writeHead(200, { 'Content-Type': 'application/javascript' });
           res.end(`
-            console.error("[Nuclie Build Error]", ${JSON.stringify(e.message)});
+            console.error("[Lunx Build Error]", ${JSON.stringify(e.message)});
             const error = ${JSON.stringify(errorData)};
-            if (window.__NUCLIE_ERROR_OVERLAY__) {
-              window.__NUCLIE_ERROR_OVERLAY__.show(error);
+            if (window.__LUNX_ERROR_OVERLAY__) {
+              window.__LUNX_ERROR_OVERLAY__.show(error);
             }
-            throw new Error("[Nuclie Build Error] See overlay for details");
+            throw new Error("[Lunx Build Error] See overlay for details");
           `);
           return;
         }
@@ -1411,22 +1896,18 @@ ${raw}
   let server;
   if (existingServer) {
     server = existingServer;
-    (server as any).__nuclie_handler = requestHandler;
+    (server as any).__lunx_handler = requestHandler;
   } else {
-    if (httpsOptions) {
-      const https = await import('https');
-      server = https.createServer(httpsOptions, requestHandler);
-    } else {
-      server = http.createServer(requestHandler);
-    }
+    const { createUWSServer } = await import('./uWS-shim.js');
+    server = createUWSServer(httpsOptions);
+    (server as any).requestHandler = requestHandler;
   }
 
-  // WebSocket Server setup
-  const { WebSocketServer } = await import('ws');
-  wss = new WebSocketServer({ server });
+  // WebSocket Server setup directly from uWS shim
+  wss = (server as any).wsServer;
 
-  // Initialize Config Sync Handlers
-  setupWssHandlers(wss);
+  // Initialize Config Sync Handlers (guard: wss is undefined in SSR preset mode)
+  if (wss) setupWssHandlers(wss as any);
 
   // Upgrade handling for Proxy WebSockets
   server.on('upgrade', (req: http.IncomingMessage, socket: any, head: Buffer) => {
@@ -1450,15 +1931,15 @@ ${raw}
         const updatedCfg = await loadConfig(cfg.root);
 
         // Update live config manager (which will broadcast to clients)
-        // We do a full replacement here because the whole file changed
-        Object.entries(updatedCfg).forEach(([key, value]) => {
-          liveConfig.updateConfig({ path: key, value });
-        });
-
-        broadcast(JSON.stringify({
-          type: 'config:changed',
-          config: liveConfig.getConfig()
-        }));
+        // We do a full replacement here because the whole file changed.
+        // Use server-side replace so we don't fail CSRF checks or rate limits.
+        const replaced = liveConfig.replaceConfig(updatedCfg);
+        if (replaced) {
+          broadcast(JSON.stringify({
+            type: 'config:changed',
+            config: liveConfig.getConfig()
+          }));
+        }
       } catch (e) {
         log.error('Failed to hot reload config', e);
       }
@@ -1484,115 +1965,120 @@ ${raw}
   // Track files with errors
   const filesWithErrors = new Set<string>();
 
-  const { default: chokidar } = await import('chokidar');
-  const watcher = chokidar.watch(cfg.root, {
-    ignored: ['**/node_modules/**', '**/.git/**', '**/.nuclie/**', '**/.nuclie_cache/**'],
-    ignoreInitial: true
-  });
-  watcher.on('change', async (file: string) => {
-    try {
-      // Clear transform cache for changed file
-      universalTransformer.clearCache(file);
-
-      // Proactively check for errors in JS/TS files
-      const ext = path.extname(file);
-      if (['.ts', '.tsx', '.jsx', '.js', '.mjs', '.vue', '.svelte'].includes(ext)) {
-        const hadError = filesWithErrors.has(file);
-
-        try {
-          const code = await fs.readFile(file, 'utf-8');
-
-          // Attempt transformation to catch errors immediately
-          await universalTransformer.transform({
-            filePath: file,
-            code,
-            framework: primaryFramework,
-            root: cfg.root,
-            isDev: true
-          });
-
-          // If transformation succeeds and there was a previous error, show success
-          if (hadError) {
-            filesWithErrors.delete(file);
-            const relativePath = path.relative(cfg.root, file);
-            console.log(`\n\x1b[32mCompiled successfully!\x1b[0m`);
-            console.log(`\x1b[90m${new Date().toLocaleTimeString()} - ${relativePath}\x1b[0m\n`);
-
-            // Broadcast success to browser
-            broadcast(JSON.stringify({
-              type: 'error-fixed',
-              file: relativePath
-            }));
-          } else if (process.env.DEBUG) {
-            log.debug(`✓ ${path.relative(cfg.root, file)} validated`, { category: 'hmr' });
-          }
-        } catch (transformError: any) {
-          // Track this file has an error
-          filesWithErrors.add(file);
-
-          // Error is already logged by universal-transformer
-          // Also broadcast to browser
-          const relativePath = path.relative(cfg.root, file);
-          broadcast(JSON.stringify({
-            type: 'error',
-            error: {
-              message: transformError.message || String(transformError),
-              file: relativePath,
-              line: transformError.loc?.line,
-              column: transformError.loc?.column,
-              stack: transformError.stack
-            }
-          }));
-
-          // Don't continue with HMR if there's an error
-          return;
-        }
-      }
-
-      // Native Invalidation & Rebuild
+  const { DevWatcher } = await import('./watcher.js');
+  const watcher = new DevWatcher(cfg.root, 50);
+  watcher.on('change', async (files: string[]) => {
+    for (const file of files) {
       try {
-        if (nativeWorker && typeof nativeWorker.invalidate === 'function') {
-          nativeWorker.invalidate(file);
+        // Clear transform cache for changed file
+        universalTransformer.clearCache(file);
+
+        // Proactively check for errors in JS/TS files
+        const ext = path.extname(file);
+        if (['.ts', '.tsx', '.jsx', '.js', '.mjs', '.vue', '.svelte'].includes(ext)) {
+          const hadError = filesWithErrors.has(file);
+
+          try {
+            const code = await fs.readFile(file, 'utf-8');
+
+            // Attempt transformation to catch errors immediately
+            await universalTransformer.transform({
+              filePath: file,
+              code,
+              framework: primaryFramework,
+              root: cfg.root,
+              isDev: true
+            });
+
+            // If transformation succeeds and there was a previous error, show success
+            if (hadError) {
+              filesWithErrors.delete(file);
+              const relativePath = path.relative(cfg.root, file);
+              console.log(`\n\x1b[32mCompiled successfully!\x1b[0m`);
+              console.log(`\x1b[90m${new Date().toLocaleTimeString()} - ${relativePath}\x1b[0m\n`);
+
+              // Broadcast success to browser
+              broadcast(JSON.stringify({
+                type: 'error-fixed',
+                file: relativePath
+              }));
+            } else if (process.env.DEBUG) {
+              log.debug(`✓ ${path.relative(cfg.root, file)} validated`, { category: 'hmr' });
+            }
+          } catch (transformError: any) {
+            // Track this file has an error
+            filesWithErrors.add(file);
+
+            // Error is already logged by universal-transformer
+            // Also broadcast to browser
+            const relativePath = path.relative(cfg.root, file);
+            broadcast(JSON.stringify({
+              type: 'error',
+              error: {
+                message: transformError.message || String(transformError),
+                file: relativePath,
+                line: transformError.loc?.line,
+                column: transformError.loc?.column,
+                stack: transformError.stack
+              }
+            }));
+
+            // Don't continue with HMR if there's an error
+            continue;
+          }
         }
 
-        let affected: string[] = [];
-        if (nativeWorker && typeof nativeWorker.rebuild === 'function') {
-          affected = nativeWorker.rebuild(file);
-        }
-
-        if (affected.length > 0) {
-          log.info(`Rebuild affected ${affected.length} files`, { category: 'build', duration: 10 }); // Mock duration
-        }
-
-        affected.forEach((affectedFile: string) => {
-          // Clear cache for affected files too
-          universalTransformer.clearCache(affectedFile);
-
-          // Determine message type
-          let type = 'reload';
-          if (affectedFile.endsWith('.css')) {
-            type = 'update-css';
+        // Native Invalidation & Rebuild
+        try {
+          if (nativeWorker && typeof nativeWorker.invalidate === 'function') {
+            nativeWorker.invalidate(file);
           }
 
-          // Normalize path for client (relative to root)
-          const rel = '/' + path.relative(cfg.root, affectedFile);
+          let affected: string[] = [];
+          if (nativeWorker && typeof nativeWorker.rebuild === 'function') {
+            affected = nativeWorker.rebuild(file);
+          }
+          
+          if (affected.length === 0) {
+             // Fallback: If native graph didn't find impacts (or isn't available),
+             // default to invalidating the changed file itself.
+             affected = [file];
+          }
 
-          // Queue update via throttle
-          hmrThrottle.queueUpdate(rel, type);
-          statusHandler.trackHMR();
-        });
-      } catch (nativeError: any) {
-        log.warn(`Native HMR unavailable for ${path.relative(cfg.root, file)}: ${nativeError.message || 'Unknown error'}. Falling back to full reload`, { category: 'hmr' });
-        // Don't broadcast 'error' here, just restart
-        broadcast(JSON.stringify({ type: 'restarting' }));
+          if (affected.length > 0) {
+            log.info(`Rebuild affected ${affected.length} files`, { category: 'build', duration: 10 }); // Mock duration
+          }
+
+          affected.forEach((affectedFile: string) => {
+            // Clear cache for affected files too
+            universalTransformer.clearCache(affectedFile);
+
+            // Determine message type
+            let type = 'update';
+            if (affectedFile.endsWith('.css')) {
+              type = 'css-update';
+            }
+
+            // Normalize path for client (relative to root)
+            const rel = '/' + path.relative(cfg.root, affectedFile);
+
+            // Queue update via throttle
+            hmrThrottle.queueUpdate(rel, type);
+            statusHandler.trackHMR();
+          });
+        } catch (nativeError: any) {
+          log.warn(`Native HMR unavailable for ${path.relative(cfg.root, file)}: ${nativeError.message || 'Unknown error'}. Falling back to full reload`, { category: 'hmr' });
+          // Don't broadcast 'error' here, just restart
+          broadcast(JSON.stringify({ type: 'full-reload' }));
+        }
+      } catch (e: any) {
+        log.error(`Watcher crash recovery for ${file}:`, e);
+        // Ensure we don't leave the client hanging
+        broadcast(JSON.stringify({
+          type: 'error',
+          error: { message: `Watcher error: ${e.message}`, stack: e.stack }
+        }));
       }
-    } catch (e: any) {
-      log.error(`Watcher crash recovery for ${file}:`, e);
-      // Ensure we don't leave the client hanging
-      broadcast(JSON.stringify({
-        type: 'error',
-        error: { message: `Watcher error: ${e.message}`, stack: e.stack }
-      }));
     }
   });
 
@@ -1600,6 +2086,9 @@ ${raw}
     server.listen(port, () => {
       const protocol = httpsOptions ? 'https' : 'http';
       const url = `${protocol}://${host}:${port}`;
+      // Phase 5.1 — print timing breakdown to stderr
+      _mark('server ready');
+      _printStartupDiagnostics(port);
       if (cfg.server?.open) openBrowser(url);
     });
   } else {

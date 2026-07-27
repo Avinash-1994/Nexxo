@@ -113,15 +113,25 @@ export class PluginManager {
   loadSandboxedPlugin(code: string, permissions: PermissionSet = {}): Plugin {
     const pm = new PermissionManager(permissions);
     const sandbox = new PluginSandbox(pm);
-    const exports = sandbox.run(code);
+    let exports: any;
 
-    // Assuming the plugin exports a default object or named export 'plugin'
-    const plugin = exports.default || exports.plugin || exports;
+    try {
+      exports = sandbox.run(code);
+    } catch (error) {
+      throw new Error(`Sandboxed plugin failed to load: ${error instanceof Error ? error.message : String(error)}`);
+    }
+
+    const plugin = exports?.default || exports?.plugin || exports;
+
+    if (!plugin || typeof plugin !== 'object') {
+      throw new Error('Sandboxed plugin must export a plugin object.');
+    }
 
     if (!plugin.name) {
       throw new Error('Sandboxed plugin must export a "name" property.');
     }
 
+    plugin.permissions = plugin.permissions || permissions;
     return plugin as Plugin;
   }
 }

@@ -66,7 +66,7 @@ export function planBuild(ctx: BuildContext): BuildPlan {
 
     // PRODUCTION TREE-SHAKING: Use native graph analysis to prune unreachable modules
     let reachableModules: Set<string> | null = null;
-    if (ctx.mode === 'production' || ctx.mode === 'build') {
+    if ((ctx.config as any).build?.treeShaking !== false && (ctx.mode === 'production' || ctx.mode === 'build')) {
         try {
             const entryIds = mainEntries.filter(id => ctx.graph.nodes.has(id));
             if (entryIds.length > 0) {

@@ -1,4 +1,4 @@
-# Nuclie Benchmarks (v2.0.2 World Domination)
+# Lunx Benchmarks (v2.0.2 World Domination)
 
 > Date: 2026-01-18
 > Target: #1 Performance and Transparency
@@ -6,11 +6,11 @@
 ## Small App (50 modules)
 | Tool | Cold Start | HMR | Build | Memory | TTFB | Bundle |
 |---|---|---|---|---|---|---|
-| **Nuclie** | **76ms** | **15ms** | 584ms | **0.1MB** | 9ms | 28.6KB |
+| **Lunx** | **76ms** | **15ms** | 584ms | **0.1MB** | 9ms | 28.6KB |
 | **Vite** | 186ms | 30ms | **305ms** | 20.1MB | **7ms** | **6.0KB** |
 
 ## Medium App (1,001 modules)
-| Metric | Vite (Rollup) | **Nuclie v2.0** | Speedup/Saving |
+| Metric | Vite (Rollup) | **Lunx v2.0** | Speedup/Saving |
 |---|---|---|---|
 | **Cold Start** | 231ms | **97ms** | **2.3x** |
 | **Build Time** | 2,376ms | **479ms** | **4.9x** |
@@ -19,9 +19,9 @@
 | **Memory usage** | 20.0MB | **0.06MB** | **333x** |
 
 ## Performance Summary
-- **Cold Start**: Nuclie’s dependency graph is built in parallel using a low-overhead orchestrator.
+- **Cold Start**: Lunx’s dependency graph is built in parallel using a low-overhead orchestrator.
 - **Build Speed**: Parallel native SWC workers processing 1,001 modules on all CPU cores.
-- **Bundle Efficiency**: Custom "Nuclie Lean" transform + Global Native Minification Pass.
+- **Bundle Efficiency**: Custom "Lunx Lean" transform + Global Native Minification Pass.
 
 ## Production Roadmap
 - [x] v2.0.2: Parallel Native Transformation & Global Minification.

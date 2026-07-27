@@ -8,10 +8,20 @@ import { explainReporter } from './events.js';
 import { canonicalHash } from './hash.js';
 import fs from 'fs/promises';
 import path from 'path';
+import { createRequire } from 'module';
+const _require = createRequire(import.meta.url);
 import { generateModuleId, normalizePath } from '../../resolve/utils.js';
 import { Transformer } from '../transform/transformer.js';
 import { GlobalOptimizer } from '../build/globalOptimizer.js';
 import { ShortIdMap } from '../graph/serializer.js';
+
+// Phase 3.1 + 3.2 — Native chunker + source map merger
+let _native: any = null;
+async function getNative() {
+    if (_native) return _native;
+    try { _native = await import('../../native/index.js'); } catch { _native = {}; }
+    return _native;
+}
 
 export async function executeParallel(execPlan: ExecutionPlan, buildPlan: BuildPlan, ctx: BuildContext): Promise<BuildArtifact[]> {
     explainReporter.report('execute', 'start', 'Starting optimized execution');
@@ -21,7 +31,9 @@ export async function executeParallel(execPlan: ExecutionPlan, buildPlan: BuildP
     const isProd = ctx.mode === 'production' || ctx.mode === 'build';
 
     // Phase 2: Short Stable IDs (Persist across chunks for consistency)
-    const shortIdMap = new ShortIdMap();
+    const federationName = ctx.config.federation?.name;
+    const shortIdPrefix = federationName ? `${federationName}_n` : 'n';
+    const shortIdMap = new ShortIdMap(shortIdPrefix);
     const globalOptimizer = new GlobalOptimizer();
 
     for (const group of execPlan.parallelGroups) {
@@ -56,8 +68,21 @@ export async function executeParallel(execPlan: ExecutionPlan, buildPlan: BuildP
 
             // Phase 1: ULTRA-CONDENSED RUNTIME (Globally Shared for Module Federation)
             if (!isCss) {
-                const rt = `(function(g){g.__nm=g.__nm||{};if(!g.d)g.d=(i,f)=>g.__nm[i]=f;if(!g.r)g.r=i=>{if(!g.__nm[i])throw new Error("Module not found: "+i);if(g.__nm[i].z)return g.__nm[i].z;const o={e:{}};g.__nm[i](o,o.e,g.r);return g.__nm[i].z=o.e}})(globalThis);\n`;
-                bundleContent += isProd ? rt : `/* Nuclie Runtime */\n${rt}`;
+                // process shim: React and many libs check process.env.NODE_ENV at runtime
+                const processShim = `if(typeof process==="undefined"){globalThis.process={env:{NODE_ENV:"production"}}}\n`;
+                const rt = `(function(g){g.__nm=g.__nm||{};if(!g.d)g.d=(i,f)=>g.__nm[i]=f;if(!g.r)g.r=i=>{if(!g.__nm[i])throw new Error("Module not found: "+i);if(g.__nm[i].z)return g.__nm[i].z;const o={exports:{}};g.__nm[i](o,o.exports,g.r);return g.__nm[i].z=o.exports}})(globalThis);\n`;
+                let fedRt = '';
+                if (ctx.config.federation && ctx.config.federation.remotes) {
+                    const remotes = ctx.config.federation.remotes as Record<string, string>;
+                    const remotesMap = JSON.stringify(Object.fromEntries(
+                      Object.entries(remotes).map(([name, url]) => {
+                        const normalizedUrl = (typeof url === 'string' ? url : String(url)).replace(/^([A-Za-z0-9_$-]+)@(https?:\/\/.*)$/, '$2');
+                        return [name, normalizedUrl];
+                      })
+                    ));
+                    fedRt = `globalThis.__remotes=${remotesMap};globalThis.__loadRemote=async function(r,m){var u=__remotes[r];if(!window[r]){await new Promise((rs,rj)=>{var s=document.createElement('script');s.type='module';s.crossOrigin='anonymous';s.async=true;s.src=u;s.onload=rs;s.onerror=rj;document.head.appendChild(s)})}var c=window[r];await c.init({});var f=await c.get(m);return f();};\n`;
+                }
+                bundleContent += isProd ? processShim + rt + fedRt : `/* Lunx Runtime */\n${processShim}${rt}${fedRt}`;
             }
 
             const artifactModules: any[] = [];
@@ -92,7 +117,46 @@ export async function executeParallel(execPlan: ExecutionPlan, buildPlan: BuildP
                 }
             }
 
-            // Phase 3.5: TREE SHAKING (Production Only - Before Bundling)
+            // Phase 3.1 — Native DCE via lunxChunk (production only, additive — falls back to existing logic)
+            if (isProd && moduleResults.size > 0) {
+                try {
+                    const nat = await getNative();
+                    if (nat.lunxChunk) {
+                        const graphJson = JSON.stringify({
+                            modules: [...moduleResults.keys()].map(id => {
+                                const node = ctx.graph.nodes.get(id);
+                                return {
+                                    id,
+                                    imports: [...(node?.edges?.map(e => e.to) ?? [])],
+                                    exports: [],
+                                    sizeBytes: moduleResults.get(id)!.code.length
+                                };
+                            })
+                        });
+                        let resolvedEntryPoint = chunk.entry;
+                        if (chunk.entry) {
+                            const absEntry = path.isAbsolute(chunk.entry) ? chunk.entry : path.resolve(ctx.rootDir, chunk.entry);
+                            resolvedEntryPoint = generateModuleId('file', normalizePath(absEntry), ctx.rootDir);
+                        }
+                        
+                        const result = nat.lunxChunk(graphJson, {
+                            strategy: 'auto',
+                            maxChunkSizeKb: 0,
+                            entryPoints: resolvedEntryPoint && moduleResults.has(resolvedEntryPoint) 
+                                ? [resolvedEntryPoint] 
+                                : [...moduleResults.keys()].slice(0, 1)
+                        });
+                        if (result.eliminated?.length > 0) {
+                            for (const id of result.eliminated) moduleResults.delete(id);
+                            explainReporter.report('execute', 'dce', `Native DCE eliminated ${result.eliminated.length} modules`);
+                        }
+                    }
+                } catch (e: any) {
+                    // Native DCE unavailable — existing JS tree-shake handles it
+                }
+            }
+
+            // Phase 3.5 (existing): TREE SHAKING (Production Only - Before Bundling)
             if (isProd && moduleResults.size > 0) {
                 const { AutoFixEngine } = await import('../../fix/ast-transforms.js');
                 const autoFix = new AutoFixEngine();
@@ -140,47 +204,84 @@ export async function executeParallel(execPlan: ExecutionPlan, buildPlan: BuildP
                 const res = moduleResults.get(modId);
                 if (!res) continue;
 
+                const node = ctx.graph.nodes.get(modId);
                 const shortId = shortIdMap.get(modId, isProd);
-                artifactModules.push({ id: modId, shortId, size: res.code.length, originalSize: res.originalSize });
+                artifactModules.push({ 
+                    id: modId, 
+                    shortId, 
+                    size: res.code.length, 
+                    originalSize: res.originalSize,
+                    path: node?.path || modId
+                });
 
                 if (isCss) {
                     bundleContent += `\n/* ${modId} */\n${res.code}`;
                 } else {
-                    // Convert any remaining ESM import statements to require calls
-                    // This handles external libraries that may have hash-based imports
                     let moduleCode = res.code;
 
-                    // Pattern: import React, { Suspense } from "hash16chars"
+                    // SWC compiles to CommonJS, so all imports are already `require("hash16chars")`.
+                    // We must map these 16-char hashes to our short IDs.
                     moduleCode = moduleCode.replace(
-                        /\bimport\s+(\w+)\s*,\s*\{([^}]+)\}\s+from\s+["']([a-f0-9]{16})["'];?/g,
-                        (match, defaultImport, namedImports, hash) => {
-                            return `const ${defaultImport} = require("${hash}"); const {${namedImports}} = require("${hash}");`;
+                        /\brequire\s*\(\s*["']([a-f0-9]{16})["']\s*\)/g,
+                        (match, hash) => {
+                            const targetId = shortIdMap.get(hash, isProd) || hash;
+                            return `require("${targetId}")`;
                         }
                     );
 
-                    // Pattern: import { x, y } from "hash16chars"
+                    // Map ALL require() calls (relative, bare, scoped) to registered short IDs.
+                    // Uses specifierMap from graph for known deps, and falls back to runtime
+                    // require.resolve for SWC-injected specifiers like 'react/jsx-runtime'.
+                    const graphNode = ctx.graph.nodes.get(modId);
+                    const specMap = graphNode?.specifierMap || {};
+                    const moduleDirPath = graphNode?.path ? path.dirname(graphNode.path) : ctx.rootDir;
+
+                    // Step 1: Resolve relative requires via specMap
                     moduleCode = moduleCode.replace(
-                        /\bimport\s+\{([^}]+)\}\s+from\s+["']([a-f0-9]{16})["'];?/g,
-                        'const {$1} = require("$2");'
+                        /\brequire\s*\(\s*["'](\.{1,2}\/[^"']+)["']\s*\)/g,
+                        (match, relPath) => {
+                            const depId = specMap[relPath];
+                            if (depId) {
+                                return `require("${shortIdMap.get(depId, isProd) || depId}")`;
+                            }
+                            return match;
+                        }
                     );
 
-                    // Pattern: import x from "hash16chars"
+                    // Step 2: Resolve bare/scoped specifiers via specMap first, then Node resolve
                     moduleCode = moduleCode.replace(
-                        /\bimport\s+(\w+)\s+from\s+["']([a-f0-9]{16})["'];?/g,
-                        'const $1 = require("$2");'
+                        /\brequire\s*\(\s*["'](@?(?:[a-zA-Z@][^"'\.\s][^"']*|[a-zA-Z][^"'\s/][^"']*\/[^"']+))["']\s*\)/g,
+                        (match, specifier) => {
+                            // Try specifierMap first
+                            const depId = specMap[specifier];
+                            if (depId) {
+                                return `require("${shortIdMap.get(depId, isProd) || depId}")`;
+                            }
+                            // Fall back: resolve via Node and look up in graph
+                            try {
+                                const resolved = _require.resolve(specifier, { paths: [moduleDirPath, ctx.rootDir] });
+                                const normalized = normalizePath(resolved);
+                                const resolvedId = generateModuleId('file', normalized, ctx.rootDir);
+                                const shortId2 = shortIdMap.get(resolvedId, isProd);
+                                // Only replace if the module is actually in our bundle
+                                if (ctx.graph.nodes.has(resolvedId)) {
+                                    return `require("${shortId2 || resolvedId}")`;
+                                }
+                            } catch (_) { /* ignore unresolvable */ }
+                            return match;
+                        }
                     );
 
-                    // Pattern: import * as x from "hash16chars"
-                    moduleCode = moduleCode.replace(
-                        /\bimport\s+\*\s+as\s+(\w+)\s+from\s+["']([a-f0-9]{16})["'];?/g,
-                        'const $1 = require("$2");'
-                    );
-
-                    // Pattern: import "hash16chars"
-                    moduleCode = moduleCode.replace(
-                        /\bimport\s+["']([a-f0-9]{16})["'];?/g,
-                        'require("$1");'
-                    );
+                    // Step 3: Map SWC dynamic imports of federated remotes to window.__loadRemote
+                    if (ctx.config.federation && ctx.config.federation.remotes) {
+                        const remoteNames = Object.keys(ctx.config.federation.remotes).join('|');
+                        if (remoteNames) {
+                            const dynImportRegex = new RegExp(`\\bimport\\s*\\(\\s*["'](${remoteNames})\\/([^"']+)["']\\s*\\)`, 'g');
+                            moduleCode = moduleCode.replace(dynImportRegex, (match, remote, mod) => {
+                                return `globalThis.__loadRemote("${remote}", "./${mod}")`;
+                            });
+                        }
+                    }
 
                     // Always use 'globalThis.d' as defined in condensed runtime
                     bundleContent += `\nglobalThis.d("${shortId}",function(module,exports,require,h){\n${moduleCode}\n});`;
@@ -208,19 +309,35 @@ export async function executeParallel(execPlan: ExecutionPlan, buildPlan: BuildP
 
             // Generate source map if enabled
             if (!isCss && ctx.config.sourceMaps) {
-                const sourceMapContent = {
-                    version: 3,
-                    sources: chunk.modules.map(modId => {
-                        const node = ctx.graph.nodes.get(modId);
-                        return node?.path || modId;
-                    }),
-                    names: [],
-                    mappings: '', // Basic mapping - can be enhanced later
-                    file: chunk.outputName
-                };
+                // Phase 3.2 — Try native mergeSourceMaps to compose SWC + LightningCSS maps
+                let sourceMapJson = '';
+                try {
+                    const nat = await getNative();
+                    if (nat.mergeSourceMaps) {
+                        // Collect individual per-module maps emitted during transform
+                        const perModuleMaps = [...chunk.modules]
+                            .map(id => (moduleResults.get(id) as any)?.map)
+                            .filter(Boolean) as string[];
+                        if (perModuleMaps.length > 0) {
+                            sourceMapJson = nat.mergeSourceMaps(perModuleMaps);
+                        }
+                    }
+                } catch { /* fallback to hand-made map below */ }
 
-                const sourceMapJson = JSON.stringify(sourceMapContent);
-
+                if (!sourceMapJson) {
+                    // Fallback: hand-made skeleton map (same as before)
+                    const sourceMapContent = {
+                        version: 3,
+                        sources: chunk.modules.map(modId => {
+                            const node = ctx.graph.nodes.get(modId);
+                            return node?.path || modId;
+                        }),
+                        names: [],
+                        mappings: '',
+                        file: chunk.outputName
+                    };
+                    sourceMapJson = JSON.stringify(sourceMapContent);
+                }
                 if (ctx.config.sourceMaps === 'inline') {
                     // Inline source map
                     artifact.source += `\n//# sourceMappingURL=data:application/json;base64,${Buffer.from(sourceMapJson).toString('base64')}`;

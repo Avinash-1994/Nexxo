@@ -1,7 +1,7 @@
 {
-  "name": "@nuclie/plugin-visualizer",
+  "name": "@lunx/plugin-visualizer",
   "version": "1.0.0",
-  "description": "Official Nuclie plugin for bundle visualization — treemap HTML report of bundle composition",
+  "description": "Official Lunx plugin for bundle visualization — treemap HTML report of bundle composition",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -16,11 +16,11 @@
     "build": "tsc",
     "test": "node --test src/__tests__/index.test.js"
   },
-  "keywords": ["nuclie", "plugin", "visualizer", "bundle-size", "treemap", "analysis"],
+  "keywords": ["lunx", "plugin", "visualizer", "bundle-size", "treemap", "analysis"],
   "author": "Avinash-1994",
   "license": "MIT",
   "peerDependencies": {
-    "nuclie": ">=1.0.0"
+    "lunx": ">=1.0.0"
   },
   "devDependencies": {
     "typescript": "^5.4.2"

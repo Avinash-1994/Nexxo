@@ -1,0 +1,19 @@
+{
+  "entry": [
+    "src/main.ts"
+  ],
+  "preset": "spa",
+  "federation": {
+    "name": "conflictApp",
+    "remotes": {
+      "app1": "app1@http://localhost:3001/remoteEntry.js",
+      "app2": "app2@http://localhost:3002/remoteEntry.js"
+    },
+    "shared": {
+      "lodash": {
+        "singleton": false,
+        "requiredVersion": "^4.17.0"
+      }
+    }
+  }
+}

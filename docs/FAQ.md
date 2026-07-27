@@ -1,10 +1,10 @@
 FAQ — Common questions answered simply
 
 Q: Dev server not showing changes?
-A: Check the terminal for errors. If there are no errors, try reloading the page. If still not working, delete `.nuclie_cache/` and restart.
+A: Check the terminal for errors. If there are no errors, try reloading the page. If still not working, delete `.lunx_cache/` and restart.
 
 Q: Build fails saying entry not found
-A: Ensure `nuclie.config.json` has the correct `entry` path or put your app entry in `src/main.tsx`.
+A: Ensure `lunx.config.json` has the correct `entry` path or put your app entry in `src/main.tsx`.
 
 Q: How do I disable caching?
-A: Delete the `.nuclie_cache` folder before building. We'll add a CLI flag to disable cache soon.
+A: Delete the `.lunx_cache` folder before building. We'll add a CLI flag to disable cache soon.

@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const docs = await getCollection('docs');
+const sorted = docs.sort((a, b) => a.data.order - b.data.order);
+---
+<BaseLayout title="Docs | Lunx Astro Platform">
+  <h1>Documentation</h1>
+  <nav class="docs-nav">
+    {sorted.map(doc => <a href={`/docs/${doc.slug}`}>{doc.data.title}</a>)}
+  </nav>
+</BaseLayout>

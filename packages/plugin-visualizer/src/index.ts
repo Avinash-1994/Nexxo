@@ -1,11 +1,12 @@
-import type { Plugin } from '../../src/types.js';
+// Plugin type compatible with both Lunx and Vite plugin API
+type Plugin = { name: string; [hook: string]: any };
 import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 export interface VisualizerPluginOptions {
   /** Output file path for the HTML report (default: 'dist/stats.html') */
   filename?: string;
-  /** Title for the HTML report (default: 'Nuclie Bundle Visualizer') */
+  /** Title for the HTML report (default: 'Lunx Bundle Visualizer') */
   title?: string;
   /** Open the report in browser after build (default: false) */
   open?: boolean;
@@ -22,16 +23,16 @@ interface ModuleInfo {
 }
 
 /**
- * @nuclie/plugin-visualizer
+ * @lunx/plugin-visualizer
  *
- * Official Nuclie plugin for bundle visualization:
+ * Official Lunx plugin for bundle visualization:
  * - Outputs an interactive HTML treemap showing bundle composition
  * - Shows module sizes, chunk assignments, and import relationships
  * - Similar to rollup-plugin-visualizer / webpack-bundle-analyzer
  *
  * @example
  * ```js
- * const visualizer = require('@nuclie/plugin-visualizer');
+ * const visualizer = require('@lunx/plugin-visualizer');
  * module.exports = {
  *   plugins: [
  *     visualizer({ filename: 'dist/stats.html', open: true })
@@ -42,7 +43,7 @@ interface ModuleInfo {
 export function visualizerPlugin(options: VisualizerPluginOptions = {}): Plugin {
   const {
     filename = 'dist/stats.html',
-    title = 'Nuclie Bundle Visualizer',
+    title = 'Lunx Bundle Visualizer',
     open = false,
     template = 'treemap',
     gzipSize = true,
@@ -51,7 +52,7 @@ export function visualizerPlugin(options: VisualizerPluginOptions = {}): Plugin 
   const modules: ModuleInfo[] = [];
 
   return {
-    name: '@nuclie/plugin-visualizer',
+    name: '@lunx/plugin-visualizer',
 
     /**
      * Transform hook: record module size for visualization.
@@ -187,8 +188,8 @@ function generateHtmlReport(
 
   <script>
     const data = ${JSON.stringify(treemapData)};
-    console.log('[Nuclie Visualizer] Loaded', data.length, 'modules');
-    console.log('[Nuclie Visualizer] Total size:', ${totalSize}, 'bytes');
+    console.log('[Lunx Visualizer] Loaded', data.length, 'modules');
+    console.log('[Lunx Visualizer] Total size:', ${totalSize}, 'bytes');
   </script>
 </body>
 </html>`;

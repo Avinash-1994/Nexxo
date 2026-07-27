@@ -1,6 +1,6 @@
 /**
  * Real Project Matrix Test Runner
- * Tests Nuclie against 8 production open-source projects
+ * Tests Lunx against 8 production open-source projects
  */
 
 import { spawn, exec } from 'child_process';
@@ -11,8 +11,8 @@ import { performance } from 'perf_hooks';
 import { Verifier } from './verifier';
 
 const execAsync = promisify(exec);
-const NUCLIE_BIN = path.resolve(__dirname, '../../../../dist/cli.js');
-const NUCLIE_ERRORS_LOG = path.resolve(__dirname, '../../../../NUCLIE_BUILD_ERRORS.md');
+const LUNX_BIN = path.resolve(__dirname, '../../../../dist/cli.js');
+const LUNX_ERRORS_LOG = path.resolve(__dirname, '../../../../LUNX_BUILD_ERRORS.md');
 const FEATURE_REPORT = path.resolve(__dirname, '../FEATURE_FAILURE_REPORT.md');
 
 // Project definitions
@@ -233,10 +233,10 @@ export class RealProjectMatrixRunner {
     }
 
     /**
-     * Phase 1.6: Create Nuclie configs for all projects
+     * Phase 1.6: Create Lunx configs for all projects
      */
-    async createNuclieConfigs(): Promise<void> {
-        console.log('\n⚙️  Creating Nuclie configs...\n');
+    async createLunxConfigs(): Promise<void> {
+        console.log('\n⚙️  Creating Lunx configs...\n');
 
         const configsDir = path.join(this.workspaceRoot, 'configs');
         if (!fs.existsSync(configsDir)) {
@@ -249,9 +249,9 @@ export class RealProjectMatrixRunner {
             const projectRoot = path.join(this.workspaceRoot, project.path);
             const projectPath = project.targetDir ? path.join(projectRoot, project.targetDir) : projectRoot;
 
-            const oldJsConfig = path.join(projectPath, 'nuclie.config.js');
+            const oldJsConfig = path.join(projectPath, 'lunx.config.js');
             if (fs.existsSync(oldJsConfig)) {
-                console.log(`  🗑️  Removing ${project.name}/nuclie.config.js`);
+                console.log(`  🗑️  Removing ${project.name}/lunx.config.js`);
                 fs.unlinkSync(oldJsConfig);
             }
         }
@@ -269,12 +269,12 @@ export class RealProjectMatrixRunner {
 
             console.log(`⚙️  Creating config for ${project.name}...`);
 
-            const config = this.generateNuclieConfig(project);
+            const config = this.generateLunxConfig(project);
             fs.writeFileSync(configPath, config);
 
             // Clean up any old .js OR .cjs configs in project dir to avoid conflicts
-            const oldJsConfig = path.join(projectPath, 'nuclie.config.js');
-            const oldCjsConfig = path.join(projectPath, 'nuclie.config.cjs');
+            const oldJsConfig = path.join(projectPath, 'lunx.config.js');
+            const oldCjsConfig = path.join(projectPath, 'lunx.config.cjs');
 
             if (fs.existsSync(oldJsConfig)) {
                 console.log(`🧹 Removing legacy .js config from ${project.name}`);
@@ -285,16 +285,16 @@ export class RealProjectMatrixRunner {
             }
 
             // Also copy to project directory
-            const projectConfigPath = path.join(projectPath, 'nuclie.config.cjs');
+            const projectConfigPath = path.join(projectPath, 'lunx.config.cjs');
             fs.writeFileSync(projectConfigPath, config);
 
             console.log(`✅ Config created for ${project.name}`);
         }
 
-        console.log('\n✅ Nuclie configs created!\n');
+        console.log('\n✅ Lunx configs created!\n');
     }
 
-    private generateNuclieConfig(project: Project): string {
+    private generateLunxConfig(project: Project): string {
         const entry = project.entry ? `['${project.entry}']` : null;
 
         const frameworkConfigs: Record<string, string> = {
@@ -315,7 +315,7 @@ module.exports = {
     hmr: true,
   },
   federation: {
-    name: 'nuclie_remote',
+    name: 'lunx_remote',
     filename: 'remoteEntry.js',
     exposes: {
       './App': './src/index.tsx'
@@ -339,7 +339,7 @@ module.exports = {
     hmr: true,
   },
   federation: {
-    name: 'nuclie_remote',
+    name: 'lunx_remote',
     filename: 'remoteEntry.js',
     exposes: {
       './App': './src/main.ts'
@@ -362,7 +362,7 @@ module.exports = {
     hmr: true,
   },
   federation: {
-    name: 'nuclie_remote',
+    name: 'lunx_remote',
     filename: 'remoteEntry.js',
     exposes: {
       './App': './src/main.ts'
@@ -385,7 +385,7 @@ module.exports = {
     hmr: true,
   },
   federation: {
-    name: 'nuclie_remote',
+    name: 'lunx_remote',
     filename: 'remoteEntry.js',
     exposes: {
       './Content': './packages/alpinejs/src/index.js'
@@ -407,7 +407,7 @@ module.exports = {
         console.log('\n🧪 PHASE 2: Running feature tests...\n');
 
         // Ensure configs are up-to-date locally before running
-        await this.createNuclieConfigs();
+        await this.createLunxConfigs();
 
         const features = this.getFeatures();
         const projectsToTest = projectFilter
@@ -488,10 +488,10 @@ module.exports = {
                     const projectPath = project.targetDir ? path.join(root, project.path, project.targetDir) : path.join(root, project.path);
                     console.log(`    ⚡ Starting HMR test for ${project.name} in ${projectPath}`);
 
-                    // Logic: Start nuclie dev, change a file, measure output
+                    // Logic: Start lunx dev, change a file, measure output
                     const startTime = performance.now();
                     try {
-                        // Simulated for now, will be wired to actual nuclie binary
+                        // Simulated for now, will be wired to actual lunx binary
                         const duration = Math.floor(Math.random() * 50) + 10;
                         return {
                             status: '✅',
@@ -511,8 +511,8 @@ module.exports = {
                 test: async (project, root) => {
                     const projectPath = project.targetDir ? path.join(root, project.path, project.targetDir) : path.join(root, project.path);
                     try {
-                        // Run nuclie build
-                        const buildCmd = `node ${NUCLIE_BIN} build`;
+                        // Run lunx build
+                        const buildCmd = `node ${LUNX_BIN} build`;
                         await execAsync(buildCmd, { cwd: projectPath });
                         const result = await Verifier.verifyCSSModules(projectPath, 'dist');
                         return {
@@ -522,7 +522,7 @@ module.exports = {
                         };
                     } catch (e) {
                         const errorMsg = `[CSS Modules] [${project.id}] Failed: ${e}\n`;
-                        fs.appendFileSync(NUCLIE_ERRORS_LOG, errorMsg);
+                        fs.appendFileSync(LUNX_ERRORS_LOG, errorMsg);
                         return { status: '❌', value: 'failed', details: String(e) };
                     }
                 },
@@ -534,7 +534,7 @@ module.exports = {
                 test: async (project, root) => {
                     const projectPath = project.targetDir ? path.join(root, project.path, project.targetDir) : path.join(root, project.path);
                     try {
-                        const buildCmd = `node ${NUCLIE_BIN} build`;
+                        const buildCmd = `node ${LUNX_BIN} build`;
                         await execAsync(buildCmd, { cwd: projectPath });
                         // Check for tailwind markers in dist
                         return {
@@ -544,7 +544,7 @@ module.exports = {
                         };
                     } catch (e) {
                         const errorMsg = `[Tailwind] [${project.id}] Failed: ${e}\n`;
-                        fs.appendFileSync(NUCLIE_ERRORS_LOG, errorMsg);
+                        fs.appendFileSync(LUNX_ERRORS_LOG, errorMsg);
                         return { status: '⚠️', value: 'skipped', details: 'Tailwind not detected' };
                     }
                 },
@@ -556,7 +556,7 @@ module.exports = {
                 test: async (project, root) => {
                     const projectPath = project.targetDir ? path.join(root, project.path, project.targetDir) : path.join(root, project.path);
                     try {
-                        const buildCmd = `node ${NUCLIE_BIN} build --sourcemap`;
+                        const buildCmd = `node ${LUNX_BIN} build --sourcemap`;
                         await execAsync(buildCmd, { cwd: projectPath });
                         return {
                             status: '✅',
@@ -565,7 +565,7 @@ module.exports = {
                         };
                     } catch (e) {
                         const errorMsg = `[TypeScript] [${project.id}] Failed: ${e}\n`;
-                        fs.appendFileSync(NUCLIE_ERRORS_LOG, errorMsg);
+                        fs.appendFileSync(LUNX_ERRORS_LOG, errorMsg);
                         return { status: '❌', value: 'error', details: String(e) };
                     }
                 },
@@ -577,7 +577,7 @@ module.exports = {
                 test: async (project, root) => {
                     const projectPath = project.targetDir ? path.join(root, project.path, project.targetDir) : path.join(root, project.path);
                     try {
-                        const buildCmd = `node ${NUCLIE_BIN} build`;
+                        const buildCmd = `node ${LUNX_BIN} build`;
                         await execAsync(buildCmd, { cwd: projectPath });
                         const result = await Verifier.verifyTreeShaking(projectPath, 'dist', 'UNUSED_EXPORT_MARKER');
                         return {
@@ -587,7 +587,7 @@ module.exports = {
                         };
                     } catch (e) {
                         const errorMsg = `[Tree Shake] [${project.id}] Failed: ${e}\n`;
-                        fs.appendFileSync(NUCLIE_ERRORS_LOG, errorMsg);
+                        fs.appendFileSync(LUNX_ERRORS_LOG, errorMsg);
                         return { status: '❌', value: 'failed', details: String(e) };
                     }
                 },
@@ -599,7 +599,7 @@ module.exports = {
                 test: async (project, root) => {
                     const projectPath = project.targetDir ? path.join(root, project.path, project.targetDir) : path.join(root, project.path);
                     try {
-                        const buildCmd = `node ${NUCLIE_BIN} build --ssr`;
+                        const buildCmd = `node ${LUNX_BIN} build --ssr`;
                         await execAsync(buildCmd, { cwd: projectPath });
                         return {
                             status: '✅',
@@ -608,7 +608,7 @@ module.exports = {
                         };
                     } catch (e) {
                         const errorMsg = `[SSR] [${project.id}] Failed: ${e}\n`;
-                        fs.appendFileSync(NUCLIE_ERRORS_LOG, errorMsg);
+                        fs.appendFileSync(LUNX_ERRORS_LOG, errorMsg);
                         return { status: '⚠️', value: 'N/A', details: 'Project does not support SSR' };
                     }
                 },
@@ -620,7 +620,7 @@ module.exports = {
                 test: async (project, root) => {
                     const projectPath = project.targetDir ? path.join(root, project.path, project.targetDir) : path.join(root, project.path);
                     try {
-                        const buildCmd = `node ${NUCLIE_BIN} build`;
+                        const buildCmd = `node ${LUNX_BIN} build`;
                         await execAsync(buildCmd, { cwd: projectPath });
                         const result = await Verifier.verifyLibMode(projectPath, 'dist');
                         return {
@@ -630,7 +630,7 @@ module.exports = {
                         };
                     } catch (e) {
                         const errorMsg = `[Lib Mode] [${project.id}] Failed: ${e}\n`;
-                        fs.appendFileSync(NUCLIE_ERRORS_LOG, errorMsg);
+                        fs.appendFileSync(LUNX_ERRORS_LOG, errorMsg);
                         return { status: '❌', value: 'failed', details: String(e) };
                     }
                 },
@@ -737,7 +737,7 @@ module.exports = {
      * Generate markdown report
      */
     private generateMarkdownReport(): string {
-        let md = '# 🎯 Nuclie Real Project Matrix Results\n\n';
+        let md = '# 🎯 Lunx Real Project Matrix Results\n\n';
         md += `**Generated:** ${new Date().toISOString()}\n\n`;
         md += '## Summary\n\n';
 
@@ -787,7 +787,7 @@ module.exports = {
 
         await this.cloneProjects();
         await this.installDependencies();
-        await this.createNuclieConfigs();
+        await this.createLunxConfigs();
         await this.runFeatureTests();
         await this.generateReports();
 
@@ -832,7 +832,7 @@ if (require.main === module) {
     } else if (args.includes('--install')) {
         runner.installDependencies().catch(console.error);
     } else if (args.includes('--config')) {
-        runner.createNuclieConfigs().catch(console.error);
+        runner.createLunxConfigs().catch(console.error);
     } else if (args.includes('--test')) {
         const projectIdx = args.indexOf('--project');
         const featureIdx = args.indexOf('--feature');
@@ -851,7 +851,7 @@ Usage:
   node runner.ts --all                    Run full matrix (all phases)
   node runner.ts --clone                  Clone all projects
   node runner.ts --install                Install dependencies
-  node runner.ts --config                 Create Nuclie configs
+  node runner.ts --config                 Create Lunx configs
   node runner.ts --test                   Run feature tests
   node runner.ts --test --project <id>    Test specific project
   node runner.ts --test --feature <id>    Test specific feature

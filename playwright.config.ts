@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * Playwright configuration for Nuclie visual regression tests
+ * Playwright configuration for Lunx visual regression tests
  * 
  * See https://playwright.dev/docs/test-configuration
  */

@@ -1,15 +1,15 @@
 # Svelte 5 Guide
 
-> Build Svelte 5 apps with Nuclie — component HMR, Runes, TypeScript, scoped styles.
+> Build Svelte 5 apps with Lunx — component HMR, Runes, TypeScript, scoped styles.
 
 ---
 
 ## Quick Start
 
 ```bash
-nuclie bootstrap --name my-svelte-app --template svelte-ts
+lunx bootstrap --name my-svelte-app --template svelte-ts
 cd my-svelte-app
-nuclie dev
+lunx dev
 ```
 
 ---
@@ -19,10 +19,10 @@ nuclie dev
 ### 1. Install
 
 ```bash
-npm install --save-dev nuclie svelte typescript
+npm install --save-dev lunx svelte typescript
 ```
 
-### 2. Create `nuclie.config.js`
+### 2. Create `lunx.config.js`
 
 **JavaScript:**
 ```js
@@ -37,7 +37,7 @@ module.exports = {
 
 **TypeScript:**
 ```ts
-import { defineConfig } from 'nuclie';
+import { defineConfig } from 'lunx';
 
 export default defineConfig({
   entry: ['./src/main.ts'],
@@ -66,7 +66,7 @@ export default app;
 </script>
 
 <main>
-  <h1>Hello from Nuclie + Svelte 5</h1>
+  <h1>Hello from Lunx + Svelte 5</h1>
   <button onclick={() => count++}>Count: {count}</button>
 </main>
 
@@ -111,7 +111,7 @@ Svelte 5 introduces **Runes** — a new reactivity primitive:
 
 ## HMR — Component Hot-Reload
 
-Nuclie integrates **svelte-hmr** for `.svelte` files:
+Lunx integrates **svelte-hmr** for `.svelte` files:
 
 - Component state is **reset** on save (Svelte's HMR model)
 - Styles hot-injected without reload
@@ -226,7 +226,7 @@ npm install -D less
 ## Production Build
 
 ```bash
-nuclie build
+lunx build
 ```
 
 Output:

@@ -1,7 +1,7 @@
 /**
  * src/commands/lib-build.ts
  *
- * Library mode — builds nuclie projects as npm packages.
+ * Library mode — builds lunx projects as npm packages.
  * Produces ES + CJS + UMD/IIFE outputs with proper externals.
  *
  * Wire into cli.ts build command:
@@ -14,7 +14,7 @@ import fs from 'fs'
 import { build } from 'esbuild'
 import type { BuildConfig } from '../config/index.js'
 
-export interface NuclieLibConfig {
+export interface LunxLibConfig {
   entry: string
   name?: string
   formats?: string[]
@@ -35,7 +35,7 @@ const FORMAT_EXTENSIONS: Record<string, string> = {
 }
 
 function resolveFileName(
-  lib: NuclieLibConfig,
+  lib: LunxLibConfig,
   format: string
 ): string {
   if (typeof lib.fileName === 'function') {
@@ -49,7 +49,7 @@ function resolveFileName(
   return `${base}${FORMAT_EXTENSIONS[format] ?? '.js'}`
 }
 
-export async function buildLib(config: BuildConfig, lib: NuclieLibConfig): Promise<LibBuildResult> {
+export async function buildLib(config: BuildConfig, lib: LunxLibConfig): Promise<LibBuildResult> {
   const outDir = path.resolve(process.cwd(), config.outDir ?? 'build_output')
   const formats = lib.formats ?? ['es', 'cjs']
   const externals = lib.externals ?? []
@@ -124,7 +124,7 @@ export async function buildLib(config: BuildConfig, lib: NuclieLibConfig): Promi
   }
 }
 
-async function generateDts(lib: NuclieLibConfig, outDir: string): Promise<void> {
+async function generateDts(lib: LunxLibConfig, outDir: string): Promise<void> {
   try {
     // Use tsc if available
     const { execSync } = await import('child_process')
@@ -140,7 +140,7 @@ async function generateDts(lib: NuclieLibConfig, outDir: string): Promise<void> 
 }
 
 function printExportsAdvice(
-  lib: NuclieLibConfig,
+  lib: LunxLibConfig,
   formats: string[],
   outDir: string,
   outDirName: string

@@ -1,0 +1,1 @@
+{ "name": "@acme/customer", "version": "0.0.1", "dependencies": { "@acme/ui": "workspace:*", "@acme/utils": "workspace:*", "react": "^18.0.0" } }

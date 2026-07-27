@@ -40,7 +40,7 @@ export class PluginImplementationGenerator {
     }
 
     private async generatePlugin(plugin: PluginTemplate): Promise<void> {
-        const fileName = plugin.name.replace('@nuclie/plugin-', '') + '.ts';
+        const fileName = plugin.name.replace('@lunx/plugin-', '') + '.ts';
         const filePath = path.join(PLUGINS_DIR, fileName);
 
         let code: string;
@@ -88,13 +88,13 @@ export class PluginImplementationGenerator {
     }
 
     private generateFrameworkPlugin(plugin: PluginTemplate): string {
-        const pluginName = plugin.name.replace('@nuclie/plugin-', '');
+        const pluginName = plugin.name.replace('@lunx/plugin-', '');
         const framework = pluginName.split('-')[0];
 
         return `/**
  * ${plugin.name}
  * ${plugin.description}
- * ${plugin.source === 'vite-port' ? `Ported from: ${plugin.originalPlugin}` : 'Nuclie-native'}
+ * ${plugin.source === 'vite-port' ? `Ported from: ${plugin.originalPlugin}` : 'Lunx-native'}
  */
 
 import { PluginAdapter } from '../ported/adapter.js';
@@ -102,7 +102,7 @@ import { PluginAdapter } from '../ported/adapter.js';
 export function create${this.capitalize(pluginName)}Plugin(): PluginAdapter {
     return {
         name: '${plugin.name}',
-        originalPlugin: '${plugin.originalPlugin || 'nuclie-native'}',
+        originalPlugin: '${plugin.originalPlugin || 'lunx-native'}',
         
         async transform(code: string, id: string) {
             // ${framework} transformation
@@ -136,7 +136,7 @@ export default create${this.capitalize(pluginName)}Plugin;
     }
 
     private generateCSSPlugin(plugin: PluginTemplate): string {
-        const pluginName = plugin.name.replace('@nuclie/plugin-', '');
+        const pluginName = plugin.name.replace('@lunx/plugin-', '');
 
         return `/**
  * ${plugin.name}
@@ -148,7 +148,7 @@ import { PluginAdapter } from '../ported/adapter.js';
 export function create${this.capitalize(pluginName)}Plugin(): PluginAdapter {
     return {
         name: '${plugin.name}',
-        originalPlugin: '${plugin.originalPlugin || 'nuclie-native'}',
+        originalPlugin: '${plugin.originalPlugin || 'lunx-native'}',
         
         async transform(code: string, id: string) {
             // CSS transformation for ${pluginName}
@@ -173,7 +173,7 @@ export default create${this.capitalize(pluginName)}Plugin;
     }
 
     private generateAssetPlugin(plugin: PluginTemplate): string {
-        const pluginName = plugin.name.replace('@nuclie/plugin-', '');
+        const pluginName = plugin.name.replace('@lunx/plugin-', '');
 
         return `/**
  * ${plugin.name}
@@ -187,7 +187,7 @@ import path from 'path';
 export function create${this.capitalize(pluginName)}Plugin(): PluginAdapter {
     return {
         name: '${plugin.name}',
-        originalPlugin: '${plugin.originalPlugin || 'nuclie-native'}',
+        originalPlugin: '${plugin.originalPlugin || 'lunx-native'}',
         
         async load(id: string) {
             // Asset loading for ${pluginName}
@@ -212,7 +212,7 @@ export default create${this.capitalize(pluginName)}Plugin;
     }
 
     private generatePerfPlugin(plugin: PluginTemplate): string {
-        const pluginName = plugin.name.replace('@nuclie/plugin-', '');
+        const pluginName = plugin.name.replace('@lunx/plugin-', '');
 
         return `/**
  * ${plugin.name}
@@ -224,7 +224,7 @@ import { PluginAdapter } from '../ported/adapter.js';
 export function create${this.capitalize(pluginName)}Plugin(): PluginAdapter {
     return {
         name: '${plugin.name}',
-        originalPlugin: '${plugin.originalPlugin || 'nuclie-native'}',
+        originalPlugin: '${plugin.originalPlugin || 'lunx-native'}',
         
         async buildStart() {
             console.log('[${plugin.name}] Starting performance optimization...');
@@ -246,7 +246,7 @@ export default create${this.capitalize(pluginName)}Plugin;
     }
 
     private generateSecurityPlugin(plugin: PluginTemplate): string {
-        const pluginName = plugin.name.replace('@nuclie/plugin-', '');
+        const pluginName = plugin.name.replace('@lunx/plugin-', '');
 
         return `/**
  * ${plugin.name}
@@ -258,7 +258,7 @@ import { PluginAdapter } from '../ported/adapter.js';
 export function create${this.capitalize(pluginName)}Plugin(): PluginAdapter {
     return {
         name: '${plugin.name}',
-        originalPlugin: '${plugin.originalPlugin || 'nuclie-native'}',
+        originalPlugin: '${plugin.originalPlugin || 'lunx-native'}',
         
         async transform(code: string, id: string) {
             // Security check: ${plugin.description}
@@ -290,7 +290,7 @@ export default create${this.capitalize(pluginName)}Plugin;
     }
 
     private generateFintechPlugin(plugin: PluginTemplate): string {
-        const pluginName = plugin.name.replace('@nuclie/plugin-', '');
+        const pluginName = plugin.name.replace('@lunx/plugin-', '');
 
         return `/**
  * ${plugin.name}
@@ -302,7 +302,7 @@ import { PluginAdapter } from '../ported/adapter.js';
 export function create${this.capitalize(pluginName)}Plugin(): PluginAdapter {
     return {
         name: '${plugin.name}',
-        originalPlugin: 'nuclie-native',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // Fintech integration: ${plugin.description}
@@ -321,7 +321,7 @@ export default create${this.capitalize(pluginName)}Plugin;
     }
 
     private generateUtilityPlugin(plugin: PluginTemplate): string {
-        const pluginName = plugin.name.replace('@nuclie/plugin-', '');
+        const pluginName = plugin.name.replace('@lunx/plugin-', '');
 
         return `/**
  * ${plugin.name}
@@ -333,7 +333,7 @@ import { PluginAdapter } from '../ported/adapter.js';
 export function create${this.capitalize(pluginName)}Plugin(): PluginAdapter {
     return {
         name: '${plugin.name}',
-        originalPlugin: '${plugin.originalPlugin || 'nuclie-native'}',
+        originalPlugin: '${plugin.originalPlugin || 'lunx-native'}',
         
         async transform(code: string, id: string) {
             // Utility: ${plugin.description}
@@ -363,7 +363,7 @@ export default create${this.capitalize(pluginName)}Plugin;
     }
 
     private generateI18nPlugin(plugin: PluginTemplate): string {
-        const pluginName = plugin.name.replace('@nuclie/plugin-', '');
+        const pluginName = plugin.name.replace('@lunx/plugin-', '');
         return `/**
  * ${plugin.name}
  * ${plugin.description}
@@ -374,7 +374,7 @@ import { PluginAdapter } from '../ported/adapter.js';
 export function create${this.capitalize(pluginName)}Plugin(): PluginAdapter {
     return {
         name: '${plugin.name}',
-        originalPlugin: 'nuclie-native',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // i18n: ${plugin.description}
@@ -392,7 +392,7 @@ export default create${this.capitalize(pluginName)}Plugin;
     }
 
     private generateTestingPlugin(plugin: PluginTemplate): string {
-        const pluginName = plugin.name.replace('@nuclie/plugin-', '');
+        const pluginName = plugin.name.replace('@lunx/plugin-', '');
         return `/**
  * ${plugin.name}
  * ${plugin.description}
@@ -403,7 +403,7 @@ import { PluginAdapter } from '../ported/adapter.js';
 export function create${this.capitalize(pluginName)}Plugin(): PluginAdapter {
     return {
         name: '${plugin.name}',
-        originalPlugin: 'nuclie-native',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // Testing: ${plugin.description}
@@ -421,7 +421,7 @@ export default create${this.capitalize(pluginName)}Plugin;
     }
 
     private generateStatePlugin(plugin: PluginTemplate): string {
-        const pluginName = plugin.name.replace('@nuclie/plugin-', '');
+        const pluginName = plugin.name.replace('@lunx/plugin-', '');
         return `/**
  * ${plugin.name}
  * ${plugin.description}
@@ -432,7 +432,7 @@ import { PluginAdapter } from '../ported/adapter.js';
 export function create${this.capitalize(pluginName)}Plugin(): PluginAdapter {
     return {
         name: '${plugin.name}',
-        originalPlugin: 'nuclie-native',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // State management: ${plugin.description}
@@ -450,7 +450,7 @@ export default create${this.capitalize(pluginName)}Plugin;
     }
 
     private generateDeploymentPlugin(plugin: PluginTemplate): string {
-        const pluginName = plugin.name.replace('@nuclie/plugin-', '');
+        const pluginName = plugin.name.replace('@lunx/plugin-', '');
         return `/**
  * ${plugin.name}
  * ${plugin.description}
@@ -461,7 +461,7 @@ import { PluginAdapter } from '../ported/adapter.js';
 export function create${this.capitalize(pluginName)}Plugin(): PluginAdapter {
     return {
         name: '${plugin.name}',
-        originalPlugin: 'nuclie-native',
+        originalPlugin: 'lunx-native',
         
         async buildEnd() {
             console.log('[${plugin.name}] Deployment adapter ready');
@@ -475,7 +475,7 @@ export default create${this.capitalize(pluginName)}Plugin;
     }
 
     private generateAnalyticsPlugin(plugin: PluginTemplate): string {
-        const pluginName = plugin.name.replace('@nuclie/plugin-', '');
+        const pluginName = plugin.name.replace('@lunx/plugin-', '');
         return `/**
  * ${plugin.name}
  * ${plugin.description}
@@ -486,7 +486,7 @@ import { PluginAdapter } from '../ported/adapter.js';
 export function create${this.capitalize(pluginName)}Plugin(): PluginAdapter {
     return {
         name: '${plugin.name}',
-        originalPlugin: 'nuclie-native',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // Analytics: ${plugin.description}

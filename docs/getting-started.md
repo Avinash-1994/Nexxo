@@ -1,4 +1,4 @@
-# Getting Started with Nuclie
+# Getting Started with Lunx
 
 > Get from zero to a running app in **under 5 minutes**.
 
@@ -11,17 +11,17 @@
 
 ---
 
-## Step 1 — Install Nuclie
+## Step 1 — Install Lunx
 
 ```bash
-npm install -g nuclie
+npm install -g lunx
 ```
 
 Verify the installation:
 
 ```bash
-nuclie --version
-# ⚡ nuclie v1.0.9
+lunx --version
+# ⚡ lunx v1.0.9
 ```
 
 ---
@@ -32,16 +32,16 @@ Pick your framework:
 
 ```bash
 # React + TypeScript (recommended)
-nuclie bootstrap --name my-app --template react-ts
+lunx bootstrap --name my-app --template react-ts
 
 # Vue 3 + TypeScript
-nuclie bootstrap --name my-app --template vue-ts
+lunx bootstrap --name my-app --template vue-ts
 
 # Svelte + TypeScript
-nuclie bootstrap --name my-app --template svelte-ts
+lunx bootstrap --name my-app --template svelte-ts
 
 # Vanilla TypeScript
-nuclie bootstrap --name my-app --template vanilla-ts
+lunx bootstrap --name my-app --template vanilla-ts
 ```
 
 This creates a `my-app/` directory with a working starter project.
@@ -52,13 +52,13 @@ This creates a `my-app/` directory with a working starter project.
 
 ```bash
 cd my-app
-nuclie dev
+lunx dev
 ```
 
 You should see:
 
 ```
-⚡ Nuclie v1.0.9
+⚡ Lunx v1.0.9
   ➜  Local:   http://localhost:3000/
   ➜  Network: http://192.168.x.x:3000/
 
@@ -72,7 +72,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser. **HMR is ac
 ## Step 4 — Production Build
 
 ```bash
-nuclie build
+lunx build
 ```
 
 Output goes to `./dist/`. The build is minified, tree-shaken, and ready to deploy.
@@ -82,7 +82,7 @@ Output goes to `./dist/`. The build is minified, tree-shaken, and ready to deplo
 ## Step 5 — Preview the Production Build
 
 ```bash
-nuclie preview
+lunx preview
 ```
 
 Serves the `dist/` folder locally so you can verify before deploying.
@@ -100,7 +100,7 @@ my-app/
 │   ├── App.tsx         ← Root component
 │   └── index.css
 ├── index.html
-├── nuclie.config.js    ← Nuclie configuration
+├── lunx.config.js    ← Lunx configuration
 └── package.json
 ```
 
@@ -108,10 +108,10 @@ my-app/
 
 ## Minimal Configuration
 
-The scaffolded `nuclie.config.js` works out of the box:
+The scaffolded `lunx.config.js` works out of the box:
 
 ```js
-// nuclie.config.js
+// lunx.config.js
 module.exports = {
   entry: ['./src/main.tsx'],
   outDir: './dist',
@@ -134,14 +134,14 @@ module.exports = {
 
 ## Adding to an Existing Project
 
-If you already have a project, you can add Nuclie without scaffolding:
+If you already have a project, you can add Lunx without scaffolding:
 
 ```bash
 # Install locally
-npm install --save-dev nuclie
+npm install --save-dev lunx
 
 # Generate a config file
-npx nuclie init
+npx lunx init
 ```
 
 Then update your `package.json` scripts:
@@ -149,9 +149,9 @@ Then update your `package.json` scripts:
 ```json
 {
   "scripts": {
-    "dev": "nuclie dev",
-    "build": "nuclie build",
-    "preview": "nuclie preview"
+    "dev": "lunx dev",
+    "build": "lunx build",
+    "preview": "lunx preview"
   }
 }
 ```
@@ -161,14 +161,14 @@ Then update your `package.json` scripts:
 ## CLI Reference
 
 ```bash
-nuclie dev                            # Start dev server with HMR
-nuclie build                          # Production build
-nuclie preview                        # Preview production build
-nuclie bootstrap --name n --template t  # Scaffold new project
-nuclie init                           # Generate nuclie.config.js
-nuclie inspect                        # Inspect module graph
-nuclie analyze                        # Analyze bundle size
-nuclie doctor                         # Diagnose common issues
+lunx dev                            # Start dev server with HMR
+lunx build                          # Production build
+lunx preview                        # Preview production build
+lunx bootstrap --name n --template t  # Scaffold new project
+lunx init                           # Generate lunx.config.js
+lunx inspect                        # Inspect module graph
+lunx analyze                        # Analyze bundle size
+lunx doctor                         # Diagnose common issues
 ```
 
 ---
@@ -176,7 +176,7 @@ nuclie doctor                         # Diagnose common issues
 ## Next Steps
 
 - 📖 [Configuration Reference](./guides/configuration.md) — all config options with types and defaults
-- 🔌 [Plugin Guide](./plugins.md) — extend Nuclie with plugins
+- 🔌 [Plugin Guide](./plugins.md) — extend Lunx with plugins
 - 📦 [Module Federation](./guides/federation.md) — micro-frontend architecture
 - 🔥 [HMR Guide](./HMR_IMPLEMENTATION_STATUS.md) — how HMR works and how to debug it
 - 🚚 [Migration Guide](./migration.md) — moving from Vite or Webpack

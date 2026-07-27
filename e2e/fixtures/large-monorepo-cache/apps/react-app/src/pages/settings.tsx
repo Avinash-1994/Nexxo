@@ -1,0 +1,1 @@
+export default function settings() { return "View for settings"; }

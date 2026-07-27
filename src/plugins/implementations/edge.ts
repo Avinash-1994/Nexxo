@@ -1,15 +1,15 @@
 /**
- * @nuclie/plugin-edge
+ * @lunx/plugin-edge
  * Edge runtime adapter
- * Nuclie-native
+ * Lunx-native
  */
 
 import { PluginAdapter } from '../ported/adapter.js';
 
 export function createEdgePlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-edge',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-edge',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // edge transformation

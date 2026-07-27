@@ -1,5 +1,5 @@
 /**
- * Module 7: Comprehensive Benchmarks (Nuclie vs The World)
+ * Module 7: Comprehensive Benchmarks (Lunx vs The World)
  * 
  * Scenarios: Small App, Large Monorepo, SSR, Edge
  * Metrics: Cold Start, HMR, Build Time, Bundle Size, Memory
@@ -102,13 +102,13 @@ function generateLoad(projectPath: string, count: number) {
         `import React from 'react';\n${imports}\nexport default function App(){return <div>${jsx}</div>}`);
 }
 
-async function measureNuclie(cwd: string, scenario: string, mode: 'full' | 'build' = 'full'): Promise<BenchmarkResult> {
+async function measureLunx(cwd: string, scenario: string, mode: 'full' | 'build' = 'full'): Promise<BenchmarkResult> {
     const mainCli = path.join(process.cwd(), 'dist/cli.mjs');
     const memStart = process.memoryUsage().heapUsed / 1024 / 1024;
 
     // Clean output and cache for fresh measurement
     if (fs.existsSync(path.join(cwd, 'dist'))) fs.rmSync(path.join(cwd, 'dist'), { recursive: true, force: true });
-    if (fs.existsSync(path.join(cwd, '.nuclie_cache'))) fs.rmSync(path.join(cwd, '.nuclie_cache'), { recursive: true, force: true });
+    if (fs.existsSync(path.join(cwd, '.lunx_cache'))) fs.rmSync(path.join(cwd, '.lunx_cache'), { recursive: true, force: true });
 
     // Build
     const startBuild = performance.now();
@@ -140,7 +140,7 @@ async function measureNuclie(cwd: string, scenario: string, mode: 'full' | 'buil
     }
 
     return {
-        tool: 'Nuclie',
+        tool: 'Lunx',
         scenario,
         coldStart,
         hmr: 15,
@@ -214,7 +214,7 @@ function generateReport(results: BenchmarkResult[]) {
         bundleSize: r.bundleSize.toFixed(1) + ' KB'
     })));
 
-    let md = `# Nuclie Benchmarks (Module 8)\n\n> Date: ${new Date().toISOString().split('T')[0]}\n\n`;
+    let md = `# Lunx Benchmarks (Module 8)\n\n> Date: ${new Date().toISOString().split('T')[0]}\n\n`;
     const scenarios = [...new Set(results.map(r => r.scenario))];
 
     scenarios.forEach(s => {
@@ -251,7 +251,7 @@ async function runBenchmarks() {
         }
     }, null, 2));
 
-    fs.writeFileSync(path.join(smallAppPath, 'nuclie.config.js'), `
+    fs.writeFileSync(path.join(smallAppPath, 'lunx.config.js'), `
         export default {
             entry: ["src/main.ts"],
             outDir: "dist",
@@ -280,7 +280,7 @@ async function runBenchmarks() {
     console.log(kleur.yellow('Installing Vite and React for benchmark...'));
     await installDeps(smallAppPath, ['vite', '@vitejs/plugin-react']);
 
-    results.push(await measureNuclie(smallAppPath, 'Small App'));
+    results.push(await measureLunx(smallAppPath, 'Small App'));
     results.push(await measureVite(smallAppPath, 'Small App'));
 
     Object.entries(BASELINES).forEach(([tool, m]) => {

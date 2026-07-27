@@ -90,7 +90,7 @@
       "type": "const"
     },
     {
-      "name": "NuclieConfig",
+      "name": "LunxConfig",
       "type": "const"
     },
     {
@@ -114,7 +114,7 @@
       "type": "const"
     },
     {
-      "name": "NuclieLibConfig",
+      "name": "LunxLibConfig",
       "type": "const"
     },
     {
@@ -154,7 +154,7 @@
       "type": "const"
     },
     {
-      "name": "NucliePlugin",
+      "name": "LunxPlugin",
       "type": "const"
     },
     {

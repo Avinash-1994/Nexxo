@@ -1,7 +1,7 @@
 {
-  "name": "nuclie",
-  "version": "1.0.9",
-  "description": "⚡ Nuclie — blazing-fast JavaScript build tool powered by SWC and LightningCSS. HMR in <60ms, module federation, tree shaking, and multi-framework support (React, Vue, Svelte, Solid). A fast Vite alternative built with Rust.",
+  "name": "lunx",
+  "version": "1.0.0",
+  "description": "⚡ Lunx — a modern JavaScript build tool powered by SWC and LightningCSS. Fast HMR, module federation, tree shaking, and multi-framework support (React, Vue, Svelte, Solid). A fast, Rust-native build pipeline.",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -16,8 +16,8 @@
   },
   "sideEffects": false,
   "bin": {
-    "nuclie": "./dist/cli.js",
-    "create-nuclie": "./dist/create-nuclie.js"
+    "lunx": "./dist/cli.js",
+    "create-lunx": "./dist/create-lunx.js"
   },
   "files": [
     "dist",
@@ -36,6 +36,7 @@
     "test:repro": "node ./scripts/repro_test.mjs",
     "prepublishOnly": "npm run build",
     "typecheck": "tsc -p tsconfig.typecheck.json --noEmit",
+    "typecheck:build": "tsc -p tsconfig.build.json --noEmit",
     "test:all": "tsc -p tsconfig.build.json && npx tsx tests/config_test.ts && npx tsx tests/bootstrap_test.ts && npx tsx tests/integration_test.ts && npx tsx tests/asset_test.ts && npx tsx tests/federation_core_test.ts && npx tsx tests/core_engine_test.ts && npx tsx tests/framework_verification_test.ts && npx tsx tests/phase_3_1_hmr_classification_test.ts && npx tsx tests/phase_3_1_hmr_integration_test.ts",
     "test:regression": "npx tsx src/test/regression.ts",
     "test:snapshot": "cross-env NODE_OPTIONS=\"--experimental-vm-modules\" jest tests/build/snapshot.test.ts",
@@ -102,12 +103,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Avinash-1994/nuclie.git"
+    "url": "git+https://github.com/Avinash-1994/lunx.git"
   },
   "bugs": {
-    "url": "https://github.com/Avinash-1994/nuclie/issues"
+    "url": "https://github.com/Avinash-1994/lunx/issues"
   },
-  "homepage": "https://github.com/Avinash-1994/nuclie#readme",
+  "homepage": "https://github.com/Avinash-1994/lunx#readme",
   "engines": {
     "node": ">=20.0.0"
   },
@@ -116,22 +117,25 @@
     "@babel/plugin-transform-modules-commonjs": "^7.27.1",
     "@babel/preset-react": "^7.28.5",
     "@babel/preset-typescript": "^7.28.5",
+    "@node-rs/xxhash": "^1.7.6",
+    "@lunx/adapter-core": "file:packages/lunx-adapter-core",
+    "@lunx/security": "file:packages/lunx-security",
+    "@swc/core": "^1.15.24",
+    "@tauri-apps/api": "^2.11.0",
     "@trpc/client": "^11.8.1",
     "@trpc/server": "^11.8.1",
-    "@types/express": "^5.0.6",
     "@types/level": "^6.0.3",
     "@vue/compiler-sfc": "^3.5.26",
     "@vue/server-renderer": "^3.5.26",
     "acorn": "^8.15.0",
     "axe-core": "^4.11.1",
     "babel-preset-solid": "^1.8.0",
-    "better-sqlite3": "^12.5.0",
+    "better-sqlite3": "^12.9.0",
     "chalk": "^5.6.2",
     "chokidar": "^3.5.3",
     "dotenv": "^17.2.3",
     "esbuild": "^0.27.2",
     "esbuild-svelte": "^0.9.4",
-    "express": "^5.2.1",
     "http-proxy": "^1.18.1",
     "ink": "^6.6.0",
     "ink-spinner": "^5.0.0",
@@ -144,8 +148,10 @@
     "react-dom": "^19.2.3",
     "react-refresh": "^0.18.0",
     "rimraf": "^6.1.2",
+    "rxjs": "^7.8.2",
     "selfsigned": "^5.5.0",
     "svelte-preprocess": "^6.0.3",
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.43.0",
     "vue": "^3.5.26",
     "ws": "^8.18.3",
     "yargs": "^17.7.2",
@@ -173,7 +179,7 @@
     "autocannon": "^8.0.0",
     "cross-env": "^10.1.0",
     "eslint": "^9.39.2",
-    "eslint-plugin-nuclie-governance": "file:eslint-plugin-nuclie-governance",
+    "eslint-plugin-lunx-governance": "file:eslint-plugin-lunx-governance",
     "fast-check": "^4.5.3",
     "jest": "^30.2.0",
     "jsdom": "^27.2.0",

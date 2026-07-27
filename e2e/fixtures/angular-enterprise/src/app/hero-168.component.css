@@ -1,0 +1,10 @@
+.hero-card-168 {
+  background-color: #f4f4f4;
+  border-radius: 8px;
+  padding: 16px;
+  color: #333;
+  display: flex;
+}
+.hero-card-168:hover {
+  transform: scale(1.05);
+}

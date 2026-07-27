@@ -1,0 +1,13 @@
+{
+  "name": "vitepress-docs",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "lunx dev",
+    "build": "lunx build"
+  },
+  "dependencies": {
+    "vitepress": "latest",
+    "vue": "^3.0.0"
+  }
+}

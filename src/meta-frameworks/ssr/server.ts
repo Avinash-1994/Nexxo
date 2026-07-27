@@ -3,7 +3,7 @@
  * Universal server-side rendering for Next.js, Nuxt, and Remix
  */
 
-import express, { Request, Response } from 'express';
+import uWS from 'uWebSockets.js';
 import path from 'path';
 import fs from 'fs/promises';
 import { Route, RouteMatch } from '../types.js';
@@ -19,61 +19,109 @@ import * as React from 'react';
 (global as any).React = React;
 
 export interface SSRConfig {
-    /** Project root directory */
     root: string;
-
-    /** Framework type */
     framework: 'nextjs' | 'nuxt' | 'remix';
-
-    /** Build output directory */
     outDir: string;
-
-    /** Server port */
     port: number;
-
-    /** Enable production mode */
     production?: boolean;
-
-    /** Custom HTML template */
     template?: string;
 }
 
 export interface RenderContext {
-    /** Current route */
     route: Route;
-
-    /** Request object */
-    req: Request;
-
-    /** Response object */
-    res: Response;
-
-    /** Route parameters */
+    req: any;
+    res: any;
     params: Record<string, string>;
-
-    /** Query parameters */
     query: Record<string, string>;
-
-    /** Data fetched for this route */
     data?: any;
 }
 
+// Minimal mock to handle Next/Remix server functions that expect Express req/res
+function createMockReq(res: uWS.HttpResponse, req: uWS.HttpRequest): any {
+    let url = req.getUrl();
+    if (req.getQuery().length > 0) url += '?' + req.getQuery();
+    
+    const headers: Record<string, string> = {};
+    req.forEach((k, v) => {
+        headers[k] = v;
+    });
+
+    return {
+        path: req.getUrl(),
+        url,
+        method: req.getMethod().toUpperCase(),
+        headers,
+        query: {} // Will be populated by router matcher later if needed
+    };
+}
+
+function createMockRes(res: uWS.HttpResponse): any {
+    // uWebSockets.js handles backpressure internally, but we need an abstraction
+    let writeStatus = 200;
+    const writeHeaders: Record<string, string> = {};
+    let isTerminated = false;
+
+    res.onAborted(() => {
+        isTerminated = true;
+    });
+
+    return {
+        status: function(code: number) {
+            writeStatus = code;
+            return this;
+        },
+        setHeader: function(key: string, value: string) {
+            writeHeaders[key.toLowerCase()] = value;
+            return this;
+        },
+        writeHead: function(status: number, headers: any) {
+            writeStatus = status;
+            if (headers) {
+                Object.assign(writeHeaders, headers);
+            }
+            return this;
+        },
+        json: function(data: any) {
+            this.send(JSON.stringify(data), 'application/json');
+        },
+        send: function(data: any, contentType: string = 'text/html') {
+            if (isTerminated) return;
+            res.cork(() => {
+                res.writeStatus(writeStatus.toString());
+                res.writeHeader('content-type', contentType);
+                for (const [k, v] of Object.entries(writeHeaders)) {
+                    if (k !== 'content-type') res.writeHeader(k, v);
+                }
+                res.end(data);
+            });
+        },
+        end: function(data?: any) {
+            if (isTerminated) return;
+            res.cork(() => {
+                res.writeStatus(writeStatus.toString());
+                for (const [k, v] of Object.entries(writeHeaders)) {
+                    res.writeHeader(k, v);
+                }
+                if (data) res.end(data);
+                else res.end();
+            });
+        }
+    };
+}
+
 export class SSRServer {
-    private app: express.Application;
+    private app: uWS.TemplatedApp;
     private config: SSRConfig;
     private router: NextJsRouter | NuxtRouter | RemixRouter;
 
     constructor(config: SSRConfig) {
         this.config = config;
-        this.app = express();
+        this.app = uWS.App();
 
         // Initialize framework-specific router
         this.router = this.createRouter();
     }
 
-    /**
-     * Create framework-specific router
-     */
     private createRouter() {
         const routerConfig = {
             root: this.config.root,
@@ -92,72 +140,106 @@ export class SSRServer {
         }
     }
 
-    /**
-     * Start the SSR server
-     */
-    async start(): Promise<void> {
-        console.log(`DEBUG: Running SSR Server from ${import.meta.url}`);
-        console.log('DEBUG: EXECUTION-ID-999');
-        log.info('🚀 Starting SSR Server...');
+    private serveStatic(pathPrefix: string, rootDir: string) {
+        this.app.get(pathPrefix + '/*', async (res, req) => {
+            let isAborted = false;
+            res.onAborted(() => { isAborted = true; });
 
-        // Scan routes
-        const manifest = await this.router.scanRoutes();
-        log.info(`📋 Found ${manifest.routes.length} routes`);
+            const url = req.getUrl();
+            const relativePath = url.substring(pathPrefix.length);
+            const tryPath = path.join(rootDir, relativePath);
 
-        // Serve static assets
-        this.app.use('/assets', express.static(path.join(this.config.root, this.config.outDir)));
-        this.app.use('/public', express.static(path.join(this.config.root, 'public')));
-
-        // Handle API routes
-        for (const route of manifest.apiRoutes) {
-            let regexPath = route.path
-                .replace(/:(\w+)/g, '[^/]+')
-                .replace(/\*(\w+)/g, '.*');
-
-            const routeRegex = new RegExp(`^${regexPath}$`);
-
-            this.app.all(routeRegex, async (req, res) => {
-                await this.handleAPIRoute(route, req, res);
-            });
-        }
-
-        // Handle page routes
-        for (const route of manifest.pageRoutes) {
-            // Create a simple regex for Express that matches this route
-            // NextJsRouter.match will handle the actual parameter extraction
-            let regexPath = route.path
-                .replace(/:(\w+)/g, '[^/]+') // Match dynamic segments
-                .replace(/\*(\w+)/g, '.*');  // Match catch-all segments
-
-            const routeRegex = new RegExp(`^${regexPath}$`);
-
-            this.app.get(routeRegex, async (req, res) => {
-                await this.handlePageRoute(route, req, res);
-            });
-        }
-
-        // 404 handler
-        this.app.use((req, res) => {
-            res.status(404).send(this.render404());
-        });
-
-        // Start listening
-        this.app.listen(this.config.port, () => {
-            log.info(`✅ SSR Server running on http://localhost:${this.config.port}`);
-            log.info(`📦 Framework: ${this.config.framework}`);
-            log.info(`📁 Root: ${this.config.root}`);
+            try {
+                const stat = await fs.stat(tryPath);
+                if (stat.isFile()) {
+                    const data = await fs.readFile(tryPath);
+                    if (isAborted) return;
+                    
+                    let mime = 'application/octet-stream';
+                    if (tryPath.endsWith('.js')) mime = 'application/javascript';
+                    else if (tryPath.endsWith('.css')) mime = 'text/css';
+                    else if (tryPath.endsWith('.html')) mime = 'text/html';
+                    
+                    res.cork(() => {
+                        res.writeHeader('content-type', mime);
+                        res.end(data);
+                    });
+                } else {
+                    if (isAborted) return;
+                    res.writeStatus('404 Not Found').end();
+                }
+            } catch {
+                if (isAborted) return;
+                req.setYield(true); // fallthrough if file not found
+            }
         });
     }
 
+    async start(): Promise<void> {
+        log.info('🚀 Starting SSR Server (uWebSockets.js)...');
 
-    /**
-     * Handle API route request
-     */
-    private async handleAPIRoute(route: Route, req: Request, res: Response): Promise<void> {
+        const manifest = await this.router.scanRoutes();
+        log.info(`📋 Found ${manifest.routes.length} routes`);
+
+        this.serveStatic('/assets', path.join(this.config.root, this.config.outDir));
+        this.serveStatic('/public', path.join(this.config.root, 'public'));
+
+        // Handle all unknown routes (acts as a catch-all router)
+        this.app.any('/*', async (res, req) => {
+            const mockReq = createMockReq(res, req);
+            const mockRes = createMockRes(res);
+            
+            let isAborted = false;
+            res.onAborted(() => { isAborted = true; });
+
+            // 1. Check API Routes
+            for (const route of manifest.apiRoutes) {
+                let regexPath = route.path
+                    .replace(/:(\w+)/g, '[^/]+')
+                    .replace(/\*(\w+)/g, '.*');
+
+                const routeRegex = new RegExp(`^${regexPath}$`);
+                if (routeRegex.test(mockReq.path)) {
+                    await this.handleAPIRoute(route, mockReq, mockRes);
+                    return;
+                }
+            }
+
+            // 2. Check Page Routes
+            for (const route of manifest.pageRoutes) {
+                let regexPath = route.path
+                    .replace(/:(\w+)/g, '[^/]+')
+                    .replace(/\*(\w+)/g, '.*');
+
+                const routeRegex = new RegExp(`^${regexPath}$`);
+                if (routeRegex.test(mockReq.path) && mockReq.method === 'GET') {
+                    await this.handlePageRoute(route, mockReq, mockRes);
+                    return;
+                }
+            }
+
+            // 404 Fallback
+            if (!isAborted && !mockRes.isTerminated) {
+                mockRes.status(404).send(this.render404());
+            }
+        });
+
+        return new Promise((resolve, reject) => {
+            this.app.listen(this.config.port, (token) => {
+                if (token) {
+                    log.info(`✅ SSR Server running on http://localhost:${this.config.port}`);
+                    log.info(`📦 Framework: ${this.config.framework}`);
+                    resolve();
+                } else {
+                    reject(new Error(`Failed to listen to port ${this.config.port}`));
+                }
+            });
+        });
+    }
+
+    private async handleAPIRoute(route: Route, req: any, res: any): Promise<void> {
         try {
             log.info(`🔌 API: ${req.method} ${req.path}`);
-
-            // Import the API handler
             const handler = await this.importRoute(route.filePath);
 
             if (typeof handler.default === 'function') {
@@ -173,22 +255,16 @@ export class SSRServer {
         }
     }
 
-    /**
-     * Handle page route request
-     */
-    private async handlePageRoute(route: Route, req: Request, res: Response): Promise<void> {
+    private async handlePageRoute(route: Route, req: any, res: any): Promise<void> {
         try {
             log.info(`📄 Page: ${req.method} ${req.path}`);
 
-            // Match route and extract params
             const match = this.router.match(req.path);
-
             if (!match) {
                 res.status(404).send(this.render404());
                 return;
             }
 
-            // Create render context
             const context: RenderContext = {
                 route: match.route,
                 req,
@@ -197,13 +273,8 @@ export class SSRServer {
                 query: match.query,
             };
 
-            // Fetch data for this route
             context.data = await this.fetchData(context);
-
-            // Render the page
             const html = await this.renderPage(context);
-
-            // Send response
             res.status(200).send(html);
         } catch (error: any) {
             log.error(`❌ Render Error: ${error.message}`);
@@ -211,14 +282,10 @@ export class SSRServer {
         }
     }
 
-    /**
-     * Fetch data for a route
-     */
     private async fetchData(context: RenderContext): Promise<any> {
         try {
             const module = await this.importRoute(context.route.filePath);
 
-            // Next.js data fetching
             if (this.config.framework === 'nextjs') {
                 if (module.getServerSideProps) {
                     const result = await module.getServerSideProps({
@@ -229,7 +296,6 @@ export class SSRServer {
                     });
                     return result.props;
                 }
-
                 if (module.getStaticProps) {
                     const result = await module.getStaticProps({
                         params: context.params,
@@ -238,7 +304,6 @@ export class SSRServer {
                 }
             }
 
-            // Remix data fetching
             if (this.config.framework === 'remix') {
                 if (context.req.method === 'GET' && module.loader) {
                     return await module.loader({
@@ -246,7 +311,6 @@ export class SSRServer {
                         params: context.params,
                     });
                 }
-
                 if (context.req.method === 'POST' && module.action) {
                     return await module.action({
                         request: context.req,
@@ -254,14 +318,6 @@ export class SSRServer {
                     });
                 }
             }
-
-            // Nuxt data fetching
-            if (this.config.framework === 'nuxt') {
-                // Nuxt uses composables, would need special handling
-                // For now, return empty data
-                return {};
-            }
-
             return {};
         } catch (error: any) {
             log.warn(`⚠️ Data fetch failed: ${error.message}`);
@@ -269,17 +325,9 @@ export class SSRServer {
         }
     }
 
-    /**
-     * Render page to HTML
-     */
     private async renderPage(context: RenderContext): Promise<string> {
-        // Debug: confirm execution
-        console.log('DEBUG: renderPage executed cleanly');
         try {
-            // Import the component
             const Component = await this.importRoute(context.route.filePath);
-
-            // Render based on framework
             let appHtml = '';
 
             if (this.config.framework === 'nextjs') {
@@ -290,7 +338,6 @@ export class SSRServer {
                 appHtml = await this.renderReact(Component, context);
             }
 
-            // Wrap in HTML template
             return this.wrapInDocument(appHtml, context);
         } catch (error: any) {
             log.error(`❌ Render failed: ${error.message}`);
@@ -298,58 +345,41 @@ export class SSRServer {
         }
     }
 
-    /**
-     * Render React component to HTML
-     */
     private async renderReact(Component: any, context: RenderContext): Promise<string> {
         const renderer = new ReactSSRRenderer();
         return await renderer.render(Component, context);
     }
 
-    /**
-     * Render Vue component to HTML
-     */
     private async renderVue(Component: any, context: RenderContext): Promise<string> {
         const renderer = new VueSSRRenderer();
         return await renderer.render(Component, context);
     }
 
-    /**
-     * Wrap rendered content in HTML document
-     */
     private wrapInDocument(appHtml: string, context: RenderContext): string {
         const template = this.config.template || this.getDefaultTemplate();
-        console.log(`DEBUG: Wrapping in document using template ID: PROD-READY-V1`);
-
         return template
             .replace('<!--app-html-->', appHtml)
             .replace('<!--app-data-->', `<script>window.__INITIAL_DATA__=${JSON.stringify(context.data)}</script>`)
             .replace('<!--app-title-->', `SSR App - ${context.route.name}`);
     }
 
-    /**
-     * Get default HTML template
-     */
     private getDefaultTemplate(): string {
         return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="nuclie-version" content="PROD-READY-V1">
+  <meta name="lunx-version" content="PROD-READY-V1">
   <title><!--app-title--></title>
 </head>
 <body>
-  <div id="nuclie-root"><!--app-html--></div>
+  <div id="lunx-root"><!--app-html--></div>
   <!--app-data-->
   <script type="module" src="/assets/entry0.js"></script>
 </body>
 </html>`;
     }
 
-    /**
-     * Render 404 page
-     */
     private render404(): string {
         return `<!DOCTYPE html>
 <html>
@@ -361,9 +391,6 @@ export class SSRServer {
 </html>`;
     }
 
-    /**
-     * Render 500 error page
-     */
     private render500(error: Error): string {
         return `<!DOCTYPE html>
 <html>
@@ -376,18 +403,12 @@ export class SSRServer {
 </html>`;
     }
 
-    /**
-     * Import a route module
-     */
     private async importRoute(filePath: string): Promise<any> {
         try {
-            // In production, import from build output
             if (this.config.production) {
                 const buildPath = path.join(this.config.root, this.config.outDir, path.basename(filePath, path.extname(filePath)) + '.js');
                 return await import(buildPath);
             }
-
-            // In development, import source file
             return await import(filePath);
         } catch (error: any) {
             log.error(`❌ Failed to import ${filePath}: ${error.message}`);

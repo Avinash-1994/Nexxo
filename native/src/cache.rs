@@ -1,23 +1,11 @@
-// RocksDB-based persistent cache for Nuclie v2.0
-// Day 2: Module 1 - Speed Mastery
-//
-// This module provides enterprise-grade persistent caching with:
-// - LSM tree architecture for efficient writes
-// - Automatic compaction and cleanup
-// - Multi-target support (dev/prod/lib)
-// - Cache warming and invalidation
-
 use napi::bindgen_prelude::*;
 use napi_derive::napi;
-use rocksdb::{DB, Options, WriteBatch, IteratorMode};
+use rusqlite::{Connection, OpenFlags};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
+use std::fs;
 
-// Unused CacheEntry struct removed
-// pub struct CacheEntry { ... }
-
-/// Cache statistics
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[napi(object)]
 pub struct CacheStats {
@@ -28,145 +16,164 @@ pub struct CacheStats {
     pub size_bytes: f64,
 }
 
-/// RocksDB-based build cache
 #[napi]
 pub struct BuildCache {
-    db: Arc<DB>,
+    conn: Arc<Mutex<Connection>>,
     hits: Arc<std::sync::atomic::AtomicU32>,
     misses: Arc<std::sync::atomic::AtomicU32>,
+    db_path: PathBuf,
 }
 
 #[napi]
 impl BuildCache {
-    /// Create a new build cache at the specified path
     #[napi(constructor)]
     pub fn new(cache_path: String) -> Result<Self> {
-        let path = PathBuf::from(cache_path);
+        let path = PathBuf::from(&cache_path);
         
-        // Configure RocksDB options for optimal performance (Module 8 Perfection)
-        let mut opts = Options::default();
-        opts.create_if_missing(true);
-        opts.set_max_open_files(1024);
-        opts.set_use_fsync(false); // Faster writes, acceptable for cache
-        opts.set_bytes_per_sync(1048576); // 1MB
-        
-        // Performance targets for Module 8
-        opts.set_allow_mmap_reads(true); // Faster reads via memory mapping
-        opts.set_compaction_style(rocksdb::DBCompactionStyle::Level); // Efficient LSM structure
-        
-        // Memory tuning for <200ms startup
-        opts.set_write_buffer_size(16 * 1024 * 1024); // 16MB (reduced for faster init)
-        opts.set_max_write_buffer_number(2);
-        opts.set_target_file_size_base(32 * 1024 * 1024); // 32MB files
-        
-        // Enable compression (Lz4 is extremely fast)
-        opts.set_compression_type(rocksdb::DBCompressionType::Lz4);
-        
-        // Optimized block cache (Block-based table options)
-        let mut block_opts = rocksdb::BlockBasedOptions::default();
-        block_opts.set_block_size(4096); // 4KB blocks
-        block_opts.set_block_cache(&rocksdb::Cache::new_lru_cache(32 * 1024 * 1024)); // 32MB block cache
-        opts.set_block_based_table_factory(&block_opts);
-        
-        let db = DB::open(&opts, path)
-            .map_err(|e| Error::from_reason(format!("Failed to open RocksDB: {}", e)))?;
-        
+        // Ensure directory exists
+        if let Some(parent) = path.parent() {
+            let _ = fs::create_dir_all(parent);
+        }
+
+        let db_file_path = if path.is_file() || path.extension().is_some() {
+            path.clone()
+        } else {
+            // Default filename if a directory was provided
+            path.join("cache.db")
+        };
+
+        // If a legacy graph cache directory exists, migrate it to SQLite (Phase 2.4)
+        let old_graph_dir = path.join("graph");
+        if old_graph_dir.exists() && old_graph_dir.is_dir() {
+            let migrated_dir = path.join("graph.migrated");
+            let _ = fs::rename(&old_graph_dir, &migrated_dir);
+            eprintln!("INFO: Migrated legacy graph cache directory to SQLite. Old dir renamed to graph.migrated");
+        }
+
+        let conn = Connection::open_with_flags(
+            &db_file_path,
+            OpenFlags::SQLITE_OPEN_READ_WRITE | OpenFlags::SQLITE_OPEN_CREATE,
+        ).map_err(|e| Error::from_reason(format!("Failed to open SQLite: {}", e)))?;
+
+        // Optimize SQLite defaults (WAL mode + NORMAL synchronous)
+        conn.execute_batch(
+            "PRAGMA journal_mode=WAL;
+             PRAGMA synchronous=NORMAL;
+             PRAGMA cache_size=-64000;
+             PRAGMA mmap_size=134217728;
+             PRAGMA page_size=4096;
+             CREATE TABLE IF NOT EXISTS cache (
+                 key TEXT PRIMARY KEY,
+                 value TEXT NOT NULL,
+                 cache_type TEXT DEFAULT 'artifact',
+                 updated_at INTEGER DEFAULT (cast(strftime('%s','now') as int))
+             );
+             CREATE INDEX IF NOT EXISTS idx_cache_type ON cache(cache_type);"
+        ).map_err(|e| Error::from_reason(format!("Failed to initialize DB schema: {}", e)))?;
+
         Ok(Self {
-            db: Arc::new(db),
+            conn: Arc::new(Mutex::new(conn)),
             hits: Arc::new(std::sync::atomic::AtomicU32::new(0)),
             misses: Arc::new(std::sync::atomic::AtomicU32::new(0)),
+            db_path: db_file_path,
         })
     }
-    
-    /// Get a value from the cache
+
     #[napi]
     pub fn get(&self, key: String) -> Option<String> {
-        match self.db.get(key.as_bytes()) {
-            Ok(Some(value)) => {
+        let conn = self.conn.lock().unwrap();
+        let mut stmt = match conn.prepare_cached("SELECT value FROM cache WHERE key = ?") {
+            Ok(s) => s,
+            Err(_) => return None,
+        };
+        
+        match stmt.query_row(rusqlite::params![key], |row| row.get(0)) {
+            Ok(value) => {
                 self.hits.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-                String::from_utf8(value).ok()
+                Some(value)
             }
-            _ => {
+            Err(_) => {
                 self.misses.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
                 None
             }
         }
     }
-    
-    /// Set a value in the cache
+
     #[napi]
     pub fn set(&self, key: String, value: String) -> Result<()> {
-        self.db.put(key.as_bytes(), value.as_bytes())
-            .map_err(|e| Error::from_reason(format!("Failed to set cache: {}", e)))
+        let conn = self.conn.lock().unwrap();
+        // Determine type based on key format loosely
+        let cache_type = if key.starts_with("graph:") { "graph" } else { "artifact" };
+        
+        conn.execute(
+            "INSERT OR REPLACE INTO cache (key, value, cache_type, updated_at) VALUES (?, ?, ?, cast(strftime('%s','now') as int))",
+            rusqlite::params![key, value, cache_type],
+        )
+        .map_err(|e| Error::from_reason(format!("Failed to set cache: {}", e)))?;
+        Ok(())
     }
-    
-    /// Delete a value from the cache
+
     #[napi]
     pub fn delete(&self, key: String) -> Result<()> {
-        self.db.delete(key.as_bytes())
-            .map_err(|e| Error::from_reason(format!("Failed to delete cache: {}", e)))
+        let conn = self.conn.lock().unwrap();
+        conn.execute("DELETE FROM cache WHERE key = ?", rusqlite::params![key])
+            .map_err(|e| Error::from_reason(format!("Failed to delete cache: {}", e)))?;
+        Ok(())
     }
-    
-    /// Check if a key exists in the cache
+
     #[napi]
     pub fn has(&self, key: String) -> bool {
-        self.db.get(key.as_bytes()).ok().flatten().is_some()
+        let conn = self.conn.lock().unwrap();
+        let mut stmt = match conn.prepare_cached("SELECT 1 FROM cache WHERE key = ?") {
+            Ok(s) => s,
+            Err(_) => return false,
+        };
+        stmt.exists(rusqlite::params![key]).unwrap_or(false)
     }
-    
-    /// Batch set multiple key-value pairs
+
     #[napi]
     pub fn batch_set(&self, entries: std::collections::HashMap<String, String>) -> Result<()> {
-        let mut batch = WriteBatch::default();
-        for (key, value) in entries {
-            batch.put(key.as_bytes(), value.as_bytes());
+        let mut conn = self.conn.lock().unwrap();
+        let tx = conn.transaction()
+            .map_err(|e| Error::from_reason(format!("Failed to start transaction: {}", e)))?;
+        
+        {
+            let mut stmt = tx.prepare_cached(
+                "INSERT OR REPLACE INTO cache (key, value, cache_type, updated_at) VALUES (?, ?, ?, cast(strftime('%s','now') as int))"
+            ).map_err(|e| Error::from_reason(format!("Failed to prepare statement: {}", e)))?;
+            
+            for (key, value) in entries {
+                let cache_type = if key.starts_with("graph:") { "graph" } else { "artifact" };
+                stmt.execute(rusqlite::params![key, value, cache_type])
+                    .map_err(|e| Error::from_reason(format!("Failed to batch set: {}", e)))?;
+            }
         }
-        self.db.write(batch)
-            .map_err(|e| Error::from_reason(format!("Failed to batch set: {}", e)))
+        
+        tx.commit()
+            .map_err(|e| Error::from_reason(format!("Failed to commit transaction: {}", e)))?;
+        Ok(())
     }
-    
-    /// Clear all entries for a specific target (dev/prod/lib)
+
     #[napi]
     pub fn clear_target(&self, target: String) -> Result<u32> {
-        let mut count = 0u32;
-        let mut batch = WriteBatch::default();
-        
-        // Iterate through all keys and delete those matching the target
-        let iter = self.db.iterator(IteratorMode::Start);
-        for item in iter {
-            if let Ok((key, _)) = item {
-                let key_str = String::from_utf8_lossy(&key);
-                if key_str.starts_with(&format!("{}:", target)) {
-                    batch.delete(&key);
-                    count += 1;
-                }
-            }
-        }
-        
-        self.db.write(batch)
+        let conn = self.conn.lock().unwrap();
+        let query = format!("{}%", target);
+        let count = conn.execute("DELETE FROM cache WHERE key LIKE ?", rusqlite::params![query])
             .map_err(|e| Error::from_reason(format!("Failed to clear target: {}", e)))?;
-        
-        Ok(count)
+        Ok(count as u32)
     }
-    
-    /// Clear all cache entries
+
     #[napi]
     pub fn clear_all(&self) -> Result<()> {
-        let mut batch = WriteBatch::default();
-        
-        let iter = self.db.iterator(IteratorMode::Start);
-        for item in iter {
-            if let Ok((key, _)) = item {
-                batch.delete(&key);
-            }
-        }
-        
-        self.db.write(batch)
-            .map_err(|e| Error::from_reason(format!("Failed to clear all: {}", e)))
+        let conn = self.conn.lock().unwrap();
+        conn.execute("DELETE FROM cache", [])
+            .map_err(|e| Error::from_reason(format!("Failed to clear all: {}", e)))?;
+        Ok(())
     }
-    
-    /// Get cache statistics
+
     #[napi]
     pub fn get_stats(&self) -> Result<CacheStats> {
+        let conn = self.conn.lock().unwrap();
         let hits = self.hits.load(std::sync::atomic::Ordering::Relaxed);
         let misses = self.misses.load(std::sync::atomic::Ordering::Relaxed);
         let total_requests = hits + misses;
@@ -177,62 +184,54 @@ impl BuildCache {
             0.0
         };
         
-        // Count total entries
-        let mut total_entries = 0u32;
-        let iter = self.db.iterator(IteratorMode::Start);
-        for _ in iter {
-            total_entries += 1;
-        }
-        
-        // Estimate size (approximate)
-        let size_bytes = self.db.property_int_value("rocksdb.total-sst-files-size")
-            .ok()
-            .flatten()
+        let total_entries: u32 = conn.query_row("SELECT count(*) FROM cache", [], |row| row.get(0))
             .unwrap_or(0);
         
+        let size_bytes = if let Ok(metadata) = fs::metadata(&self.db_path) {
+            metadata.len() as f64
+        } else {
+            0.0
+        };
+
         Ok(CacheStats {
             total_entries,
             hits,
             misses,
             hit_rate,
-            size_bytes: size_bytes as f64,
+            size_bytes,
         })
     }
-    
-    /// Compact the database to reclaim space
+
     #[napi]
     pub fn compact(&self) -> Result<()> {
-        self.db.compact_range::<&[u8], &[u8]>(None, None);
+        let conn = self.conn.lock().unwrap();
+        conn.execute("VACUUM", [])
+            .map_err(|e| Error::from_reason(format!("Failed to compact: {}", e)))?;
         Ok(())
     }
-    
-    /// Close the cache (cleanup)
+
     #[napi]
     pub fn close(&self) -> Result<()> {
-        // RocksDB will be closed when the Arc is dropped
+        // Will close when Arc is dropped natively
         Ok(())
     }
 }
 
-/// Create cache key for input fingerprint
 #[napi]
 pub fn create_input_key(file_path: String, content_hash: String) -> String {
     format!("input:{}:{}", file_path, content_hash)
 }
 
-/// Create cache key for graph hash
 #[napi]
 pub fn create_graph_key(graph_hash: String) -> String {
     format!("graph:{}", graph_hash)
 }
 
-/// Create cache key for plan hash
 #[napi]
 pub fn create_plan_key(plan_hash: String, target: String) -> String {
     format!("plan:{}:{}", target, plan_hash)
 }
 
-/// Create cache key for artifact
 #[napi]
 pub fn create_artifact_key(artifact_id: String, target: String) -> String {
     format!("artifact:{}:{}", target, artifact_id)

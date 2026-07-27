@@ -1,8 +1,8 @@
-# Nuclie Adapter Governance
+# Lunx Adapter Governance
 
 **Module**: 9 (Phase H.1)  
 **Status**: ✅ Active  
-**Enforced By**: Nuclie Core Team
+**Enforced By**: Lunx Core Team
 
 This document defines the rules for how adapters enter the ecosystem, how they are promoted, and strictly forbids breaking changes for Tier-1 adapters.
 
@@ -19,7 +19,7 @@ To move from Experimental to Candidate, an adapter must:
 
 ### 🥈 Tier 2 (Candidate) → 🥇 Tier 1 (Stable)
 To move from Candidate to Stable (Tier 1), an adapter must:
-1.  **Survive 2 minor Nuclie releases** without breaking.
+1.  **Survive 2 minor Lunx releases** without breaking.
 2.  **Zero Critical Bugs** for at least 30 days.
 3.  **Review by Core Team**: Manual code review of the entire adapter.
 4.  **Production Verification**: Must be used in at least one reference production project.
@@ -34,7 +34,7 @@ All adapters (Tier 1-3) are subject to these Hard Limits:
 1.  **Filesystem Constraints**:
     *   Adapters may **READ** from the user's source directory.
     *   Adapters may **WRITE** only to the build output directory or temp cache.
-    *   Adapters **MUST NOT** modify Nuclie Core files or Configuration.
+    *   Adapters **MUST NOT** modify Lunx Core files or Configuration.
 
 2.  **Isolation**:
     *   Adapters must not pollute global scope (`window`, `global`).

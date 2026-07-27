@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-fonts
+ * @lunx/plugin-fonts
  * Web font optimization
  */
 
@@ -9,7 +9,7 @@ import path from 'path';
 
 export function createFontsPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-fonts',
+        name: '@lunx/plugin-fonts',
         originalPlugin: 'vite-plugin-fonts',
         
         async load(id: string) {

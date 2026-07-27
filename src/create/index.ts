@@ -38,12 +38,12 @@ import { text, select, multiselect, closeUI } from './ui.js';
 // ... (removing old helper definitions) ...
 
 // Main Flow
-export async function createNuclieProject(initialName?: string) {
+export async function createLunxProject(initialName?: string) {
     console.log(kleur.bold().magenta("\n" + "=".repeat(40)));
-    console.log(kleur.bold().white("  ⚡ NUCLIE: THE NEXT-GEN BUILD PROJECT  "));
+    console.log(kleur.bold().white("  ⚡ LUNX: THE NEXT-GEN BUILD PROJECT  "));
     console.log(kleur.bold().magenta("=".repeat(40) + "\n"));
 
-    const name = initialName || await text('Project Name:', 'my-nuclie-app');
+    const name = initialName || await text('Project Name:', 'my-lunx-app');
 
     // Validate name
     const nameSchema = z.string()
@@ -183,10 +183,10 @@ async function generateProject(config: ProjectConfig) {
     const packageJson = generatePackageJson(config);
     await fsPromises.writeFile(path.join(projectPath, 'package.json'), JSON.stringify(packageJson, null, 2));
 
-    // Generate nuclie.config.ts
-    const nuclieConfig = generateNuclieConfig(config);
-    const configFileName = config.language === 'TypeScript' ? 'nuclie.config.ts' : 'nuclie.config.js';
-    await fsPromises.writeFile(path.join(projectPath, configFileName), nuclieConfig);
+    // Generate lunx.config.ts
+    const lunxConfig = generateLunxConfig(config);
+    const configFileName = config.language === 'TypeScript' ? 'lunx.config.ts' : 'lunx.config.js';
+    await fsPromises.writeFile(path.join(projectPath, configFileName), lunxConfig);
 
     // Generate Folder Structure
     await generateStructure(projectPath, config);
@@ -197,7 +197,7 @@ async function generateProject(config: ProjectConfig) {
     }
 
     // Note: tailwind.config.js and postcss.config.js are now OPTIONAL. 
-    // Nuclie handles them internally if missing.
+    // Lunx handles them internally if missing.
 
     // Generate README.md
     const readme = generateReadme(config);
@@ -232,13 +232,13 @@ function generatePackageJson(config: ProjectConfig) {
         private: true,
         type: 'module',
         scripts: {
-            dev: 'nuclie dev',
-            build: 'nuclie build',
-            preview: 'nuclie preview'
+            dev: 'lunx dev',
+            build: 'lunx build',
+            preview: 'lunx preview'
         },
         dependencies: {},
         devDependencies: {
-            nuclie: 'latest'
+            lunx: 'latest'
         }
     };
 
@@ -251,7 +251,7 @@ function generatePackageJson(config: ProjectConfig) {
 
     // Add framework dependencies
     const frameworkKey = config.framework.toLowerCase();
-    pkg.devDependencies[`@nuclie/framework-${frameworkKey}`] = 'latest';
+    pkg.devDependencies[`@lunx/framework-${frameworkKey}`] = 'latest';
 
     switch (config.framework) {
         case 'React':
@@ -304,16 +304,16 @@ function generatePackageJson(config: ProjectConfig) {
     return pkg;
 }
 
-function generateNuclieConfig(config: ProjectConfig) {
+function generateLunxConfig(config: ProjectConfig) {
     const isVanilla = config.framework === 'Vanilla';
     const frameworkImport = config.framework.toLowerCase();
-    const adapterPkg = `@nuclie/framework-${frameworkImport}`;
+    const adapterPkg = `@lunx/framework-${frameworkImport}`;
     const isTS = config.language === 'TypeScript';
     const entryExt = isTS ?
         (['React', 'Preact', 'Mithril'].includes(config.framework) ? 'tsx' : 'ts') :
         (['React', 'Preact', 'Mithril'].includes(config.framework) ? 'jsx' : 'js');
 
-    let content = `import { defineConfig } from "nuclie";\n`;
+    let content = `import { defineConfig } from "lunx";\n`;
 
     if (!isVanilla) {
         content += `import ${frameworkImport} from "${adapterPkg}";\n\n`;
@@ -393,7 +393,7 @@ async function generateStructure(projectPath: string, config: ProjectConfig) {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>${config.name} | Nuclie</title>
+    <title>${config.name} | Lunx</title>
   </head>
   <body>
     <div id="root"></div>
@@ -463,7 +463,7 @@ h1 { font-size: 3.2em; line-height: 1.1; }
     // Public Assets
     const publicDir = path.join(projectPath, 'public');
     await fsPromises.mkdir(publicDir, { recursive: true });
-    await fsPromises.writeFile(path.join(publicDir, 'nuclie.svg'), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="#38BDF8" /><path d="M50 20 L80 80 L20 80 Z" fill="white" /></svg>`);
+    await fsPromises.writeFile(path.join(publicDir, 'lunx.svg'), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="#38BDF8" /><path d="M50 20 L80 80 L20 80 Z" fill="white" /></svg>`);
 }
 
 function generateEslintConfig(config: ProjectConfig) {
@@ -505,7 +505,7 @@ function generateReadme(config: ProjectConfig) {
     let mfeWarning = '';
     if (config.projectType.includes('Micro-Frontend')) {
         mfeWarning = `
-> ⚠️ **Micro-Frontend Note**: Only one framework per micro-frontend is supported in the current version of Nuclie.
+> ⚠️ **Micro-Frontend Note**: Only one framework per micro-frontend is supported in the current version of Lunx.
 `;
     }
 
@@ -518,7 +518,7 @@ ${mfeWarning}
 - Language: **${config.language}**
 - Styling: **${config.styling}**
 - CSS Framework: **${config.cssFramework}**
-- Bundler: **Nuclie ⚡**
+- Bundler: **Lunx ⚡**
 
 ## Getting Started
 
@@ -528,10 +528,10 @@ ${runCmd} dev
 \`\`\`
 
 ## Architecture
-- **Adapter**: ${config.framework === 'Vanilla' ? 'None' : `@nuclie/framework-${config.framework.toLowerCase()}`}
-- **Config**: \`nuclie.config.${config.language === 'TypeScript' ? 'ts' : 'js'}\`
+- **Adapter**: ${config.framework === 'Vanilla' ? 'None' : `@lunx/framework-${config.framework.toLowerCase()}`}
+- **Config**: \`lunx.config.${config.language === 'TypeScript' ? 'ts' : 'js'}\`
 
-Built with energy, powered by Nuclie.
+Built with energy, powered by Lunx.
 `;
 }
 
@@ -570,13 +570,13 @@ export default app;`;
 import { customElement, property } from 'lit/decorators.js';
 import '${styleImportSource}';
 
-@customElement('nuclie-app')
-export class NuclieApp extends LitElement {
+@customElement('lunx-app')
+export class LunxApp extends LitElement {
   render() {
-    return html\`<h1>Hello from Lit + Nuclie</h1>\`;
+    return html\`<h1>Hello from Lit + Lunx</h1>\`;
   }
 }
-document.getElementById('root')!.innerHTML = '<nuclie-app></nuclie-app>';`;
+document.getElementById('root')!.innerHTML = '<lunx-app></lunx-app>';`;
         case 'Alpine':
             return `import Alpine from 'alpinejs';
 import '${styleImportSource}';
@@ -584,7 +584,7 @@ import '${styleImportSource}';
 window.Alpine = Alpine;
 Alpine.start();
 document.getElementById('root')!.innerHTML = \`<div x-data="{ count: 0 }">
-  <h1>Alpine + Nuclie</h1>
+  <h1>Alpine + Lunx</h1>
   <button @click="count++">Count: <span x-text="count"></span></button>
 </div>\`;`;
         case 'Mithril':
@@ -592,7 +592,7 @@ document.getElementById('root')!.innerHTML = \`<div x-data="{ count: 0 }">
 import '${styleImportSource}';
 
 m.mount(document.getElementById('root')!, {
-  view: () => m("h1", "Mithril + Nuclie")
+  view: () => m("h1", "Mithril + Lunx")
 });`;
         case 'Vanilla':
             if (config.styling === 'CSS Modules') {
@@ -601,7 +601,7 @@ import styles from './App.module.css';
 
 document.querySelector('#root')!.innerHTML = \`
   <div class="\${styles.container}">
-    <h1 class="\${styles.title}">⚡ Vanilla JS + Nuclie</h1>
+    <h1 class="\${styles.title}">⚡ Vanilla JS + Lunx</h1>
     <p>Zero dependencies. Pure speed. CSS Modules.</p>
   </div>
 \`;`;
@@ -610,13 +610,13 @@ document.querySelector('#root')!.innerHTML = \`
 // Vanilla Entry
 document.querySelector('#root')!.innerHTML = \`
   <div style="text-align: center; font-family: sans-serif;">
-    <h1>⚡ Vanilla JS + Nuclie</h1>
+    <h1>⚡ Vanilla JS + Lunx</h1>
     <p>Zero dependencies. Pure speed.</p>
   </div>
 \`;`;
         default:
             return `import '${styleImportSource}';
-document.getElementById('root')!.innerHTML = '<h1>Hello Nuclie</h1>';`;
+document.getElementById('root')!.innerHTML = '<h1>Hello Lunx</h1>';`;
     }
 }
 
@@ -631,7 +631,7 @@ function getAppComponentContent(config: ProjectConfig): string {
 export default function App() {
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Nuclie + ${config.framework} + CSS Modules</h1>
+      <h1 className={styles.title}>Lunx + ${config.framework} + CSS Modules</h1>
       <p>Modern, Fast, Energy-powered building.</p>
     </div>
   );
@@ -640,7 +640,7 @@ export default function App() {
             return `export default function App() {
   return (
     <div>
-      <h1>Nuclie + ${config.framework}</h1>
+      <h1>Lunx + ${config.framework}</h1>
       <p>Modern, Fast, Energy-powered building.</p>
     </div>
   );
@@ -648,7 +648,7 @@ export default function App() {
         case 'Vue':
             return `<template>
   <div class="app">
-    <h1>Nuclie + Vue</h1>
+    <h1>Lunx + Vue</h1>
   </div>
 </template>
 <script setup>
@@ -660,7 +660,7 @@ export default function App() {
 </style>`;
         case 'Svelte':
             return `<main>
-  <h1>Nuclie + Svelte</h1>
+  <h1>Lunx + Svelte</h1>
 </main>
 <style>
   main {

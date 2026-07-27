@@ -1,13 +1,13 @@
 import { Plugin } from '../index.js';
 
 /**
- * NUCLIE TIER C PLUGINS (Graph-Aware / HMR)
+ * LUNX TIER C PLUGINS (Graph-Aware / HMR)
  * 
- * Since Nuclie v1.0 handles HMR natively via UniversalTransformer for React, Vue, and Svelte,
+ * Since Lunx v1.0 handles HMR natively via UniversalTransformer for React, Vue, and Svelte,
  * these plugins act as compatibility wrappers or configuration providers.
  * 
  * They ensure that if a user migrates from Vite, they can map existing plugins to these
- * without breaking the build, while Nuclie's core engine handles the heavy lifting.
+ * without breaking the build, while Lunx's core engine handles the heavy lifting.
  */
 
 interface ReactOptions {
@@ -18,12 +18,12 @@ interface ReactOptions {
 }
 
 /**
- * Nuclie React Plugin
+ * Lunx React Plugin
  * Compatible with @vitejs/plugin-react
  */
-export function nuclieReact(options: ReactOptions = {}): Plugin {
+export function lunxReact(options: ReactOptions = {}): Plugin {
     return {
-        name: 'nuclie-react',
+        name: 'lunx-react',
         setup(api) {
             // In the future, we can push options to the UniversalTransformer via API
             // For now, we log that React support is active.
@@ -44,12 +44,12 @@ interface VueOptions {
 }
 
 /**
- * Nuclie Vue Plugin
+ * Lunx Vue Plugin
  * Compatible with @vitejs/plugin-vue
  */
-export function nuclieVue(options: VueOptions = {}): Plugin {
+export function lunxVue(options: VueOptions = {}): Plugin {
     return {
-        name: 'nuclie-vue',
+        name: 'lunx-vue',
         setup() {
             // Vue support is built-in
         }
@@ -63,12 +63,12 @@ interface SvelteOptions {
 }
 
 /**
- * Nuclie Svelte Plugin
+ * Lunx Svelte Plugin
  * Compatible with @sveltejs/vite-plugin-svelte
  */
-export function nuclieSvelte(options: SvelteOptions = {}): Plugin {
+export function lunxSvelte(options: SvelteOptions = {}): Plugin {
     return {
-        name: 'nuclie-svelte',
+        name: 'lunx-svelte',
         setup() {
             // Svelte support is built-in
         }
@@ -78,6 +78,6 @@ export function nuclieSvelte(options: SvelteOptions = {}): Plugin {
 /**
  * Compatibility aliases
  */
-export const nuclieReactRefresh = nuclieReact;
-export const nuclieVueHmr = nuclieVue;
-export const nuclieSvelteHmr = nuclieSvelte;
+export const lunxReactRefresh = lunxReact;
+export const lunxVueHmr = lunxVue;
+export const lunxSvelteHmr = lunxSvelte;

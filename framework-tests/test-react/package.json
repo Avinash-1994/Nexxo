@@ -1,0 +1,30 @@
+{
+  "name": "lunx-react-template",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "lunx dev",
+    "build": "lunx build",
+    "preview": "lunx preview",
+    "test": "playwright test"
+  },
+  "lunx": {
+    "template": true,
+    "framework": "react",
+    "description": "Lunx Tasks — task management app"
+  },
+  "dependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-router-dom": "6.23.1",
+    "@tanstack/react-query": "5.40.0",
+    "zustand": "4.5.2"
+  },
+  "devDependencies": {
+    "lunx": "file:../../",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "typescript": "5.4.5"
+  }
+}

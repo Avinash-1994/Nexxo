@@ -1,6 +1,6 @@
 
 /**
- * Nuclie Image Optimization Engine
+ * Lunx Image Optimization Engine
  * Implements lazy resizing and WebP conversion
  * Day 54: SSR Power Locked
  */
@@ -17,10 +17,10 @@ export interface ImageOptions {
     format?: 'webp' | 'avif' | 'jpeg' | 'png';
 }
 
-export class NuclieImageEngine {
+export class LunxImageEngine {
     /**
      * Generate optimized image URL
-     * format: /_nuclie/image?url=...&w=...&q=...
+     * format: /_lunx/image?url=...&w=...&q=...
      */
     static getOptimizedUrl(options: ImageOptions): string {
         const params = new URLSearchParams();
@@ -29,7 +29,7 @@ export class NuclieImageEngine {
         if (options.quality) params.set('q', options.quality.toString());
         if (options.format) params.set('f', options.format);
 
-        return `/_nuclie/image?${params.toString()}`;
+        return `/_lunx/image?${params.toString()}`;
     }
 
     /**

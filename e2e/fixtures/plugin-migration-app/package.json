@@ -1,0 +1,12 @@
+{
+  "name": "plugin-migration-app",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "lunx dev",
+    "build": "lunx build"
+  },
+  "dependencies": {
+    "react": "^18.0.0"
+  }
+}

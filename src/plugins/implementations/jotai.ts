@@ -1,15 +1,15 @@
 /**
- * @nuclie/plugin-jotai
+ * @lunx/plugin-jotai
  * Jotai state management
- * Nuclie-native
+ * Lunx-native
  */
 
 import { PluginAdapter } from '../ported/adapter.js';
 
 export function createJotaiPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-jotai',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-jotai',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // jotai transformation

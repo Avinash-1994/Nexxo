@@ -12,7 +12,7 @@
 Prevent adapter sprawl, unstable promises, and accidental “official” support.
 
 This policy answers one question clearly:
-**When can an adapter be trusted, and what does Nuclie guarantee about it?**
+**When can an adapter be trusted, and what does Lunx guarantee about it?**
 
 Without this policy:
 - “Works on my machine” becomes support

@@ -51,11 +51,6 @@ declare module "*.node" {
         shutdown(): void;
     }
 
-    export class PluginRuntime {
-        constructor();
-        verifyPlugin(wasmBytes: Uint8Array | Buffer): boolean;
-        execute(wasmBytes: Uint8Array | Buffer, input: string, timeoutMs?: number): string;
-    }
 
     export interface CircularDependency {
         cycle: string[];
@@ -73,7 +68,6 @@ declare module "*.node" {
 
     export class GraphAnalyzer {
         constructor();
-        addNode(id: string, dependencies: string[]): void;
         addBatch(ids: string[], edges: string[][]): void;
         detectCycles(): CircularDependency[];
         findOrphanedNodes(entryPoints: string[]): string[];

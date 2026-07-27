@@ -1,0 +1,13 @@
+{
+  "name": "electron-notes",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/main.js",
+  "scripts": {
+    "dev": "node ../../../dist/cli.js dev",
+    "build": "node ../../../dist/cli.js build"
+  },
+  "dependencies": {
+    "electron": "^28.0.0"
+  }
+}

@@ -1,6 +1,6 @@
-# Nuclie Plugins Guide
+# Lunx Plugins Guide
 
-> **100+ production-ready plugins** with WASM sandboxing and WebCrypto signing.
+> **Plugin ecosystem with sandboxing support and WebCrypto signing support.**
 
 ---
 
@@ -8,29 +8,29 @@
 
 ```bash
 # Search for plugins
-nuclie plugin search react
+lunx plugin search react
 
 # Install a plugin
-nuclie plugin install @nuclie/plugin-react
+lunx plugin install @lunx/plugin-react
 
 # List installed plugins
-nuclie plugin list
+lunx plugin list
 
 # Verify plugin signatures
-nuclie plugin verify @nuclie/plugin-react
+lunx plugin verify @lunx/plugin-react
 ```
 
 ---
 
 ## Using Plugins
 
-### In `nuclie.config.ts`
+### In `lunx.config.ts`
 
 ```typescript
-import { defineConfig } from 'nuclie';
-import react from '@nuclie/plugin-react';
-import tailwind from '@nuclie/plugin-tailwind';
-import pwa from '@nuclie/plugin-pwa';
+import { defineConfig } from 'lunx';
+import react from '@lunx/plugin-react';
+import tailwind from '@lunx/plugin-tailwind';
+import pwa from '@lunx/plugin-pwa';
 
 export default defineConfig({
   preset: 'spa',
@@ -66,105 +66,111 @@ export default defineConfig({
 
 | Plugin | Description | Install |
 |--------|-------------|---------|
-| `@nuclie/plugin-react` | React Fast Refresh + JSX | `nuclie plugin install @nuclie/plugin-react` |
-| `@nuclie/plugin-vue` | Vue 3 SFC support | `nuclie plugin install @nuclie/plugin-vue` |
-| `@nuclie/plugin-svelte` | Svelte compiler | `nuclie plugin install @nuclie/plugin-svelte` |
-| `@nuclie/plugin-solid` | Solid.js JSX | `nuclie plugin install @nuclie/plugin-solid` |
-| `@nuclie/plugin-angular` | Angular AOT compiler | `nuclie plugin install @nuclie/plugin-angular` |
-| `@nuclie/plugin-preact` | Preact with Fast Refresh | `nuclie plugin install @nuclie/plugin-preact` |
+| `@lunx/plugin-react` | React Fast Refresh + JSX | `lunx plugin install @lunx/plugin-react` |
+| `@lunx/plugin-vue` | Vue 3 SFC support | `lunx plugin install @lunx/plugin-vue` |
+| `@lunx/plugin-svelte` | Svelte compiler | `lunx plugin install @lunx/plugin-svelte` |
+| `@lunx/plugin-solid` | Solid.js JSX | `lunx plugin install @lunx/plugin-solid` |
+| `@lunx/plugin-angular` | Angular AOT compiler | `lunx plugin install @lunx/plugin-angular` |
+| `@lunx/plugin-preact` | Preact with Fast Refresh | `lunx plugin install @lunx/plugin-preact` |
 
 ### CSS & Styling
 
 | Plugin | Description | Install |
 |--------|-------------|---------|
-| `@nuclie/plugin-tailwind` | Tailwind CSS v3+ | `nuclie plugin install @nuclie/plugin-tailwind` |
-| `@nuclie/plugin-sass` | Sass/SCSS compiler | `nuclie plugin install @nuclie/plugin-sass` |
-| `@nuclie/plugin-less` | Less compiler | `nuclie plugin install @nuclie/plugin-less` |
-| `@nuclie/plugin-postcss` | PostCSS processor | `nuclie plugin install @nuclie/plugin-postcss` |
-| `@nuclie/plugin-styled-components` | CSS-in-JS support | `nuclie plugin install @nuclie/plugin-styled-components` |
-| `@nuclie/plugin-emotion` | Emotion CSS-in-JS | `nuclie plugin install @nuclie/plugin-emotion` |
+| `@lunx/plugin-tailwind` | Tailwind CSS v3+ | `lunx plugin install @lunx/plugin-tailwind` |
+| `@lunx/plugin-sass` | Sass/SCSS compiler | `lunx plugin install @lunx/plugin-sass` |
+| `@lunx/plugin-less` | Less compiler | `lunx plugin install @lunx/plugin-less` |
+| `@lunx/plugin-postcss` | PostCSS processor | `lunx plugin install @lunx/plugin-postcss` |
+| `@lunx/plugin-styled-components` | CSS-in-JS support | `lunx plugin install @lunx/plugin-styled-components` |
+| `@lunx/plugin-emotion` | Emotion CSS-in-JS | `lunx plugin install @lunx/plugin-emotion` |
 
 ### Assets & Media
 
 | Plugin | Description | Install |
 |--------|-------------|---------|
-| `@nuclie/plugin-svgr` | SVG to React components | `nuclie plugin install @nuclie/plugin-svgr` |
-| `@nuclie/plugin-image-optimizer` | Image compression | `nuclie plugin install @nuclie/plugin-image-optimizer` |
-| `@nuclie/plugin-webp` | WebP conversion | `nuclie plugin install @nuclie/plugin-webp` |
-| `@nuclie/plugin-fonts` | Font optimization | `nuclie plugin install @nuclie/plugin-fonts` |
+| `@lunx/plugin-svgr` | SVG to React components | `lunx plugin install @lunx/plugin-svgr` |
+| `@lunx/plugin-image-optimizer` | Image compression | `lunx plugin install @lunx/plugin-image-optimizer` |
+| `@lunx/plugin-webp` | WebP conversion | `lunx plugin install @lunx/plugin-webp` |
+| `@lunx/plugin-fonts` | Font optimization | `lunx plugin install @lunx/plugin-fonts` |
 
 ### Performance
 
 | Plugin | Description | Install |
 |--------|-------------|---------|
-| `@nuclie/plugin-compression` | Gzip/Brotli compression | `nuclie plugin install @nuclie/plugin-compression` |
-| `@nuclie/plugin-preload` | Resource preloading | `nuclie plugin install @nuclie/plugin-preload` |
-| `@nuclie/plugin-lazy-load` | Code splitting helpers | `nuclie plugin install @nuclie/plugin-lazy-load` |
-| `@nuclie/plugin-bundle-analyzer` | Bundle size analysis | `nuclie plugin install @nuclie/plugin-bundle-analyzer` |
+| `@lunx/plugin-compression` | Gzip/Brotli compression | `lunx plugin install @lunx/plugin-compression` |
+| `@lunx/plugin-preload` | Resource preloading | `lunx plugin install @lunx/plugin-preload` |
+| `@lunx/plugin-lazy-load` | Code splitting helpers | `lunx plugin install @lunx/plugin-lazy-load` |
+| `@lunx/plugin-bundle-analyzer` | Bundle size analysis | `lunx plugin install @lunx/plugin-bundle-analyzer` |
 
 ### Security
 
 | Plugin | Description | Install |
 |--------|-------------|---------|
-| `@nuclie/plugin-csp` | Content Security Policy | `nuclie plugin install @nuclie/plugin-csp` |
-| `@nuclie/plugin-sri` | Subresource Integrity | `nuclie plugin install @nuclie/plugin-sri` |
-| `@nuclie/plugin-security-headers` | HTTP security headers | `nuclie plugin install @nuclie/plugin-security-headers` |
+| `@lunx/plugin-csp` | Content Security Policy | `lunx plugin install @lunx/plugin-csp` |
+| `@lunx/plugin-sri` | Subresource Integrity | `lunx plugin install @lunx/plugin-sri` |
+| `@lunx/plugin-security-headers` | HTTP security headers | `lunx plugin install @lunx/plugin-security-headers` |
 
 ### Testing
 
 | Plugin | Description | Install |
 |--------|-------------|---------|
-| `@nuclie/plugin-vitest` | Vitest integration | `nuclie plugin install @nuclie/plugin-vitest` |
-| `@nuclie/plugin-jest` | Jest integration | `nuclie plugin install @nuclie/plugin-jest` |
-| `@nuclie/plugin-playwright` | E2E testing | `nuclie plugin install @nuclie/plugin-playwright` |
+| `@lunx/plugin-vitest` | Vitest integration | `lunx plugin install @lunx/plugin-vitest` |
+| `@lunx/plugin-jest` | Jest integration | `lunx plugin install @lunx/plugin-jest` |
+| `@lunx/plugin-playwright` | E2E testing | `lunx plugin install @lunx/plugin-playwright` |
 
 ### i18n
 
 | Plugin | Description | Install |
 |--------|-------------|---------|
-| `@nuclie/plugin-i18next` | i18next integration | `nuclie plugin install @nuclie/plugin-i18next` |
-| `@nuclie/plugin-react-intl` | React Intl | `nuclie plugin install @nuclie/plugin-react-intl` |
-| `@nuclie/plugin-vue-i18n` | Vue I18n | `nuclie plugin install @nuclie/plugin-vue-i18n` |
+| `@lunx/plugin-i18next` | i18next integration | `lunx plugin install @lunx/plugin-i18next` |
+| `@lunx/plugin-react-intl` | React Intl | `lunx plugin install @lunx/plugin-react-intl` |
+| `@lunx/plugin-vue-i18n` | Vue I18n | `lunx plugin install @lunx/plugin-vue-i18n` |
 
 ### State Management
 
 | Plugin | Description | Install |
 |--------|-------------|---------|
-| `@nuclie/plugin-redux` | Redux DevTools | `nuclie plugin install @nuclie/plugin-redux` |
-| `@nuclie/plugin-zustand` | Zustand integration | `nuclie plugin install @nuclie/plugin-zustand` |
-| `@nuclie/plugin-jotai` | Jotai atoms | `nuclie plugin install @nuclie/plugin-jotai` |
+| `@lunx/plugin-redux` | Redux DevTools | `lunx plugin install @lunx/plugin-redux` |
+| `@lunx/plugin-zustand` | Zustand integration | `lunx plugin install @lunx/plugin-zustand` |
+| `@lunx/plugin-jotai` | Jotai atoms | `lunx plugin install @lunx/plugin-jotai` |
 
 ### Deployment
 
 | Plugin | Description | Install |
 |--------|-------------|---------|
-| `@nuclie/plugin-vercel` | Vercel deployment | `nuclie plugin install @nuclie/plugin-vercel` |
-| `@nuclie/plugin-netlify` | Netlify deployment | `nuclie plugin install @nuclie/plugin-netlify` |
-| `@nuclie/plugin-cloudflare` | Cloudflare Workers | `nuclie plugin install @nuclie/plugin-cloudflare` |
-| `@nuclie/plugin-docker` | Docker containerization | `nuclie plugin install @nuclie/plugin-docker` |
+| `@lunx/plugin-vercel` | Vercel deployment | `lunx plugin install @lunx/plugin-vercel` |
+| `@lunx/plugin-netlify` | Netlify deployment | `lunx plugin install @lunx/plugin-netlify` |
+| `@lunx/plugin-cloudflare` | Cloudflare Workers | `lunx plugin install @lunx/plugin-cloudflare` |
+| `@lunx/plugin-docker` | Docker containerization | `lunx plugin install @lunx/plugin-docker` |
 
 ### Analytics
 
 | Plugin | Description | Install |
 |--------|-------------|---------|
-| `@nuclie/plugin-google-analytics` | GA4 integration | `nuclie plugin install @nuclie/plugin-google-analytics` |
-| `@nuclie/plugin-plausible` | Plausible Analytics | `nuclie plugin install @nuclie/plugin-plausible` |
-| `@nuclie/plugin-sentry` | Error tracking | `nuclie plugin install @nuclie/plugin-sentry` |
+| `@lunx/plugin-google-analytics` | GA4 integration | `lunx plugin install @lunx/plugin-google-analytics` |
+| `@lunx/plugin-plausible` | Plausible Analytics | `lunx plugin install @lunx/plugin-plausible` |
+| `@lunx/plugin-sentry` | Error tracking | `lunx plugin install @lunx/plugin-sentry` |
 
 ---
 
 ## Plugin Security
 
-### WASM Sandboxing
+### Plugin Security Model
 
-All plugins run in **WASM-isolated environments**:
+Lunx currently executes plugins in an isolated VM-based runtime with strict permission controls. A secure WASM runtime for plugin execution is planned, but the current model is based on runtime isolation and API safety checks.
+
+Plugins are subject to explicit permissions:
+- Filesystem access is denied by default and only granted for approved paths.
+- Environment variables are only available when the plugin is loaded with an explicit env allowlist.
+- `require()` is whitelisted to a small set of safe built-ins (`fs`, `path`) and all other module imports are blocked.
+- Network access is blocked by default because no network globals are exposed in the sandbox (`fetch`, `XMLHttpRequest`, `WebSocket`, `EventSource` are removed).
 
 ```typescript
-// Plugins CANNOT:
-❌ Access filesystem directly
+// Plugins SHOULD NOT:
+❌ Access filesystem directly without permission
 ❌ Make network requests
 ❌ Execute arbitrary code
-❌ Access environment variables
+❌ Access environment variables unless explicitly allowed
 
 // Plugins CAN:
 ✅ Transform code
@@ -172,18 +178,17 @@ All plugins run in **WASM-isolated environments**:
 ✅ Emit warnings/errors
 ✅ Use approved APIs
 ```
-
 ### Signature Verification
 
 Every plugin is **cryptographically signed**:
 
 ```bash
 # Verify plugin signature
-nuclie plugin verify @nuclie/plugin-react
+lunx plugin verify @lunx/plugin-react
 
 # Output:
 ✅ Signature valid
-✅ Publisher: Nuclie Team
+✅ Publisher: Lunx Team
 ✅ Published: 2026-01-15
 ✅ SHA-256: a3f2...
 ```
@@ -192,15 +197,15 @@ nuclie plugin verify @nuclie/plugin-react
 
 ```json
 {
-  "name": "@nuclie/plugin-react",
+  "name": "@lunx/plugin-react",
   "version": "2.0.0",
-  "author": "Nuclie Team",
+  "author": "Lunx Team",
   "signature": "...",
   "permissions": [
     "transform:jsx",
     "emit:assets"
   ],
-  "sandbox": "wasm",
+  "sandbox": "isolated",
   "verified": true
 }
 ```
@@ -213,9 +218,9 @@ nuclie plugin verify @nuclie/plugin-react
 
 ```typescript
 // my-plugin.ts
-import { NucliePlugin } from 'nuclie';
+import { LunxPlugin } from 'lunx';
 
-export default function myPlugin(options = {}): NucliePlugin {
+export default function myPlugin(options = {}): LunxPlugin {
   return {
     name: 'my-plugin',
     version: '1.0.0',
@@ -246,7 +251,7 @@ export default function myPlugin(options = {}): NucliePlugin {
 ### Plugin Hooks
 
 ```typescript
-export interface NucliePlugin {
+export interface LunxPlugin {
   name: string;
   version: string;
   
@@ -272,12 +277,12 @@ export interface NucliePlugin {
 ### Example: Custom Markdown Plugin
 
 ```typescript
-import { NucliePlugin } from 'nuclie';
+import { LunxPlugin } from 'lunx';
 import { marked } from 'marked';
 
-export default function markdownPlugin(): NucliePlugin {
+export default function markdownPlugin(): LunxPlugin {
   return {
-    name: 'nuclie-plugin-markdown',
+    name: 'lunx-plugin-markdown',
     version: '1.0.0',
     
     transform(code, id) {
@@ -296,7 +301,7 @@ export default function markdownPlugin(): NucliePlugin {
 
 **Usage**:
 ```typescript
-// nuclie.config.ts
+// lunx.config.ts
 import markdown from './my-plugin';
 
 export default defineConfig({
@@ -320,24 +325,24 @@ function App() {
 ### Vite Plugin Adapter
 
 ```typescript
-import { defineConfig } from 'nuclie';
-import { vitePluginAdapter } from '@nuclie/plugin-compat';
+import { defineConfig } from 'lunx';
+import { rollupAdapter } from '@lunx/plugin-compat';
 import viteReactSvgr from 'vite-plugin-svgr';
 
 export default defineConfig({
   plugins: [
     // Wrap Vite plugin
-    vitePluginAdapter(viteReactSvgr())
+    rollupAdapter(viteReactSvgr())
   ]
 });
 ```
 
-**Compatibility**: ~80% of Vite plugins work with adapter
+**Compatibility**: Experimental and plugin-dependent; many Vite plugins can work with adapter
 
 ### Webpack Loader Adapter
 
 ```typescript
-import { webpackLoaderAdapter } from '@nuclie/plugin-compat';
+import { webpackLoaderAdapter } from '@lunx/plugin-compat';
 
 export default defineConfig({
   plugins: [
@@ -350,7 +355,7 @@ export default defineConfig({
 });
 ```
 
-**Compatibility**: ~70% of Webpack loaders work with adapter
+**Compatibility**: Experimental and plugin-dependent; many Webpack loaders can work with adapter
 
 ---
 
@@ -360,27 +365,27 @@ export default defineConfig({
 
 ```bash
 # List all plugins
-nuclie plugin list --all
+lunx plugin list --all
 
 # Search by category
-nuclie plugin search --category framework
+lunx plugin search --category framework
 
 # Filter by verified
-nuclie plugin search --verified
+lunx plugin search --verified
 ```
 
 ### Plugin Ratings
 
 ```bash
 # View plugin details
-nuclie plugin info @nuclie/plugin-react
+lunx plugin info @lunx/plugin-react
 
 # Output:
-📦 @nuclie/plugin-react v2.0.0
+📦 @lunx/plugin-react v2.0.0
 ⭐ 4.8/5.0 (1,234 reviews)
 📥 50,000 downloads/week
-✅ Verified by Nuclie Team
-🔒 WASM sandboxed
+✅ Verified by Lunx Team
+🔒 Secure isolated plugin runtime
 📝 React Fast Refresh + JSX transform
 ```
 
@@ -409,11 +414,11 @@ export default defineConfig({
 **Solution**:
 ```bash
 # Re-install plugin
-npm uninstall @nuclie/plugin-name
-nuclie plugin install @nuclie/plugin-name
+npm uninstall @lunx/plugin-name
+lunx plugin install @lunx/plugin-name
 
 # Or skip verification (not recommended)
-nuclie plugin install @nuclie/plugin-name --skip-verify
+lunx plugin install @lunx/plugin-name --skip-verify
 ```
 
 ### Plugin Conflicts
@@ -438,7 +443,7 @@ export default defineConfig({
 
 ✅ **Good**:
 ```typescript
-import react from '@nuclie/plugin-react';
+import react from '@lunx/plugin-react';
 ```
 
 ⚠️ **Avoid** (unless necessary):
@@ -450,7 +455,7 @@ import react from 'some-unofficial-plugin';
 
 ```bash
 # Always verify before using
-nuclie plugin verify @nuclie/plugin-name
+lunx plugin verify @lunx/plugin-name
 ```
 
 ### 3. Minimal Plugin Configuration
@@ -475,7 +480,7 @@ plugins: [
 
 ```bash
 # Profile plugin impact
-nuclie build --profile
+lunx build --profile
 
 # Output shows plugin timings
 ```
@@ -491,20 +496,20 @@ nuclie build --profile
 npm run build
 
 # 2. Sign plugin
-nuclie plugin sign ./dist
+lunx plugin sign ./dist
 
 # 3. Publish to marketplace
-nuclie plugin publish
+lunx plugin publish
 
 # 4. Verify published
-nuclie plugin verify @your-org/your-plugin
+lunx plugin verify @your-org/your-plugin
 ```
 
 ### Plugin Testing
 
 ```typescript
 // plugin.test.ts
-import { describe, it, expect } from '@nuclie/test';
+import { describe, it, expect } from '@lunx/test';
 import myPlugin from './plugin';
 
 describe('My Plugin', () => {

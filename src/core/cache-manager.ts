@@ -1,9 +1,9 @@
 
 /**
- * RocksDB Cache Manager
+ * SQLite Cache Manager
  * Day 6: Module 1 - Speed Mastery
  * 
- * Provides a high-level interface for the persistent RocksDB cache.
+ * Provides a high-level interface for the persistent SQLite WAL cache.
  * Manages cache partitions (Parse, Transform, Bundle) and enforces policies.
  */
 
@@ -17,6 +17,7 @@ export type CacheCategory = 'parse' | 'transform' | 'bundle' | 'optimize' | 'met
 export interface CacheOptions {
     enabled: boolean;
     root: string;
+    cacheDir?: string;
     compression?: boolean; // LZ4 enabled by default in native
     maxSizeBytes?: number; // Eviction policy trigger
 }
@@ -25,11 +26,13 @@ export class CacheManager {
     private cache: BuildCache | null = null;
     private enabled: boolean;
     private root: string;
+    private cacheDir: string | undefined;
     private maxSizeBytes: number;
 
     constructor(options: CacheOptions) {
         this.enabled = options.enabled;
         this.root = options.root;
+        this.cacheDir = options.cacheDir;
         this.maxSizeBytes = options.maxSizeBytes || 512 * 1024 * 1024; // 512MB default
 
         if (this.enabled) {
@@ -41,11 +44,12 @@ export class CacheManager {
         try {
             const { getLazyCacheDatabase, initCacheInBackground } = await import('./cache/lazy-init.js');
             // Background init
-            initCacheInBackground(path.join(this.root, '.nuclie_cache'));
+            const targetDir = this.cacheDir || path.join(this.root, '.lunx/cache');
+            initCacheInBackground(targetDir);
 
             // The first 'get' or 'set' will await the database if it's not ready
         } catch (error: any) {
-            log.warn(`Failed to initialize lazy RocksDB cache: ${error.message}`);
+            log.warn(`Failed to initialize lazy SQLite cache: ${error.message}`);
         }
     }
 
@@ -53,7 +57,7 @@ export class CacheManager {
         if (!this.enabled) return null;
         try {
             const { getLazyCacheDatabase } = await import('./cache/lazy-init.js');
-            return await getLazyCacheDatabase(path.join(this.root, '.nuclie_cache'));
+            return await getLazyCacheDatabase(path.join(this.root, '.lunx/cache'));
         } catch (e) {
             return null;
         }
@@ -120,15 +124,14 @@ export class CacheManager {
             // log.debug('Cache Stats:', stats);
 
             // 1. Compaction
-            // RocksDB does auto-compaction, but we can trigger it manually if fragmentation is high
+            // SQLite WAL uses auto-checkpointing, but we can trigger it manually
             // For now, we just call it periodically or on shutdown
-            // this.cache.compact(); // Expensive, maybe only do rarely?
+            // this.cache.compact(); 
 
             // 2. Eviction (Size limit)
             if (stats.sizeBytes > this.maxSizeBytes) {
                 log.warn(`Cache size (${(stats.sizeBytes / 1024 / 1024).toFixed(2)}MB) exceeds limit. Clearing...`);
-                // Simple strategy: Clear everything or specific targets. 
-                // RocksDB makes LRU hard without column families or manual tracking.
+                // Simple strategy: Clear everything or specific targets.
                 // We'll clear 'dev' builds first, preserving 'prod'.
                 const cleared = this.cache.clearTarget('dev');
                 log.info(`Evicted ${cleared} dev entries.`);
@@ -156,11 +159,12 @@ export class CacheManager {
 
 // Global instance helper
 let _instance: CacheManager | null = null;
-export function getCacheManager(root: string = process.cwd()): CacheManager {
+export function getCacheManager(root: string = process.cwd(), options: Partial<CacheOptions> = {}): CacheManager {
     if (!_instance) {
         _instance = new CacheManager({
             enabled: true,
-            root
+            root,
+            ...options
         });
     }
     return _instance;

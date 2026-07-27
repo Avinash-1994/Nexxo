@@ -1,4 +1,4 @@
-# Nuclie Internal Documentation — Index
+# Lunx Internal Documentation — Index
 
 **Purpose**: Governance, contracts, and internal guides  
 **Audience**: Core team, advanced contributors  
@@ -8,7 +8,7 @@
 
 ## 🎯 Purpose
 
-This directory contains **internal documentation** for Nuclie governance and core engineering.
+This directory contains **internal documentation** for Lunx governance and core engineering.
 
 **These are NOT user-facing docs** — they are operational contracts and mental models for the core team.
 
@@ -133,7 +133,7 @@ This directory contains **internal documentation** for Nuclie governance and cor
 
 ## ✅ What This IS
 
-- ✅ **Operational truth** (how Nuclie actually works)
+- ✅ **Operational truth** (how Lunx actually works)
 - ✅ **Binding contracts** (enforceable rules)
 - ✅ **Mental models** (for core engineers)
 - ✅ **Governance framework** (predictable maintenance)
@@ -154,7 +154,7 @@ This directory contains **internal documentation** for Nuclie governance and cor
 
 ### Review Process
 1. Open PR with changes
-2. Tag `@nuclie/core-team`
+2. Tag `@lunx/core-team`
 3. Require 2+ approvals
 4. Update "Last Updated" date
 5. Announce in changelog
@@ -163,7 +163,7 @@ This directory contains **internal documentation** for Nuclie governance and cor
 
 ## 🧠 Governance Principle
 
-**"If extending Nuclie is easier than understanding it, the extension surface is wrong."**
+**"If extending Lunx is easier than understanding it, the extension surface is wrong."**
 
 These documents exist to make **correctness the easiest path**.
 
@@ -186,6 +186,6 @@ These documents exist to make **correctness the easiest path**.
 
 ---
 
-**Welcome to Nuclie governance mode.**
+**Welcome to Lunx governance mode.**
 
 **These documents are the foundation of safe ecosystem growth.**

@@ -1,6 +1,6 @@
 # 🎯 Real Project Matrix - Execution Guide
 
-Test Nuclie against 8 real production open-source projects (153k+ stars).
+Test Lunx against 8 real production open-source projects (153k+ stars).
 
 ## Quick Start
 
@@ -103,5 +103,5 @@ cat results/full-matrix-run.json | jq '."<project-id>"'
 After tests complete:
 1. Review `results/matrix-report.md`
 2. Build matrix website (`matrix-site/`)
-3. Deploy to matrix.nuclietool.com
+3. Deploy to matrix.lunxtool.com
 4. Create marketing materials

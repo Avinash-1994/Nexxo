@@ -4,12 +4,12 @@
  * Validates Day 18 Language Server Protocol Logic
  */
 
-import { NuclieLSPServer } from './mocks/lsp_server.js';
+import { LunxLSPServer } from './mocks/lsp_server.js';
 
 async function runLSPTest() {
-    console.log('🧪 Testing Nuclie LSP Logic...');
+    console.log('🧪 Testing Lunx LSP Logic...');
 
-    const server = new NuclieLSPServer();
+    const server = new LunxLSPServer();
 
     // Test 1: Completions
     console.log('  Test 1: Auto-Completions...');
@@ -22,8 +22,8 @@ export default {
     // Position inside plugins: [
     const compl = server.onCompletion(docText, { line: 3, character: 10 });
 
-    const hasReact = compl.some(c => c.label === '@nuclie/plugin-react');
-    const hasVue = compl.some(c => c.label === '@nuclie/plugin-vue');
+    const hasReact = compl.some(c => c.label === '@lunx/plugin-react');
+    const hasVue = compl.some(c => c.label === '@lunx/plugin-vue');
 
     if (!hasReact || !hasVue) {
         throw new Error('Failed to suggest plugins');

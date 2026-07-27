@@ -1,0 +1,1 @@
+export const add235 = (a: number, b: number) => a + b + 235;

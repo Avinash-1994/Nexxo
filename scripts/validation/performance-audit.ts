@@ -78,7 +78,7 @@ async function runBenchmark() {
     } as any;
 
     console.log('\n🧹 Cleaning old cache...');
-    await fs.rm(path.join(benchRoot, '.nuclie_cache'), { recursive: true, force: true });
+    await fs.rm(path.join(benchRoot, '.lunx_cache'), { recursive: true, force: true });
 
     console.log('\n🚀 Starting Cold Build...');
     const startCold = Date.now();

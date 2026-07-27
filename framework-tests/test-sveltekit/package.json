@@ -1,0 +1,25 @@
+{
+  "name": "lunx-sveltekit-template",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "lunx dev",
+    "build": "lunx build",
+    "preview": "lunx preview"
+  },
+  "lunx": {
+    "template": true,
+    "framework": "sveltekit",
+    "description": "Lunx Blog — full-stack blog with CMS"
+  },
+  "dependencies": {
+    "@sveltejs/kit": "2.5.18",
+    "svelte": "4.2.18",
+    "marked": "12.0.0"
+  },
+  "devDependencies": {
+    "lunx": "file:../../",
+    "typescript": "5.4.5"
+  }
+}

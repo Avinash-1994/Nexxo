@@ -11,7 +11,7 @@ export default {
         '/tests/e2e/',
         '/tests/fixtures/',  // Ignore all fixture test files
         '/tests/visual/',  // Visual tests use Playwright, not Jest
-        '/tests/module7_.*\\.test\\.ts$'  // These use custom Nuclie test API, not Jest
+        '/tests/module7_.*\\.test\\.ts$'  // These use custom Lunx test API, not Jest
     ],
     roots: ['<rootDir>/tests', '<rootDir>/src'], // Run tests in both directories
     transform: {

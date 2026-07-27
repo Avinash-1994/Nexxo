@@ -6,7 +6,7 @@ export const nextjsTemplate = {
         'src/app/page.tsx': `export default function Home() {
   return (
     <main className="min-h-screen p-24">
-      <h1 className="text-4xl font-bold">Welcome to Nuclie + Next.js</h1>
+      <h1 className="text-4xl font-bold">Welcome to Lunx + Next.js</h1>
       <p className="mt-4">Start building your app with App Router</p>
     </main>
   );
@@ -14,8 +14,8 @@ export const nextjsTemplate = {
         'src/app/layout.tsx': `import './globals.css';
 
 export const metadata = {
-  title: 'Nuclie Next.js App',
-  description: 'Built with Nuclie',
+  title: 'Lunx Next.js App',
+  description: 'Built with Lunx',
 };
 
 export default function RootLayout({
@@ -42,7 +42,7 @@ body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
 }`,
-        'nuclie.config.js': `module.exports = {
+        'lunx.config.js': `module.exports = {
   entry: ['./src/app/page.tsx'],
   outDir: './dist',
   framework: 'react',
@@ -64,13 +64,13 @@ body {
   },
 };`,
         'package.json': `{
-  "name": "nuclie-nextjs-app",
+  "name": "lunx-nextjs-app",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "nuclie dev",
-    "build": "nuclie build",
-    "start": "nuclie ssr"
+    "dev": "lunx dev",
+    "build": "lunx build",
+    "start": "lunx ssr"
   },
   "dependencies": {
     "react": "^19.2.3",

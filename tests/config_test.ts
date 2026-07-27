@@ -6,7 +6,7 @@ import assert from 'assert';
 async function testYamlConfig() {
     console.log('Running YAML Config Test...');
     const cwd = process.cwd();
-    const yamlPath = path.join(cwd, 'nuclie.build.yaml');
+    const yamlPath = path.join(cwd, 'lunx.build.yaml');
 
     const yamlContent = `
 root: .

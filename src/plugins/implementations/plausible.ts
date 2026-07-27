@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-plausible
+ * @lunx/plugin-plausible
  * Plausible Analytics integration
  */
 
@@ -7,8 +7,8 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createPlausiblePlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-plausible',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-plausible',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // Analytics: Plausible Analytics integration
@@ -16,7 +16,7 @@ export function createPlausiblePlugin(): PluginAdapter {
         },
 
         async buildEnd() {
-            console.log('[@nuclie/plugin-plausible] Analytics integration ready');
+            console.log('[@lunx/plugin-plausible] Analytics integration ready');
         }
     };
 }

@@ -31,7 +31,7 @@ export class IncrementalBuildManager {
 
     constructor(root: string) {
         this.root = root;
-        this.cacheDir = path.join(root, '.nuclie', 'incremental');
+        this.cacheDir = path.join(root, '.lunx', 'incremental');
         this.manifestPath = path.join(this.cacheDir, 'build-manifest.json');
     }
 

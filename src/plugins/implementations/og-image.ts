@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-og-image
+ * @lunx/plugin-og-image
  * Open Graph image generation
  */
 
@@ -7,8 +7,8 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createOgImagePlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-og-image',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-og-image',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // Utility: Open Graph image generation

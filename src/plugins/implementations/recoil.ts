@@ -1,15 +1,15 @@
 /**
- * @nuclie/plugin-recoil
+ * @lunx/plugin-recoil
  * Recoil state management
- * Nuclie-native
+ * Lunx-native
  */
 
 import { PluginAdapter } from '../ported/adapter.js';
 
 export function createRecoilPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-recoil',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-recoil',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // recoil transformation

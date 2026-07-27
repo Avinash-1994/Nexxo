@@ -5,7 +5,7 @@ let overlay: any;
 
 function getOverlay() {
     if (!overlay) {
-        overlay = document.createElement('nuclie-error-overlay');
+        overlay = document.createElement('lunx-error-overlay');
         document.body.appendChild(overlay);
     }
     return overlay;
@@ -27,6 +27,7 @@ const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 let ws: WebSocket;
 let reconnectAttempts = 0;
 const MAX_ATTEMPTS = 50;
+let pendingClientErrors: any[] = [];
 
 // Secure Config Sync State
 let config: any = null;
@@ -45,14 +46,55 @@ const hotModulesMap = new Map<string, {
 
 const isHmrUpdating = false;
 
+function flushClientErrors() {
+    if (ws && ws.readyState === WebSocket.OPEN && pendingClientErrors.length > 0) {
+        for (const error of pendingClientErrors) {
+            ws.send(JSON.stringify({ type: 'client:error', error }));
+        }
+        pendingClientErrors = [];
+    }
+}
+
+function sendClientError(error: any) {
+    pendingClientErrors.push(error);
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        flushClientErrors();
+    }
+    return error;
+}
+
+window.addEventListener('error', (event) => {
+    const errorPayload = {
+        type: 'runtime',
+        message: event.message,
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+        stack: event.error?.stack
+    };
+    showError(errorPayload);
+    sendClientError(errorPayload);
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+    const errorPayload = {
+        type: 'runtime',
+        message: `Unhandled Promise Rejection: ${event.reason}`,
+        stack: event.reason?.stack
+    };
+    showError(errorPayload);
+    sendClientError(errorPayload);
+});
+
 function connect() {
     // Determine host: if running in proxy, might need to respect forward headers?
     // Using window.location.host is safe for dev
     ws = new WebSocket(`${protocol}//${window.location.host}`);
 
     ws.onopen = () => {
-        // console.log('[nuclie] Connected to dev server');
+        // console.log('[lunx] Connected to dev server');
         reconnectAttempts = 0;
+        flushClientErrors();
         // Notify server we are ready?
     };
 
@@ -61,7 +103,7 @@ function connect() {
             const message = JSON.parse(event.data);
 
             if (message.type === 'connected') {
-                console.log('[nuclie] Connected.');
+                console.log('[lunx] Connected.');
             }
 
             // Security: Config Sync
@@ -72,16 +114,16 @@ function connect() {
 
             if (message.type === 'config:changed') {
                 config = message.config;
-                // console.log('[nuclie] Config updated remotely:', message.update);
+                // console.log('[lunx] Config updated remotely:', message.update);
             }
 
             if (message.type === 'error') {
-                console.error('[nuclie] Build Error:', message.error);
+                console.error('[lunx] Build Error:', message.error);
                 showError({ type: 'build', ...message.error });
             }
 
             if (message.type === 'reload' || message.type === 'restarting') {
-                console.log('[nuclie] Reloading page...');
+                console.log('[lunx] Reloading page...');
                 window.location.reload();
             }
 
@@ -108,12 +150,12 @@ function connect() {
 
                 // Handle <style> tags (CSS-in-JS or Vue/Angular injections)
                 if (!handled) {
-                    // This is harder without IDs. Nuclie's CSS plugin injects with IDs?
+                    // This is harder without IDs. Lunx's CSS plugin injects with IDs?
                     // Assuming global reload for now if not found
                     // Or trying to find style tag with data-vite-dev-id equivalent
                 }
 
-                if (handled) console.log(`[nuclie] CSS updated: ${path}`);
+                if (handled) console.log(`[lunx] CSS updated: ${path}`);
             }
 
             if (message.type === 'update') {
@@ -123,14 +165,14 @@ function connect() {
             }
 
         } catch (e) {
-            console.error('[nuclie] Failed to parse WebSocket message', e);
+            console.error('[lunx] Failed to parse WebSocket message', e);
         }
     };
 
     ws.onclose = () => {
         if (reconnectAttempts < MAX_ATTEMPTS) {
             const timeout = Math.min(1000 * Math.pow(2, reconnectAttempts), 5000);
-            console.log(`[nuclie] Disconnected. Reconnecting in ${timeout}ms...`);
+            console.log(`[lunx] Disconnected. Reconnecting in ${timeout}ms...`);
             setTimeout(connect, timeout);
             reconnectAttempts++;
         }
@@ -142,7 +184,7 @@ async function applyUpdates(updates: any[]) {
     for (const update of updates) {
         const mod = hotModulesMap.get(update.path);
         if (mod) {
-            console.log(`[nuclie] HMR Update: ${update.path}`);
+            console.log(`[lunx] HMR Update: ${update.path}`);
 
             // 1. Call dispose
             const data = {};
@@ -160,7 +202,7 @@ async function applyUpdates(updates: any[]) {
                     cb.fn([newMod]);
                 });
             } catch (e) {
-                console.error(`[nuclie] HMR Error in ${update.path}:`, e);
+                console.error(`[lunx] HMR Error in ${update.path}:`, e);
                 window.location.reload(); // Fallback
             }
         } else {
@@ -170,7 +212,7 @@ async function applyUpdates(updates: any[]) {
 }
 
 // 2. Global API
-(window as any).nuclie = {
+(window as any).lunx = {
     getConfig: () => config,
     updateConfig: (path: string, value: any, persist = false) => {
         if (ws && ws.readyState === WebSocket.OPEN) {
@@ -213,7 +255,7 @@ export function createHotContext(ownerPath: string) {
                 });
             } else {
                 // Dep-accept: accept(['./foo'], cb)
-                // Nuclie v1 simplified: treat as self-accept for now or reload
+                // Lunx v1 simplified: treat as self-accept for now or reload
                 // Proper dep support requires graph analysis on client or server sending graph
             }
         },
@@ -231,23 +273,3 @@ export function createHotContext(ownerPath: string) {
 }
 
 connect();
-
-// Runtime Errors
-window.addEventListener('error', (event) => {
-    showError({
-        type: 'runtime',
-        message: event.message,
-        filename: event.filename,
-        lineno: event.lineno,
-        colno: event.colno,
-        stack: event.error?.stack
-    });
-});
-
-window.addEventListener('unhandledrejection', (event) => {
-    showError({
-        type: 'runtime',
-        message: `Unhandled Promise Rejection: ${event.reason}`,
-        stack: event.reason?.stack
-    });
-});

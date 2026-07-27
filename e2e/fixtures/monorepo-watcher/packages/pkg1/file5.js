@@ -1,0 +1,1 @@
+export const a = 5;\n

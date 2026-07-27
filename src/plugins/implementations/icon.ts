@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-icon
+ * @lunx/plugin-icon
  * Icon component generation
  */
 
@@ -9,8 +9,8 @@ import path from 'path';
 
 export function createIconPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-icon',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-icon',
+        originalPlugin: 'lunx-native',
         
         async load(id: string) {
             // Asset loading for icon

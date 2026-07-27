@@ -1,12 +1,13 @@
 /**
  * Migration CLI Command (Day 44)
  * 
- * CLI interface for nuclie migrate command
+ * CLI interface for lunx migrate command
  */
 
 import { MigrationAnalyzer } from './analyzer.js';
 import { MigrationGenerator } from './generator.js';
 import path from 'path';
+import { rewriteWasmPlugins } from './wasm-rewriter.js';
 
 export interface MigrateCommandOptions {
     dryRun?: boolean;
@@ -18,6 +19,12 @@ export async function migrateCommand(projectPath: string, options: MigrateComman
 
     console.log('🔍 Analyzing project...');
     console.log(`   Path: ${resolvedPath}\n`);
+
+    // Step 0: Migrate legacy Lunx wasm plugins automatically
+    const rewrittenFiles = rewriteWasmPlugins(resolvedPath);
+    if (rewrittenFiles.length > 0) {
+        console.log(`🔧 Rewrote legacy WASM plugin references in: ${rewrittenFiles.join(', ')}\n`);
+    }
 
     // Step 1: Analyze
     const analyzer = new MigrationAnalyzer(resolvedPath);
@@ -40,7 +47,7 @@ export async function migrateCommand(projectPath: string, options: MigrateComman
     if (options.dryRun) {
         console.log('🔍 DRY RUN MODE - No files will be modified\n');
     } else {
-        console.log('⚙️  Generating Nuclie configuration...\n');
+        console.log('⚙️  Generating Lunx configuration...\n');
     }
 
     const generator = new MigrationGenerator(plan, resolvedPath, {

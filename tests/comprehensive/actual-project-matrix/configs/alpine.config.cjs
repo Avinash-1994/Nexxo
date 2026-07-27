@@ -14,7 +14,7 @@ module.exports = {
     hmr: true,
   },
   federation: {
-    name: 'nuclie_remote',
+    name: 'lunx_remote',
     filename: 'remoteEntry.js',
     exposes: {
       './Content': './packages/alpinejs/src/index.js'

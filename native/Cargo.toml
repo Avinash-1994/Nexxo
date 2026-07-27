@@ -1,10 +1,14 @@
 [package]
-name = "nuclie_native"
+name = "lunx_native"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "lunx-native"
+path = "src/bin/lunx_native.rs"
 
 [dependencies]
 lazy_static = "1.5.0"
@@ -12,19 +16,18 @@ napi = { version = "3", features = ["async", "tokio_rt"] }
 napi-derive = "3"
 regex = "1.12.2"
 xxhash-rust = { version = "0.8.15", features = ["xxh3", "xxh64"] }
+hex = "0.4"
+sha2 = "0.10"
 
 # Day 2: Tokio Orchestrator & RocksDB Cache
 tokio = { version = "1.35", features = ["full"] }
-rocksdb = "0.22"
+rusqlite = { version = "0.31", features = ["bundled"] }
 serde = "=1.0.210"
 serde_json = "1.0"
 rayon = "1.8"  # For parallel iterators
 
 chrono = "0.4"  # For timestamps
 
-# Day 8: WASM Runtime
-wasmtime = "18.0"
-anyhow = "1.0"
 
 # Day 55: Rust Core Migration
 swc_core = { version = "0.90", features = ["common", "ecma_ast", "ecma_parser", "ecma_codegen", "ecma_minifier", "ecma_visit", "ecma_transforms_module", "ecma_transforms_typescript"] }
@@ -32,6 +35,15 @@ swc_common = "0.33.26"
 swc_ecma_transforms_base = "0.137.21"
 base64 = "0.22"
 lightningcss = { version = "1.0.0-alpha.58", features = ["visitor", "sourcemap"] }
+
+# Phase 3.2 — Source map merger
+sourcemap = "8.0"
+
+# Phase 3.3 — Native FS watcher
+notify = { version = "6.1", features = ["serde"] }
+
+# Phase 3.1 — Chunker (dep graph walking)
+petgraph = "0.6"
 
 [build-dependencies]
 napi-build = "2"

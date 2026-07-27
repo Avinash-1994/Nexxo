@@ -1,0 +1,15 @@
+{
+  "name": "tanstack-invoicing",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "lunx dev",
+    "build": "lunx build"
+  },
+  "dependencies": {
+    "@tanstack/start": "latest",
+    "@tanstack/react-start": "latest",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  }
+}

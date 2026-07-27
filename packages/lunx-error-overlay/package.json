@@ -1,0 +1,12 @@
+{
+  "name": "@lunx/error-overlay",
+  "version": "1.17.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": { "import": "./dist/index.js", "types": "./dist/index.d.ts" }
+  },
+  "files": ["dist"],
+  "sideEffects": false
+}

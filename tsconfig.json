@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2020",
+    "lib": ["ES2022"],
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "declaration": true,
@@ -12,12 +13,24 @@
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "isolatedModules": true
+    "isolatedModules": true,
+    "paths": {
+      "@lunx/adapter-core": ["./packages/lunx-adapter-core/src/index.js", "./packages/lunx-adapter-core/src/index.ts"],
+      "@lunx/adapter-core/*": ["./packages/lunx-adapter-core/*"],
+      "@lunx/security": ["./packages/lunx-security/src/index.ts"],
+      "@lunx/security/*": ["./packages/lunx-security/src/*"]
+    }
   },
   "include": [
     "src/**/*",
     "extensions/**/*",
-    "tests/**/*",
-    "benchmarks/**/*"
+    "packages/**/*"
+  ],
+  "exclude": [
+    "tests/**",
+    "benchmarks/**",
+    "**/node_modules/**",
+    "dist/**",
+    "e2e/**"
   ]
 }

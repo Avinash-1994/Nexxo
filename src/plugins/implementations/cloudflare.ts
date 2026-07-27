@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-cloudflare
+ * @lunx/plugin-cloudflare
  * Cloudflare Pages adapter
  */
 
@@ -7,11 +7,11 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createCloudflarePlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-cloudflare',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-cloudflare',
+        originalPlugin: 'lunx-native',
         
         async buildEnd() {
-            console.log('[@nuclie/plugin-cloudflare] Deployment adapter ready');
+            console.log('[@lunx/plugin-cloudflare] Deployment adapter ready');
             // Generate deployment config
         }
     };

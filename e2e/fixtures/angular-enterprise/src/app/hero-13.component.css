@@ -1,0 +1,10 @@
+.hero-card-13 {
+  background-color: #f4f4f4;
+  border-radius: 8px;
+  padding: 16px;
+  color: #333;
+  display: flex;
+}
+.hero-card-13:hover {
+  transform: scale(1.05);
+}

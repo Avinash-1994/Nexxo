@@ -1,11 +1,11 @@
-# Migrating from Vite to Nuclie
+# Migrating from Vite to Lunx
 
-Nuclie is designed to be a drop-in 10x faster replacement for Vite.
+Lunx is designed to be a fast replacement for Vite.
 
 ## 1. Quick Switch
 Run the auto-migration command:
 ```bash
-npx nuclie migrate
+npx lunx migrate
 ```
 
 ## 2. Manual Migration
@@ -14,32 +14,32 @@ npx nuclie migrate
 Change your content in `package.json`:
 ```json
 "scripts": {
-  "dev": "nuclie dev",
-  "build": "nuclie build"
+  "dev": "lunx dev",
+  "build": "lunx build"
 }
 ```
 
 ### Reuse Vite Plugins
-Nuclie supports Vite plugins natively via the compatibility adapter.
+Lunx can reuse many Vite-compatible plugins through compatibility adapters.
 
 ```ts
-// nuclie.config.ts
-import { defineConfig } from 'nuclie';
-import { viteToNuclie } from 'nuclie';
+// lunx.config.ts
+import { defineConfig } from 'lunx';
+import { rollupAdapter } from '@lunx/plugin-compat';
 import someVitePlugin from 'vite-plugin-cool';
 
 export default defineConfig({
   plugins: [
-    viteToNuclie(someVitePlugin())
+    rollupAdapter(someVitePlugin())
   ]
 });
 ```
 
 ## 3. Environment Variables
-Nuclie respects `.env` files exactly like Vite. Use `import.meta.env` as usual.
+Lunx respects `.env` files exactly like Vite. Use `import.meta.env` as usual.
 
 ## 4. Key Differences
-| Feature | Vite | Nuclie |
+| Feature | Vite | Lunx |
 |---------|------|-------|
 | Startup | ~400ms | < 50ms |
 | Build | esbuild/Rollup | Native Rust |

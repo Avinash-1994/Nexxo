@@ -26,13 +26,14 @@ export async function initBuild(
     explainReporter.report('init', 'initialize', 'Starting build initialization');
 
     const engine: EngineInfo = {
-        name: "Nuclie",
+        name: "Lunx",
         version: "0.1.3", // Should normally come from package.json
         buildTime: new Date().toISOString()
     };
 
     const config: ResolvedConfig = resolveConfig(userConfig, rootDir, mode);
-    const useCache = userConfig.cache !== false;
+    // cache may be false (legacy boolean) or an object with remote config
+    const useCache = userConfig.cache !== false && userConfig.cache !== undefined;
     const cache = useCache ? new PersistentBuildCache(rootDir) : new InMemoryBuildCache();
     const pluginManager = new PluginManager();
 
@@ -68,7 +69,7 @@ export async function initBuild(
 function resolveConfig(userConfig: BuildConfig, rootDir: string, mode: BuildMode): ResolvedConfig {
     const sourcemap = userConfig.build?.sourcemap;
     return {
-        entryPoints: userConfig.entry,
+        entryPoints: Array.isArray(userConfig.entry) ? userConfig.entry : (userConfig.entry ? [userConfig.entry] : []),
         outputDir: path.isAbsolute(userConfig.outDir || 'dist')
             ? userConfig.outDir
             : path.resolve(rootDir, userConfig.outDir || 'dist'),
@@ -98,53 +99,31 @@ export async function computeInputFingerprint(ctx: BuildContext): Promise<InputF
     // We strictly use version/name, NOT buildTime for semantic hash
     const engineFingerprint = canonicalHash({ name: ctx.engine.name, version: ctx.engine.version });
 
-    // 3. Hash Source Files (Entry points initially, full graph later? 
-    // SPEC SAYS: "Hash all source files". 
-    // However, we haven't built the graph yet in the main flow? 
-    // Actually Stage 2 is "Input Fingerprinting", Stage 3 is "Attach Graph".
-    // Usually we need the graph to know *which* files are source files.
-    // If the spec implies we fingerprint the *entry* concept or the *entire repo*, 
-    // let's assume for now we fingerprint the Configuration + Environment + Entry file paths.
-    // Real source content hashing usually happens *during* graph build or *after* graph build.
-    // BUT the spec says Stage 2 -> Stage 3. This implies we might scan the directory or just fingerprint known inputs.
-    // Let's fingerprint the config and entry points for now. The graph content hash comes later.
-
-    // Correction: In a pure build system, "Inputs" are files. If we don't have the graph, we don't know the inputs.
-    // Maybe "InputFingerprint" at this stage is just "Configuration & Environment"?
-    // Or maybe we treat *all* files in src as inputs? 
-    // Let's stick to Config + Entry Paths for the 'Input' definition at this precise millisecond.
-    // We will update it if we move this stage after graph. 
-    // Wait, the spec says: "Hash all source files" inside `computeInputFingerprint`.
-    // Valid implementation: We might need to walk the tree *now* or defer this until after graph?
-    // Spec Order: Init -> Fingerprint -> Attach Graph.
-    // This implies we fingerprint based on *what we know*. 
-    // Let's fingerprint the Entry Files themselves if they exist.
-
-    // 3. Hash Source Files (High-Parallelism Scan)
-    const excludes = new Set(['node_modules', '.git', 'dist', 'build_output', 'coverage', '.DS_Store', '.nuclie_cache']);
-    if (ctx.config.outputDir) excludes.add(path.basename(ctx.config.outputDir));
-
+    // 3. Hash Source Files - only relevant build inputs.
+    // Scanning the whole repository on every cold start is expensive for large monorepos,
+    // so we limit this fingerprint step to the actual entry files and the primary project metadata.
     const sourceFiles: { path: string, contentHash: string }[] = [];
-    const tasks: Promise<void>[] = [];
 
-    async function scan(dir: string) {
-        const entries = await fs.readdir(dir, { withFileTypes: true });
-        for (const dirent of entries) {
-            if (excludes.has(dirent.name)) continue;
-            const fullPath = path.join(dir, dirent.name);
-            if (dirent.isDirectory()) {
-                tasks.push(scan(fullPath));
-            } else if (/\.(ts|tsx|js|jsx|json|css|html|vue|svelte)$/i.test(dirent.name)) {
-                tasks.push((async () => {
-                    const content = await fs.readFile(fullPath);
-                    sourceFiles.push({ path: path.relative(ctx.rootDir, fullPath), contentHash: canonicalHash(content) });
-                })());
-            }
+    async function hashPath(filePath: string) {
+        try {
+            const content = await fs.readFile(filePath);
+            sourceFiles.push({ path: path.relative(ctx.rootDir, filePath), contentHash: canonicalHash(content) });
+        } catch {
+            // Ignore missing or unreadable files; this is a best-effort fingerprint.
         }
     }
 
-    await scan(ctx.rootDir);
-    await Promise.all(tasks);
+    for (const entry of ctx.config.entryPoints) {
+        const absEntry = path.isAbsolute(entry) ? entry : path.resolve(ctx.rootDir, entry);
+        await hashPath(absEntry);
+    }
+
+    // Include the main package manifest and local build config so dependency and plugin changes are captured.
+    await hashPath(path.resolve(ctx.rootDir, 'package.json'));
+    await hashPath(path.resolve(ctx.rootDir, 'lunx.config.js'));
+    await hashPath(path.resolve(ctx.rootDir, 'package-lock.json'));
+    await hashPath(path.resolve(ctx.rootDir, 'pnpm-lock.yaml'));
+
     sourceFiles.sort((a, b) => a.path.localeCompare(b.path));
 
     const inputsToHash = {
@@ -175,6 +154,7 @@ export function attachGraph(ctx: BuildContext, graph: DependencyGraph): BuildCon
         const deps = val.edges.map(e => e.to).sort();
         nodesObj[key] = {
             id: val.id,
+            contentHash: val.contentHash,
             deps: deps
         };
     }

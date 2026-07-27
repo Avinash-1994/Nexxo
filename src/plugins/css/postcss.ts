@@ -1,10 +1,10 @@
 
 import path from 'path';
 import { createRequire } from 'module';
-import { NucliePlugin } from '../../core/plugins/types.js';
+import { LunxPlugin } from '../../core/plugins/types.js';
 import { log } from '../../utils/logger.js';
 
-export function createPostCssPlugin(rootDir: string): NucliePlugin {
+export function createPostCssPlugin(rootDir: string): LunxPlugin {
     let processor: any = null;
     let initialized = false;
 
@@ -54,14 +54,14 @@ export function createPostCssPlugin(rootDir: string): NucliePlugin {
 
     return {
         manifest: {
-            name: 'nuclie:postcss',
+            name: 'lunx:postcss',
             version: '1.0.0',
             engineVersion: '1.0.0',
             type: 'js',
             hooks: ['transformModule'],
             permissions: { fs: 'read' }
         },
-        id: 'nuclie:postcss',
+        id: 'lunx:postcss',
         async runHook(hook, input, context) {
             if (hook !== 'transformModule' || !input.path.endsWith('.css')) {
                 return input;

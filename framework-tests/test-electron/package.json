@@ -1,0 +1,20 @@
+{
+  "name": "lunx-electron-template",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "lunx dev",
+    "build": "lunx build",
+    "preview": "lunx preview"
+  },
+  "lunx": {
+    "template": true,
+    "framework": "electron",
+    "description": "Lunx Notes Desktop — native note app"
+  },
+  "devDependencies": {
+    "lunx": "file:../../",
+    "typescript": "5.4.5"
+  }
+}

@@ -1,7 +1,7 @@
 // tests/runner_verification_test.ts
-// This file tests the custom @nuclie/test runner itself
+// This file tests the custom @lunx/test runner itself
 
-describe('Nuclie Test Runner', () => {
+describe('Lunx Test Runner', () => {
     it('should support describe/it blocks', () => {
         expect(true).toBe(true);
     });

@@ -1,0 +1,26 @@
+{
+  "name": "lunx-remix-template",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "lunx dev",
+    "build": "lunx build",
+    "preview": "lunx preview"
+  },
+  "lunx": {
+    "template": true,
+    "framework": "remix",
+    "description": "Lunx Jobs — job board with applications"
+  },
+  "dependencies": {
+    "@remix-run/react": "2.9.2",
+    "@remix-run/node": "2.9.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "lunx": "file:../../",
+    "typescript": "5.4.5"
+  }
+}

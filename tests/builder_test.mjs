@@ -41,7 +41,7 @@ async function test() {
             throw new Error('Builder UI failed to load');
         }
         const html = await uiResponse.text();
-        if (!html.includes('Nuclie Builder')) {
+        if (!html.includes('Lunx Builder')) {
             throw new Error('Builder UI content incorrect');
         }
         console.log('   ✅ Builder UI loads correctly\n');

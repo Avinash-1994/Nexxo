@@ -133,10 +133,10 @@ export function createModuleNotFoundError(
         file: importedFrom,
         fileChain,
         graphExplanation: `The module '${modulePath}' was imported but could not be found in the dependency graph. This breaks the module resolution chain.`,
-        suggestedFix: `1. Check if the file exists at: ${modulePath}\n2. Verify the import path is correct\n3. If it's an npm package, run: npm install ${modulePath}\n4. Check your nuclie.config resolve.alias settings`,
+        suggestedFix: `1. Check if the file exists at: ${modulePath}\n2. Verify the import path is correct\n3. If it's an npm package, run: npm install ${modulePath}\n4. Check your lunx.config resolve.alias settings`,
         relatedDocs: [
-            'https://nuclie.dev/docs/module-resolution',
-            'https://nuclie.dev/docs/troubleshooting#module-not-found'
+            'https://lunx.dev/docs/module-resolution',
+            'https://lunx.dev/docs/troubleshooting#module-not-found'
         ],
         severity: 'error'
     });
@@ -153,8 +153,8 @@ export function createCircularDependencyError(
         graphExplanation: `A circular dependency creates an infinite loop in the module graph. This can cause runtime errors and unpredictable behavior.`,
         suggestedFix: `1. Refactor to break the circular dependency\n2. Extract shared code into a separate module\n3. Use dependency injection or lazy loading\n4. Consider using dynamic imports: import('./module')`,
         relatedDocs: [
-            'https://nuclie.dev/docs/circular-dependencies',
-            'https://nuclie.dev/docs/best-practices#module-design'
+            'https://lunx.dev/docs/circular-dependencies',
+            'https://lunx.dev/docs/best-practices#module-design'
         ],
         severity: 'error'
     });
@@ -171,11 +171,11 @@ export function createCSSImportError(
         message: `Failed to process CSS file: ${cssFile}`,
         file: cssFile,
         fileChain: importedFrom ? [importedFrom, cssFile] : [cssFile],
-        graphExplanation: `CSS files are first-class nodes in Nuclie's dependency graph. This CSS file could not be processed, breaking the graph.`,
-        suggestedFix: `1. Check CSS syntax: ${reason}\n2. Verify PostCSS config if using preprocessors\n3. Check for missing @import files\n4. Run: nuclie verify --explain to diagnose`,
+        graphExplanation: `CSS files are first-class nodes in Lunx's dependency graph. This CSS file could not be processed, breaking the graph.`,
+        suggestedFix: `1. Check CSS syntax: ${reason}\n2. Verify PostCSS config if using preprocessors\n3. Check for missing @import files\n4. Run: lunx verify --explain to diagnose`,
         relatedDocs: [
-            'https://nuclie.dev/docs/css-handling',
-            'https://nuclie.dev/docs/postcss-integration'
+            'https://lunx.dev/docs/css-handling',
+            'https://lunx.dev/docs/postcss-integration'
         ],
         severity: 'error'
     });
@@ -188,11 +188,11 @@ export function createFrameworkAdapterMissingError(
     return new HeroError({
         code: 'FRAMEWORK_ADAPTER_MISSING',
         message: `Framework adapter not found: ${framework}`,
-        graphExplanation: `Nuclie requires a framework adapter to transform framework-specific code. The adapter for '${framework}' is not installed.`,
-        suggestedFix: `1. Install the adapter: npm install @nuclie/framework-${framework.toLowerCase()}\n2. Add to nuclie.config:\n   import ${framework.toLowerCase()} from '@nuclie/framework-${framework.toLowerCase()}';\n   export default { framework: ${framework.toLowerCase()}() }`,
+        graphExplanation: `Lunx requires a framework adapter to transform framework-specific code. The adapter for '${framework}' is not installed.`,
+        suggestedFix: `1. Install the adapter: npm install @lunx/framework-${framework.toLowerCase()}\n2. Add to lunx.config:\n   import ${framework.toLowerCase()} from '@lunx/framework-${framework.toLowerCase()}';\n   export default { framework: ${framework.toLowerCase()}() }`,
         relatedDocs: [
-            'https://nuclie.dev/docs/framework-adapters',
-            `https://nuclie.dev/docs/frameworks/${framework.toLowerCase()}`
+            'https://lunx.dev/docs/framework-adapters',
+            `https://lunx.dev/docs/frameworks/${framework.toLowerCase()}`
         ],
         severity: 'error'
     });
@@ -207,11 +207,11 @@ export function createInvalidConfigError(
         code: 'INVALID_CONFIG',
         message: 'Configuration file is invalid',
         file: configPath,
-        graphExplanation: `The nuclie.config file failed validation. This prevents the build from starting.`,
-        suggestedFix: `Fix the following validation errors:\n${validationErrors.map((e, i) => `${i + 1}. ${e}`).join('\n')}\n\nRun: nuclie verify --explain for detailed diagnostics`,
+        graphExplanation: `The lunx.config file failed validation. This prevents the build from starting.`,
+        suggestedFix: `Fix the following validation errors:\n${validationErrors.map((e, i) => `${i + 1}. ${e}`).join('\n')}\n\nRun: lunx verify --explain for detailed diagnostics`,
         relatedDocs: [
-            'https://nuclie.dev/docs/configuration',
-            'https://nuclie.dev/docs/config-schema'
+            'https://lunx.dev/docs/configuration',
+            'https://lunx.dev/docs/config-schema'
         ],
         severity: 'error'
     });
@@ -226,10 +226,10 @@ export function createCacheCorruptedError(
         message: 'Build cache is corrupted',
         file: cachePath,
         graphExplanation: `The SQLite build cache has become corrupted. This can happen due to interrupted builds or disk errors.`,
-        suggestedFix: `1. Delete the cache: rm -rf ${cachePath}\n2. Rebuild: nuclie build\n3. If issue persists, check disk health\n4. Consider disabling cache temporarily: nuclie build --no-cache`,
+        suggestedFix: `1. Delete the cache: rm -rf ${cachePath}\n2. Rebuild: lunx build\n3. If issue persists, check disk health\n4. Consider disabling cache temporarily: lunx build --no-cache`,
         relatedDocs: [
-            'https://nuclie.dev/docs/caching',
-            'https://nuclie.dev/docs/troubleshooting#cache-issues'
+            'https://lunx.dev/docs/caching',
+            'https://lunx.dev/docs/troubleshooting#cache-issues'
         ],
         severity: 'warning'
     });
@@ -244,10 +244,10 @@ export function createHMRConnectionError(
         code: 'HMR_CONNECTION_FAILED',
         message: `Hot Module Replacement connection failed on port ${port}`,
         graphExplanation: `The HMR WebSocket connection could not be established. This prevents live updates during development.`,
-        suggestedFix: `1. Check if port ${port} is available\n2. Verify firewall settings\n3. Try a different port: nuclie dev --port ${port + 1}\n4. Check browser console for WebSocket errors\n\nReason: ${reason}`,
+        suggestedFix: `1. Check if port ${port} is available\n2. Verify firewall settings\n3. Try a different port: lunx dev --port ${port + 1}\n4. Check browser console for WebSocket errors\n\nReason: ${reason}`,
         relatedDocs: [
-            'https://nuclie.dev/docs/hmr',
-            'https://nuclie.dev/docs/dev-server#troubleshooting'
+            'https://lunx.dev/docs/hmr',
+            'https://lunx.dev/docs/dev-server#troubleshooting'
         ],
         severity: 'warning'
     });
@@ -266,8 +266,8 @@ export function createAssetResolutionError(
         graphExplanation: `Assets (images, fonts, etc.) are tracked in the dependency graph. This asset could not be found.`,
         suggestedFix: `1. Check if file exists: ${assetPath}\n2. Verify the path is correct\n3. Check public directory configuration\n4. Ensure file extension is supported`,
         relatedDocs: [
-            'https://nuclie.dev/docs/assets',
-            'https://nuclie.dev/docs/static-assets'
+            'https://lunx.dev/docs/assets',
+            'https://lunx.dev/docs/static-assets'
         ],
         severity: 'error'
     });
@@ -287,10 +287,10 @@ export function createTypeScriptError(
         file,
         line,
         column,
-        graphExplanation: `TypeScript type checking failed. While Nuclie uses esbuild for fast transpilation, type errors indicate potential runtime issues.`,
+        graphExplanation: `TypeScript type checking failed. While Lunx uses esbuild for fast transpilation, type errors indicate potential runtime issues.`,
         suggestedFix: `1. Fix the type error at ${file}:${line}:${column}\n2. Run: npx tsc --noEmit for full type checking\n3. Check tsconfig.json settings\n4. Error code: ${code}`,
         relatedDocs: [
-            'https://nuclie.dev/docs/typescript',
+            'https://lunx.dev/docs/typescript',
             `https://www.typescriptlang.org/docs/handbook/error.html#${code}`
         ],
         severity: 'error'
@@ -309,8 +309,8 @@ export function createPluginHookError(
         graphExplanation: `A plugin hook threw an error during the build process. This indicates a bug in the plugin or incompatibility.`,
         suggestedFix: `1. Check plugin version compatibility\n2. Review plugin configuration\n3. Try disabling the plugin temporarily\n4. Report issue to plugin author\n\nOriginal error: ${error.message}`,
         relatedDocs: [
-            'https://nuclie.dev/docs/plugins',
-            'https://nuclie.dev/docs/plugin-api'
+            'https://lunx.dev/docs/plugins',
+            'https://lunx.dev/docs/plugin-api'
         ],
         severity: 'error',
         stack: error.stack
@@ -330,8 +330,8 @@ export function wrapError(error: Error, context?: Partial<ErrorContext>): HeroEr
         message: error.message,
         stack: error.stack,
         severity: 'error',
-        suggestedFix: 'This is an unexpected error. Please report it to: https://github.com/Avinash-1994/nuclie/issues',
-        relatedDocs: ['https://nuclie.dev/docs/troubleshooting'],
+        suggestedFix: 'This is an unexpected error. Please report it to: https://github.com/Avinash-1994/lunx/issues',
+        relatedDocs: ['https://lunx.dev/docs/troubleshooting'],
         ...context
     });
 }

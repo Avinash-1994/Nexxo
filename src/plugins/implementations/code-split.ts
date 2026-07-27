@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-code-split
+ * @lunx/plugin-code-split
  * Smart code splitting
  */
 
@@ -7,11 +7,11 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createCodeSplitPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-code-split',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-code-split',
+        originalPlugin: 'lunx-native',
         
         async buildStart() {
-            console.log('[@nuclie/plugin-code-split] Starting performance optimization...');
+            console.log('[@lunx/plugin-code-split] Starting performance optimization...');
         },
 
         async transform(code: string, id: string) {
@@ -20,7 +20,7 @@ export function createCodeSplitPlugin(): PluginAdapter {
         },
 
         async buildEnd() {
-            console.log('[@nuclie/plugin-code-split] Performance optimization complete');
+            console.log('[@lunx/plugin-code-split] Performance optimization complete');
         }
     };
 }

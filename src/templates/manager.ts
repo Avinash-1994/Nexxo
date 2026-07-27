@@ -1,7 +1,7 @@
 /**
  * Template Manager (Day 46)
  * 
- * Manages production-ready starter templates for Nuclie.
+ * Manages production-ready starter templates for Lunx.
  * Handles scaffolding, variable replacement, and initial setup.
  */
 
@@ -30,6 +30,22 @@ import { edgeTemplate } from './starters/edge.js';
 import { fintechTemplate } from './starters/fintech.js';
 import { monorepoTemplate } from './starters/monorepo.js';
 
+// New Frameworks
+import { astroSpaTemplate } from './starters/astro-spa.js';
+import { sveltekitAppTemplate } from './starters/sveltekit-app.js';
+import { qwikSpaTemplate } from './starters/qwik-spa.js';
+import { litSpaTemplate } from './starters/lit-spa.js';
+import { alpineSpaTemplate } from './starters/alpine-spa.js';
+import { solidstartAppTemplate } from './starters/solidstart-app.js';
+import { tauriAppTemplate } from './starters/tauri-app.js';
+import { electronAppTemplate } from './starters/electron-app.js';
+import { vitepressAppTemplate } from './starters/vitepress-app.js';
+import { wakuAppTemplate } from './starters/waku-app.js';
+import { analogAppTemplate } from './starters/analog-app.js';
+import { nuxtAppTemplate } from './starters/nuxt-app.js';
+import { reactRouterV7AppTemplate } from './starters/react-router-v7-app.js';
+import { tanstackStartAppTemplate } from './starters/tanstack-start-app.js';
+
 export class TemplateManager {
     private templates: Map<string, TemplateConfig> = new Map();
 
@@ -44,6 +60,22 @@ export class TemplateManager {
         this.register(edgeTemplate);
         this.register(fintechTemplate);
         this.register(monorepoTemplate);
+        
+        // Register new frameworks
+        this.register(astroSpaTemplate);
+        this.register(sveltekitAppTemplate);
+        this.register(qwikSpaTemplate);
+        this.register(litSpaTemplate);
+        this.register(alpineSpaTemplate);
+        this.register(solidstartAppTemplate);
+        this.register(tauriAppTemplate);
+        this.register(electronAppTemplate);
+        this.register(vitepressAppTemplate);
+        this.register(wakuAppTemplate);
+        this.register(analogAppTemplate);
+        this.register(nuxtAppTemplate);
+        this.register(reactRouterV7AppTemplate);
+        this.register(tanstackStartAppTemplate);
     }
 
     register(template: TemplateConfig): void {
@@ -95,17 +127,17 @@ export class TemplateManager {
             private: true,
             type: 'module',
             scripts: {
-                "dev": "nuclie dev",
-                "build": "nuclie build",
-                "preview": "nuclie preview",
-                "test": "nuclie test",
+                "dev": "lunx dev",
+                "build": "lunx build",
+                "preview": "lunx preview",
+                "test": "lunx test",
                 "lint": "eslint src --ext .ts,.tsx,.js,.jsx",
                 "check": "tsc --noEmit"
             },
             dependencies: template.dependencies,
             devDependencies: {
                 ...template.devDependencies,
-                "nuclie": "^2.0.0",
+                "lunx": "^2.0.0",
                 "typescript": "^5.0.0",
                 "@types/node": "^20.0.0"
             }
@@ -159,7 +191,7 @@ export class TemplateManager {
                 "moduleResolution": "bundler",
                 "allowSyntheticDefaultImports": true
             },
-            "include": ["nuclie.config.ts"]
+            "include": ["lunx.config.ts"]
         };
 
         fs.writeFileSync(
@@ -170,7 +202,7 @@ export class TemplateManager {
         // Create README.md
         const readme = `# ${projectName}
 
-Created with Nuclie - The High-Performance Build System.
+Created with Lunx - The High-Performance Build System.
 
 ## Getting Started
 
@@ -191,14 +223,14 @@ npm run dev
         // Create .gitignore
         const gitignore = `node_modules
 dist
-.nuclie
+.lunx
 .env
 .DS_Store
 coverage
 `;
         fs.writeFileSync(path.join(targetDir, '.gitignore'), gitignore);
 
-        console.log(`✅ ${template.name} created successfully! by Nuclie`);
+        console.log(`✅ ${template.name} created successfully! by Lunx`);
     }
 }
 

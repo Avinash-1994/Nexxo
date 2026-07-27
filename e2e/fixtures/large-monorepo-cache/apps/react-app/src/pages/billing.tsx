@@ -1,0 +1,1 @@
+export default function billing() { return "View for billing"; }

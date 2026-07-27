@@ -1,15 +1,15 @@
-# Nuclie Governance & Stability
+# Lunx Governance & Stability
 
 **Module**: 13 (Phase H.5)  
 **Status**: ✅ Active
 
-This document defines the decision authority, freeze policies, and long-term stability guarantees for the Nuclie project.
+This document defines the decision authority, freeze policies, and long-term stability guarantees for the Lunx project.
 
 ---
 
 ## 🏛️ Decision Authority
 
-1.  **Core Maintainers**: The Nuclie Core Team has absolute authority over the repository.
+1.  **Core Maintainers**: The Lunx Core Team has absolute authority over the repository.
 2.  **Architectural Veto**: Any maintainer can veto a PR if it violates the "Zero Core Change" rule or introduces framework coupling.
 3.  **Governance Board**: Major policy changes (e.g., thawing a frozen module) require a 100% consensus from the core maintainers.
 
@@ -17,7 +17,7 @@ This document defines the decision authority, freeze policies, and long-term sta
 
 ## ❄️ Freeze Policies
 
-Nuclie uses a **Module-Based Freeze** system:
+Lunx uses a **Module-Based Freeze** system:
 
 1.  **Modules 1-8 (Core)**: **HARD FROZEN**. No logic changes allowed unless fixing a critical security vulnerability or an engine regression.
 2.  **Module 9 (Registry)**: **LOCKED**. The schema and tier rules are canonical.
@@ -28,7 +28,7 @@ Nuclie uses a **Module-Based Freeze** system:
 ## 💥 Breaking Change Rules
 
 ### Core (Modules 1-8)
-Breaking changes are forbidden. Any evolution requiring a core change must be implemented as a separate tool or a major version fork (Nuclie v2), which is not currently planned.
+Breaking changes are forbidden. Any evolution requiring a core change must be implemented as a separate tool or a major version fork (Lunx v2), which is not currently planned.
 
 ### Adapters (Tier 1)
 Reserved for "Frozen" status. No changes allowed unless security-critical.
@@ -40,12 +40,12 @@ Breaking changes are allowed but must be communicated in `CHANGELOG.md` and invo
 
 ## 🛡️ Long-Term Stability Guarantees
 
-1.  **Predictability**: An `nuclie.config.js` that works today will work forever with the same major version of Nuclie.
-2.  **Neutrality**: Nuclie will never pivot to being a "React-first" or "Vue-first" tool.
+1.  **Predictability**: An `lunx.config.js` that works today will work forever with the same major version of Lunx.
+2.  **Neutrality**: Lunx will never pivot to being a "React-first" or "Vue-first" tool.
 3.  **Efficiency**: We will never trade core performance for feature convenience.
 
 ---
 
 ## 🏁 Exit Criteria for Phase H
 
-Nuclie is considered "Community Ready" only when all Phase H modules (9-13) are marked as **CLOSED**. This document marks the final administrative gate for Phase H.
+Lunx is considered "Community Ready" only when all Phase H modules (9-13) are marked as **CLOSED**. This document marks the final administrative gate for Phase H.

@@ -37,7 +37,7 @@ describe('Plugin Marketplace - Module 7', () => {
 
         expect(sources.has('vite-port')).toBe(true);
         expect(sources.has('webpack-port')).toBe(true);
-        expect(sources.has('nuclie-native')).toBe(true);
+        expect(sources.has('lunx-native')).toBe(true);
     });
 
     it('should have at least 20 Vite ports', () => {

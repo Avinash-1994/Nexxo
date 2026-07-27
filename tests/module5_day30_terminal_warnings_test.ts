@@ -64,7 +64,7 @@ async function runTest() {
         },
         rootDir: '/test',
         target: 'browser',
-        engine: { name: 'Nuclie', version: '1.0.0' }
+        engine: { name: 'Lunx', version: '1.0.0' }
     };
 
     const configWarnings = detector.analyzeContext(mockContext as BuildContext);

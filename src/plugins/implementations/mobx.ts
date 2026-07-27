@@ -1,15 +1,15 @@
 /**
- * @nuclie/plugin-mobx
+ * @lunx/plugin-mobx
  * MobX integration
- * Nuclie-native
+ * Lunx-native
  */
 
 import { PluginAdapter } from '../ported/adapter.js';
 
 export function createMobxPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-mobx',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-mobx',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // mobx transformation

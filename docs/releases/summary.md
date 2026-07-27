@@ -1,8 +1,8 @@
-# 🎉 NUCLIE v1.0.0 - PRODUCTION RELEASE COMPLETE
+# 🎉 LUNX v1.0.0 - PRODUCTION RELEASE COMPLETE
 
 ## ✅ ALL SYSTEMS GO!
 
-**Nuclie is now PRODUCTION READY and approved for immediate release!**
+**Lunx is now PRODUCTION READY and approved for immediate release!**
 
 ---
 
@@ -39,7 +39,7 @@ Build Errors: 0
      → Zero build errors
 
 [✅] 2. Fix All Build Errors
-     → NUCLIE_BUILD_ERRORS.md is empty
+     → LUNX_BUILD_ERRORS.md is empty
      → All builds successful
      → Production-ready code
 
@@ -117,7 +117,7 @@ Build Errors: 0
 
 ```
 ┌──────────────────────┬──────────────┬────────────┐
-│ Metric               │ Nuclie        │ Status     │
+│ Metric               │ Lunx        │ Status     │
 ├──────────────────────┼──────────────┼────────────┤
 │ Cold Start Time      │ 69ms         │ ✅ Excellent│
 │ HMR Update Speed     │ 10-60ms      │ ✅ Excellent│
@@ -137,7 +137,7 @@ Build Errors: 0
 
 **NEW: Single-Viewport Feature Showcase**
 
-Highlights Nuclie's capabilities:
+Highlights Lunx's capabilities:
 - ⚡ Lightning Fast (69ms cold start, 10-60ms HMR)
 - 📊 Build Performance (optimization chart)
 - 💻 Universal Framework Support (10+ frameworks)
@@ -181,7 +181,7 @@ Design:
 
 ---
 
-## 🌟 WHAT MAKES NUCLIE SPECIAL
+## 🌟 WHAT MAKES LUNX SPECIAL
 
 ### 1. Universal Framework Support
 Auto-detects and supports 10+ frameworks with version-agnostic transformers
@@ -207,25 +207,25 @@ Perfect scores across 8 real-world projects
 
 ```bash
 # Install globally
-npm install -g nuclie
+npm install -g lunx
 
 # Create new project
-npx create-nuclie my-app --template premium-dashboard
+npx create-lunx my-app --template premium-dashboard
 
 # Start development
 cd my-app
-nuclie dev
+lunx dev
 
 # Build for production
-nuclie build
+lunx build
 ```
 
 ---
 
 ## 📞 SUPPORT & RESOURCES
 
-- **Repository:** https://github.com/Avinash-1994/nuclie
-- **Issues:** https://github.com/Avinash-1994/nuclie/issues
+- **Repository:** https://github.com/Avinash-1994/lunx
+- **Issues:** https://github.com/Avinash-1994/lunx/issues
 - **Documentation:** See `/docs` folder
 - **License:** MIT
 - **Node Version:** >=20.0.0
@@ -258,7 +258,7 @@ nuclie build
 
 ## ✅ PRODUCTION CERTIFICATION
 
-**Nuclie v1.0.0 is hereby certified PRODUCTION READY for:**
+**Lunx v1.0.0 is hereby certified PRODUCTION READY for:**
 
 ✅ Production deployments  
 ✅ Enterprise applications  
@@ -280,7 +280,7 @@ nuclie build
 ```
 ╔═══════════════════════════════════════════════════════════╗
 ║                                                           ║
-║        🎉  NUCLIE v1.0.0 - PRODUCTION READY  🎉          ║
+║        🎉  LUNX v1.0.0 - PRODUCTION READY  🎉          ║
 ║                                                           ║
 ║  All systems tested and verified                         ║
 ║  Zero build errors                                       ║
@@ -297,7 +297,7 @@ nuclie build
 
 ---
 
-**Built with ❤️ by the Nuclie Team**  
+**Built with ❤️ by the Lunx Team**  
 **Powered by ⚡ Rust + TypeScript**
 
 **Release Date:** January 23, 2026  

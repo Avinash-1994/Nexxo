@@ -69,14 +69,14 @@ describe('E2E Smoke Test', () => {
         }
     });
 
-    it('should serve the index page with Nuclie client', async () => {
+    it('should serve the index page with Lunx client', async () => {
         try {
             await page.goto('http://localhost:3099', { waitUntil: 'networkidle0' });
             const content = await page.content();
 
             expect(content).toBeDefined();
-            // Nuclie always injects client script
-            expect(content).toContain('@nuclie/client');
+            // Lunx always injects client script
+            expect(content).toContain('@lunx/client');
         } catch (e: any) {
             console.error('E2E Navigation Error:', e);
             throw e;

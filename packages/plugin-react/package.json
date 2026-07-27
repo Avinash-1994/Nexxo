@@ -1,7 +1,7 @@
 {
-  "name": "@nuclie/plugin-react",
+  "name": "@lunx/plugin-react",
   "version": "1.0.0",
-  "description": "Official Nuclie plugin for React — JSX transform, React Fast Refresh HMR, and error overlay",
+  "description": "Official Lunx plugin for React — JSX transform, React Fast Refresh HMR, and error overlay",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -16,11 +16,11 @@
     "build": "tsc",
     "test": "node --test src/__tests__/index.test.js"
   },
-  "keywords": ["nuclie", "plugin", "react", "jsx", "hmr", "fast-refresh"],
+  "keywords": ["lunx", "plugin", "react", "jsx", "hmr", "fast-refresh"],
   "author": "Avinash-1994",
   "license": "MIT",
   "peerDependencies": {
-    "nuclie": ">=1.0.0",
+    "lunx": ">=1.0.0",
     "react": ">=17.0.0",
     "react-dom": ">=17.0.0"
   },

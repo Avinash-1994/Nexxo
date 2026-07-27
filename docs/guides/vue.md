@@ -1,15 +1,15 @@
 # Vue 3 Guide
 
-> Build Vue 3 apps with Nuclie — SFC hot-reload, Composition API, TypeScript, CSS Modules.
+> Build Vue 3 apps with Lunx — SFC hot-reload, Composition API, TypeScript, CSS Modules.
 
 ---
 
 ## Quick Start
 
 ```bash
-nuclie bootstrap --name my-vue-app --template vue-ts
+lunx bootstrap --name my-vue-app --template vue-ts
 cd my-vue-app
-nuclie dev
+lunx dev
 ```
 
 ---
@@ -19,12 +19,12 @@ nuclie dev
 ### 1. Install
 
 ```bash
-npm install --save-dev nuclie
+npm install --save-dev lunx
 npm install vue
 npm install --save-dev typescript @vue/tsconfig
 ```
 
-### 2. Create `nuclie.config.js`
+### 2. Create `lunx.config.js`
 
 **JavaScript:**
 ```js
@@ -38,7 +38,7 @@ module.exports = {
 
 **TypeScript:**
 ```ts
-import { defineConfig } from 'nuclie';
+import { defineConfig } from 'lunx';
 
 export default defineConfig({
   entry: ['./src/main.ts'],
@@ -69,7 +69,7 @@ const count = ref(0);
 
 <template>
   <div>
-    <h1>Hello from Nuclie + Vue 3</h1>
+    <h1>Hello from Lunx + Vue 3</h1>
     <button @click="count++">Count: {{ count }}</button>
   </div>
 </template>
@@ -89,7 +89,7 @@ button {
 
 ## HMR — SFC Hot-Reload
 
-Nuclie integrates **Vue SFC hot-reload** automatically for `.vue` files.
+Lunx integrates **Vue SFC hot-reload** automatically for `.vue` files.
 
 - `<script setup>` changes: component re-mounts
 - `<template>` changes: hot-patched (state preserved)
@@ -240,7 +240,7 @@ export const useCounterStore = defineStore('counter', {
 ## Production Build
 
 ```bash
-nuclie build
+lunx build
 ```
 
 Output:

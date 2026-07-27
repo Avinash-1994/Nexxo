@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-copy
+ * @lunx/plugin-copy
  * Static file copying
  */
 
@@ -7,7 +7,7 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createCopyPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-copy',
+        name: '@lunx/plugin-copy',
         originalPlugin: 'copy-webpack-plugin',
         
         async transform(code: string, id: string) {

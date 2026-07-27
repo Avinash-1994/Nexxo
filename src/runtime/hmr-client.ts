@@ -1,6 +1,6 @@
 
 /**
- * Nuclie HMR Client Runtime
+ * Lunx HMR Client Runtime
  * Provides the `import.meta.hot` API and handles WebSocket updates.
  */
 
@@ -16,20 +16,20 @@ class HMRClient {
     }
 
     private handleMessage(msg: any) {
-        console.log('[Nuclie] HMR Message:', msg);
+        console.log('[Lunx] HMR Message:', msg);
         switch (msg.type) {
             case 'connected':
-                console.log('[Nuclie] Connected to Dev Server');
+                console.log('[Lunx] Connected to Dev Server');
                 break;
             case 'update':
                 this.applyUpdate(msg.payload.updates);
                 break;
             case 'reload':
-                console.warn('[Nuclie] Reload triggered:', msg.payload.reason);
+                console.warn('[Lunx] Reload triggered:', msg.payload.reason);
                 location.reload();
                 break;
             case 'error':
-                console.error('[Nuclie] Build Error:', msg.payload.message);
+                console.error('[Lunx] Build Error:', msg.payload.message);
                 // Show Error Overlay (Phase 5.11)
                 break;
         }
@@ -37,7 +37,7 @@ class HMRClient {
 
     private async applyUpdate(updates: any[]) {
         for (const update of updates) {
-            console.log(`[Nuclie] Hot Updating: ${update.moduleId}`);
+            console.log(`[Lunx] Hot Updating: ${update.moduleId}`);
             try {
                 // 1. Dispose old module
                 const old = this.registry.get(update.moduleId);
@@ -52,7 +52,7 @@ class HMRClient {
                 // 3. Re-execute boundary or notify parents
                 // This requires a dependency map on the client
             } catch (err) {
-                console.error('[Nuclie] Update Failed:', err);
+                console.error('[Lunx] Update Failed:', err);
                 location.reload();
             }
         }
@@ -74,4 +74,4 @@ class HMRClient {
     }
 }
 
-(window as any).__NUCLIE_HMR__ = new HMRClient();
+(window as any).__LUNX_HMR__ = new HMRClient();

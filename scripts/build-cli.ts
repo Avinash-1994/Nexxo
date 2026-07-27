@@ -7,7 +7,7 @@ const require = createRequire(import.meta.url);
 const pkg = require('../package.json');
 
 async function bundleCLI() {
-    console.log('🚀 Bundling Nuclie CLI for production performance...');
+    console.log('🚀 Bundling Lunx CLI for production performance...');
     const start = performance.now();
 
     // Everything in dependencies should be external for a clean CLI bundle
@@ -15,7 +15,7 @@ async function bundleCLI() {
         ...Object.keys(pkg.dependencies || {}),
         ...Object.keys(pkg.devDependencies || {}).filter(d => !d.startsWith('@types/')),
         'fsevents',
-        './nuclie_native.node'
+        './lunx_native.node'
     ];
 
     try {
@@ -34,8 +34,8 @@ async function bundleCLI() {
 
             // Polyfill require for ESM
             banner: {
-                js: `import { createRequire as __nuclie_createRequire } from 'module';
-const require = __nuclie_createRequire(import.meta.url);
+                js: `import { createRequire as __lunx_createRequire } from 'module';
+const require = __lunx_createRequire(import.meta.url);
 `,
             },
             logLevel: 'info',
@@ -52,10 +52,10 @@ const require = __nuclie_createRequire(import.meta.url);
         console.log(`📂 Output: dist/cli.mjs`);
 
         // Copy native node module to dist for runtime access
-        const nativeModulePath = path.resolve(process.cwd(), 'nuclie_native.node');
+        const nativeModulePath = path.resolve(process.cwd(), 'lunx_native.node');
         if (fs.existsSync(nativeModulePath)) {
-            fs.copyFileSync(nativeModulePath, path.join(process.cwd(), 'dist/nuclie_native.node'));
-            console.log('✅ Native module [nuclie_native.node] copied to dist/');
+            fs.copyFileSync(nativeModulePath, path.join(process.cwd(), 'dist/lunx_native.node'));
+            console.log('✅ Native module [lunx_native.node] copied to dist/');
         }
 
     } catch (e) {

@@ -1,0 +1,22 @@
+{
+  "name": "lunx-mfe-template",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev:all": "concurrently \"npm run dev:remote-vue\" \"npm run dev:remote-react\" \"npm run dev:host\"",
+    "dev:host": "cd host && lunx dev",
+    "dev:remote-vue": "cd remote-vue && lunx dev",
+    "dev:remote-react": "cd remote-react && lunx dev",
+    "build:all": "npm run build --prefix remote-vue && npm run build --prefix remote-react && npm run build --prefix host"
+  },
+  "lunx": {
+    "template": true,
+    "framework": "mfe",
+    "description": "Lunx MFE — Module Federation host + 2 remotes"
+  },
+  "devDependencies": {
+    "concurrently": "8.2.2",
+    "lunx": "file:../../"
+  }
+}

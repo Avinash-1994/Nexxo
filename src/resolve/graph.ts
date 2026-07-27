@@ -209,7 +209,7 @@ export class DependencyGraph {
       } else {
         // PRODUCTION NOISE REDUCTION:
         // 1. Only warn if the file is in the project's root source
-        // 2. Ignore nuclie internal paths and node_modules
+        // 2. Ignore lunx internal paths and node_modules
         const isProjectFile = rootDir ? filePath.startsWith(rootDir) : !filePath.includes('node_modules');
         const isInternalFile = filePath.includes('/build/dist/') || filePath.includes('/build/src/') || filePath.includes('/build/native/');
 
@@ -235,10 +235,15 @@ export class DependencyGraph {
         abs + '.ts',
         abs + '.tsx',
         abs + '.js',
+        abs + '.jsx',
+        abs + '.mjs',
         abs + '.vue',
         abs + '.svelte',
         abs + '/index.ts',
-        abs + '/index.js'
+        abs + '/index.tsx',
+        abs + '/index.js',
+        abs + '/index.jsx',
+        abs + '/index.mjs'
       ];
       for (const c of candidates) {
         if (existsSync(c)) return normalizePath(c);

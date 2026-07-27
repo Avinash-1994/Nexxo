@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-critical-css
+ * @lunx/plugin-critical-css
  * Critical CSS extraction
  */
 
@@ -7,8 +7,8 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createCriticalCssPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-critical-css',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-critical-css',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // CSS transformation for critical-css

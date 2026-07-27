@@ -1,7 +1,7 @@
 {
-    "name": "nuclie-real-project-matrix",
+    "name": "lunx-real-project-matrix",
     "version": "1.0.0",
-    "description": "Test Nuclie against 8 real production open-source projects",
+    "description": "Test Lunx against 8 real production open-source projects",
     "main": "dist/runner.js",
     "scripts": {
         "build": "tsc",
@@ -13,11 +13,11 @@
         "test:report": "node dist/runner.js --report"
     },
     "keywords": [
-        "nuclie",
+        "lunx",
         "benchmark",
         "testing",
         "matrix"
     ],
-    "author": "Nuclie Team",
+    "author": "Lunx Team",
     "license": "MIT"
 }

@@ -1,0 +1,9 @@
+{
+  "module": "lunx",
+  "entry": ["./src/main.jsx"],
+  "outDir": "./dist-lunx",
+  "build": {
+    "minify": true,
+    "sourcemap": false
+  }
+}

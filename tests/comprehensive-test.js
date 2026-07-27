@@ -232,7 +232,7 @@ async function testIncrementalBuilds() {
         'src/cache/incremental.ts'
     );
 
-    const cacheExists = await fs.access(path.join(ROOT, 'examples/react-test/.nuclie_cache/cache.db'))
+    const cacheExists = await fs.access(path.join(ROOT, 'examples/react-test/.lunx_cache/cache.db'))
         .then(() => true).catch(() => false);
 
     if (exists && cacheExists) {

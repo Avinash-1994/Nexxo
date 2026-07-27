@@ -20,7 +20,7 @@ async function runTest() {
         },
         rootDir: '/test',
         target: 'browser',
-        engine: { name: 'nuclie', version: '1.0.0' }
+        engine: { name: 'lunx', version: '1.0.0' }
     };
 
     // Test 1: Build Integration Initialization

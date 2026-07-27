@@ -21,32 +21,32 @@ describe('Plugin Loading - Production Ready', () => {
     });
 
     it('should load React plugin', async () => {
-        const plugin = await pluginRegistry.load('@nuclie/plugin-react');
+        const plugin = await pluginRegistry.load('@lunx/plugin-react');
 
         expect(plugin).toBeDefined();
-        expect(plugin.name).toBe('@nuclie/plugin-react');
+        expect(plugin.name).toBe('@lunx/plugin-react');
         expect(plugin.transform).toBeDefined();
     });
 
     it('should load Vue plugin', async () => {
-        const plugin = await pluginRegistry.load('@nuclie/plugin-vue');
+        const plugin = await pluginRegistry.load('@lunx/plugin-vue');
 
         expect(plugin).toBeDefined();
-        expect(plugin.name).toBe('@nuclie/plugin-vue');
+        expect(plugin.name).toBe('@lunx/plugin-vue');
     });
 
     it('should load Sass plugin', async () => {
-        const plugin = await pluginRegistry.load('@nuclie/plugin-sass');
+        const plugin = await pluginRegistry.load('@lunx/plugin-sass');
 
         expect(plugin).toBeDefined();
-        expect(plugin.name).toBe('@nuclie/plugin-sass');
+        expect(plugin.name).toBe('@lunx/plugin-sass');
     });
 
     it('should load TypeScript plugin', async () => {
-        const plugin = await pluginRegistry.load('@nuclie/plugin-typescript');
+        const plugin = await pluginRegistry.load('@lunx/plugin-typescript');
 
         expect(plugin).toBeDefined();
-        expect(plugin.name).toBe('@nuclie/plugin-typescript');
+        expect(plugin.name).toBe('@lunx/plugin-typescript');
     });
 
     it('should load security plugins', async () => {
@@ -109,7 +109,7 @@ describe('Plugin Loading - Production Ready', () => {
 
         for (const plugin of marketplace.plugins) {
             expect(plugin.signature).toBeDefined();
-            expect(plugin.signature).toContain('nuclie-sig-');
+            expect(plugin.signature).toContain('lunx-sig-');
         }
     });
 

@@ -12,7 +12,7 @@ async function testConfigFileDetection() {
     const classifier = new HMRClassifier();
 
     const configChange: FileChange = {
-        path: 'nuclie.config.ts',
+        path: 'lunx.config.ts',
         type: 'updated'
     };
 
@@ -175,7 +175,7 @@ async function testBatchWithFullReload() {
 
     const changes: FileChange[] = [
         { path: 'src/styles/App.css', type: 'updated' },
-        { path: 'nuclie.config.ts', type: 'updated' }, // Config file!
+        { path: 'lunx.config.ts', type: 'updated' }, // Config file!
         { path: 'src/components/Button.tsx', type: 'updated' }
     ];
 

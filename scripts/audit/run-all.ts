@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Nuclie Stability Audit — Master Script
+ * Lunx Stability Audit — Master Script
  * 
  * Runs all governance audits and generates a comprehensive report.
  * This is the release gate - if this fails, release is blocked.
@@ -70,7 +70,7 @@ async function generateReport(results: AuditResult[], version: string): Promise<
     const failed = results.filter(r => !r.passed).length;
     const total = results.length;
 
-    let report = `# Nuclie Stability Audit Report\n\n`;
+    let report = `# Lunx Stability Audit Report\n\n`;
     report += `**Version**: v${version}\n`;
     report += `**Date**: ${new Date().toISOString()}\n`;
     report += `**Status**: ${failed === 0 ? '✅ PASSED' : '❌ FAILED'}\n\n`;
@@ -117,7 +117,7 @@ async function generateReport(results: AuditResult[], version: string): Promise<
 async function main() {
     console.log('╔══════════════════════════════════════════════════════════════╗');
     console.log('║                                                              ║');
-    console.log('║           NUCLIE STABILITY AUDIT — RELEASE GATE                ║');
+    console.log('║           LUNX STABILITY AUDIT — RELEASE GATE                ║');
     console.log('║                                                              ║');
     console.log('╚══════════════════════════════════════════════════════════════╝\n');
 

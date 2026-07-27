@@ -1,0 +1,20 @@
+{
+  "name": "@lunx/module-registry",
+  "version": "1.11.0",
+  "description": "Lunx browser-side MFE module registry — register, load and invalidate remote scopes",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./browser": {
+      "import": "./dist/browser-runtime.js",
+      "types": "./dist/browser-runtime.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "sideEffects": false
+}

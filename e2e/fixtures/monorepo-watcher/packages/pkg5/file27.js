@@ -1,0 +1,1 @@
+export const a = 27;\n

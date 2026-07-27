@@ -1,17 +1,17 @@
 /**
- * Tier-A Plugin Wrappers for Nuclie
+ * Tier-A Plugin Wrappers for Lunx
  * 
  * These are pre-configured wrappers for popular Rollup plugins.
  * Users can import these directly or use the rollupAdapter for custom plugins.
  * 
  * Usage:
  * ```typescript
- * import { nuclieBabel, nuclieTerser } from 'nuclie/plugins/compat/tier-a';
+ * import { lunxBabel, lunxTerser } from 'lunx/plugins/compat/tier-a';
  * 
  * export default {
  *   plugins: [
- *     nuclieBabel({ presets: ['@babel/preset-react'] }),
- *     nuclieTerser()
+ *     lunxBabel({ presets: ['@babel/preset-react'] }),
+ *     lunxTerser()
  *   ]
  * }
  * ```
@@ -33,14 +33,14 @@ function createStub(name: string): Plugin {
  * Babel plugin wrapper
  * Requires: npm install @rollup/plugin-babel @babel/core
  */
-export function nuclieBabel(options: any = {}): Plugin {
+export function lunxBabel(options: any = {}): Plugin {
     try {
         // Dynamic import to avoid hard dependency
         const babel = require('@rollup/plugin-babel');
         return rollupAdapter(babel.default ? babel.default(options) : babel(options));
     } catch (e) {
-        console.warn('[@nuclie/babel] @rollup/plugin-babel not found. Install with: npm install @rollup/plugin-babel @babel/core');
-        return createStub('nuclie-babel-stub');
+        console.warn('[@lunx/babel] @rollup/plugin-babel not found. Install with: npm install @rollup/plugin-babel @babel/core');
+        return createStub('lunx-babel-stub');
     }
 }
 
@@ -48,13 +48,13 @@ export function nuclieBabel(options: any = {}): Plugin {
  * Terser (minification) plugin wrapper
  * Requires: npm install @rollup/plugin-terser
  */
-export function nuclieTerser(options: any = {}): Plugin {
+export function lunxTerser(options: any = {}): Plugin {
     try {
         const terser = require('@rollup/plugin-terser');
         return rollupAdapter(terser.default ? terser.default(options) : terser(options));
     } catch (e) {
-        console.warn('[@nuclie/terser] @rollup/plugin-terser not found. Install with: npm install @rollup/plugin-terser');
-        return createStub('nuclie-terser-stub');
+        console.warn('[@lunx/terser] @rollup/plugin-terser not found. Install with: npm install @rollup/plugin-terser');
+        return createStub('lunx-terser-stub');
     }
 }
 
@@ -62,15 +62,15 @@ export function nuclieTerser(options: any = {}): Plugin {
  * JSON plugin wrapper
  * Requires: npm install @rollup/plugin-json
  */
-export function nuclieJson(options: any = {}): Plugin {
+export function lunxJson(options: any = {}): Plugin {
     try {
         const json = require('@rollup/plugin-json');
         return rollupAdapter(json.default ? json.default(options) : json(options));
     } catch (e) {
-        console.warn('[@nuclie/json] @rollup/plugin-json not found. Install with: npm install @rollup/plugin-json');
+        console.warn('[@lunx/json] @rollup/plugin-json not found. Install with: npm install @rollup/plugin-json');
         // Provide basic fallback
         return {
-            name: 'nuclie-json-fallback',
+            name: 'lunx-json-fallback',
             async transform(code: string, id: string) {
                 if (id.endsWith('.json')) {
                     return `export default ${code}`;
@@ -85,13 +85,13 @@ export function nuclieJson(options: any = {}): Plugin {
  * YAML plugin wrapper
  * Requires: npm install @rollup/plugin-yaml
  */
-export function nuclieYaml(options: any = {}): Plugin {
+export function lunxYaml(options: any = {}): Plugin {
     try {
         const yaml = require('@rollup/plugin-yaml');
         return rollupAdapter(yaml.default ? yaml.default(options) : yaml(options));
     } catch (e) {
-        console.warn('[@nuclie/yaml] @rollup/plugin-yaml not found. Install with: npm install @rollup/plugin-yaml');
-        return createStub('nuclie-yaml-stub');
+        console.warn('[@lunx/yaml] @rollup/plugin-yaml not found. Install with: npm install @rollup/plugin-yaml');
+        return createStub('lunx-yaml-stub');
     }
 }
 
@@ -99,13 +99,13 @@ export function nuclieYaml(options: any = {}): Plugin {
  * MDX plugin wrapper
  * Requires: npm install @mdx-js/rollup
  */
-export function nuclieMdx(options: any = {}): Plugin {
+export function lunxMdx(options: any = {}): Plugin {
     try {
         const mdx = require('@mdx-js/rollup');
         return rollupAdapter(mdx.default ? mdx.default(options) : mdx(options));
     } catch (e) {
-        console.warn('[@nuclie/mdx] @mdx-js/rollup not found. Install with: npm install @mdx-js/rollup');
-        return createStub('nuclie-mdx-stub');
+        console.warn('[@lunx/mdx] @mdx-js/rollup not found. Install with: npm install @mdx-js/rollup');
+        return createStub('lunx-mdx-stub');
     }
 }
 
@@ -113,13 +113,13 @@ export function nuclieMdx(options: any = {}): Plugin {
  * SVGR plugin wrapper (SVG to React components)
  * Requires: npm install rollup-plugin-svgr
  */
-export function nuclieSvgr(options: any = {}): Plugin {
+export function lunxSvgr(options: any = {}): Plugin {
     try {
         const svgr = require('rollup-plugin-svgr');
         return rollupAdapter(svgr.default ? svgr.default(options) : svgr(options));
     } catch (e) {
-        console.warn('[@nuclie/svgr] rollup-plugin-svgr not found. Install with: npm install rollup-plugin-svgr');
-        return createStub('nuclie-svgr-stub');
+        console.warn('[@lunx/svgr] rollup-plugin-svgr not found. Install with: npm install rollup-plugin-svgr');
+        return createStub('lunx-svgr-stub');
     }
 }
 
@@ -127,10 +127,10 @@ export function nuclieSvgr(options: any = {}): Plugin {
  * Export all Tier-A plugins
  */
 export const TierA = {
-    babel: nuclieBabel,
-    terser: nuclieTerser,
-    json: nuclieJson,
-    yaml: nuclieYaml,
-    mdx: nuclieMdx,
-    svgr: nuclieSvgr
+    babel: lunxBabel,
+    terser: lunxTerser,
+    json: lunxJson,
+    yaml: lunxYaml,
+    mdx: lunxMdx,
+    svgr: lunxSvgr
 };

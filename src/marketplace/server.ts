@@ -1,6 +1,6 @@
 
 /**
- * Nuclie Marketplace tRPC Server
+ * Lunx Marketplace tRPC Server
  * Implementation: tRPC Router for Publish/Search/Install
  * Day 10: Marketplace MVP Lock
  */
@@ -78,13 +78,13 @@ export const appRouter = t.router({
                 });
             }
 
-            // 3. Save to DB
+            // 3. Save to DB and persist the WASM artifact
             marketplaceDB.publish({
                 ...manifest,
                 public_key: manifest.publicKey,
                 permissions_json: JSON.stringify(manifest.permissions),
                 created_at: new Date().toISOString()
-            });
+            }, wasmBytes);
 
             return { success: true, message: `Published ${manifest.name}@${manifest.version}` };
         }),
@@ -92,6 +92,20 @@ export const appRouter = t.router({
     /**
      * Install (Get) a plugin
      */
+    versions: t.procedure
+        .input(z.string())
+        .query(({ input }) => {
+            const versions = marketplaceDB.listVersions(input);
+            return versions.map(r => ({
+                version: r.version,
+                created_at: r.created_at,
+                description: r.description,
+                author: r.author,
+                hash: r.hash,
+                verified: true
+            }));
+        }),
+
     install: t.procedure
         .input(z.object({
             name: z.string(),
@@ -105,7 +119,19 @@ export const appRouter = t.router({
                     message: `Plugin ${input.name} not found`
                 });
             }
-            return plugin;
+
+            const artifact = marketplaceDB.getArtifact(input.name, input.version);
+            if (!artifact) {
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: `Plugin artifact for ${input.name}@${plugin.version} is missing`
+                });
+            }
+
+            return {
+                ...plugin,
+                artifactBase64: artifact.toString('base64')
+            };
         })
 });
 

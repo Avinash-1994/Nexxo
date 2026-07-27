@@ -18,7 +18,7 @@ async function run() {
     }
 
     // 2. Run Build
-    console.log('🏗️ Running nuclie build with @rollup/plugin-alias...');
+    console.log('🏗️ Running lunx build with @rollup/plugin-alias...');
     execSync(`node ${cliPath} build`, { cwd: rootDir, stdio: 'inherit' });
 
     // 2. Verify Artifacts

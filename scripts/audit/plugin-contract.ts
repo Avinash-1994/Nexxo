@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Nuclie Stability Audit — Plugin Contract Check
+ * Lunx Stability Audit — Plugin Contract Check
  * 
  * Verifies that plugin hook signatures have not changed.
  * Ensures backward compatibility for all plugins.
@@ -136,7 +136,7 @@ function compareHooks(baseline: PluginHook[], current: PluginHook[]): {
 }
 
 async function main() {
-    console.log('🔍 Nuclie Plugin Contract Audit\n');
+    console.log('🔍 Lunx Plugin Contract Audit\n');
 
     const currentHooks = EXPECTED_HOOKS;
     console.log(`✅ Verified ${currentHooks.length} plugin hooks\n`);

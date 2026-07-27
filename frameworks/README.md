@@ -1,13 +1,13 @@
-# Nuclie Adapter Registry
+# Lunx Adapter Registry
 
 **Phase**: H.1 (Module 9)  
 **Status**: ✅ Active
 
-This registry indexes all supported framework adapters for the Nuclie build system.
+This registry indexes all supported framework adapters for the Lunx build system.
 
 ## 📖 What is an Adapter?
 
-An **Adapter** is an isolated translation layer that allows Nuclie to build, bundle, and serve a specific frontend framework without modifying Nuclie's core logic. Adapters are **data producers**, not policy engines.
+An **Adapter** is an isolated translation layer that allows Lunx to build, bundle, and serve a specific frontend framework without modifying Lunx's core logic. Adapters are **data producers**, not policy engines.
 
 See: [Adapter Architecture](../MODULE_8_SCOPE.md)
 

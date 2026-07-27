@@ -1,6 +1,6 @@
 import tsParser from '@typescript-eslint/parser';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
-import nuclieGovernance from 'eslint-plugin-nuclie-governance';
+import lunxGovernance from 'eslint-plugin-lunx-governance';
 import js from '@eslint/js';
 
 export default [
@@ -12,7 +12,7 @@ export default [
             'dist/**',
             '*.min.js',
             'coverage/**',
-            '.nuclie-cache/**'
+            '.lunx-cache/**'
         ]
     },
     js.configs.recommended,
@@ -73,6 +73,9 @@ export default [
                 // Modern Web APIs
                 AbortController: 'readonly',
                 EventTarget: 'readonly',
+                // Node 18+ globals
+                crypto: 'readonly',
+                structuredClone: 'readonly',
                 // Jest globals
                 describe: 'readonly',
                 it: 'readonly',
@@ -88,7 +91,7 @@ export default [
         },
         plugins: {
             '@typescript-eslint': tsPlugin,
-            'nuclie-governance': nuclieGovernance,
+            'lunx-governance': lunxGovernance,
         },
         rules: {
             ...tsPlugin.configs.recommended.rules,
@@ -100,10 +103,10 @@ export default [
             'no-empty': 'off',
             'no-useless-escape': 'off',
             'no-case-declarations': 'off',
-            'nuclie-governance/no-internal-imports': 'error',
-            'nuclie-governance/require-experimental-flag': 'warn',
-            'nuclie-governance/no-graph-mutation': 'error',
-            'nuclie-governance/no-cache-access': 'error',
+            'lunx-governance/no-internal-imports': 'error',
+            'lunx-governance/require-experimental-flag': 'warn',
+            'lunx-governance/no-graph-mutation': 'error',
+            'lunx-governance/no-cache-access': 'error',
         },
     },
     {
@@ -127,16 +130,16 @@ export default [
             'src/marketplace/**/*.ts'
         ],
         rules: {
-            'nuclie-governance/no-internal-imports': 'off',
-            'nuclie-governance/no-graph-mutation': 'off',
-            'nuclie-governance/no-cache-access': 'off',
+            'lunx-governance/no-internal-imports': 'off',
+            'lunx-governance/no-graph-mutation': 'off',
+            'lunx-governance/no-cache-access': 'off',
         }
     },
     {
         // Allow tests to be more permissive during stabilization
         files: ['tests/**/*.ts', 'examples/**/*.ts', 'benchmarks/**/*.ts', 'src/test/**/*.ts'],
         rules: {
-            'nuclie-governance/no-internal-imports': 'off',
+            'lunx-governance/no-internal-imports': 'off',
             '@typescript-eslint/no-explicit-any': 'off',
             '@typescript-eslint/no-unused-vars': 'off'
         }

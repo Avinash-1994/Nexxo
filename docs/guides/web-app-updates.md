@@ -1,7 +1,7 @@
-# 🎯 Nuclie Web App Update Requirements
+# 🎯 Lunx Web App Update Requirements
 
 ## Current Status
-The nuclie-web-app exists at `/home/avinash/Desktop/framework_practis/build/nuclie-web-app` but needs updating with **accurate production data** from our v1.0 release.
+The lunx-web-app exists at `/home/avinash/Desktop/framework_practis/build/lunx-web-app` but needs updating with **accurate production data** from our v1.0 release.
 
 ---
 
@@ -61,20 +61,20 @@ The nuclie-web-app exists at `/home/avinash/Desktop/framework_practis/build/nucl
 
 ### CLI Commands (ACTUAL)
 ```bash
-nuclie dev        # Start development server
-nuclie build      # Build for production
-nuclie analyze    # Analyze bundle
-nuclie ssr        # Start SSR server
-nuclie init       # Initialize config
-nuclie bootstrap  # Create from template
-nuclie css        # CSS utilities
-nuclie optimize   # Optimize config
-nuclie inspect    # Inspect dependency graph
-nuclie report     # Generate build report
-nuclie audit      # Run audits (A11y, Perf, SEO)
-nuclie verify     # Verify project health
-nuclie test       # Run tests
-nuclie doctor     # Health diagnostics
+lunx dev        # Start development server
+lunx build      # Build for production
+lunx analyze    # Analyze bundle
+lunx ssr        # Start SSR server
+lunx init       # Initialize config
+lunx bootstrap  # Create from template
+lunx css        # CSS utilities
+lunx optimize   # Optimize config
+lunx inspect    # Inspect dependency graph
+lunx report     # Generate build report
+lunx audit      # Run audits (A11y, Perf, SEO)
+lunx verify     # Verify project health
+lunx test       # Run tests
+lunx doctor     # Health diagnostics
 ```
 
 ---
@@ -116,17 +116,17 @@ nuclie doctor     # Health diagnostics
 **Update CLI Example (line 125):**
 ```tsx
 // OLD
-<CodeBlock code="$ npx nuclie build --preset react" />
+<CodeBlock code="$ npx lunx build --preset react" />
 
 // NEW
 <CodeBlock code={`# Create new project
-npx create-nuclie my-app --template premium-dashboard
+npx create-lunx my-app --template premium-dashboard
 
 # Start development
-cd my-app && nuclie dev
+cd my-app && lunx dev
 
 # Build for production
-nuclie build`} />
+lunx build`} />
 ```
 
 **Update Framework Status (line 147-169):**
@@ -164,17 +164,17 @@ nuclie build`} />
 ```tsx
 {
   coldStart: {
-    nuclie: 69,
+    lunx: 69,
     vite: 100,
     webpack: 2000
   },
   hmr: {
-    nuclie: '10-60',
+    lunx: '10-60',
     vite: '<100',
     webpack: '~500'
   },
   bundleSize: {
-    nuclie: 6.9,
+    lunx: 6.9,
     vite: 7.2,
     webpack: 8.5
   }
@@ -186,10 +186,10 @@ nuclie build`} />
 **Update Getting Started:**
 ```bash
 # Install
-npm install -g nuclie
+npm install -g lunx
 
 # Create project
-npx create-nuclie my-app
+npx create-lunx my-app
 
 # Choose template
 - premium-dashboard (Feature showcase)
@@ -199,10 +199,10 @@ npx create-nuclie my-app
 - And 9 more...
 
 # Start dev server
-nuclie dev
+lunx dev
 
 # Build
-nuclie build
+lunx build
 ```
 
 ### 5. Templates Page (`src/pages/TemplateStarters.tsx`)

@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-mini-css-extract-plugin
+ * @lunx/plugin-mini-css-extract-plugin
  * CSS extraction
  */
 
@@ -7,7 +7,7 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createMiniCssExtractPluginPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-mini-css-extract-plugin',
+        name: '@lunx/plugin-mini-css-extract-plugin',
         originalPlugin: 'mini-css-extract-plugin',
         
         async transform(code: string, id: string) {

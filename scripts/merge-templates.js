@@ -31,7 +31,7 @@ export interface TemplateDef {
 
 const COMMON_FILES: TemplateFile[] = [
     {
-        path: 'nuclie.config.json',
+        path: 'lunx.config.json',
         content: \`{\n  "mode": "development"\n}\`
     },
     {
@@ -178,7 +178,7 @@ export const TEMPLATES: Record<string, TemplateDef> = {
         files: [
             ...COMMON_FILES,
             { path: 'index.html', content: vanillaTemplateHtml },
-            { path: 'src/main.js', content: 'console.log("Hello from Nuclie Vanilla!");' },
+            { path: 'src/main.js', content: 'console.log("Hello from Lunx Vanilla!");' },
             { path: 'src/index.css', content: getPremiumCss({ hexBase: '#f59f00', hexRgbMap: '245, 159, 0', buttonColor: '#f59f00', shadowHex: 'rgba(245, 159, 0, 0.4)', frameworkLogoHex: '#f59f00' }) }
         ],
         dependencies: {},

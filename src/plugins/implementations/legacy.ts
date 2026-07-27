@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-legacy
+ * @lunx/plugin-legacy
  * Legacy browser support
  */
 
@@ -7,7 +7,7 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createLegacyPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-legacy',
+        name: '@lunx/plugin-legacy',
         originalPlugin: '@vitejs/plugin-legacy',
         
         async transform(code: string, id: string) {

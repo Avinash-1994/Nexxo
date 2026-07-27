@@ -1,20 +1,20 @@
 
 import fs from 'fs/promises';
 import path from 'path';
-import { NucliePlugin } from '../core/plugins/types.js';
+import { LunxPlugin } from '../core/plugins/types.js';
 import { log } from '../utils/logger.js';
 
-export function createStaticPlugin(rootDir: string, outDir: string): NucliePlugin {
+export function createStaticPlugin(rootDir: string, outDir: string): LunxPlugin {
     return {
         manifest: {
-            name: 'nuclie:static',
+            name: 'lunx:static',
             version: '1.0.0',
             engineVersion: '1.0.0',
             type: 'js',
             hooks: ['buildEnd'],
             permissions: { fs: 'read' }
         },
-        id: 'nuclie:static',
+        id: 'lunx:static',
         async runHook(hook, data) {
             if (hook !== 'buildEnd') return data;
 

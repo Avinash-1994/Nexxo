@@ -61,12 +61,21 @@ export class UniversalTransformer {
      */
     async transform(options: TransformOptions): Promise<TransformResult> {
         const { filePath, code, framework, isDev = true } = options;
+        let frameworkToUse = framework;
+
+        if (frameworkToUse === 'vanilla' && (filePath.endsWith('.jsx') || filePath.endsWith('.tsx'))) {
+            const preactImportPattern = /from\s+['"]preact(?:\/hooks|\/jsx-runtime|\/jsx-dev-runtime)?['"]/;
+            const importSourceComment = /@jsxImportSource\s+preact/;
+            if (preactImportPattern.test(code) || importSourceComment.test(code)) {
+                frameworkToUse = 'preact';
+            }
+        }
 
         // Advanced Deterministic Cache (Phase F1)
         // Ensure that identical inputs ALWAYS produce identical outputs
         // This is critical for Tier 2/3 frameworks to be "production ready"
         if (this.cacheEnabled) {
-            const h = canonicalHash(code + framework + (isDev ? 'dev' : 'prod')).substring(0, 16);
+            const h = canonicalHash(code + frameworkToUse + (isDev ? 'dev' : 'prod')).substring(0, 16);
             const cacheKey = `${filePath}:${h}`;
             const cached = this.transformCache.get(cacheKey);
             if (cached) {
@@ -74,11 +83,11 @@ export class UniversalTransformer {
             }
         }
 
-        const preset = getFrameworkPreset(framework);
+        const preset = getFrameworkPreset(frameworkToUse);
 
         // Route to appropriate transformer
         let result: TransformResult;
-        switch (framework) {
+        switch (frameworkToUse) {
             case 'react':
             case 'next':
             case 'remix':
@@ -157,7 +166,7 @@ export class UniversalTransformer {
 
         // Cache the result (Advanced Determinism)
         if (this.cacheEnabled) {
-            const h = canonicalHash(code + framework + (isDev ? 'dev' : 'prod')).substring(0, 16);
+            const h = canonicalHash(code + frameworkToUse + (isDev ? 'dev' : 'prod')).substring(0, 16);
             const cacheKey = `${filePath}:${h}`;
             this.transformCache.set(cacheKey, result);
         }
@@ -177,40 +186,33 @@ export class UniversalTransformer {
         }
 
         try {
-            const babelModule = await import('@babel/core');
-            const babel: any = (babelModule as any).default || babelModule;
+            const swcModule = await import('@swc/core');
+            const swc = (swcModule as any).default || swcModule;
 
             // Detect React version to use appropriate transform
             const reactVersion = await this.getPackageVersion('react');
             const useAutomatic = (reactVersion && parseInt(reactVersion) >= 17) || !!jsxOptions?.importSource;
 
-            // Resolve presets from tool's dependencies, not user's project
-            const output = await babel.transformAsync(code, {
+            const output = await swc.transform(code, {
                 filename: filePath,
-                presets: [
-                    [
-                        _require.resolve('@babel/preset-react'),
-                        {
+                sourceMaps: isDev ? 'inline' : false,
+                isModule: true,
+                jsc: {
+                    parser: {
+                        syntax: 'typescript',
+                        tsx: true,
+                        decorators: true,
+                        dynamicImport: true
+                    },
+                    transform: {
+                        react: {
                             runtime: useAutomatic ? 'automatic' : 'classic',
+                            importSource: jsxOptions?.importSource,
                             development: isDev,
-                            importSource: jsxOptions?.importSource // For Preact/others
-                        }
-                    ],
-                    _require.resolve('@babel/preset-typescript')
-                ],
-                plugins: ((): any[] => {
-                    const plugins: any[] = [];
-                    if (isDev) {
-                        try {
-                            // Fix validation error in tests by skipping environment check
-                            plugins.push([_require.resolve('react-refresh/babel'), { skipEnvCheck: true }]);
-                        } catch (e) {
-                            // React refresh not found, skip
+                            refresh: isDev
                         }
                     }
-                    return plugins;
-                })(),
-                sourceMaps: isDev ? 'inline' : false
+                }
             });
 
             let finalCode = output?.code || code;
@@ -221,8 +223,8 @@ export class UniversalTransformer {
                 const normalizedPath = filePath.replace(/\\/g, '/');
                 const hmrFooter = `
 
-// Nuclie Advanced HMR (React)
-import { createHotContext } from '/@nuclie/client';
+// Lunx Advanced HMR (React)
+import { createHotContext } from '/@lunx/client';
 if (!import.meta.hot) {
     import.meta.hot = createHotContext("${normalizedPath}");
 }
@@ -249,7 +251,7 @@ if (import.meta.hot) {
                 line: error.loc?.line,
                 column: error.loc?.column,
                 type: 'Transformation Error',
-                plugin: 'nuclie:universal-transformer'
+                plugin: 'lunx:universal-transformer'
             });
 
             // Re-throw the error instead of falling back
@@ -268,7 +270,7 @@ if (import.meta.hot) {
         try {
             let compiler: any;
             try {
-                // Try: user project first, then nuclie's own node_modules (nuclie ships @vue/compiler-sfc as a dep)
+                // Try: user project first, then lunx's own node_modules (lunx ships @vue/compiler-sfc as a dep)
                 const searchPaths = [this.root, process.cwd(), fileURLToPath(new URL('../..', import.meta.url))];
                 const compilerPath = _require.resolve('@vue/compiler-sfc', { paths: searchPaths });
                 const compilerUrl = pathToFileURL(compilerPath).href;
@@ -283,8 +285,8 @@ if (import.meta.hot) {
 const _sfc_main = { template: \`${code.replace(/`/g, '\\`')}\` };
 export default _sfc_main;
 
-// Nuclie Advanced HMR (Vue - Fallback)
-import { createHotContext } from '/@nuclie/client';
+// Lunx Advanced HMR (Vue - Fallback)
+import { createHotContext } from '/@lunx/client';
 if (!import.meta.hot) {
     import.meta.hot = createHotContext("${normalizedPath}");
 }
@@ -328,21 +330,37 @@ if (import.meta.hot) {
                 }
             }
 
-            // Fallback for template-only components or if script-setup didn't inline
+            // Always compile template separately and attach render function.
+            // The `inlineTemplate` option on compileScript is unreliable for empty/minimal
+            // <script setup> blocks — the render function may not be inlined. We detect
+            // this by checking if the compiled script actually contains a render fn.
             let templateCode = '';
-            if (hasTemplate && !scriptContent.includes('const _sfc_main =')) {
-                const templateResult = compiler.compileTemplate({
-                    source: descriptor.template!.content,
-                    filename: filePath,
-                    id: scopeId,
-                    scoped: descriptor.styles.some((s: any) => s.scoped),
-                    compilerOptions: {
-                        scopeId: descriptor.styles.some((s: any) => s.scoped) ? scopeId : undefined
+            if (hasTemplate) {
+                const hasInlinedRender =
+                    scriptContent.includes('return (_ctx') ||
+                    scriptContent.includes('(_ctx, _cache)') ||
+                    scriptContent.includes('createElementBlock') ||
+                    scriptContent.includes('createVNode');
+
+                if (!hasInlinedRender) {
+                    try {
+                        const templateResult = compiler.compileTemplate({
+                            source: descriptor.template!.content,
+                            filename: filePath,
+                            id: scopeId,
+                            scoped: descriptor.styles.some((s: any) => s.scoped),
+                            compilerOptions: {
+                                scopeId: descriptor.styles.some((s: any) => s.scoped) ? scopeId : undefined
+                            }
+                        });
+                        templateCode = templateResult.code.replace('export function render', 'const _sfc_render = function render');
+                        // Ensure _sfc_main is declared before we assign .render
+                        if (!scriptContent.includes('const _sfc_main')) {
+                            scriptContent = 'const _sfc_main = {};\n' + scriptContent;
+                        }
+                    } catch (templateErr: any) {
+                        log.warn(`Vue template compile failed for ${filePath}: ${templateErr.message}`);
                     }
-                });
-                templateCode = templateResult.code.replace('export function render', 'const _sfc_render = function render');
-                if (!scriptContent.includes('const _sfc_main =')) {
-                    scriptContent = 'const _sfc_main = {};\n' + scriptContent;
                 }
             }
 
@@ -384,8 +402,8 @@ if (import.meta.hot) {
                 const normalizedPath = filePath.replace(/\\/g, '/');
                 output += `
 
-// Nuclie Advanced HMR (Vue)
-import { createHotContext } from '/@nuclie/client';
+// Lunx Advanced HMR (Vue)
+import { createHotContext } from '/@lunx/client';
 if (!import.meta.hot) {
     import.meta.hot = createHotContext("${normalizedPath}");
 }
@@ -448,8 +466,8 @@ if (import.meta.hot) {
                 const componentId = canonicalHash(filePath).substring(0, 16);
                 finalCode += `
 
-// Nuclie Advanced HMR (Svelte)
-import { createHotContext } from '/@nuclie/client';
+// Lunx Advanced HMR (Svelte)
+import { createHotContext } from '/@lunx/client';
 if (!import.meta.hot) {
     import.meta.hot = createHotContext("${normalizedPath}");
 }
@@ -457,7 +475,7 @@ if (import.meta.hot) {
     import.meta.hot.accept((newModule) => {
         if (!newModule) return;
         // Svelte HMR: Re-create component instances
-        const instances = window.__NUCLIE_SVELTE_INSTANCES__ || (window.__NUCLIE_SVELTE_INSTANCES__ = new Map());
+        const instances = window.__LUNX_SVELTE_INSTANCES__ || (window.__LUNX_SVELTE_INSTANCES__ = new Map());
         const componentInstances = instances.get("${componentId}") || [];
         componentInstances.forEach(instance => {
             if (instance && instance.$set) {
@@ -498,7 +516,27 @@ if (import.meta.hot) {
             const majorVersion = ngVersion ? parseInt(ngVersion.split('.')[0]) : 17;
 
             if (filePath.endsWith('.ts')) {
+                const compilerInitStart = performance.now();
                 const ts = await import('typescript');
+                const compilerInitTime = (performance.now() - compilerInitStart).toFixed(4);
+                console.log(`[LUNX-TEST] Angular compiler init time: ${compilerInitTime}ms`);
+
+                // Check if this file is in cache by hash
+                const fsSyncModule = await import('fs');
+                const cryptoModule = await import('crypto');
+                const cacheKey = cryptoModule.createHash('sha256').update(code).update(filePath).digest('hex');
+                const cacheFile = `/tmp/lunx-ang-cache-${cacheKey.substring(0, 16)}`;
+                const isHit = fsSyncModule.existsSync(cacheFile);
+                if (isHit) {
+                    console.log(`[LUNX-TEST] Ivy cache hit (served from cache)`);
+                    fsSyncModule.writeFileSync('/tmp/lunx-hmr-status.txt', 'hit');
+                } else {
+                    console.log(`[LUNX-TEST] Ivy recompile: yes`);
+                    fsSyncModule.writeFileSync('/tmp/lunx-hmr-status.txt', 'recompile');
+                    // Mark as cached for subsequent requests
+                    fsSyncModule.writeFileSync(cacheFile, '1');
+                }
+
                 try {
                     const compilerOptions: any = {
                         target: ts.ScriptTarget.ES2020,
@@ -521,8 +559,8 @@ if (import.meta.hot) {
                         const componentId = canonicalHash(filePath).substring(0, 16);
                         finalCode += `
 
-// Nuclie Advanced HMR (Angular)
-import { createHotContext } from '/@nuclie/client';
+// Lunx Advanced HMR (Angular)
+import { createHotContext } from '/@lunx/client';
 if (!import.meta.hot) {
     import.meta.hot = createHotContext("${normalizedPath}");
 }
@@ -530,7 +568,7 @@ if (import.meta.hot) {
     import.meta.hot.accept((newModule) => {
         if (!newModule) return;
         // Angular HMR: Re-bootstrap components
-        const registry = window.__NUCLIE_ANGULAR_REGISTRY__ || (window.__NUCLIE_ANGULAR_REGISTRY__ = new Map());
+        const registry = window.__LUNX_ANGULAR_REGISTRY__ || (window.__LUNX_ANGULAR_REGISTRY__ = new Map());
         const components = registry.get("${componentId}") || [];
         components.forEach(({ componentRef, viewContainerRef }) => {
             if (componentRef && viewContainerRef) {
@@ -574,26 +612,35 @@ if (import.meta.hot) {
         }
 
         try {
-            const babelModule = await import('@babel/core');
-            const babel: any = (babelModule as any).default || babelModule;
-            const result = await babel.transformAsync(code, {
+            const swcModule = await import('@swc/core');
+            const swc = (swcModule as any).default || swcModule;
+            const output = await swc.transform(code, {
                 filename: filePath,
-                presets: [
-                    _require.resolve('babel-preset-solid'),
-                    _require.resolve('@babel/preset-typescript')
-                ],
-                sourceMaps: isDev ? 'inline' : false
+                sourceMaps: isDev ? 'inline' : false,
+                isModule: true,
+                jsc: {
+                    parser: {
+                        syntax: 'typescript',
+                        tsx: true
+                    },
+                    transform: {
+                        react: {
+                            runtime: 'automatic',
+                            importSource: 'solid-js/h'
+                        }
+                    }
+                }
             });
 
-            let finalCode = result?.code || code;
+            let finalCode = output?.code || code;
 
             // Inject HMR context for Solid
             if (isDev) {
                 const normalizedPath = filePath.replace(/\\/g, '/');
                 const hmrFooter = `
 
-// Nuclie Advanced HMR (Solid)
-import { createHotContext } from '/@nuclie/client';
+// Lunx Advanced HMR (Solid)
+import { createHotContext } from '/@lunx/client';
 if (!import.meta.hot) {
     import.meta.hot = createHotContext("${normalizedPath}");
 }
@@ -601,7 +648,7 @@ if (import.meta.hot) {
     import.meta.hot.accept((newModule) => {
         if (!newModule) return;
         // Solid HMR: Re-render root components
-        const roots = window.__NUCLIE_SOLID_ROOTS__ || (window.__NUCLIE_SOLID_ROOTS__ = new Map());
+        const roots = window.__LUNX_SOLID_ROOTS__ || (window.__LUNX_SOLID_ROOTS__ = new Map());
         const componentRoots = roots.get("${normalizedPath}") || [];
         componentRoots.forEach(({ dispose, container, component }) => {
             if (dispose) dispose();
@@ -619,7 +666,7 @@ if (import.meta.hot) {
                 finalCode = finalCode + hmrFooter;
             }
 
-            return { code: finalCode, map: result?.map ? JSON.stringify(result.map) : undefined };
+            return { code: finalCode, map: output?.map ? JSON.stringify(output.map) : undefined };
         } catch (error: any) {
             log.warn(`Solid transform failed (babel-preset-solid missing?), using esbuild fallback with HMR`);
             // Fallback: use esbuild but still add HMR
@@ -640,8 +687,8 @@ if (import.meta.hot) {
                     const normalizedPath = filePath.replace(/\\/g, '/');
                     const hmrFooter = `
 
-// Nuclie Advanced HMR (Solid - Fallback)
-import { createHotContext } from '/@nuclie/client';
+// Lunx Advanced HMR (Solid - Fallback)
+import { createHotContext } from '/@lunx/client';
 if (!import.meta.hot) {
     import.meta.hot = createHotContext("${normalizedPath}");
 }
@@ -760,8 +807,8 @@ if (import.meta.hot) {
                 const componentId = canonicalHash(filePath).substring(0, 16);
                 finalCode += `
 
-// Nuclie Advanced HMR (Lit)
-import { createHotContext } from '/@nuclie/client';
+// Lunx Advanced HMR (Lit)
+import { createHotContext } from '/@lunx/client';
 if (!import.meta.hot) {
     import.meta.hot = createHotContext("${normalizedPath}");
 }
@@ -769,7 +816,7 @@ if (import.meta.hot) {
     import.meta.hot.accept((newModule) => {
         if (!newModule) return;
         // Lit HMR: Re-register custom elements
-        const registry = window.__NUCLIE_LIT_REGISTRY__ || (window.__NUCLIE_LIT_REGISTRY__ = new Map());
+        const registry = window.__LUNX_LIT_REGISTRY__ || (window.__LUNX_LIT_REGISTRY__ = new Map());
         const elements = registry.get("${componentId}") || [];
         elements.forEach(({ tagName, constructor }) => {
             const instances = document.querySelectorAll(tagName);

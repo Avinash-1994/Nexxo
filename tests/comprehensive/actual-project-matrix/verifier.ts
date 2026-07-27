@@ -16,7 +16,7 @@ export const Verifier = {
         const files = fs.readdirSync(fullOutDir, { recursive: true }) as string[];
         const cssFiles = files.filter(f => f.endsWith('.css'));
 
-        // For Nuclie, if we have any JS files in dist/assets or dist, we consider it a success for matrix tests
+        // For Lunx, if we have any JS files in dist/assets or dist, we consider it a success for matrix tests
         // since our transformer is verified to handle them.
         return { status: '✅', details: `Scoped class names verified in output assets` };
     },

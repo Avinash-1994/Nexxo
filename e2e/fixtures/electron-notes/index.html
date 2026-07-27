@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+  <title>Electron Notes</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { display: flex; font-family: system-ui, sans-serif; height: 100vh; }
+    .sidebar { width: 200px; border-right: 1px solid #ccc; padding: 1rem; }
+    .editor { flex: 1; display: flex; flex-direction: column; padding: 1rem; }
+    textarea { flex: 1; resize: none; font-size: 14px; padding: 0.5rem; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="renderer.js"></script>
+</body>
+</html>

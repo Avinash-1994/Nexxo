@@ -4,11 +4,11 @@ const require = createRequire(import.meta.url);
 let nativeModule: any;
 
 const candidatePaths = [
-    './nuclie_native.node',
-    '../nuclie_native.node',
-    '../../nuclie_native.node',
-    path.join(process.cwd(), 'nuclie_native.node'),
-    path.join(process.cwd(), 'dist/nuclie_native.node')
+    './lunx_native.node',
+    '../lunx_native.node',
+    '../../lunx_native.node',
+    path.join(process.cwd(), 'lunx_native.node'),
+    path.join(process.cwd(), 'dist/lunx_native.node')
 ];
 
 for (const p of candidatePaths) {
@@ -43,7 +43,7 @@ if (!nativeModule) {
 const { BuildCache: NativeBuildCache } = nativeModule;
 
 
-import type { BuildCache as NativeBuildCacheType, CacheStats } from '../../nuclie_native.node';
+import type { BuildCache as NativeBuildCacheType, CacheStats } from '../../lunx_native.node';
 
 export { CacheStats };
 
@@ -58,7 +58,7 @@ export { CacheStats };
  * 
  * @example
  * ```ts
- * const cache = new BuildCache('.nuclie_cache');
+ * const cache = new BuildCache('.lunx_cache');
  * 
  * // Set a value
  * cache.set('input:src/App.tsx:abc123', JSON.stringify(transformResult));

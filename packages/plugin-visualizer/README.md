@@ -1,17 +1,17 @@
-# @nuclie/plugin-visualizer
+# @lunx/plugin-visualizer
 
-> Official Nuclie plugin for bundle visualization — interactive HTML treemap report.
+> Official Lunx plugin for bundle visualization — interactive HTML treemap report.
 
 ## Install
 
 ```bash
-npm install --save-dev @nuclie/plugin-visualizer
+npm install --save-dev @lunx/plugin-visualizer
 ```
 
 ## Usage
 
 ```js
-const visualizer = require('@nuclie/plugin-visualizer');
+const visualizer = require('@lunx/plugin-visualizer');
 module.exports = {
   entry: ['./src/main.ts'],
   plugins: [
@@ -28,14 +28,14 @@ module.exports = {
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `filename` | `string` | `'dist/stats.html'` | Output path for HTML report |
-| `title` | `string` | `'Nuclie Bundle Visualizer'` | Report page title |
+| `title` | `string` | `'Lunx Bundle Visualizer'` | Report page title |
 | `open` | `boolean` | `false` | Auto-open in browser after build |
 | `template` | `'treemap' \| 'sunburst' \| 'network'` | `'treemap'` | Visualization type |
 | `gzipSize` | `boolean` | `true` | Include gzip size estimates |
 
 ## Report
 
-After `nuclie build`, open `dist/stats.html` to see:
+After `lunx build`, open `dist/stats.html` to see:
 - **Treemap**: Visual proportional grid of all modules by size
 - **Module Table**: Sortable list of every module with size and chunk assignment
 - **Summary**: Total modules and bundle size at a glance

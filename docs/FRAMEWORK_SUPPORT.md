@@ -1,8 +1,8 @@
-# Nuclie Framework Support - Universal Production-Grade
+# Lunx Framework Support - Universal Production-Grade
 
 ## 🌟 **All Frameworks Are Production-Ready**
 
-Nuclie provides **identical, production-grade support** for all major frameworks. There are no tiers - every framework receives:
+Lunx provides **identical, production-grade support** for all major frameworks. There are no tiers - every framework receives:
 
 ### ✅ **Universal Guarantees (ALL Frameworks)**
 
@@ -12,7 +12,7 @@ Nuclie provides **identical, production-grade support** for all major frameworks
 - **CSS correctness** (scoped styles, extraction, injection)
 - **Graph-based rebuilds** (dependency tracking)
 - **Production builds work** (optimized, tree-shaken)
-- **Full `nuclie verify` support**
+- **Full `lunx verify` support**
 
 ---
 
@@ -76,7 +76,7 @@ Nuclie provides **identical, production-grade support** for all major frameworks
 
 ## 🔧 **How It Works**
 
-All frameworks use Nuclie's **UniversalTransformer** which:
+All frameworks use Lunx's **UniversalTransformer** which:
 
 1. **Detects** the framework from file extensions and imports
 2. **Transforms** using the framework's native compiler
@@ -103,4 +103,4 @@ We believe in **equality across frameworks**. Every framework deserves:
 - The same production-ready guarantees
 - The same developer experience
 
-**Nuclie treats all frameworks as first-class citizens.**
+**Lunx treats all frameworks as first-class citizens.**

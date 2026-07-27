@@ -1,6 +1,6 @@
 
 /**
- * Nuclie Marketplace CLI Client
+ * Lunx Marketplace CLI Client
  * Implementation: tRPC Direct Caller (Simulates HTTP Client for Local MVP)
  * Day 10: Marketplace MVP Lock
  */
@@ -58,29 +58,48 @@ export class MarketplaceClient {
     /**
      * Install a plugin
      */
-    static async install(name: string, installDir: string) {
-        console.log(blue(`\n⬇️  Installing ${bold(name)}...`));
+    static async install(name: string, installDir: string, version?: string) {
+        console.log(blue(`\n⬇️  Installing ${bold(name)}${version ? `@${version}` : ''}...`));
         try {
-            // 1. Fetch Metadata
-            const plugin = await caller.install({ name });
-
-            // 2. Verify Integirty (Client-side check)
-            // Note: DB stores verified, but client should double check if fetching over network
-            // Here we just save the manifest info for now since we didn't store the Blob in DB?
-            // Ah, DB schema didn't store the WASM Blob! 
-            // In a real registry, we'd store the blob in S3/FS.
-            // For MVP, we simulated metadata publishing. 
-            // I will return the validation success.
+            const plugin = await caller.install({ name, version });
+            if (!plugin.artifactBase64) {
+                throw new Error('Received plugin metadata without artifact payload');
+            }
 
             console.log(green(`✅ Found ${bold(plugin.name)} v${plugin.version}`));
             console.log(yellow(`   Author: ${plugin.author}`));
             console.log(yellow(`   Permissions: ${plugin.permissions_json}`));
 
-            // Mock installation (since we didn't store blob in sqlite, we assume it's "available")
-            console.log(green(`✅ Installed to ${path.join(installDir, name)}`));
+            const outputDir = path.resolve(installDir, plugin.name);
+            fs.mkdirSync(outputDir, { recursive: true });
+
+            const artifact = Buffer.from(plugin.artifactBase64, 'base64');
+            const artifactPath = path.join(outputDir, `plugin-${plugin.version}.wasm`);
+            fs.writeFileSync(artifactPath, artifact);
+
+            const manifestPath = path.join(outputDir, 'plugin-manifest.json');
+            fs.writeFileSync(manifestPath, JSON.stringify({
+                name: plugin.name,
+                version: plugin.version,
+                author: plugin.author,
+                description: plugin.description,
+                permissions: JSON.parse(plugin.permissions_json || '{}')
+            }, null, 2));
+
+            console.log(green(`✅ Installed to ${outputDir}`));
+            console.log(green(`   Artifact: ${artifactPath}`));
+            return outputDir;
 
         } catch (e: any) {
             console.error(red(`❌ Install Failed: ${e.message}`));
+            throw e;
         }
+    }
+
+    static async listVersions(name: string) {
+        console.log(blue(`\n📄 Listing versions for ${bold(name)}...`));
+        const results = await caller.versions(name);
+        console.table(results);
+        return results;
     }
 }

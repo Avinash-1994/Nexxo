@@ -20,17 +20,17 @@ export const fintechTemplate: TemplateConfig = {
   devDependencies: {
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
-    "@nuclie/plugin-react": "^1.0.0",
-    "@nuclie/plugin-upi-payment": "^1.0.0",
-    "@nuclie/plugin-qr-code": "^1.0.0",
-    "@nuclie/plugin-security": "^1.0.0"
+    "@lunx/plugin-react": "^1.0.0",
+    "@lunx/plugin-upi-payment": "^1.0.0",
+    "@lunx/plugin-qr-code": "^1.0.0",
+    "@lunx/plugin-security": "^1.0.0"
   },
   files: {
-    'nuclie.config.ts': `    
-import { defineConfig } from 'nuclie';
-import react from '@nuclie/plugin-react';
-import upi from '@nuclie/plugin-upi-payment';
-import qr from '@nuclie/plugin-qr-code';
+    'lunx.config.ts': `    
+import { defineConfig } from 'lunx';
+import react from '@lunx/plugin-react';
+import upi from '@lunx/plugin-upi-payment';
+import qr from '@lunx/plugin-qr-code';
 
 export default defineConfig({
     plugins: [react(), upi(), qr()],
@@ -73,7 +73,7 @@ export default function App() {
     <div className="container">
       <header className="header">
         <ShieldCheck size={40} className="icon secure" />
-        <h1>Nuclie Pay</h1>
+        <h1>Lunx Pay</h1>
       </header>
       
       <div className="card">
@@ -202,7 +202,7 @@ button {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nuclie Pay</title>
+    <title>Lunx Pay</title>
   </head>
   <body>
     <div id="root"></div>

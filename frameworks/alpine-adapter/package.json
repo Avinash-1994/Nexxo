@@ -1,12 +1,12 @@
 {
-    "name": "@nuclie/alpine-adapter",
+    "name": "@lunx/alpine-adapter",
     "version": "0.1.0",
-    "description": "Nuclie Framework Adapter for Alpine.js (Tier-1 Supported)",
+    "description": "Lunx Framework Adapter for Alpine.js (Tier-1 Supported)",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "scripts": {
         "build": "tsc",
-        "test": "echo 'Run integration tests via Nuclie runner'"
+        "test": "echo 'Run integration tests via Lunx runner'"
     },
     "dependencies": {
         "vite": "^5.0.0"
@@ -16,10 +16,10 @@
         "alpinejs": "^3.13.0",
         "@types/node": "^20.0.0"
     },
-    "nuclie": {
+    "lunx": {
         "name": "Alpine Adapter",
         "state": "candidate",
-        "maintainer": "Nuclie Core Team",
+        "maintainer": "Lunx Core Team",
         "supported_capabilities": [
             "build",
             "hmr",

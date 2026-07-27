@@ -17,8 +17,8 @@ async function generateScaleProject(moduleCount: number = 10000, includeCycle: b
         type: 'module'
     }, null, 2));
 
-    // 2. Create nuclie.config.js
-    await fs.writeFile(path.join(root, 'nuclie.config.js'), `
+    // 2. Create lunx.config.js
+    await fs.writeFile(path.join(root, 'lunx.config.js'), `
 export default {
     entry: ['src/main.js'],
     preset: 'spa',

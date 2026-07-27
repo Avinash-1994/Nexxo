@@ -1,4 +1,4 @@
-# What NOT to Touch in Nuclie Core — Internal Guide
+# What NOT to Touch in Lunx Core — Internal Guide
 
 **Audience**: New core engineers, contributors  
 **Purpose**: Prevent accidental core breakage  
@@ -8,7 +8,7 @@
 
 ## 🎯 Purpose
 
-This guide explains **WHAT NOT TO TOUCH** in the Nuclie codebase.
+This guide explains **WHAT NOT TO TOUCH** in the Lunx codebase.
 
 **Rule**: If it's listed here, you need explicit approval from the core team before modifying it.
 
@@ -400,7 +400,7 @@ function resolvePackageExports(pkg: PackageJson, subpath: string): string;
 
 ## 🧠 Mental Model
 
-**Think of Nuclie core as a database**:
+**Think of Lunx core as a database**:
 - You wouldn't modify PostgreSQL's B-tree implementation
 - You wouldn't change MySQL's transaction log format
 - You wouldn't alter Redis's persistence layer
@@ -418,6 +418,6 @@ function resolvePackageExports(pkg: PackageJson, subpath: string): string;
 
 ---
 
-**If you're unsure, ask in #nuclie-core Slack channel.**
+**If you're unsure, ask in #lunx-core Slack channel.**
 
 **Better to ask than to break production.**

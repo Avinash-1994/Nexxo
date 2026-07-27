@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-visualizer
+ * @lunx/plugin-visualizer
  * WebGPU dependency visualizer
  */
 
@@ -7,8 +7,8 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createVisualizerPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-visualizer',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-visualizer',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // Utility: WebGPU dependency visualizer

@@ -1,0 +1,8 @@
+{
+  "name": "svelte-basic",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "svelte": "^4.0.0"
+  }
+}

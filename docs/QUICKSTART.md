@@ -1,4 +1,4 @@
-Nuclie Build Tool - Quickstart (for absolute beginners)
+Lunx Build Tool - Quickstart (for absolute beginners)
 
 This quickstart will get you from nothing to a working dev server in under 5 minutes.
 
@@ -12,7 +12,7 @@ This quickstart will get you from nothing to a working dev server in under 5 min
 
    Run the dev server (this serves the sample `public/index.html` and watches files):
 
-   npx nuclie dev
+   npx lunx dev
 
 3) Open the demo page
 
@@ -20,8 +20,8 @@ This quickstart will get you from nothing to a working dev server in under 5 min
 
 4) Build for production
 
-   npx nuclie build
+   npx lunx build
 
-   The production files will be written to `build_output/` and cached under `.nuclie_cache/`.
+   The production files will be written to `build_output/` and cached under `.lunx_cache/`.
 
 That's it — you now have a running dev server and can build production artifacts.

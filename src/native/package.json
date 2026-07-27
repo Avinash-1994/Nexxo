@@ -1,8 +1,8 @@
 {
-    "name": "nuclie-native",
+    "name": "lunx-native",
     "version": "0.1.0",
     "type": "module",
     "napi": {
-        "binaryName": "nuclie_native"
+        "binaryName": "lunx_native"
     }
 }

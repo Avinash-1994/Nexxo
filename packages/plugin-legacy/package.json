@@ -1,7 +1,7 @@
 {
-  "name": "@nuclie/plugin-legacy",
+  "name": "@lunx/plugin-legacy",
   "version": "1.0.0",
-  "description": "Official Nuclie plugin for legacy browser support — ES5 transpilation and core-js polyfills",
+  "description": "Official Lunx plugin for legacy browser support — ES5 transpilation and core-js polyfills",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -16,11 +16,11 @@
     "build": "tsc",
     "test": "node --test src/__tests__/index.test.js"
   },
-  "keywords": ["nuclie", "plugin", "legacy", "es5", "polyfill", "core-js", "ie11"],
+  "keywords": ["lunx", "plugin", "legacy", "es5", "polyfill", "core-js", "ie11"],
   "author": "Avinash-1994",
   "license": "MIT",
   "peerDependencies": {
-    "nuclie": ">=1.0.0"
+    "lunx": ">=1.0.0"
   },
   "dependencies": {
     "core-js": "^3.0.0"

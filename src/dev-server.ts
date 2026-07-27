@@ -244,11 +244,19 @@ eventSource.onmessage = (event) => {
         } else if (data.decision.level === 'HMR_FULL_RELOAD') {
             // Full page reload
             setTimeout(() => location.reload(), 100);
-        } else {
-            // Partial HMR - let framework handle it
+        } else if (data.decision.level === 'HMR_PARTIAL') {
+            // Partial HMR - try framework hot accept and fallback safely.
             if (import.meta.hot) {
                 import.meta.hot.accept();
+                console.log('✅ Partial HMR accepted by framework hot API');
+            } else {
+                console.warn('⚠️ Partial HMR requested but import.meta.hot is unavailable. Falling back to full reload.');
+                setTimeout(() => location.reload(), 150);
             }
+        } else {
+            // Unexpected HMR level, fallback to full reload.
+            console.warn('⚠️ Unknown HMR level, falling back to full reload:', data.decision.level);
+            setTimeout(() => location.reload(), 150);
         }
     }
 };

@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-webp
+ * @lunx/plugin-webp
  * WebP image conversion
  */
 
@@ -9,8 +9,8 @@ import path from 'path';
 
 export function createWebpPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-webp',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-webp',
+        originalPlugin: 'lunx-native',
         
         async load(id: string) {
             // Asset loading for webp

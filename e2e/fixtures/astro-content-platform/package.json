@@ -1,0 +1,9 @@
+{
+  "name": "astro-content-platform",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Lunx Phase 2.6 — Astro Islands + Content Collections fixture",
+  "dependencies": {
+    "astro": "^4.0.0"
+  }
+}

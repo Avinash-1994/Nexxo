@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-netlify
+ * @lunx/plugin-netlify
  * Netlify deployment adapter
  */
 
@@ -7,11 +7,11 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createNetlifyPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-netlify',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-netlify',
+        originalPlugin: 'lunx-native',
         
         async buildEnd() {
-            console.log('[@nuclie/plugin-netlify] Deployment adapter ready');
+            console.log('[@lunx/plugin-netlify] Deployment adapter ready');
             // Generate deployment config
         }
     };

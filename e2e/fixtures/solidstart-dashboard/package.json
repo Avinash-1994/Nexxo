@@ -1,0 +1,8 @@
+{
+  "name": "solidstart-dashboard",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "solid-js": "^1.9.12"
+  }
+}

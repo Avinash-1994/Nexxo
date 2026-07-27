@@ -1,5 +1,5 @@
 
-import { NucliePlugin } from '../core/plugins/types.js';
+import { LunxPlugin } from '../core/plugins/types.js';
 import { canonicalHash } from '../core/engine/hash.js';
 import crypto from 'crypto';
 import path from 'path';
@@ -17,10 +17,10 @@ export interface FederationConfig {
     healthCheck?: string;
 }
 
-export function createFederationPlugin(config: FederationConfig): NucliePlugin {
+export function createFederationPlugin(config: FederationConfig): LunxPlugin {
     return {
         manifest: {
-            name: 'nuclie:federation',
+            name: 'lunx:federation',
             version: '1.0.0',
             engineVersion: '1.0.0',
             type: 'js',
@@ -56,14 +56,22 @@ export function createFederationPlugin(config: FederationConfig): NucliePlugin {
                     // HEURISTIC: Find chunk with ID containing the exposed name, or fallback to the main bundle
                     const exposedName = path.basename(importPath, path.extname(importPath));
                     const artifact = artifacts.find((a: any) => a.fileName.includes(exposedName)) 
-                                  || artifacts.find((a: any) => a.type === 'js' && a.fileName.includes('main.'));
+                                  || artifacts.find((a: any) => a.type === 'js' && a.fileName.includes('index'));
 
                     let shortId = importPath; // fallback
                     let chunkUrl = artifact ? path.basename(artifact.fileName) : '';
 
                     if (artifact && artifact.modules) {
-                        const mod = artifact.modules.find((m: any) => m.id.includes(exposedName) || m.id.includes(importPath.replace('./', '')));
-                        if (mod) shortId = mod.shortId || mod.id;
+                        const mod = artifact.modules.find((m: any) => 
+                            (m.path && m.path.includes(exposedName)) || 
+                            m.id.includes(exposedName) || 
+                            m.id.includes(importPath.replace('./', ''))
+                        );
+                        if (mod) {
+                            shortId = mod.shortId || mod.id;
+                        } else {
+                            console.log('[Federation Plugin Debug] Module for exposed name missing! Available:', artifact.modules.map((m: any) => m.path || m.id));
+                        }
                     }
 
                     manifest.exposes[key] = {
@@ -101,6 +109,8 @@ export function createFederationPlugin(config: FederationConfig): NucliePlugin {
 var ${config.name} = (() => {
   var exposes = ${JSON.stringify(manifest.exposes, null, 2)};
   var __promises = {};
+  var __publicPath = document.currentScript ? document.currentScript.src : window.location.href;
+  __publicPath = __publicPath.substring(0, __publicPath.lastIndexOf('/'));
 
   return {
     get: async (moduleName) => {
@@ -113,10 +123,7 @@ var ${config.name} = (() => {
           if (!__promises[exposed.chunk]) {
             __promises[exposed.chunk] = new Promise((resolve, reject) => {
               var script = document.createElement("script");
-              /* Resolve path relative to this script */
-              var scriptSrc = document.currentScript ? document.currentScript.src : window.location.href;
-              var basePath = scriptSrc.substring(0, scriptSrc.lastIndexOf('/'));
-              script.src = basePath + "/assets/" + exposed.chunk;
+              script.src = __publicPath + "/assets/" + exposed.chunk;
               script.onload = resolve;
               script.onerror = reject;
               document.head.appendChild(script);
@@ -125,11 +132,11 @@ var ${config.name} = (() => {
           await __promises[exposed.chunk];
         }
         
-        // Use Nuclie's globalThis.r runtime short ID registration
+        // Use Lunx's globalThis.r runtime short ID registration
         if (typeof globalThis.r === 'function') {
            return globalThis.r(exposed.shortId);
         }
-        throw new Error("Nuclie runtime missing in host!");
+        throw new Error("Lunx runtime missing in host!");
       };
     },
     init: async (shareScope) => {

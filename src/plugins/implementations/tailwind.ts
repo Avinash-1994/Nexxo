@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-tailwind
+ * @lunx/plugin-tailwind
  * Tailwind CSS integration
  */
 
@@ -7,8 +7,8 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createTailwindPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-tailwind',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-tailwind',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // CSS transformation for tailwind

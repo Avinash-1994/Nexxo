@@ -1,0 +1,1 @@
+export default function checkout() { return "View for checkout"; }

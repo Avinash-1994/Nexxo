@@ -6,8 +6,8 @@
 import { PluginManager, Plugin } from '../src/plugins/index.js';
 import { rollupAdapter } from '../src/plugins/compat/rollup.js';
 import { webpackLoaderAdapter } from '../src/plugins/compat/webpack.js';
-import { nuclieCopy, nuclieHtml } from '../src/plugins/compat/tier-b.js';
-import { nuclieReact, nuclieVue, nuclieSvelte } from '../src/plugins/compat/tier-c.js';
+import { lunxCopy, lunxHtml } from '../src/plugins/compat/tier-b.js';
+import { lunxReact, lunxVue, lunxSvelte } from '../src/plugins/compat/tier-c.js';
 import fs from 'fs';
 import path from 'path';
 import { strict as assert } from 'assert';
@@ -138,12 +138,12 @@ async function testRollupAdapterBasic() {
         transform: (code: string) => code + '// rollup'
     };
 
-    const nucliePlugin = rollupAdapter(rollupPlugin);
+    const lunxPlugin = rollupAdapter(rollupPlugin);
 
-    assert.strictEqual(nucliePlugin.name, 'test-rollup-plugin');
-    assert.ok(nucliePlugin.transform);
+    assert.strictEqual(lunxPlugin.name, 'test-rollup-plugin');
+    assert.ok(lunxPlugin.transform);
 
-    const result = await nucliePlugin.transform!('code', 'test.js');
+    const result = await lunxPlugin.transform!('code', 'test.js');
     assert.strictEqual(result, 'code// rollup');
 
     console.log('✅ Rollup adapter converts plugins correctly');
@@ -152,22 +152,40 @@ async function testRollupAdapterBasic() {
 async function testRollupAdapterHooks() {
     console.log('\n[Test 7] Rollup Adapter - Hook Mapping');
 
+    let emittedAsset = false;
     const rollupPlugin = {
         name: 'multi-hook-plugin',
-        resolveId: (source: string) => source === 'virtual' ? '/virtual/path.js' : null,
-        load: (id: string) => id.endsWith('.virtual') ? 'export default "virtual"' : null,
-        renderChunk: (code: string) => code.replace(/\s+/g, ' ')
+        resolveId: function (this: any, source: string) {
+            if (source === 'virtual') return '/virtual/path.js';
+            return null;
+        },
+        load: function (this: any, id: string) {
+            if (id.endsWith('.virtual')) return 'export default "virtual"';
+            return null;
+        },
+        transform: function (this: any, code: string) {
+            this.emitFile({ type: 'asset', name: 'test.txt', source: 'asset-content' });
+            emittedAsset = true;
+            return code + ' // transformed';
+        },
+        renderChunk: function (this: any, code: string) {
+            return code.replace(/\s+/g, ' ');
+        }
     };
 
-    const nucliePlugin = rollupAdapter(rollupPlugin);
+    const lunxPlugin = rollupAdapter(rollupPlugin);
 
-    const resolveResult = await nucliePlugin.resolveId!('virtual');
+    const resolveResult = await lunxPlugin.resolveId!('virtual');
     assert.strictEqual(resolveResult, '/virtual/path.js');
 
-    const loadResult = await nucliePlugin.load!('test.virtual');
+    const loadResult = await lunxPlugin.load!('test.virtual');
     assert.strictEqual(loadResult, 'export default "virtual"');
 
-    const renderResult = await nucliePlugin.renderChunk!('const  x  =  1;', {});
+    const transformed = await lunxPlugin.transform!('const  x  =  1;', 'test.js');
+    assert.strictEqual(transformed, 'const  x  =  1; // transformed');
+    assert.ok(emittedAsset, 'emitFile should be available on the Rollup plugin context');
+
+    const renderResult = await lunxPlugin.renderChunk!('const  x  =  1;', {});
     assert.strictEqual(renderResult, 'const x = 1;');
 
     console.log('✅ All Rollup hooks mapped correctly');
@@ -178,10 +196,10 @@ async function testRollupAdapterIntegration() {
 
     const manager = new PluginManager();
 
-    // Native Nuclie plugin
+    // Native Lunx plugin
     manager.register({
-        name: 'nuclie-plugin',
-        transform: async (code) => code + ' [nuclie]'
+        name: 'lunx-plugin',
+        transform: async (code) => code + ' [lunx]'
     });
 
     // Adapted Rollup plugin
@@ -192,9 +210,132 @@ async function testRollupAdapterIntegration() {
     manager.register(rollupAdapter(rollupPlugin));
 
     const result = await manager.transform('start', 'test.js');
-    assert.strictEqual(result, 'start [nuclie] [rollup]');
+    assert.strictEqual(result, 'start [lunx] [rollup]');
 
-    console.log('✅ Rollup plugins integrate seamlessly with Nuclie plugins');
+    console.log('✅ Rollup plugins integrate seamlessly with Lunx plugins');
+}
+
+async function testSandboxPermissionEnforcement() {
+    console.log('\n[Test 8] Sandbox Permission Enforcement');
+
+    const manager = new PluginManager();
+    const testDir = path.resolve(process.cwd(), 'sandbox_permission_test');
+    const testFile = path.join(testDir, 'allowed.txt');
+
+    await fs.promises.mkdir(testDir, { recursive: true });
+    await fs.promises.writeFile(testFile, 'secret-content', 'utf8');
+
+    const code = `
+const fs = require('fs');
+module.exports = {
+  name: 'sandbox-secure-plugin',
+  transform(code, id) {
+    return fs.readFileSync(${JSON.stringify(testFile)}, 'utf8');
+  }
+};
+`;
+
+    const plugin = manager.loadSandboxedPlugin(code, { read: [testFile] });
+    const result = await plugin.transform!('input', 'test.js');
+    assert.strictEqual(result, 'secret-content');
+
+    const blockedPlugin = manager.loadSandboxedPlugin(code);
+    let blocked = false;
+    try {
+        await blockedPlugin.transform!('input', 'test.js');
+    } catch (error) {
+        blocked = true;
+        assert.ok(String(error).includes('Read access denied'));
+    }
+
+    await fs.promises.rm(testDir, { recursive: true, force: true });
+    assert.ok(blocked, 'Unauthorized filesystem access should be blocked');
+
+    console.log('✅ Sandbox enforces file read permissions');
+}
+
+async function testSandboxEnvPermissionEnforcement() {
+    console.log('\n[Test 9] Sandbox Environment Permission Enforcement');
+
+    const manager = new PluginManager();
+    const code = `
+module.exports = {
+  name: 'env-secure-plugin',
+  transform(code, id) {
+    const secret = process.env.MY_SECRET;
+    if (!secret) throw new Error('env access blocked');
+    return secret;
+  }
+};
+`;
+
+    process.env.MY_SECRET = 'allowed-value';
+    const plugin = manager.loadSandboxedPlugin(code, { env: ['MY_SECRET'] });
+    const result = await plugin.transform!('input', 'test.js');
+    assert.strictEqual(result, 'allowed-value');
+    delete process.env.MY_SECRET;
+
+    const blockedPlugin = manager.loadSandboxedPlugin(code);
+    let blocked = false;
+    try {
+        await blockedPlugin.transform!('input', 'test.js');
+    } catch (error) {
+        blocked = true;
+        assert.ok(String(error).includes('env access blocked'));
+    }
+
+    assert.ok(blocked, 'Unauthorized environment access should be blocked');
+    console.log('✅ Sandbox enforces explicit env permissions');
+}
+
+async function testSandboxModuleRequireIsolation() {
+    console.log('\n[Test 10] Sandbox Module Require Isolation');
+
+    const manager = new PluginManager();
+    const code = `
+module.exports = {
+  name: 'module-isolation-plugin',
+  transform(code, id) {
+    const http = require('http');
+    return 'should-not-run';
+  }
+};
+`;
+
+    const plugin = manager.loadSandboxedPlugin(code, { env: ['MY_SECRET'] });
+    let blocked = false;
+    try {
+        await plugin.transform!('input', 'test.js');
+    } catch (error) {
+        blocked = true;
+        assert.ok(String(error).includes("Access to module 'http' is denied."));
+    }
+
+    assert.ok(blocked, 'Unauthorized module require() should be blocked');
+    console.log('✅ Sandbox blocks unauthorized module imports');
+}
+
+async function testSandboxNetworkIsolation() {
+    console.log('\n[Test 11] Sandbox Network Isolation');
+
+    const manager = new PluginManager();
+    const code = `
+module.exports = {
+  name: 'network-isolation-plugin',
+  transform(code, id) {
+    if (typeof fetch !== 'undefined') {
+      throw new Error('network APIs should be unavailable');
+    }
+    return 'network-blocked';
+  }
+};
+`;
+
+    const plugin = manager.loadSandboxedPlugin(code);
+    const result = await plugin.transform!('input', 'test.js');
+    assert.strictEqual(result, 'network-blocked');
+
+    console.log('✅ Sandbox blocks network APIs like fetch');
 }
 
 async function testPerformanceBenchmark() {
@@ -266,8 +407,9 @@ async function testReturnValueHandling() {
 async function testWebpackLoaderAdapter() {
     console.log('\n[Test 11] Webpack Loader Adapter');
 
-    const simpleLoader = function (this: any, content: string) {
-        return content + ' [webpack]';
+    const simpleLoader = function (this: any, content: string | Buffer) {
+        const text = typeof content === 'string' ? content : content.toString('utf8');
+        return text + ' [webpack]';
     };
 
     const plugin = webpackLoaderAdapter({
@@ -286,8 +428,8 @@ async function testWebpackLoaderAdapter() {
     console.log('✅ Webpack loader adapter works correctly');
 }
 
-async function testNuclieCopy() {
-    console.log('\n[Test 12] Tier B: nuclieCopy');
+async function testLunxCopy() {
+    console.log('\n[Test 12] Tier B: lunxCopy');
 
     const testDir = path.resolve(process.cwd(), 'temp_test_copy');
     const srcFile = path.join(testDir, 'src/file.txt');
@@ -298,7 +440,7 @@ async function testNuclieCopy() {
     await fs.promises.mkdir(path.dirname(srcFile), { recursive: true });
     await fs.promises.writeFile(srcFile, 'hello');
 
-    const plugin = nuclieCopy({
+    const plugin = lunxCopy({
         targets: [{ src: srcFile, dest: destFile }]
     });
 
@@ -309,15 +451,15 @@ async function testNuclieCopy() {
 
     // Cleanup
     await fs.promises.rm(testDir, { recursive: true, force: true });
-    console.log('✅ nuclieCopy copies files correctly');
+    console.log('✅ lunxCopy copies files correctly');
 }
 
-async function testNuclieHtml() {
-    console.log('\n[Test 13] Tier B: nuclieHtml');
+async function testLunxHtml() {
+    console.log('\n[Test 13] Tier B: lunxHtml');
 
     const testDest = path.resolve(process.cwd(), 'dist', 'test-index.html');
 
-    const plugin = nuclieHtml({
+    const plugin = lunxHtml({
         title: 'Test App',
         filename: 'test-index.html'
     });
@@ -329,21 +471,21 @@ async function testNuclieHtml() {
 
     // Cleanup
     await fs.promises.unlink(testDest);
-    console.log('✅ nuclieHtml generates HTML correctly');
+    console.log('✅ lunxHtml generates HTML correctly');
 }
 
 async function testTierC() {
     console.log('\n[Test 14] Tier C: Wrappers (React/Vue/Svelte)');
 
     // Just verify they return valid plugin objects
-    const react = nuclieReact();
-    assert.strictEqual(react.name, 'nuclie-react');
+    const react = lunxReact();
+    assert.strictEqual(react.name, 'lunx-react');
 
-    const vue = nuclieVue();
-    assert.strictEqual(vue.name, 'nuclie-vue');
+    const vue = lunxVue();
+    assert.strictEqual(vue.name, 'lunx-vue');
 
-    const svelte = nuclieSvelte();
-    assert.strictEqual(svelte.name, 'nuclie-svelte');
+    const svelte = lunxSvelte();
+    assert.strictEqual(svelte.name, 'lunx-svelte');
 
     console.log('✅ Tier C wrappers instantiated correctly');
 }
@@ -364,16 +506,20 @@ async function runAllTests() {
         await testRollupAdapterBasic();
         await testRollupAdapterHooks();
         await testRollupAdapterIntegration();
+        await testSandboxPermissionEnforcement();
+        await testSandboxEnvPermissionEnforcement();
+        await testSandboxModuleRequireIsolation();
+        await testSandboxNetworkIsolation();
         await testPerformanceBenchmark();
         await testReturnValueHandling();
         await testWebpackLoaderAdapter();
-        await testNuclieCopy();
-        // await testNuclieHtml(); // Skipped to avoid polling dist folder conflicts in parallel tests, but implemented.
-        try { await testNuclieHtml(); } catch (e) { console.warn('HTML test warning (non-critical):', e); }
+        await testLunxCopy();
+        // await testLunxHtml(); // Skipped to avoid polling dist folder conflicts in parallel tests, but implemented.
+        try { await testLunxHtml(); } catch (e) { console.warn('HTML test warning (non-critical):', e); }
         await testTierC();
 
         console.log('\n' + '='.repeat(60));
-        console.log('✅ ALL TESTS PASSED (14/14)');
+        console.log('✅ ALL TESTS PASSED (15/15)');
         console.log('='.repeat(60));
         console.log('\nPhase 2.1 Plugin System is VERIFIED and READY');
 

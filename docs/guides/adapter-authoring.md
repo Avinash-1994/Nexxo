@@ -1,15 +1,15 @@
-# Nuclie Adapter Authoring Guide
+# Lunx Adapter Authoring Guide
 
 **Module**: 13 (Phase H.5)  
 **Status**: ✅ Active
 
-This guide explains how to build a production-grade framework adapter for Nuclie.
+This guide explains how to build a production-grade framework adapter for Lunx.
 
 ---
 
 ## 🏗️ Mental Model
 
-An Nuclie Adapter is an **isolated bridge** between Nuclie's core and a framework's internal toolchain (e.g., Vite, esbuild, SWC). 
+An Lunx Adapter is an **isolated bridge** between Lunx's core and a framework's internal toolchain (e.g., Vite, esbuild, SWC). 
 
 **The Golden Rule**: The adapter MUST NOT know about other adapters, and the Core MUST NOT know about the adapter's framework.
 
@@ -19,7 +19,7 @@ An Nuclie Adapter is an **isolated bridge** between Nuclie's core and a framewor
 
 Every adapter must implement the `FrameworkAdapter` interface:
 
-1.  **`init(options)`**: Receives the user's `nuclie.config.js` and sets up the internal toolchain.
+1.  **`init(options)`**: Receives the user's `lunx.config.js` and sets up the internal toolchain.
 2.  **`build()`**: Executes a production or dev build. Returns `AdapterOutput` containing assets and a module manifest.
 3.  **`handleHmr(event)`**: Accepts a file path and returns whether to `update` a specific module or trigger a `reload`.
 
@@ -55,7 +55,7 @@ Adapters graduation path:
 ## ✅ Validation Checklist (Before Submission)
 
 - [ ] Passes `npm run test` inside the adapter directory.
-- [ ] Passes `npx tsx scripts/verify.ts` in the Nuclie root.
+- [ ] Passes `npx tsx scripts/verify.ts` in the Lunx root.
 - [ ] No `fs.writeFile` outside the designated output directory.
 - [ ] No `eval()` or `new Function()` in the adapter logic.
 - [ ] All dependencies are pinned to exact versions (no `^` or `~`).

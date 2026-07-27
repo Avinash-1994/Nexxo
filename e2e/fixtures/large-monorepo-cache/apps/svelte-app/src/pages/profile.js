@@ -1,0 +1,1 @@
+export default function profile() { return "View for profile"; }

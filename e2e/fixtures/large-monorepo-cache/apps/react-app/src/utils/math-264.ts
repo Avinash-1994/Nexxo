@@ -1,0 +1,1 @@
+export const add264 = (a: number, b: number) => a + b + 264;

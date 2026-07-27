@@ -36,16 +36,43 @@ async function testMarketplaceFlow() {
         permissions: { network: false }
     };
 
-    // 2. Publish (Should sign and save to SQLite)
+    // 2. Publish version 1.0.0
     await MarketplaceClient.publish(pluginPath, meta);
 
-    // 3. Search
-    const results = await MarketplaceClient.search('test');
-    if (results.length === 0) throw new Error('Search failed to find published plugin');
-    if (results[0].name !== 'test-pkg') throw new Error('Search result mismatch');
+    // 3. Publish version 1.1.0
+    const metaV2 = { ...meta, version: '1.1.0', description: 'A second test plugin version' };
+    await MarketplaceClient.publish(pluginPath, metaV2);
 
-    // 4. Install
-    await MarketplaceClient.install('test-pkg', TEST_DIR);
+    // 4. Search
+    const results = await MarketplaceClient.search('test');
+    if (results.length < 2) throw new Error('Search failed to return multiple plugin versions');
+    if (!results.some(r => r.version === '1.0.0')) throw new Error('Search missing version 1.0.0');
+    if (!results.some(r => r.version === '1.1.0')) throw new Error('Search missing version 1.1.0');
+
+    // 5. List versions
+    const versions = await MarketplaceClient.listVersions('test-pkg');
+    if (versions.length !== 2) throw new Error('Version listing should return both published versions');
+    if (versions[0].version !== '1.1.0') throw new Error('Latest version should be listed first');
+
+    // 6. Install latest (should choose 1.1.0)
+    const latestInstallPath = await MarketplaceClient.install('test-pkg', TEST_DIR);
+    if (!latestInstallPath || !fs.existsSync(latestInstallPath)) {
+        throw new Error('Installed plugin directory does not exist');
+    }
+    const latestArtifactFile = path.join(latestInstallPath, 'plugin-1.1.0.wasm');
+    if (!fs.existsSync(latestArtifactFile)) {
+        throw new Error('Installed latest plugin artifact is missing');
+    }
+
+    // 7. Install specific version
+    const specificInstallPath = await MarketplaceClient.install('test-pkg', TEST_DIR, '1.0.0');
+    if (!specificInstallPath || !fs.existsSync(specificInstallPath)) {
+        throw new Error('Installed plugin directory does not exist for specific version');
+    }
+    const specificArtifactFile = path.join(specificInstallPath, 'plugin-1.0.0.wasm');
+    if (!fs.existsSync(specificArtifactFile)) {
+        throw new Error('Installed specific plugin artifact is missing');
+    }
 
     console.log('✅ Marketplace Flow Passed');
 }

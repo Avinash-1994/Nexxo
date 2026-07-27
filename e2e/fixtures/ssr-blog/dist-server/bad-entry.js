@@ -1,0 +1,1 @@
+exports.render = async function() { throw new Error('Intentional SSR crash'); };

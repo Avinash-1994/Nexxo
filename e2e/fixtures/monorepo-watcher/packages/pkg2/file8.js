@@ -1,0 +1,1 @@
+export const a = 8;\n

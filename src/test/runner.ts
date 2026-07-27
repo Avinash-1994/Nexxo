@@ -3,7 +3,7 @@ import path from 'path';
 import { describe, it, expect, vi, __getCollectedSuites, type SuiteContext, type TestContext } from './api.js';
 
 /**
- * Nuclie Test Runner
+ * Lunx Test Runner
  * Powered by Bun Transpiler & Custom Sandbox
  */
 
@@ -28,7 +28,7 @@ function findFiles(dir: string, pattern: string): string[] {
 }
 
 export async function run(args: string[]) {
-    console.log('⚡ Nuclie Test Runner v1.0.0');
+    console.log('⚡ Lunx Test Runner v1.0.0');
 
     const TARGET_FILES = args.filter(a => !a.startsWith('-'));
     const IS_WATCH = args.includes('--watch');

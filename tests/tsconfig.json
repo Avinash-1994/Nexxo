@@ -1,0 +1,15 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "strict": false,
+    "noImplicitAny": false,
+    "noEmit": true
+  },
+  "include": [
+    "./**/*"
+  ],
+  "exclude": [
+    "**/node_modules/**",
+    "**/fixtures/**"
+  ]
+}

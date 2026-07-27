@@ -22,8 +22,10 @@ export interface GraphAnalysisResult {
 export class JSGraphAnalyzer {
     private nodes: Map<string, string[]> = new Map();
 
-    addNode(id: string, dependencies: string[]): void {
-        this.nodes.set(id, dependencies);
+    addBatch(ids: string[], edges: string[][]): void {
+        for (let i = 0; i < ids.length; i++) {
+            this.nodes.set(ids[i], edges[i] || []);
+        }
     }
 
     /**

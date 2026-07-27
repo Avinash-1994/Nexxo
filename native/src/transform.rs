@@ -78,7 +78,7 @@ pub fn transform_js(code: String, filename: String, minify_opts: bool) -> Result
         let top_level_mark = Mark::new();
         module.visit_mut_with(&mut resolver(unresolved_mark, top_level_mark, false));
 
-        // 2. ESM Conversion (Nuclie Runtime Format)
+        // 2. ESM Conversion (Lunx Runtime Format)
         // Instead of stripping, we convert 'export' to 'exports' assignments
         // and 'import' to 'require' calls.
         use swc_core::ecma::ast::*;
@@ -348,20 +348,25 @@ pub fn minify_js(code: String) -> Result<String, String> {
 
         module.visit_mut_with(&mut resolver(unresolved_mark, top_level_mark, false));
 
-        let mut options = MinifyOptions::default();
+        let mut options = swc_core::ecma::minifier::option::MinifyOptions::default();
         let mut compress = swc_core::ecma::minifier::option::CompressOptions::default();
         
-        // Conservative settings to preserve runtime correctness
         compress.unused = false;        // Don't remove - might be used by runtime
-        compress.dead_code = false;     // Be conservative
-        compress.join_vars = true;      // Safe: var a; var b; -> var a,b;
-        compress.collapse_vars = false; // Don't collapse - can break code
-        compress.reduce_vars = false;   // Don't reduce - can break code
-        compress.drop_console = false;  // Never drop console
-        compress.top_level = None;      // Don't optimize top level
+        compress.dead_code = true;      // Strip unreachable code
+        compress.join_vars = true;
+        compress.collapse_vars = true;  // Safe with passes:3
+        compress.reduce_vars = true;    // Needed for full compression
+        compress.drop_console = false;
+        compress.top_level = None;
+        compress.passes = 3;            // Multiple passes for better compression
         
         options.compress = Some(compress);
-        options.mangle = Some(Default::default()); // Mangle variable names for size
+        
+        let mut mangle = swc_core::ecma::minifier::option::MangleOptions::default();
+        mangle.top_level = Some(true);  // Aggressive mangling
+        mangle.keep_class_names = true; // Preserve class names (Angular/React compat)
+        mangle.keep_fn_names = true;    // Preserve function names
+        options.mangle = Some(mangle);
         options.rename = false;         // Don't rename - can break runtime references
         
         module = optimize(

@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-wasm-sandbox
+ * @lunx/plugin-wasm-sandbox
  * WASM plugin sandbox
  */
 
@@ -7,8 +7,8 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createWasmSandboxPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-wasm-sandbox',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-wasm-sandbox',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // Security check: WASM plugin sandbox
@@ -29,7 +29,7 @@ export function createWasmSandboxPlugin(): PluginAdapter {
             }
             
             if (issues.length > 0) {
-                console.warn(`[@nuclie/plugin-wasm-sandbox] Security issues found:`, issues);
+                console.warn(`[@lunx/plugin-wasm-sandbox] Security issues found:`, issues);
             }
         }
     };

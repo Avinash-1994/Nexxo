@@ -23,13 +23,13 @@ export const reactSsrTemplate: TemplateConfig = {
         "@types/react-dom": "^18.2.0",
         "@types/express": "^4.17.17",
         "@types/compression": "^1.7.3",
-        "@nuclie/plugin-react": "^1.0.0",
+        "@lunx/plugin-react": "^1.0.0",
         "cross-env": "^7.0.3"
     },
     files: {
-        'nuclie.config.ts': `
-import { defineConfig } from 'nuclie';
-import react from '@nuclie/plugin-react';
+        'lunx.config.ts': `
+import { defineConfig } from 'lunx';
+import react from '@lunx/plugin-react';
 
 export default defineConfig({
     plugins: [react()],
@@ -55,16 +55,16 @@ const templateHtml = isProduction
 // Create http server
 const app = express()
 
-// Add Nuclie or sirv
-let nuclie
+// Add Lunx or sirv
+let lunx
 if (!isProduction) {
-  const { createServer } = await import('nuclie')
-  nuclie = await createServer({
+  const { createServer } = await import('lunx')
+  lunx = await createServer({
     server: { middlewareMode: true },
     appType: 'custom',
     base
   })
-  app.use(nuclie.middlewares)
+  app.use(lunx.middlewares)
 } else {
   const compression = (await import('compression')).default
   const sirv = (await import('sirv')).default
@@ -82,8 +82,8 @@ app.use('*', async (req, res) => {
     if (!isProduction) {
       // Always read fresh template in dev
       template = await fs.readFile('./index.html', 'utf-8')
-      template = await nuclie.transformIndexHtml(url, template)
-      render = (await nuclie.ssrLoadModule('/src/entry-server.tsx')).render
+      template = await lunx.transformIndexHtml(url, template)
+      render = (await lunx.ssrLoadModule('/src/entry-server.tsx')).render
     } else {
       template = templateHtml
       render = (await import('./dist/server/entry-server.js')).render
@@ -95,7 +95,7 @@ app.use('*', async (req, res) => {
 
     res.status(200).set({ 'Content-Type': 'text/html' }).end(html)
   } catch (e) {
-    !isProduction && nuclie.ssrFixStacktrace(e)
+    !isProduction && lunx.ssrFixStacktrace(e)
     console.log(e.stack)
     res.status(500).end(e.stack)
   }
@@ -142,7 +142,7 @@ function App() {
 
   return (
     <>
-      <h1>Nuclie SSR + React</h1>
+      <h1>Lunx SSR + React</h1>
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
@@ -152,7 +152,7 @@ function App() {
         </p>
       </div>
       <p className="read-the-docs">
-        Click on the Nuclie logo to learn more
+        Click on the Lunx logo to learn more
       </p>
     </>
   )

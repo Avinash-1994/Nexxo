@@ -1,5 +1,5 @@
 
-import { NucliePlugin } from '../core/plugins/types.js';
+import { LunxPlugin } from '../core/plugins/types.js';
 import { rollupAdapter } from '../plugins/compat/rollup.js';
 import { createJsTransformPlugin } from '../plugins/js-transform.js';
 import { createPostCssPlugin } from '../plugins/css/postcss.js';
@@ -13,8 +13,8 @@ import { createHtmlPlugin } from '../plugins/html.js';
 import { createFederationPlugin } from '../plugins/federation_next.js';
 import { createStaticPlugin } from '../plugins/static.js';
 
-export function getInfrastructurePreset(rootDir: string, outDir?: string, config?: any): NucliePlugin[] {
-    const plugins: NucliePlugin[] = [];
+export function getInfrastructurePreset(rootDir: string, outDir?: string, config?: any): LunxPlugin[] {
+    const plugins: LunxPlugin[] = [];
     const effectiveOutDir = outDir || 'dist';
 
     // 0. JSON (Load early)

@@ -1,0 +1,24 @@
+---
+title: "Using MDX in Astro"
+description: "Embed React components inside Markdown with MDX."
+date: "2025-02-01"
+author: "Lunx Team"
+tags: ["mdx", "components", "astro"]
+featured: true
+---
+
+import { Counter } from '../components/Counter.tsx';
+
+# Using MDX in Astro
+
+MDX lets you use JSX components inside Markdown content.
+
+<Counter client:load initialCount={5} />
+
+## Why MDX?
+
+You can embed interactive islands right inside your blog posts:
+
+- Dynamic charts
+- Code playgrounds
+- Interactive demos

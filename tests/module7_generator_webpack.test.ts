@@ -68,7 +68,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(<div>Hello</div>);
         const result = await generator.generate();
 
         expect(result.success).toBe(true);
-        expect(fs.existsSync(path.join(FIXTURE_DIR, 'nuclie.config.ts'))).toBe(true);
+        expect(fs.existsSync(path.join(FIXTURE_DIR, 'lunx.config.ts'))).toBe(true);
     });
 
     it('should mark old webpack scripts as deprecated', async () => {
@@ -81,8 +81,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(<div>Hello</div>);
         const pkg = JSON.parse(fs.readFileSync(path.join(FIXTURE_DIR, 'package.json'), 'utf-8'));
 
         // New scripts
-        expect(pkg.scripts.dev).toBe('nuclie dev');
-        expect(pkg.scripts.build).toBe('nuclie build');
+        expect(pkg.scripts.dev).toBe('lunx dev');
+        expect(pkg.scripts.build).toBe('lunx build');
 
         // Deprecated scripts should exist
         expect(pkg.scripts['dev:webpack']).toContain('DEPRECATED');

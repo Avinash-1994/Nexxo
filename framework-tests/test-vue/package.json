@@ -1,0 +1,26 @@
+{
+  "name": "lunx-vue-template",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "lunx dev",
+    "build": "lunx build",
+    "preview": "lunx preview"
+  },
+  "lunx": {
+    "template": true,
+    "framework": "vue",
+    "description": "Lunx Shop — e-commerce storefront"
+  },
+  "dependencies": {
+    "vue": "3.4.27",
+    "vue-router": "4.3.3",
+    "pinia": "2.1.7"
+  },
+  "devDependencies": {
+    "lunx": "file:../../",
+    "@vitejs/plugin-vue": "5.0.4",
+    "typescript": "5.4.5"
+  }
+}

@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# Nuclie v2.0 Module 1 - Project Cleanup Script
+# Lunx v2.0 Module 1 - Project Cleanup Script
 # Removes all cache directories, build outputs, and temporary files
 
-echo "🧹 Cleaning Nuclie project..."
+echo "🧹 Cleaning Lunx project..."
 
 # Remove cache directories
 echo "  Removing cache directories..."
-find . -type d -name ".nuclie_cache" -exec rm -rf {} + 2>/dev/null || true
+find . -type d -name ".lunx_cache" -exec rm -rf {} + 2>/dev/null || true
 find . -type d -name "build_output" -exec rm -rf {} + 2>/dev/null || true
 find . -type d -name "test_output_*" -exec rm -rf {} + 2>/dev/null || true
 
@@ -23,8 +23,8 @@ fi
 
 # Remove temporary test directories
 echo "  Removing temporary test directories..."
-rm -rf tests/validation/temp/*/.nuclie_cache 2>/dev/null || true
-rm -rf tests/snapshot_test_dir/.nuclie_cache 2>/dev/null || true
+rm -rf tests/validation/temp/*/.lunx_cache 2>/dev/null || true
+rm -rf tests/snapshot_test_dir/.lunx_cache 2>/dev/null || true
 
 # Remove old benchmark results
 echo "  Removing old benchmark results..."

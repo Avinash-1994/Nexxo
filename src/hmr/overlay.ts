@@ -54,7 +54,7 @@ export class HMROverlay {
 
     private createOverlay(decision: HMRDecision): HTMLElement {
         const container = document.createElement('div');
-        container.className = 'nuclie-hmr-overlay';
+        container.className = 'lunx-hmr-overlay';
         container.style.cssText = this.getContainerStyles();
 
         // Header

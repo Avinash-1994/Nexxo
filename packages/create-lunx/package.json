@@ -1,0 +1,14 @@
+{
+  "name": "create-lunx",
+  "version": "1.0.10",
+  "description": "Scaffolding tool for Lunx",
+  "type": "module",
+  "bin": {
+    "create-lunx": "./index.js"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "lunx": "^1.0.10"
+  },
+  "scripts": {}
+}

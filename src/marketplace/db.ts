@@ -1,13 +1,15 @@
 
 /**
- * Nuclie Marketplace Database
+ * Lunx Marketplace Database
  * Implementation: SQLite (via better-sqlite3) for Local Registry
  */
 
 import Database from 'better-sqlite3';
+import * as fs from 'fs';
 import path from 'path';
 
-const DB_PATH = path.resolve('.nuclie-marketplace.db');
+const DB_PATH = path.resolve('.lunx-marketplace.db');
+const ARTIFACT_ROOT = path.resolve('.lunx-marketplace-artifacts');
 
 export interface PluginRecord {
     name: string;
@@ -18,6 +20,7 @@ export interface PluginRecord {
     signature: string;
     public_key: string;
     permissions_json: string;
+    artifact_path?: string;
     created_at: string;
 }
 
@@ -30,6 +33,8 @@ export class MarketplaceDB {
     }
 
     private init() {
+        fs.mkdirSync(ARTIFACT_ROOT, { recursive: true });
+
         this.db.exec(`
             CREATE TABLE IF NOT EXISTS plugins (
                 name TEXT NOT NULL,
@@ -40,17 +45,37 @@ export class MarketplaceDB {
                 signature TEXT NOT NULL,
                 public_key TEXT NOT NULL,
                 permissions_json TEXT DEFAULT '{}',
+                artifact_path TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (name, version)
             )
         `);
+
+        try {
+            this.db.exec('ALTER TABLE plugins ADD COLUMN artifact_path TEXT');
+        } catch {
+            // Column already exists or SQLite older version; ignore.
+        }
     }
 
-    publish(plugin: PluginRecord): void {
+    private ensureArtifactDirectory(name: string, version: string) {
+        const pluginDir = path.join(ARTIFACT_ROOT, name, version);
+        fs.mkdirSync(pluginDir, { recursive: true });
+        return pluginDir;
+    }
+
+    publish(plugin: PluginRecord, artifactBuffer?: Buffer): void {
+        if (artifactBuffer) {
+            const artifactDir = this.ensureArtifactDirectory(plugin.name, plugin.version);
+            const artifactPath = path.join(artifactDir, 'plugin.wasm');
+            fs.writeFileSync(artifactPath, artifactBuffer);
+            plugin.artifact_path = artifactPath;
+        }
+
         const stmt = this.db.prepare(`
             INSERT OR REPLACE INTO plugins 
-            (name, version, description, author, hash, signature, public_key, permissions_json)
-            VALUES (@name, @version, @description, @author, @hash, @signature, @public_key, @permissions_json)
+            (name, version, description, author, hash, signature, public_key, permissions_json, artifact_path)
+            VALUES (@name, @version, @description, @author, @hash, @signature, @public_key, @permissions_json, @artifact_path)
         `);
         stmt.run(plugin);
     }
@@ -69,10 +94,21 @@ export class MarketplaceDB {
             const stmt = this.db.prepare('SELECT * FROM plugins WHERE name = ? AND version = ?');
             return stmt.get(name, version) as PluginRecord | undefined;
         } else {
-            // Get latest
-            const stmt = this.db.prepare('SELECT * FROM plugins WHERE name = ? ORDER BY created_at DESC LIMIT 1');
+            const stmt = this.db.prepare('SELECT * FROM plugins WHERE name = ? ORDER BY datetime(created_at) DESC, version DESC LIMIT 1');
             return stmt.get(name) as PluginRecord | undefined;
         }
+    }
+
+    listVersions(name: string): PluginRecord[] {
+        const stmt = this.db.prepare('SELECT * FROM plugins WHERE name = ? ORDER BY datetime(created_at) DESC, version DESC');
+        return stmt.all(name) as PluginRecord[];
+    }
+
+    getArtifact(name: string, version?: string): Buffer | undefined {
+        const plugin = this.get(name, version);
+        if (!plugin || !plugin.artifact_path) return undefined;
+        if (!fs.existsSync(plugin.artifact_path)) return undefined;
+        return fs.readFileSync(plugin.artifact_path);
     }
 }
 

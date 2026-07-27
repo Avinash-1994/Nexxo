@@ -3,11 +3,11 @@ import fs from 'fs/promises';
 import path from 'path';
 
 /**
- * NUCLIE TIER B PLUGINS (IO / ASSETS)
+ * LUNX TIER B PLUGINS (IO / ASSETS)
  * 
  * Includes:
- * - nuclieCopy (copy-webpack-plugin)
- * - nuclieHtml (html-webpack-plugin)
+ * - lunxCopy (copy-webpack-plugin)
+ * - lunxHtml (html-webpack-plugin)
  */
 
 export interface CopyTarget {
@@ -21,12 +21,12 @@ export interface CopyOptions {
 }
 
 /**
- * Copy Plugin (nuclie-copy)
+ * Copy Plugin (lunx-copy)
  * Copies files or directories from src to dest at build end.
  */
-export function nuclieCopy(options: CopyOptions): Plugin {
+export function lunxCopy(options: CopyOptions): Plugin {
     return {
-        name: 'nuclie-copy',
+        name: 'lunx-copy',
         async buildEnd() {
             if (!options.targets || options.targets.length === 0) return;
 
@@ -39,10 +39,10 @@ export function nuclieCopy(options: CopyOptions): Plugin {
                     await fs.cp(srcPath, destPath, { recursive: true, force: true });
 
                     if (options.verbose) {
-                        console.log(`[nuclie-copy] Copied ${target.src} -> ${target.dest}`);
+                        console.log(`[lunx-copy] Copied ${target.src} -> ${target.dest}`);
                     }
                 } catch (e: any) {
-                    console.warn(`[nuclie-copy] Failed to copy ${target.src}: ${e.message}`);
+                    console.warn(`[lunx-copy] Failed to copy ${target.src}: ${e.message}`);
                 }
             }
         }
@@ -58,17 +58,17 @@ export interface HtmlOptions {
 }
 
 /**
- * HTML Plugin (nuclie-html)
+ * HTML Plugin (lunx-html)
  * Generates an index.html file in the output directory.
  * Advanced: Supports variable interpolation (e.g., %PUBLIC_URL%, %TITLE%)
  */
-export function nuclieHtml(options: HtmlOptions = {}): Plugin {
+export function lunxHtml(options: HtmlOptions = {}): Plugin {
     return {
-        name: 'nuclie-html',
+        name: 'lunx-html',
         stability: 'stable',
         async buildEnd() {
             const filename = options.filename || 'index.html';
-            const title = options.title || 'Nuclie App';
+            const title = options.title || 'Lunx App';
             const destPath = path.resolve(process.cwd(), 'dist', filename);
 
             let content = '';
@@ -78,7 +78,7 @@ export function nuclieHtml(options: HtmlOptions = {}): Plugin {
                     const templatePath = path.resolve(process.cwd(), options.template);
                     content = await fs.readFile(templatePath, 'utf-8');
                 } catch (e) {
-                    console.warn(`[nuclie-html] Template not found: ${options.template}`);
+                    console.warn(`[lunx-html] Template not found: ${options.template}`);
                     content = getDefaultHtml(title);
                 }
             } else {
@@ -101,7 +101,7 @@ export function nuclieHtml(options: HtmlOptions = {}): Plugin {
                 await fs.mkdir(path.dirname(destPath), { recursive: true });
                 await fs.writeFile(destPath, content);
             } catch (e: any) {
-                console.error(`[nuclie-html] Failed to generate HTML: ${e.message}`);
+                console.error(`[lunx-html] Failed to generate HTML: ${e.message}`);
             }
         }
     };

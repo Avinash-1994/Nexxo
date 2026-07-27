@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-storybook
+ * @lunx/plugin-storybook
  * Storybook integration
  */
 
@@ -7,8 +7,8 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createStorybookPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-storybook',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-storybook',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // Utility: Storybook integration

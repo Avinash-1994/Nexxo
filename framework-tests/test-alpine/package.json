@@ -1,0 +1,1 @@
+{ "name": "test-alpine", "private": true, "type": "module", "scripts": { "dev": "lunx dev", "build": "lunx build" }, "dependencies": { "alpinejs": "^3.13.5" }, "devDependencies": { "lunx": "file:../../", "typescript": "^5.0.0" } }

@@ -4,19 +4,19 @@
  * Validates Day 26 Unified HMR & Config
  */
 
-import { NuclieEnv } from '../src/env/api.js';
+import { LunxEnv } from '../src/env/api.js';
 
 async function runEnvTest() {
     console.log('🧪 Testing Environment API...');
 
     // 1. Initialize
-    const env = NuclieEnv.init({
+    const env = LunxEnv.init({
         mode: 'development',
         ssr: true,
         base: '/'
     });
 
-    if (NuclieEnv.get().config.mode !== 'development') {
+    if (LunxEnv.get().config.mode !== 'development') {
         throw new Error('Config mismatch');
     }
     console.log('  ✅ Env Initialization Verified');

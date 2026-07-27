@@ -1,19 +1,19 @@
 import path from 'path';
 import fs from 'fs/promises';
-import { NucliePlugin } from '../core/plugins/types.js';
+import { LunxPlugin } from '../core/plugins/types.js';
 import { fastHash } from '../native/index.js';
 
-export function createAssetPlugin(outDir: string = 'build_output'): NucliePlugin {
+export function createAssetPlugin(outDir: string = 'build_output'): LunxPlugin {
     return {
         manifest: {
-            name: 'nuclie:asset',
+            name: 'lunx:asset',
             version: '1.0.0',
             engineVersion: '1.0.0',
             type: 'js',
             hooks: ['resolveId', 'load'],
             permissions: { fs: 'read' }
         },
-        id: 'nuclie:asset',
+        id: 'lunx:asset',
         async runHook(hook, input, context) {
             const ASSET_REGEX = /\.(png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf|eot|otf)$/;
 

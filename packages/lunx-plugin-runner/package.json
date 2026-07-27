@@ -1,0 +1,16 @@
+{
+  "name": "@lunx/plugin-runner",
+  "version": "1.14.0",
+  "description": "Lunx compatibility layer for Rollup and Vite plugins",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "sideEffects": false
+}

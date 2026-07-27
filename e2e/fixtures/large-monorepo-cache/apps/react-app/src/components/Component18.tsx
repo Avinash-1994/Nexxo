@@ -1,0 +1,1 @@
+export function Component18(props) { return "Component18"; }

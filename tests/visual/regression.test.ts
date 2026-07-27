@@ -1,5 +1,5 @@
 /**
- * Visual Regression Tests for Nuclie Dev Server UI
+ * Visual Regression Tests for Lunx Dev Server UI
  * 
  * Tests visual components like error overlays, HMR indicators,
  * and build dashboards using screenshot comparison.
@@ -18,7 +18,7 @@ let serverInstance: any;
 
 test.beforeAll(async () => {
     // Create test project
-    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'nuclie-visual-test-'));
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lunx-visual-test-'));
     testProjectPath = path.join(tempDir, 'visual-app');
     fs.mkdirSync(testProjectPath, { recursive: true });
     fs.mkdirSync(path.join(testProjectPath, 'src'), { recursive: true });
@@ -43,7 +43,7 @@ test.beforeAll(async () => {
         path.join(testProjectPath, 'src', 'main.js'),
         `
         const root = document.getElementById('root');
-        root.innerHTML = '<h1>Hello, Nuclie!</h1>';
+        root.innerHTML = '<h1>Hello, Lunx!</h1>';
         `
     );
 
@@ -91,7 +91,7 @@ test.describe('Visual Regression: Error Overlay', () => {
         await page.goto(serverUrl);
 
         // Wait for error overlay
-        await page.waitForSelector('[data-nuclie-error-overlay]', { timeout: 5000 })
+        await page.waitForSelector('[data-lunx-error-overlay]', { timeout: 5000 })
             .catch(() => {
                 // Error overlay might not be implemented yet
                 console.log('Error overlay not found - feature may not be implemented');
@@ -104,7 +104,7 @@ test.describe('Visual Regression: Error Overlay', () => {
         });
 
         // Verify overlay is visible
-        const overlay = await page.$('[data-nuclie-error-overlay]');
+        const overlay = await page.$('[data-lunx-error-overlay]');
         if (overlay) {
             const isVisible = await overlay.isVisible();
             expect(isVisible).toBe(true);
@@ -120,7 +120,7 @@ test.describe('Visual Regression: Error Overlay', () => {
         await page.goto(serverUrl);
 
         const errorText = await page.$eval(
-            '[data-nuclie-error-overlay]',
+            '[data-lunx-error-overlay]',
             (el) => el.textContent
         ).catch(() => null);
 
@@ -221,7 +221,7 @@ test.describe('Visual Regression: Build Dashboard', () => {
         await page.goto(serverUrl);
 
         // Look for build dashboard elements
-        const dashboard = await page.$('[data-nuclie-dashboard]')
+        const dashboard = await page.$('[data-lunx-dashboard]')
             .catch(() => null);
 
         if (dashboard) {

@@ -1,5 +1,5 @@
 /**
- * @nuclie/plugin-zod
+ * @lunx/plugin-zod
  * Zod validation
  */
 
@@ -7,8 +7,8 @@ import { PluginAdapter } from '../ported/adapter.js';
 
 export function createZodPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-zod',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-zod',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // Utility: Zod validation

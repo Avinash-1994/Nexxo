@@ -211,12 +211,6 @@ console.log(nonExistent);`
                 );
             }
 
-            const result = await buildProject({
-                root: projectPath,
-                entry: ['src/main.ts'],
-                outDir: 'dist'
-            });
-
             try {
                 const result = await buildProject({
                     root: projectPath,
@@ -247,12 +241,6 @@ console.log(something);`
                     JSON.stringify({ name: 'missing-package', type: 'module' }, null, 2)
                 );
             }
-
-            const result = await buildProject({
-                root: projectPath,
-                entry: ['src/main.ts'],
-                outDir: 'dist'
-            });
 
             try {
                 const result = await buildProject({
@@ -340,16 +328,10 @@ console.log(value);`
                 );
             }
 
-            const result = await buildProject({
-                root: projectPath,
-                entry: ['src/does-not-exist.ts'],
-                outDir: 'dist'
-            });
-
             try {
                 const result = await buildProject({
                     root: projectPath,
-                    entry: ['does-not-exist.js'],
+                    entry: ['src/does-not-exist.ts'],
                     outDir: 'dist'
                 });
                 expect(result).toBeDefined();

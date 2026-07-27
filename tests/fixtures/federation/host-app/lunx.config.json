@@ -1,0 +1,13 @@
+{
+  "entry": [
+    "src/main.tsx"
+  ],
+  "preset": "spa",
+  "federation": {
+    "name": "host",
+    "filename": "remoteEntry.js",
+    "exposes": {
+      "./Button": "./src/Button.tsx"
+    }
+  }
+}

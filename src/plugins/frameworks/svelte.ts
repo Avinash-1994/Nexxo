@@ -1,5 +1,5 @@
 /**
- * @nuclie/svelte - Production-Grade Svelte Plugin
+ * @lunx/svelte - Production-Grade Svelte Plugin
  * 
  * Features:
  * - Svelte component compilation
@@ -47,7 +47,7 @@ export interface SveltePluginOptions {
     preprocess?: any;
 }
 
-export function nuclieSvelte(options: SveltePluginOptions = {}): Plugin {
+export function lunxSvelte(options: SveltePluginOptions = {}): Plugin {
     const {
         hmr = true,
         development = process.env.NODE_ENV !== 'production',
@@ -60,7 +60,7 @@ export function nuclieSvelte(options: SveltePluginOptions = {}): Plugin {
     const componentCache = new Map<string, { code: string; css: string; hash: string }>();
 
     return {
-        name: 'nuclie-svelte',
+        name: 'lunx-svelte',
 
         async buildStart() {
             // Clear cache on rebuild
@@ -179,7 +179,7 @@ async function compileSvelte(
             css: result.css || { code: '' }
         };
     } catch (error) {
-        console.warn('[nuclie-svelte] Compilation failed:', error);
+        console.warn('[lunx-svelte] Compilation failed:', error);
         return null;
     }
 }
@@ -207,6 +207,6 @@ function generateSourceMap(originalCode: string, transformedCode: string, id: st
 // Export helper for use in config
 export function sveltePreset(options: SveltePluginOptions = {}): Plugin[] {
     return [
-        nuclieSvelte(options)
+        lunxSvelte(options)
     ];
 }

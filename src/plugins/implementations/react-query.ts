@@ -1,15 +1,15 @@
 /**
- * @nuclie/plugin-react-query
+ * @lunx/plugin-react-query
  * React Query integration
- * Nuclie-native
+ * Lunx-native
  */
 
 import { PluginAdapter } from '../ported/adapter.js';
 
 export function createReactQueryPlugin(): PluginAdapter {
     return {
-        name: '@nuclie/plugin-react-query',
-        originalPlugin: 'nuclie-native',
+        name: '@lunx/plugin-react-query',
+        originalPlugin: 'lunx-native',
         
         async transform(code: string, id: string) {
             // react transformation

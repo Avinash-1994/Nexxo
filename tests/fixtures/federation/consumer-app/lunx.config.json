@@ -1,0 +1,12 @@
+{
+  "entry": [
+    "src/main.tsx"
+  ],
+  "preset": "spa",
+  "federation": {
+    "name": "consumer",
+    "remotes": {
+      "host": "host@http://localhost:3001/remoteEntry.js"
+    }
+  }
+}

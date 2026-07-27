@@ -1,0 +1,9 @@
+{
+  "name": "enterprise-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "type": "module"
+}
