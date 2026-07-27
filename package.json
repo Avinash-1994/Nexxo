@@ -117,10 +117,9 @@
     "@babel/plugin-transform-modules-commonjs": "^7.27.1",
     "@babel/preset-react": "^7.28.5",
     "@babel/preset-typescript": "^7.28.5",
-    "@esbuild/win32-x64": "^0.28.1",
+    "@node-rs/xxhash": "^1.7.6",
     "@lunx/adapter-core": "file:packages/lunx-adapter-core",
     "@lunx/security": "file:packages/lunx-security",
-    "@node-rs/xxhash": "^1.7.6",
     "@swc/core": "^1.15.24",
     "@tauri-apps/api": "^2.11.0",
     "@trpc/client": "^11.8.1",
@@ -196,9 +195,5 @@
     "ts-node": "^10.9.1",
     "tsx": "^4.21.0",
     "typescript": "^5.4.2"
-  },
-  "optionalDependencies": {
-    "@node-rs/xxhash-win32-x64-msvc": "^1.7.6",
-    "@swc/core-win32-x64-msvc": "^1.15.46"
   }
 }
