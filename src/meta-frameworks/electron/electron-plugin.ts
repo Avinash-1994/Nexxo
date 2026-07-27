@@ -16,6 +16,9 @@ export function electronPlugin(): Plugin {
     },
 
     async buildOutput(outputDir: string) {
+       // Skip Electron process spawn when LUNX_SKIP_NATIVE=1 (e.g. cross-platform CI matrix)
+       if (process.env.LUNX_SKIP_NATIVE === '1') return;
+
        // Development Lifecycle hook: Auto-restarts Electron process on main.ts change
        if (process.env.NODE_ENV === 'development') {
            const electronPath = require('electron'); // Optional dependency loaded at dev-time
