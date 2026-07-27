@@ -313,7 +313,7 @@ export class HMROverlay {
 
     private shortenPath(path: string): string {
         if (path.length <= 50) return path;
-        const parts = path.split('/');
+        const parts = path.split(/[/\\]/);
         if (parts.length <= 2) return path;
         return `.../${parts.slice(-2).join('/')}`;
     }

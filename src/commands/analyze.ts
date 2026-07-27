@@ -251,7 +251,7 @@ async function generateHtmlReport(data: any) {
                             ${data.bottlenecks.map((b: any) => `
                                 <tr>
                                     <td title="${b.id}">
-                                        <div class="module-name">${b.id.split('/').pop()}</div>
+                                        <div class="module-name">${b.id.split(/[/\\]/).pop()}</div>
                                         <div class="module-path">${b.id.length > 60 ? '...' + b.id.slice(-57) : b.id}</div>
                                     </td>
                                     <td style="color: var(--warning)">${b.duration.toFixed(2)} ms</td>
@@ -283,7 +283,7 @@ async function generateHtmlReport(data: any) {
                         </thead>
                         <tbody>
                             ${chunk.modules.sort((a: any, b: any) => b.size - a.size).map((m: any) => {
-        const relPath = m.id.includes('node_modules') ? m.id.split('node_modules/')[1] : (m.id.startsWith('/') ? m.id.split('/').pop() : m.id);
+        const relPath = m.id.includes('node_modules') ? m.id.split(/node_modules[/\\]/)[1] : (m.id.startsWith('/') || /^[a-zA-Z]:/.test(m.id) ? m.id.split(/[/\\]/).pop() : m.id);
         return `
                                 <tr>
                                     <td title="${m.id}">

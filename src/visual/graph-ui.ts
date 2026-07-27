@@ -5,7 +5,7 @@ import { canonicalHash } from '../core/engine/hash.js';
 export function getGraphUIHtml(graph: DependencyGraph): string {
     const nodes = Array.from(graph.nodes.values()).map(n => ({
         id: n.id,
-        label: n.path.split('/').pop(),
+        label: n.path.split(/[/\\]/).pop(),
         type: n.type,
         color: n.type === 'css' || n.type === 'css-module' ? '#264de4' : '#f7df1e'
     }));

@@ -177,7 +177,7 @@ export class HMRClassifier {
     }
 
     private isConfigFile(path: string): boolean {
-        const basename = path.split('/').pop() || '';
+        const basename = path.split(/[/\\]/).pop() || '';
         return this.configFiles.has(basename);
     }
 

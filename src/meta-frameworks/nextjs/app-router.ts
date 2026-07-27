@@ -30,7 +30,8 @@ export class NextAppRouterProxy {
 
   async stop(): Promise<void> {
     if (this.nextProcess) {
-      this.nextProcess.kill('SIGTERM')
+      // .kill() sends SIGTERM on Unix and calls TerminateProcess on Windows
+      this.nextProcess.kill()
       this.nextProcess = null
       console.log('[lunx] Next.js process stopped')
     }

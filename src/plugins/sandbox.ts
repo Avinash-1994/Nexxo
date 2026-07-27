@@ -61,7 +61,7 @@ export class PluginSandbox {
     try {
       const old = this.pool[i]
       if (old) {
-        try { old.kill('SIGKILL') } catch (e) { /* ignore */ }
+        try { old.kill() } catch (e) { /* ignore */ }
       }
     } catch (e) {
       log.error('error terminating worker', e)
