@@ -1,7 +1,37 @@
 import type { LunxAdapter, Plugin, LunxConfig, PackageJson, Middleware } from '@lunx/adapter-core';
 import { detectDependencies, registry } from '@lunx/adapter-core';
 import { analogCompilerPlugin } from './analog-plugin.js';
+// @ts-ignore
+import * as ts from 'typescript';
+// @ts-ignore
+import * as ng from '@angular/compiler-cli';
 
+export async function compileAnalog(
+  rootNames: string[],
+  options: ng.CompilerOptions
+): Promise<ts.Diagnostic[]> {
+  const host = ng.createCompilerHost({ options });
+  const program = ng.createProgram({
+    rootNames,
+    options,
+    host
+  });
+
+  const allDiagnostics = [
+    ...program.getTsOptionDiagnostics(),
+    ...program.getNgOptionDiagnostics(),
+    ...program.getTsSyntacticDiagnostics(),
+    ...program.getNgStructuralDiagnostics(),
+    ...program.getTsSemanticDiagnostics(),
+    ...program.getNgSemanticDiagnostics(),
+  ];
+
+  if (allDiagnostics.length === 0) {
+    program.emit();
+  }
+
+  return allDiagnostics as ts.Diagnostic[];
+}
 export interface AnalogConfig {
   ssr?: boolean;           // default: true
   prerender?: string[];    // default: ['/']

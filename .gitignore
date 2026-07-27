@@ -1,167 +1,35 @@
-# ──────────────────────────────────────────────────────
-#  Lunx — .gitignore
-#  Updated: 2026-05-22
-# ──────────────────────────────────────────────────────
-
-# ── Core build output ──────────────────────────────────
 node_modules/
 dist/
-# Exception: workspace packages that need built dist/ for CI
-!packages/lunx-security/dist/
-build_output/
-dist_ts/
-dist_plugin_test/
-
-# ── Logs ───────────────────────────────────────────────
+.lunx/
+*.local
+.env
+.env.*
+.env.local
+coverage/
+*.tsbuildinfo
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-/tmp/mfe-*.log
-
-# ── OS / IDE ───────────────────────────────────────────
 .DS_Store
 Thumbs.db
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+windows-results.txt
+*.pptx
 
-# ── Lunx runtime caches (all projects) ───────────────
-.lunx/
-.lunx_cache/
-**/.lunx/
-**/.lunx_cache/
-**/.lunx/cache/
-**/.lunx/telemetry/
-**/.lunx/certs/
-
-# ── Database & lock artifacts ──────────────────────────
-*.db
-*.db-journal
-marketplace.db
-marketplace.db-journal
-
-# ── Rust / Native build ────────────────────────────────
+# Rust build artifacts
 native/target/
-native/Cargo.lock
-native/*.node
-native/native.d.ts
-native/lunx_native*.node
-native/nextgen_native*.node
-lunx_native.node
 *.node
-*.wasm
+lunx_native.node
 
-# ── Security — NEVER commit ────────────────────────────
-*.key
-*.pem
-*.p12
-*.pfx
-*.crt
-*.cer
-*.der
-*.csr
-*.priv
-**/certs/**
-.env
-.env.local
-.env.*.local
-secrets/
-*.secret
-*.private
-
-# ── Temporary / scratch ────────────────────────────────
+# Build outputs and test artifacts
+build_output/
+dist-test/
 tmp/
-temp/
-.cache/
-benchmark_temp/
-temp_config_test/
-temp_init_test/
-temp_ts_config_test/
-nextgen.build.temp.mjs
-validation-output-*.txt
-validation-rerun-*.txt
-*.tgz
+tmp-fix/
+test_output_fed_core/
+.ng-out/
 
-# ── Test scaffolds ─────────────────────────────────────
-.test_create_lunx/
-test-project-*/
-my-react-app/
-test_output*/
-test_*/
-temp_*/
-ux_v09_test_app/
-mdi__home.svg
-
-# ── e2e fixtures — build & runtime artifacts ──────────
-# (source lives here; generated artifacts do not)
-e2e/fixtures/**/dist/
-e2e/fixtures/**/dist-test/
-e2e/fixtures/**/.ng-out/
-e2e/fixtures/**/.lunx/
-e2e/fixtures/**/.lunx-cache/
-e2e/fixtures/**/node_modules/
+# Generated fixture lock files (not part of source)
 e2e/fixtures/**/package-lock.json
-e2e/fixtures/**/*.db
-e2e/fixtures/**/*.db-journal
-
-# Lunx build report artifacts (generated per-build)
-e2e/fixtures/**/build-manifest.json
-e2e/fixtures/**/build-explain.json
-e2e/fixtures/**/lunx-sbom.json
-e2e/fixtures/**/lunx-headers.json
-e2e/fixtures/**/lunx-sri-manifest.json
-e2e/fixtures/**/lunx-csp.txt
-e2e/fixtures/**/lunx-csp-meta.html
-e2e/fixtures/**/_headers
-
-# Specific generated files in e2e fixtures
-e2e/fixtures/e-commerce-app/routes/Route*.jsx
-e2e/fixtures/e-commerce-app/src/LazyImg*.jsx
-e2e/fixtures/e-commerce-app/src/store/
-e2e/fixtures/e-commerce-app/fix-results*.json
-e2e/fixtures/e-commerce-app/run-mocked-*.js
-e2e/fixtures/ssr-blog/fix-results.json
-e2e/fixtures/ssr-blog/run-targeted.js
-e2e/fixtures/vite-plugin-compat/node_modules/
-e2e/fixtures/vite-plugin-compat/package-lock.json
-e2e/fixtures/plugin-ecosystem-app/tmp-fix/
-
-# ── framework-tests — generated artifacts ─────────────
-framework-tests/**/node_modules/
-framework-tests/**/dist/
-framework-tests/**/.lunx/
-framework-tests/**/.lunx-cache/
 framework-tests/**/package-lock.json
-framework-tests/**/*.db
-framework-tests/**/*.db-journal
-framework-tests/**/build-manifest.json
-framework-tests/**/build-explain.json
-framework-tests/**/lunx-sbom.json
-framework-tests/**/lunx-headers.json
-framework-tests/**/lunx-sri-manifest.json
-framework-tests/**/lunx-csp.txt
-framework-tests/**/lunx-csp-meta.html
-framework-tests/**/_headers
+benchmarks/**/package-lock.json
 
-# ── real-world-mfe / portal (dev:mfe target) ──────────
-real-world-mfe/**/node_modules/
-real-world-mfe/**/dist/
-real-world-mfe/**/.lunx/
-portal/**/node_modules/
-portal/**/dist/
-portal/**/.lunx/
-tests/fixtures/**/dist/
-tests/fixtures/**/*.db
-tests/fixtures/**/.lunx/
-
-# ── tests/fixtures — build output artifacts ────────────
-# (cache-consistency test uses real builds; outputs are generated)
-tests/fixtures/**/dist/
-tests/fixtures/**/.lunx/
-tests/fixtures/**/*.db
-tests/fixtures/**/build-manifest.json
-tests/fixtures/**/build-explain.json
+# Test cache manifests
+tests/fixtures/cache/
