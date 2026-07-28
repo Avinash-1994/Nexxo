@@ -256,6 +256,54 @@ const FRAMEWORK_IMPLICATIONS: Record<string, { preset?: string; platform?: strin
   'qwik':           { preset: 'spa', platform: 'browser' },
 };
 
+/**
+ * CFG-03b: Auto-detect framework from package.json dependencies.
+ * Mirrors Vite's approach — no `framework:` key required in lunx.config.ts.
+ *
+ * Priority order (most specific first):
+ *   SSR meta-frameworks > SPA frameworks > vanilla
+ */
+async function detectFramework(root: string): Promise<string | undefined> {
+  try {
+    const pkgRaw = await fs.readFile(path.join(root, 'package.json'), 'utf-8').catch(() => '{}');
+    const pkg = JSON.parse(pkgRaw);
+    const deps: Record<string, string> = {
+      ...pkg.dependencies,
+      ...pkg.devDependencies,
+      ...pkg.peerDependencies,
+    };
+
+    // SSR meta-frameworks (check before SPA frameworks to avoid false positives)
+    if (deps['nuxt'])                              return 'nuxt';
+    if (deps['@sveltejs/kit'])                     return 'sveltekit';
+    if (deps['@remix-run/react'] || deps['remix']) return 'remix';
+    if (deps['@solidjs/start'])                    return 'solidstart';
+    if (deps['next'])                              return 'next';
+    if (deps['astro'])                             return 'astro';
+    if (deps['@analogjs/core'] || deps['analog'])  return 'analog';
+    if (deps['@tanstack/start'])                   return 'tanstack-start';
+    if (deps['waku'])                              return 'waku';
+
+    // Desktop frameworks
+    if (deps['electron'])                          return 'electron';
+    if (deps['@tauri-apps/api'])                   return 'tauri';
+
+    // SPA frameworks
+    if (deps['react'] || deps['react-dom'])        return 'react';
+    if (deps['vue'])                               return 'vue';
+    if (deps['svelte'])                            return 'svelte';
+    if (deps['@angular/core'])                     return 'angular';
+    if (deps['solid-js'])                          return 'solid';
+    if (deps['preact'])                            return 'preact';
+    if (deps['lit'])                               return 'lit';
+    if (deps['@builder.io/qwik'])                  return 'qwik';
+  } catch {
+    // No package.json or unreadable — continue without auto-detection
+  }
+  return undefined;
+}
+
+
 export async function loadConfig(cwd: string): Promise<BuildConfig> {
   const lunxTsPath = path.join(cwd, 'lunx.config.ts');
   const lunxJsPath = path.join(cwd, 'lunx.config.js');
@@ -363,8 +411,17 @@ export async function loadConfig(cwd: string): Promise<BuildConfig> {
     // CFG-02: normalise entry (handles string, array, or auto-detect)
     config.entry = normaliseEntry(config.entry as any, root);
 
+    // CFG-03b: auto-detect framework from package.json if not explicitly set
+    if (!(rawConfig as any)?.framework) {
+      const detected = await detectFramework(root);
+      if (detected) {
+        (config as any).framework = detected;
+        log.info(`[lunx] Framework auto-detected: ${detected} (set framework: '${detected}' to silence)`);
+      }
+    }
+
     // CFG-03: apply framework implications (only if user hasn't set the value)
-    const fw = config.framework;
+    const fw = (config as any).framework;
     if (fw && FRAMEWORK_IMPLICATIONS[fw]) {
       const impl = FRAMEWORK_IMPLICATIONS[fw];
       const rawPreset   = (rawConfig as any)?.preset;
@@ -372,6 +429,7 @@ export async function loadConfig(cwd: string): Promise<BuildConfig> {
       if (!rawPreset   && impl.preset)   (config as any).preset   = impl.preset;
       if (!rawPlatform && impl.platform) (config as any).platform = impl.platform;
     }
+
 
     let finalConfig = { ...config };
     if (config.preset === 'spa') finalConfig = { ...finalConfig, ...(spaPreset.apply(finalConfig) as any) };
