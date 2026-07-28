@@ -1,18 +1,41 @@
 // src/dev/uWS-shim.ts
-import uWS from 'uWebSockets.js';
+// uWebSockets.js is a Linux-optimised native server.
+// We attempt to load it at runtime and fall back to Node's built-in http+ws
+// on Windows / macOS (or in any environment where the native binary is absent).
+
 import { IncomingMessage, ServerResponse } from 'http';
 import { Socket } from 'net';
 import { EventEmitter } from 'events';
 
+// Attempt to load uWebSockets.js at runtime — graceful fallback when unavailable
+// (Windows, macOS, or any CI environment that doesn't have the Linux .node binary)
+let uWS: any = null;
+try {
+    // createRequire is needed because uWebSockets.js is a CJS package
+    const { createRequire } = await import('module');
+    const req = createRequire(import.meta.url);
+    uWS = req('uWebSockets.js');
+} catch {
+    // uWebSockets.js not available — will use http+ws fallback below
+}
+
 /**
- * A shim for uWebSockets.js that mirrors the `http` and `Express/connect` API,
- * allowing standard middlwares to be used identically.
+ * Creates a server using uWebSockets.js when available (Linux, high-perf path),
+ * or falls back to Node's built-in http + ws (Windows, macOS, CI).
+ * The returned object exposes the same interface either way.
  */
 export function createUWSServer(httpsOptions?: any) {
+    // ── Fallback path: Node http + ws (cross-platform) ─────────────────────────
+    if (!uWS) {
+        return createNodeFallbackServer(httpsOptions);
+    }
+
+    // ── Fast path: uWebSockets.js (Linux) ──────────────────────────────────────
     const app = httpsOptions ? uWS.SSLApp({
         key_file_name: httpsOptions.keyFile,
         cert_file_name: httpsOptions.certFile,
     }) : uWS.App();
+
 
     const connectMiddlewares: any[] = [];
 
@@ -27,7 +50,7 @@ export function createUWSServer(httpsOptions?: any) {
             let host = typeof args[1] === 'string' ? args[1] : '0.0.0.0';
             let cb = typeof args[args.length - 1] === 'function' ? args[args.length - 1] : () => {};
             
-            app.listen(host, port, (token) => {
+            app.listen(host, port, (token: any) => {
                 if (token) {
                     cb();
                 } else {
@@ -49,7 +72,7 @@ export function createUWSServer(httpsOptions?: any) {
         compression: uWS.SHARED_COMPRESSOR,
         maxPayloadLength: 16 * 1024 * 1024,
         idleTimeout: 60,
-        open: (ws) => {
+        open: (ws: any) => {
             const mockWs = {
                 readyState: 1, // OPEN
                 OPEN: 1,
@@ -74,11 +97,11 @@ export function createUWSServer(httpsOptions?: any) {
             const reqMock = { headers: { origin: 'http://localhost:3000' } }; // bypass strict origin checks or extract from WS upgrade headers if needed
             wssEmitter.emit('connection', mockWs, reqMock);
         },
-        message: (ws, message, isBinary) => {
+        message: (ws: any, message: any, isBinary: any) => {
             const strMsg = Buffer.from(message).toString();
             (ws as any)._mock.emit('message', strMsg);
         },
-        close: (ws, code, message) => {
+        close: (ws: any, code: any, message: any) => {
             const mockWs = (ws as any)._mock;
             if (mockWs) {
                 mockWs.readyState = 3; // CLOSED
@@ -89,7 +112,7 @@ export function createUWSServer(httpsOptions?: any) {
     });
 
     // Route all traffic
-    app.any('/*', (uWsRes, uWsReq) => {
+    app.any('/*', (uWsRes: any, uWsReq: any) => {
         // Must handle abortion
         let aborted = false;
         uWsRes.onAborted(() => { aborted = true; });
@@ -99,7 +122,7 @@ export function createUWSServer(httpsOptions?: any) {
         reqMock.url = uWsReq.getUrl() + (uWsReq.getQuery() ? '?' + uWsReq.getQuery() : '');
         reqMock.method = uWsReq.getMethod().toUpperCase();
         reqMock.headers = {};
-        uWsReq.forEach((key, val) => { reqMock.headers[key] = val; });
+        uWsReq.forEach((key: any, val: any) => { reqMock.headers[key] = val; });
 
         const resMock: any = new ServerResponse(reqMock);
         let statusCode = 200;
@@ -147,7 +170,7 @@ export function createUWSServer(httpsOptions?: any) {
             return true;
         };
 
-        // Pipe methods mock 
+        // Pipe methods mock
         reqMock.pipe = (dest: any) => {
             // we don't natively pipe the uWs body yet since it's async (readJson, etc)
         };
@@ -158,6 +181,45 @@ export function createUWSServer(httpsOptions?: any) {
             (server as any).requestHandler(reqMock, resMock);
         }
     });
+
+    return server;
+}
+
+// ── Node http + ws fallback (Windows / macOS / CI without uWebSockets.js) ────
+// Returns an object with the same interface as the uWS path above.
+function createNodeFallbackServer(_httpsOptions?: any) {
+    const { createServer } = require('http') as typeof import('http');
+    const { WebSocketServer } = require('ws') as typeof import('ws');
+
+    const connectMiddlewares: any[] = [];
+    const wssEmitter = new EventEmitter() as any;
+    wssEmitter.clients = new Set();
+
+    const httpServer = createServer((req, res) => {
+        if ((httpServer as any).requestHandler) {
+            (httpServer as any).requestHandler(req, res);
+        }
+    });
+
+    const wss = new WebSocketServer({ server: httpServer });
+    wss.on('connection', (ws: any, req: any) => {
+        wssEmitter.clients.add(ws);
+        wssEmitter.emit('connection', ws, req);
+        ws.on('close', () => wssEmitter.clients.delete(ws));
+    });
+
+    const server: any = {
+        _httpServer: httpServer,
+        wsServer: wssEmitter,
+        use(middleware: any) { connectMiddlewares.push(middleware); },
+        listen(...args: any[]) {
+            const port = typeof args[0] === 'number' ? args[0] : 3000;
+            const cb = typeof args[args.length - 1] === 'function' ? args[args.length - 1] : () => {};
+            httpServer.listen(port, cb);
+        },
+        close(cb?: () => void) { httpServer.close(cb); },
+        on(...args: any[]) { (httpServer as any).on(...args); },
+    };
 
     return server;
 }

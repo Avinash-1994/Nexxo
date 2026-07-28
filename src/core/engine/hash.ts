@@ -1,15 +1,17 @@
-import { xxh3 } from '@node-rs/xxhash';
+import { createHash } from 'crypto';
 
 /**
  * Single Source of Truth for Hashing
- * 
+ *
  * Guarantees:
  * - Deterministic output via canonical stringify
- * - Ultra-fast hashing via Native XXH3 (Phase 4.2)
+ * - Fast hashing via Node built-in crypto (SHA-256, truncated to 64-bit hex)
+ * - Cross-platform: no native binaries required
  */
 export function canonicalHash(value: unknown): string {
     const canonicalString = stableStringify(value);
-    return xxh3.xxh64(canonicalString).toString(16).padStart(16, '0');
+    // Produce a 16-char hex string matching the old xxh64 output width
+    return createHash('sha256').update(canonicalString).digest('hex').slice(0, 16);
 }
 
 function stableStringify(value: unknown): string {
