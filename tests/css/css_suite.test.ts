@@ -26,14 +26,14 @@ function writeFile(name: string, content: string): string {
 // CSS-001: CSS Modules scoping via PostCSS plugin creation
 // ──────────────────────────────────────────────────────────────────────
 test('CSS-001: createPostCssPlugin returns a valid LunxPlugin', () => {
-    const plugin = createPostCssPlugin('/tmp');
+    const plugin = createPostCssPlugin(TMP);
     expect(plugin).toBeDefined();
     expect(plugin.manifest.name).toBe('lunx:postcss');
     expect(plugin.manifest.hooks).toContain('transformModule');
 });
 
 test('CSS-001b: PostCSS plugin only processes .css files (not .js)', async () => {
-    const plugin = createPostCssPlugin('/tmp');
+    const plugin = createPostCssPlugin(TMP);
 
     // JS file should pass through unchanged
     const jsInput = { path: 'app.js', code: 'const x = 1;', mode: 'development' as const };
@@ -214,7 +214,7 @@ test('CSS-007: CSS minification removes whitespace and comments', async () => {
 // CSS-008: CSS Modules scoping — PostCSS plugin .module.css detection
 // ──────────────────────────────────────────────────────────────────────
 test('CSS-008: PostCSS plugin detects .module.css and applies class hashing', async () => {
-    const plugin = createPostCssPlugin('/tmp');
+    const plugin = createPostCssPlugin(TMP);
 
     const input = {
         path: 'Card.module.css',
@@ -274,7 +274,7 @@ test('CSS-010: Large CSS build (100 rules) completes in < 10s', async () => {
 // CSS-011: PostCSS plugin manifest validation
 // ──────────────────────────────────────────────────────────────────────
 test('CSS-011: PostCSS plugin has valid manifest with all required fields', () => {
-    const plugin = createPostCssPlugin('/tmp');
+    const plugin = createPostCssPlugin(TMP);
 
     expect(plugin.manifest.name).toBeTruthy();
     expect(plugin.manifest.version).toBeTruthy();
@@ -312,7 +312,7 @@ test('CSS-012: esbuild separates CSS from JS in production bundle', async () => 
 // CSS-013: CSS stress test — 500 files scoping doesn't crash
 // ──────────────────────────────────────────────────────────────────────
 test('CSS-013: 100 CSS module files are scoped without collisions (stress test)', async () => {
-    const plugin = createPostCssPlugin('/tmp');
+    const plugin = createPostCssPlugin(TMP);
     const classNames = new Set<string>();
     let hasCollision = false;
 

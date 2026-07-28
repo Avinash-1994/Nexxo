@@ -10,6 +10,7 @@
 
 import path from 'path';
 import fs from 'fs';
+import os from 'os';
 import { log } from '../../utils/logger.js';
 import { BuildCache } from '../../native/cache.js';
 
@@ -41,7 +42,7 @@ export class LazyCacheInitializer {
      */
     private setupPersistentStorage() {
         // Task Day 51: Persistent cache for Docker/Edge
-        const tmpCache = '/tmp/lunx-cache';
+        const tmpCache = path.join(os.tmpdir(), 'lunx-cache');
         if (process.env.DOCKER_CONTAINER && !fs.existsSync(this.cacheDir)) {
             try {
                 if (!fs.existsSync(tmpCache)) fs.mkdirSync(tmpCache, { recursive: true });

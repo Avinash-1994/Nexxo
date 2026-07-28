@@ -1,6 +1,7 @@
 import { createRequire } from 'module';
 import * as path from 'path';
 import * as crypto from 'crypto';
+import * as os from 'os';
 import Database from 'better-sqlite3';
 
 const require = createRequire(import.meta.url);
@@ -81,7 +82,7 @@ export class AngularCompilerAdapter {
 
     const hash = this.hashSource(code, id);
     const cached = this.getCache(hash);
-    const statusPath = '/tmp/lunx-hmr-status.txt';
+    const statusPath = path.join(os.tmpdir(), 'lunx-hmr-status.txt');
     if (cached) {
       if (id.endsWith('.ts')) {
          console.log(`[LUNX-TEST] Ivy cache hit (served from cache)`);

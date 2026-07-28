@@ -6,6 +6,7 @@
 
 import path from 'path';
 import fs from 'fs/promises';
+import os from 'os';
 import type { Framework } from '../core/framework-detector.js';
 import { getFrameworkPreset } from '../presets/frameworks.js';
 import { log } from '../utils/logger.js';
@@ -525,14 +526,15 @@ if (import.meta.hot) {
                 const fsSyncModule = await import('fs');
                 const cryptoModule = await import('crypto');
                 const cacheKey = cryptoModule.createHash('sha256').update(code).update(filePath).digest('hex');
-                const cacheFile = `/tmp/lunx-ang-cache-${cacheKey.substring(0, 16)}`;
+                const cacheFile = path.join(os.tmpdir(), `lunx-ang-cache-${cacheKey.substring(0, 16)}`);
+                const statusFile = path.join(os.tmpdir(), 'lunx-hmr-status.txt');
                 const isHit = fsSyncModule.existsSync(cacheFile);
                 if (isHit) {
                     console.log(`[LUNX-TEST] Ivy cache hit (served from cache)`);
-                    fsSyncModule.writeFileSync('/tmp/lunx-hmr-status.txt', 'hit');
+                    fsSyncModule.writeFileSync(statusFile, 'hit');
                 } else {
                     console.log(`[LUNX-TEST] Ivy recompile: yes`);
-                    fsSyncModule.writeFileSync('/tmp/lunx-hmr-status.txt', 'recompile');
+                    fsSyncModule.writeFileSync(statusFile, 'recompile');
                     // Mark as cached for subsequent requests
                     fsSyncModule.writeFileSync(cacheFile, '1');
                 }
